@@ -89,3 +89,15 @@ export async function loginUsuario(email, contrasenia) {
     throw error;
   }
 }
+
+export async function obtenerUsuarioPorId(usuario_id) {
+try{
+  const sql = 'SELECT usuario_id, nombre, apellido, email, rol FROM usuario WHERE usuario_id = ? LIMIT 1';
+  const [rows] = await pool.execute(sql, [usuario_id]);
+  if (rows.length === 0) return null; // Usuario no encontrado
+    return rows[0]; //Se devuelven los datos sin la contraseña
+  }catch (error) {
+    console.error('Error obteniendo usuario por ID:', error);
+    throw error;
+  }
+}

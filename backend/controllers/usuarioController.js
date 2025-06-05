@@ -1,5 +1,6 @@
 import { schemaRegistro, schemaLogin } from '../validations/authValidation.js';
 import { crearUsuario, obtenerUsuarioPorEmail, loginUsuario as serviceLoginUsuario } from '../services/usuarioService.js';
+import { obtenerUsuarioPorId } from '../services/usuarioService.js';
 
 export const registrarUsuario = async (req, res) => {
   try {
@@ -51,6 +52,22 @@ export const loginUsuario = async (req, res) => {
 
   } catch (err) {
     console.error('Error en loginUsuario:', err);
+    return res.status(500).json({ error: 'Error interno del servidor' });
+  }
+};
+
+export const obtenerPerfilUsuario = async (req, res) => {
+  try {
+    const usuarioId = req.usuario.id; // viene del verifyToken
+
+    const usuario = await obtenerUsuarioPorId(usuarioId);
+    if (!usuario) {
+      return res.status(404).json({ error: 'Usuario no encontrado' });
+    }
+
+    return res.json(usuario);
+  } catch (error) {
+    console.error('Error obteniendo perfil:', error);
     return res.status(500).json({ error: 'Error interno del servidor' });
   }
 };

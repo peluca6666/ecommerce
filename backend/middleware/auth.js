@@ -1,4 +1,5 @@
-import jwt from 'jsonwebtoken';
+import pkg from 'jsonwebtoken';
+const { verify } = pkg;
 
 export const verifyToken = (req, res, next) => {
   const authHeader = req.headers['authorization'];
@@ -6,16 +7,17 @@ export const verifyToken = (req, res, next) => {
     return res.status(401).json({ error: 'Token no encontrado' });
   }
 
-  const token = authHeader.split(' ')[1]; 
+  const token = authHeader.split(' ')[1];
   if (!token) {
     return res.status(401).json({ error: 'Token no válido' });
   }
 
   try {
-    const payload = jwt.verify(token, process.env.JWT_SECRET || 'secreto');
-    req.usuario = payload; // Guarda el payload en req para los siguientes middlewares
+    const { usuario_id, rol } = verify(token, process.env.JWT_SECRET || 'claveSecreta');
+    req.usuario = { id: usuario_id, rol };
     next();
   } catch (error) {
+    console.error('Error verificando token:', error);
     return res.status(401).json({ error: 'Token inválido o expirado' });
   }
 };
