@@ -5,7 +5,7 @@ const run = async () => {
     const nuevo = await crearUsuario({
       nombre: "German",
       apellido: "Cabrera",
-      mail: "test@gmail.com",
+      email: "test@gmail.com",
       contrasenia: "1234",
       rol: "cliente"
     });

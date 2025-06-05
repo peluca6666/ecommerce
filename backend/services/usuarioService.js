@@ -1,7 +1,9 @@
 import { encriptarContrasenia, compararContrasenia } from "../utils/encriptador.js";
 import { pool } from "../database/connectionMySQL.js";
 import { Usuario } from "../models/Usuario.js";
-import { sign } from "jsonwebtoken";
+import pkg from 'jsonwebtoken';
+
+const { sign } = pkg;
 // Función para verificar si un usuario es administrador
 export const esAdmin = (usuario) => {
   return usuario.rol === 'admin';
@@ -13,13 +15,13 @@ export async function crearUsuario(datosUsuario) {
     const hash = await encriptarContrasenia(datosUsuario.contrasenia);
 
     //Armar query SQL para insertar usuario 
-    const sql = 'INSERT INTO usuario ( nombre, apellido, mail, contrasenia, rol) VALUES (?, ?, ?, ?, ?)';
+    const sql = 'INSERT INTO usuario ( nombre, apellido, email, contrasenia, rol) VALUES (?, ?, ?, ?, ?)';
 
     //Ejectutar la query usando la conexion
     const [resultado] = await pool.execute(sql, [
       datosUsuario.nombre,
       datosUsuario.apellido,
-      datosUsuario.mail,
+      datosUsuario.email,
       hash,
       datosUsuario.rol || 'cliente'
     ]);
@@ -29,7 +31,7 @@ export async function crearUsuario(datosUsuario) {
       resultado.insertId,                      // Id generado por la base
       datosUsuario.nombre,
       datosUsuario.apellido,
-      datosUsuario.mail,
+      datosUsuario.email,
       undefined,                               // Undefined para no devolver la contraseña
       datosUsuario.rol || 'cliente'
     );
@@ -42,10 +44,10 @@ export async function crearUsuario(datosUsuario) {
   }
 }
 
-export async function obtenerUsuarioPorMail(mail) {
+export async function obtenerUsuarioPorEmail(email) {
   try {
-    const sql = 'SELECT * FROM usuario WHERE mail = ? LIMIT 1';
-    const [rows] = await pool.execute(sql, [mail]);
+    const sql = 'SELECT * FROM usuario WHERE email = ? LIMIT 1';
+    const [rows] = await pool.execute(sql, [email]);
     if (rows.length === 0) {
       return null;
     }
@@ -54,7 +56,7 @@ export async function obtenerUsuarioPorMail(mail) {
       usuario.usuario_id,
       usuario.nombre,
       usuario.apellido,
-      usuario.mail,
+      usuario.email,
       usuario.contrasenia, // contraseña encriptada
       usuario.rol
     );
@@ -64,9 +66,9 @@ export async function obtenerUsuarioPorMail(mail) {
   }
 }
 
-export async function loginUsuario(mail, contrasenia) {
+export async function loginUsuario(email, contrasenia) {
   try {
-    const usuario = await obtenerUsuarioPorMail(mail);
+    const usuario = await obtenerUsuarioPorEmail(email);
     if (!usuario) {
       return null; // Usuario no encontrado
     }
