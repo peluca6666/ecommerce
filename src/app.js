@@ -1,6 +1,5 @@
 import express from 'express';
 import { pool } from '../backend/database/connectionMySQL.js';
-import bcrypt from 'bcrypt';
 import dotenv from 'dotenv';
 import routes from '../backend/routes/routes.js';
 
@@ -19,7 +18,7 @@ app.listen(3000, () => {
     const conn = await pool.getConnection();
     console.log("✅ Conexión establecida con MySQL");
     conn.release();
-    // No cierres el proceso acá, porque tu servidor tiene que seguir corriendo
+    // No cerrar el proceso acá, el servidor tiene que seguir corriendo
     // process.exit(0);
   } catch (err) {
     console.error("❌ No se pudo conectar a la base de datos:", err);

@@ -40,7 +40,7 @@ export default function Registro() {
 
     try {
       const response = await axios.post('http://localhost:3000/api/usuarios/registro', formulario);
-      setMensajeExito('¡Registro exitoso! Redirigiendo...');
+      setMensajeExito('Registro exitoso! Redirigiendo...');
       setFormulario(initialState);
       setTimeout(() => navigate('/login'), 2000);
     } catch (error) {

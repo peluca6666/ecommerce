@@ -1,6 +1,7 @@
 import { schemaRegistro, schemaLogin } from '../validations/authValidation.js';
 import { crearUsuario, obtenerUsuarioPorEmail, loginUsuario as serviceLoginUsuario } from '../services/usuarioService.js';
 import { obtenerUsuarioPorId } from '../services/usuarioService.js';
+import jwt from 'jsonwebtoken';
 
 export const registrarUsuario = async (req, res) => {
   try {
@@ -41,14 +42,21 @@ export const loginUsuario = async (req, res) => {
 
     const { email, contrasenia } = value;
 
-    // Intentar login y obtener token JWT
+    // Obtener usuario por email
+    const usuario = await obtenerUsuarioPorEmail(email);
+    if (!usuario) {
+      return res.status(401).json({ error: 'Email o contraseña incorrectos' });
+    }
+
+    // Aquí asumimos que serviceLoginUsuario devuelve el token si la contraseña es correcta
     const token = await serviceLoginUsuario(email, contrasenia);
 
     if (!token) {
       return res.status(401).json({ error: 'Email o contraseña incorrectos' });
     }
 
-    return res.json({ token });
+    // Enviar token y rol al frontend
+    return res.json({ token, rol: usuario.rol });
 
   } catch (err) {
     console.error('Error en loginUsuario:', err);
