@@ -1,11 +1,19 @@
 import express from 'express';
-import { pool } from '../backend/database/connectionMySQL.js';
+import cors from 'cors'; // Agregar esta línea
+import { pool } from '../database/connectionMySQL.js';
 import dotenv from 'dotenv';
-import routes from '../backend/routes/routes.js';
+import routes from '../routes/routes.js';
 
 dotenv.config();
 
 const app = express();
+
+// Configurar CORS antes de otras middlewares
+app.use(cors({
+  origin: 'http://localhost:5175', // Puerto donde corre Vite
+  credentials: true
+}));
+
 app.use(express.json());
 app.use('/api', routes);
 

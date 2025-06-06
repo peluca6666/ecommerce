@@ -1,4 +1,4 @@
-import { crearUsuario } from "../backend/services/usuarioService.js";
+import { crearUsuario } from "../services/usuarioService.js";
 
 const run = async () => {
   try {
