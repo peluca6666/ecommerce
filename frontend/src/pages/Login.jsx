@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { validarLogin } from '../validations/loginFrontend.js';
-import LoginForm from '../components/LoginForm.jsx';
+import LoginForm from '../components/LoginForm/LoginForm.jsx'
 
 const Login = () => {
   const [formulario, setFormulario] = useState({
@@ -41,7 +41,7 @@ const Login = () => {
   }
 
   try {
-    const response = await axios.post('http://localhost:3000/api/usuarios/login', formulario);
+    const response = await axios.post('http://localhost:3000/api/login', formulario);
 
     localStorage.setItem('token', response.data.token);
 

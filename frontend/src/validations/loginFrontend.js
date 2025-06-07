@@ -5,7 +5,7 @@ function validarLogin(formulario) {
     //formato de email
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-    if (!formulario.mail || formulario.mail.trim() === '') {
+    if (!formulario.email || formulario.email.trim() === '') {
         errores.email = 'El campo email es obligatorio';
     } else if (!emailRegex.test(formulario.email)) {
         errores.email = 'El formato del email no es válido';
@@ -18,3 +18,4 @@ function validarLogin(formulario) {
 
     return errores;
 }
+export { validarLogin };

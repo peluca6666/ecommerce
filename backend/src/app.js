@@ -8,27 +8,25 @@ dotenv.config();
 
 const app = express();
 
-// Configurar CORS antes de otros middlewares
+// Configuración de CORS simplificada
 const corsOptions = {
-  origin: function (origin, callback) {
-    // Permitir sin origin (Postman, curl) o cualquier localhost
-    if (!origin || origin.startsWith('http://localhost')) {
-      callback(null, true);
-    } else {
-      callback(new Error('Not allowed by CORS'));
-    }
-  },
-  credentials: true
+  origin: [
+    'http://localhost:3000',
+    'http://localhost:3001', 
+    'http://localhost:5173',
+    'http://localhost:5174',
+    'http://localhost:5175',
+    'http://localhost:5176',
+    'http://localhost:5177', // Tu puerto actual
+    'http://127.0.0.1:5173',
+    'http://127.0.0.1:5177'
+  ],
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
 };
 
-if (process.env.NODE_ENV === 'development') {
-  app.use(cors(corsOptions));
-} else {
-  app.use(cors({
-    origin: 'https://tu-dominio-en-produccion.com', // reemplazá esto cuando lo tengas
-    credentials: true
-  }));
-}
+app.use(cors(corsOptions));
 
 app.use(express.json());
 app.use('/api', routes);
