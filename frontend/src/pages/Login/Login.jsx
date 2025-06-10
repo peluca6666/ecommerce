@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { validarLogin } from '../validations/loginFrontend.js';
-import LoginForm from '../components/LoginForm/LoginForm.jsx'
+import { validarLogin } from '../../validations/loginFrontend.js';
+import LoginForm from '../../components/LoginForm/LoginForm.jsx'
+
 
 const Login = () => {
   const [formulario, setFormulario] = useState({

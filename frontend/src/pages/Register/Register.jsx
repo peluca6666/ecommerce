@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import RegistroForm from '../components/RegistroForm/RegistroForm.jsx';
+import RegistroForm from '../../components/RegistroForm/RegistroForm.jsx'
 
 const initialState = {
   nombre: '',

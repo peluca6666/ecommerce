@@ -4,6 +4,7 @@ import { schemaRegistro, schemaLogin } from '../validations/authValidation.js';
 import { validarBody } from '../middleware/validar.js';
 import { registrarUsuario, loginUsuario } from '../controllers/usuarioController.js';
 import { obtenerPerfilUsuario } from '../controllers/usuarioController.js';
+import { obtenerProductos } from '../controllers/productoController.js';
 
 const router = express.Router();
 
@@ -13,7 +14,7 @@ router.get('/admin', verifyToken, autorizarPorRol('admin'), (req, res) => {
 
 router.post('/register', validarBody(schemaRegistro), registrarUsuario);
 router.post('/login', validarBody(schemaLogin), loginUsuario);
-
 router.get('/profile', verifyToken, obtenerPerfilUsuario);
+router.get('/productos', obtenerProductos);
 
 export default router;

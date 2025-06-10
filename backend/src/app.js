@@ -4,6 +4,8 @@ import { pool } from '../database/connectionMySQL.js';
 import dotenv from 'dotenv';
 import routes from '../routes/routes.js';
 
+
+
 dotenv.config();
 
 const app = express();
