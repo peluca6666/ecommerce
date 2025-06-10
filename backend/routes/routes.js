@@ -4,24 +4,34 @@ import { schemaRegistro, schemaLogin } from '../validations/authValidation.js';
 import { validarBody } from '../middleware/validar.js';
 import { registrarUsuario, loginUsuario, obtenerPerfilUsuario } from '../controllers/usuarioController.js';
 import { agregarProducto, obtenerProductos, actualizarProducto, eliminarProducto } from '../controllers/productoController.js';
+import { actualizarCategoria, crearCategoria, eliminarCategoria, obtenerCategoriaPorId, obtenerCategorias, obtenerCategoriasConConteo, obtenerProductosPorCategoria } from '../controllers/categoriaController.js';
 
 const router = express.Router();
 
-// Rutas de autenticación
+// === Rutas de autenticación ===
 router.post('/register', validarBody(schemaRegistro), registrarUsuario);
 router.post('/login', validarBody(schemaLogin), loginUsuario);
 router.get('/profile', verifyToken, obtenerPerfilUsuario);
 
-// Rutas de productos
+// === Rutas de productos ===
 router.get('/productos', obtenerProductos);
 router.post('/productos', verifyToken, autorizarPorRol('admin'), agregarProducto);
 router.put('/productos/:id', verifyToken, autorizarPorRol('admin'), actualizarProducto);
 router.delete('/productos/:id', verifyToken, autorizarPorRol('admin'), eliminarProducto);
 
+// === Rutas de categorías ===
+router.get('/categoria', obtenerCategorias);
+router.get('/categoria/:id/productos', obtenerProductosPorCategoria);
 
-// Ruta de admin
+
+// === Ruta de administrador ===
 router.get('/admin', verifyToken, autorizarPorRol('admin'), (req, res) => {
   res.json({ mensaje: 'Acceso a panel de administrador' });
 });
+router.get('/categoria/:id', verifyToken, autorizarPorRol('admin'), obtenerCategoriaPorId);
+router.get('/categoria/conteo', verifyToken, autorizarPorRol('admin'), obtenerCategoriasConConteo);
+router.post('/categoria', verifyToken, autorizarPorRol('admin'), crearCategoria);
+router.put('/categoria/:id', verifyToken, autorizarPorRol('admin'), actualizarCategoria);
+router.delete('/categoria/:id', verifyToken, autorizarPorRol('admin'), eliminarCategoria)
 
 export default router;

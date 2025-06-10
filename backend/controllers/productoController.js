@@ -47,8 +47,8 @@ export async function obtenerProductos(req, res) {
         const [producto] = await pool.query(query, params);
         res.json(producto);
     } catch (error) {
-        console.error("❌ Error en obtenerProductos:", error); // 👈 Esto te lo muestra en consola
-        res.status(500).json({ mensaje: 'Error al obtener productos', error: error.message }); // 👈 Esto te da más detalle en la respuesta
+        console.error(" Error en obtenerProductos:", error); // 
+        res.status(500).json({ mensaje: 'Error al obtener productos', error: error.message }); 
     }
 }
 
