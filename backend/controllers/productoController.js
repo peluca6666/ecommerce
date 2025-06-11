@@ -11,7 +11,7 @@ export async function obtenerProductos(req, res) {
     let params = [];
 
     if (categoria) {
-        query += ` AND categoria = ?`;
+        query += ` AND categoria_id = ?`;
         params.push(categoria);
     }
 
@@ -48,7 +48,7 @@ export async function obtenerProductos(req, res) {
         res.json(producto);
     } catch (error) {
         console.error(" Error en obtenerProductos:", error); // 
-        res.status(500).json({ mensaje: 'Error al obtener productos', error: error.message }); 
+        res.status(500).json({ mensaje: 'Error al obtener productos', error: error.message });
     }
 }
 
@@ -59,7 +59,7 @@ export async function agregarProducto(req, res) {
         nombre_producto,
         descripcion,
         precio,
-        categoria,
+        categoria_id,
         imagen,
         imagenes,
         stock_actual,
@@ -93,13 +93,13 @@ export async function agregarProducto(req, res) {
         const esOfertaBoolean = Boolean(es_oferta);
 
         const query = `INSERT INTO producto 
-                  (nombre_producto, descripcion, precio, categoria, imagen, imagenes, stock_actual, activo, es_oferta) 
+                  (nombre_producto, descripcion, precio, categoria_id, imagen, imagenes, stock_actual, activo, es_oferta) 
                   VALUES (?, ?, ?, ?, ?, ?, ?, true, ?)`;
         const params = [
             nombre_producto,
             descripcion || null,
             parseFloat(precio),
-            categoria || null,
+            categoria_id || null,
             imagen || null,
             JSON.stringify(imagenesArray),
             parseInt(stock_actual),
@@ -115,7 +115,7 @@ export async function agregarProducto(req, res) {
                 nombre_producto,
                 descripcion: descripcion || null,
                 precio: parseFloat(precio),
-                categoria: categoria || null,
+                categoria_id: categoria_id || null,
                 stock: parseInt(stock_actual),
                 es_oferta: esOfertaBoolean,
                 activo: true  // Por defecto lo creamos como activo
@@ -139,7 +139,7 @@ export async function actualizarProducto(req, res) {
         nombre_producto,
         descripcion,
         precio,
-        categoria,
+        categoria_id,
         imagen,
         imagenes,
         stock_actual,
@@ -196,8 +196,8 @@ export async function actualizarProducto(req, res) {
             }
         }
 
-        if (categoria !== undefined) {
-            if (typeof categoria !== 'string' || categoria.trim().length === 0) {
+        if (categoria_id !== undefined) {
+            if (typeof categoria_id !== 'string' || categoria_id.trim().length === 0) {
                 erroresValidacion.push('La categoría no puede estar vacía');
             }
         }
@@ -273,10 +273,10 @@ export async function actualizarProducto(req, res) {
             cambiosRealizados.precio = precioFormateado;
         }
 
-        if (categoria !== undefined) {
-            camposActualizar.push('categoria = ?');
-            valores.push(categoria.trim());
-            cambiosRealizados.categoria = categoria.trim();
+        if (categoria_id !== undefined) {
+            camposActualizar.push('categoria_id = ?');
+            valores.push(categoria_id.trim());
+            cambiosRealizados.categoria_id = categoria_id.trim();
         }
 
         if (imagen !== undefined) {

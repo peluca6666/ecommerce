@@ -5,6 +5,7 @@ import { validarBody } from '../middleware/validar.js';
 import { registrarUsuario, loginUsuario, obtenerPerfilUsuario } from '../controllers/usuarioController.js';
 import { agregarProducto, obtenerProductos, actualizarProducto, eliminarProducto } from '../controllers/productoController.js';
 import { actualizarCategoria, crearCategoria, eliminarCategoria, obtenerCategoriaPorId, obtenerCategorias, obtenerCategoriasConConteo, obtenerProductosPorCategoria } from '../controllers/categoriaController.js';
+import { obtenerCarrito, agregarProductoAlCarrito, actualizarProductoEnCarrito, eliminarProductoDelCarrito } from '../controllers/carritoController.js';
 
 const router = express.Router();
 
@@ -23,6 +24,11 @@ router.delete('/productos/:id', verifyToken, autorizarPorRol('admin'), eliminarP
 router.get('/categoria', obtenerCategorias);
 router.get('/categoria/:id/productos', obtenerProductosPorCategoria);
 
+// === Rutas de carrito ===
+router.get('/carrito', verifyToken, obtenerCarrito);
+router.post('/carrito', verifyToken, agregarProductoAlCarrito);
+router.put('/carrito/:id', verifyToken, actualizarProductoEnCarrito);
+router.delete('/carrito/:id', verifyToken, eliminarProductoDelCarrito);
 
 // === Ruta de administrador ===
 router.get('/admin', verifyToken, autorizarPorRol('admin'), (req, res) => {
