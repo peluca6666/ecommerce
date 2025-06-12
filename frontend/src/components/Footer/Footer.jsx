@@ -1,4 +1,4 @@
-import { Paper, Container, Grid, Typography, TextField } from "@mui/material";
+import { Paper, Container, Box, Typography, TextField } from "@mui/material";
 import { Search } from "@mui/icons-material";
 
 const Footer = () => (
@@ -7,26 +7,31 @@ const Footer = () => (
       <TextField
         fullWidth
         placeholder="Buscar en el sitio..."
-        InputProps={{ startAdornment: <Search /> }}
+        slotProps={{ input: { startAdornment: <Search /> } }}
         sx={{ mb: 3 }}
       />
       
-      <Grid container spacing={4}>
-        <Grid item xs={12} md={6}>
+      <Box sx={{ 
+        display: 'grid', 
+        gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' }, 
+        gap: 4 
+      }}>
+        <Box>
           <Typography variant="h6">Sobre Nosotros</Typography>
           <Typography variant="body2" color="text.secondary">
-            Tu tienda online confiable desde 2023.
+            Tu tienda online confiable desde 2025.
           </Typography>
-        </Grid>
-        <Grid item xs={12} md={6}>
+        </Box>
+        <Box>
           <Typography variant="h6">Contacto</Typography>
           <Typography variant="body2" color="text.secondary">
-            Email: contacto@solomarket.com<br />
+            Email: contacto@salomarket.com<br />
             Teléfono: +54 123 456 789
           </Typography>
-        </Grid>
-      </Grid>
+        </Box>
+      </Box>
     </Container>
   </Paper>
 );
+
 export default Footer;

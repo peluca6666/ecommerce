@@ -40,17 +40,13 @@ const UserButton = () => {
       </IconButton>
 
       <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleClose}>
-        {!isAuthenticated ? (
-          <>
-            <MenuItem onClick={handleLogin}>Iniciar Sesión</MenuItem>
-            <MenuItem onClick={handleRegister}>Registrarse</MenuItem>
-          </>
-        ) : (
-          <>
-            <MenuItem onClick={handleProfile}>Mi Perfil</MenuItem>
-            <MenuItem onClick={handleLogout}>Cerrar Sesión</MenuItem>
-          </>
-        )}
+        {!isAuthenticated ? [
+          <MenuItem key="login" onClick={handleLogin}>Iniciar Sesión</MenuItem>,
+          <MenuItem key="register" onClick={handleRegister}>Registrarse</MenuItem>
+        ] : [
+          <MenuItem key="profile" onClick={handleProfile}>Mi Perfil</MenuItem>,
+          <MenuItem key="logout" onClick={handleLogout}>Cerrar Sesión</MenuItem>
+        ]}
       </Menu>
     </>
   );
