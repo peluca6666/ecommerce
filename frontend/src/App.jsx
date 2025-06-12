@@ -9,6 +9,10 @@ import ProtectedRoute from './components/ProtectedRoute/ProtectedRoute.jsx';
 import { AuthProvider } from './context/AuthContext';
 import { Navigate } from 'react-router-dom';
 
+import "slick-carousel/slick/slick.css"; 
+import "slick-carousel/slick/slick-theme.css";
+
+
 function App() {
   return (
         <AuthProvider>
