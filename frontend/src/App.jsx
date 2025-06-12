@@ -7,6 +7,7 @@ import Cart from './pages/Carrito/Carrito.jsx';
 import Admin from './pages/Admin/Admin.jsx';
 import ProtectedRoute from './components/ProtectedRoute/ProtectedRoute.jsx';
 import { AuthProvider } from './context/AuthContext';
+import { Navigate } from 'react-router-dom';
 
 function App() {
   return (
@@ -18,7 +19,7 @@ function App() {
           <Route path="/register" element={<Register />} />
 
              {/*Rutas publicas*/}
-           <Route path="/" element={<Register />} />
+          <Route path="/" element={<Navigate to="/main" replace />} />
            <Route path="/main" element={<MainPage />} />
         <Route path="/products" element={<Products />} />
 

@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { validarLogin } from '../../validations/loginFrontend.js';
 import LoginForm from '../../components/LoginForm/LoginForm.jsx'
+import { useContext } from 'react';
+import { AuthContext } from '../../context/AuthContext'; // asegurate que el path esté bien
 
 
 const Login = () => {
@@ -14,6 +16,7 @@ const Login = () => {
   const [errores, setErrores] = useState({});
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
+  const { login } = useContext(AuthContext);
 
   const handleChange = (e) => {
     setFormulario({
@@ -41,24 +44,29 @@ const Login = () => {
     return;
   }
 
-  try {
-    const response = await axios.post('http://localhost:3000/api/login', formulario);
+try {
+  const response = await axios.post('http://localhost:3000/api/login', formulario);
 
-    localStorage.setItem('token', response.data.token);
+  const fueValido = login(response.data.token); // actualiza el contexto
 
-    const rol = response.data.rol;
+  if (fueValido) {
+    const rol = JSON.parse(atob(response.data.token.split('.')[1])).rol;
 
     if (rol === 'admin') {
       navigate('/admin');
     } else {
-      navigate('/');
+      navigate('/main');
     }
+  } else {
+    setErrores({ general: 'Token inválido' });
+  }
 
-  } catch (error) {
-    setErrores({
-  general: error.response?.data?.error || 'Error al iniciar sesión'
-});
-  } finally {
+} catch (error) {
+  setErrores({
+    general: error.response?.data?.error || 'Error al iniciar sesión'
+  });
+  
+} finally {
     setIsLoading(false);
   }
 };
