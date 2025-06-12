@@ -1,11 +1,12 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Login from './pages/Login/Login.jsx';
 import Register from './pages/Register/Register.jsx';
-import Home from './pages/Home/Home.jsx';
+import MainPage from './pages/MainPage/MainPage.jsx';
 import Products from './pages/Productos/Productos.jsx';
 import Cart from './pages/Carrito/Carrito.jsx';
 import Admin from './pages/Admin/Admin.jsx';
 import ProtectedRoute from './components/ProtectedRoute/ProtectedRoute.jsx';
+import { AuthProvider } from './context/AuthContext';
 
 function App() {
   return (
@@ -13,12 +14,12 @@ function App() {
     <Router>
         <Routes>
           {/*Rutas  publicas*/}
-           <Route path="/Login" element={<Login />} />
-          <Route path="/Register" element={<Register />} />
+           <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
 
              {/*Rutas publicas*/}
            <Route path="/" element={<Register />} />
-           <Route path="/home" element={<Home />} />
+           <Route path="/main" element={<MainPage />} />
         <Route path="/products" element={<Products />} />
 
         {/*Ruta del carrito protegida de usuarios no logueados*/}

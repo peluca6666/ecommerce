@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import RegistroForm from '../../components/RegistroForm/RegistroForm.jsx'
+import axios from 'axios';
 
 const initialState = {
   nombre: '',
@@ -63,37 +64,25 @@ export default function Register() {
       setMensajeExito('');
         
       try {
-        const response = await fetch('http://localhost:3000/api/register', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            nombre: formulario.nombre,
-            apellido: formulario.apellido,
-            email: formulario.email,
-            contrasenia: formulario.contrasenia
-          })
+        const response = await axios.post('http://localhost:3000/api/register', {
+          nombre: formulario.nombre,
+          apellido: formulario.apellido,
+          email: formulario.email,
+          contrasenia: formulario.contrasenia
         });
 
-        if (response.ok) {
-          const data = await response.json();
-          setIsLoading(false);
-          setMensajeExito('Usuario registrado con éxito! Redirigiendo...');
-          setFormulario(initialState);
-          setErrores({});
-          
-          // Redirigir al login después de 2 segundos
-          setTimeout(() => navigate('/login'), 2000);
-        } else {
-          const errorData = await response.json();
-          setIsLoading(false);
-          setErrores({ general: errorData.message || 'Error al registrar usuario' });
-        }
+        setIsLoading(false);
+        setMensajeExito('Usuario registrado con éxito! Redirigiendo...');
+        setFormulario(initialState);
+        setErrores({});
+
+        setTimeout(() => navigate('/login'), 2000);
       } catch (error) {
         console.error('Error:', error);
         setIsLoading(false);
-        setErrores({ general: 'Error de conexión con el servidor' });
+        setErrores({
+          general: error.response?.data?.message || 'Error de conexión con el servidor'
+        });
       }
     }
   };

@@ -15,14 +15,14 @@ router.post('/login', validarBody(schemaLogin), loginUsuario);
 router.get('/profile', verifyToken, obtenerPerfilUsuario);
 
 // === Rutas de productos ===
-router.get('/productos', obtenerProductos);
-router.post('/productos', verifyToken, autorizarPorRol('admin'), agregarProducto);
-router.put('/productos/:id', verifyToken, autorizarPorRol('admin'), actualizarProducto);
-router.delete('/productos/:id', verifyToken, autorizarPorRol('admin'), eliminarProducto);
+router.get('/producto', obtenerProductos);
+router.post('/producto', verifyToken, autorizarPorRol('admin'), agregarProducto);
+router.put('/producto/:id', verifyToken, autorizarPorRol('admin'), actualizarProducto);
+router.delete('/producto/:id', verifyToken, autorizarPorRol('admin'), eliminarProducto);
 
 // === Rutas de categorías ===
 router.get('/categoria', obtenerCategorias);
-router.get('/categoria/:id/productos', obtenerProductosPorCategoria);
+router.get('/categoria/:id/producto', obtenerProductosPorCategoria);
 
 // === Rutas de carrito ===
 router.get('/carrito', verifyToken, obtenerCarrito);
