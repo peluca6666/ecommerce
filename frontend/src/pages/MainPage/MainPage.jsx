@@ -116,7 +116,7 @@ const MainPage = () => {
         <CategorySlider categories={state.categoria} />
         
         <Paper elevation={1} sx={{ p: 3, my: 4 }}>
-          <Typography variant="h4" align="center" gutterBottom>
+          <Typography variant="h5" align="center" gutterBottom>
             PRODUCTOS DESTACADOS
           </Typography>
           <ProductGrid 

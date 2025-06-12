@@ -2,7 +2,8 @@ import { AppBar, Toolbar, Box, Typography } from "@mui/material";
 import SearchBar from "./SearchBar";
 import NavMenu from "./NavMenu";
 import CartButton from "../Cart/CartButton.jsx";
-
+import UserButton
+ from "../common/UserButton.jsx";
 const Header = ({ categories, cartCount }) => {
   return (
     <AppBar position="sticky" color="default" elevation={1}>
@@ -12,10 +13,12 @@ const Header = ({ categories, cartCount }) => {
         </Typography>
         <SearchBar />
         <CartButton count={cartCount} />
+        <UserButton /> {/* Agregado aquí */}
       </Toolbar>
       <NavMenu categories={categories} />
     </AppBar>
   );
 };
+
 
 export default Header;

@@ -44,13 +44,13 @@ export async function obtenerCategorias(req, res) {
 
         query += ' ORDER BY nombre ASC';
 
-        const [categorias] = await pool.query(query, params);
+        const [categoria] = await pool.query(query, params);
 
         return res.status(200).json({
             exito: true,
             mensaje: 'Categorías obtenidas exitosamente',
-            categorias,
-            total: categorias.length
+            categoria,
+            total: categoria.length
         });
 
     } catch (error) {
@@ -237,7 +237,7 @@ export async function obtenerProductosPorCategoria(req, res) {
 //para el dashboard, obtener categorías con conteo de productos y ofertas
 export async function obtenerCategoriasConConteo(req, res) {
     try {
-        const [categorias] = await pool.query(`
+        const [categoria] = await pool.query(`
       SELECT 
         c.categoria_id,
         c.nombre,
@@ -253,7 +253,7 @@ export async function obtenerCategoriasConConteo(req, res) {
 
         return res.status(200).json({
             exito: true,
-            categorias
+            categoria
         });
 
     } catch (error) {

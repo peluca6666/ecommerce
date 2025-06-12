@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 
 const NavMenu = () => {
   const [anchorEl, setAnchorEl] = useState(null);
-  const [categories, setCategories] = useState([]);
+  const [categoria, setCategoria] = useState([]);
 
   useEffect(() => {
     fetch("/categoria")
@@ -13,11 +13,11 @@ const NavMenu = () => {
         return res.json();
       })
       .then((data) => {
-        if (Array.isArray(data.categorias)) {
-          setCategories(data.categorias);
+        if (Array.isArray(data.categoria)) {
+          setCategoria(data.categoria);
         } else {
           console.error("La propiedad 'categorias' no es un array:", data);
-          setCategories([]);
+          setCategoria([]);
         }
       })
       .catch((err) => console.error("Error al cargar categorías:", err));
@@ -35,7 +35,7 @@ const NavMenu = () => {
           </Button>
 
           <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleClose}>
-            {categories.map((cat) => (
+            {categoria.map((cat) => (
               <MenuItem key={cat.categoria_id} onClick={handleClose}>
                 {cat.nombre}
               </MenuItem>
