@@ -1,7 +1,7 @@
 import { AppBar, Toolbar, Box, Typography } from "@mui/material";
 import SearchBar from "./SearchBar";
 import NavMenu from "./NavMenu";
-import CartButton from "../Cart/CartButton.jsx";
+import CartButton from "../Cart/CartDropdown.jsx";
 import UserButton
  from "../common/UserButton.jsx";
 const Header = ({ categories, cartCount }) => {
