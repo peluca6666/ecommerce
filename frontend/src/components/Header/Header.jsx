@@ -7,8 +7,8 @@ const Header = ({ categories, cartCount }) => {
   return (
     <AppBar position="sticky" color="default" elevation={1}>
       <Toolbar>
-        <Typography variant="h5" sx={{ flexGrow: 0, mr: 4 }}>
-          SoloMarket
+        <Typography variant="h3" sx={{ flexGrow: 0, mr: 4 }}>
+          SaloMarket
         </Typography>
         <SearchBar />
         <CartButton count={cartCount} />
