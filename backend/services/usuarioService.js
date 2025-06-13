@@ -2,63 +2,62 @@ import { encriptarContrasenia, compararContrasenia } from "../utils/encriptador.
 import { pool } from "../database/connectionMySQL.js";
 import { Usuario } from "../models/Usuario.js";
 import pkg from 'jsonwebtoken';
+import { enviarMailBienvenida } from '../utils/emailService.js';
 
-const { sign } = pkg;
-// Función para verificar si un usuario es administrador
-export const esAdmin = (usuario) => {
-  return usuario.rol === 'admin';
-};
+const { sign, verify } = pkg;
+
+export const esAdmin = (usuario) => usuario.rol === 'admin';
 
 export async function crearUsuario(datosUsuario) {
   try {
-    //Encriptamos la contraseña
     const hash = await encriptarContrasenia(datosUsuario.contrasenia);
 
-    //Armar query SQL para insertar usuario 
-    const sql = 'INSERT INTO usuario ( nombre, apellido, email, contrasenia, rol) VALUES (?, ?, ?, ?, ?)';
-
-    //Ejectutar la query usando la conexion
+    const sql = 'INSERT INTO usuario (nombre, apellido, email, contrasenia, rol, verificado) VALUES (?, ?, ?, ?, ?, ?)';
     const [resultado] = await pool.execute(sql, [
       datosUsuario.nombre,
       datosUsuario.apellido,
       datosUsuario.email,
       hash,
-      datosUsuario.rol || 'cliente'
+      'cliente',   // rol correcto por defecto
+      false       // verificado, ok como booleano
     ]);
 
-    //Creamos una instancia de usuario para mostrar los datos de manera clara 
-    const nuevoUsuario = new Usuario(
-      resultado.insertId,                      // Id generado por la base
+    // ✅ SOLUCIÓN: Cambiar 'mail' por 'email'
+    await enviarMailBienvenida({
+      id: resultado.insertId,
+      nombre: datosUsuario.nombre,
+      email: datosUsuario.email  // ✅ Ahora usa 'email' en lugar de 'mail'
+    });
+
+    return new Usuario(
+      resultado.insertId,
       datosUsuario.nombre,
       datosUsuario.apellido,
       datosUsuario.email,
-      undefined,                               // Undefined para no devolver la contraseña
-      datosUsuario.rol || 'cliente'
-    );
-
-    return nuevoUsuario.obtenerPerfil();
-
+      undefined,
+      'pendiente'
+    ).obtenerPerfil();
   } catch (error) {
     console.error('Error creando usuario:', error);
-    throw error;  // Lo podés manejar en el controlador o middleware
+    throw error;
   }
-}
+} 
 
 export async function obtenerUsuarioPorEmail(email) {
   try {
     const sql = 'SELECT * FROM usuario WHERE email = ? LIMIT 1';
     const [rows] = await pool.execute(sql, [email]);
-    if (rows.length === 0) {
-      return null;
-    }
+    if (rows.length === 0) return null;
+
     const usuario = rows[0];
     return new Usuario(
       usuario.usuario_id,
       usuario.nombre,
       usuario.apellido,
       usuario.email,
-      usuario.contrasenia, // contraseña encriptada
-      usuario.rol
+      usuario.contrasenia,
+      usuario.rol,
+      usuario.verificado
     );
   } catch (error) {
     console.error('Error obteniendo usuario por mail:', error);
@@ -69,19 +68,17 @@ export async function obtenerUsuarioPorEmail(email) {
 export async function loginUsuario(email, contrasenia) {
   try {
     const usuario = await obtenerUsuarioPorEmail(email);
-    if (!usuario) {
-      return null; // Usuario no encontrado
-    }
+    if (!usuario) return null;
+    if (!usuario.verificado) return 'no-verificado';
+
     const contraseniaValida = await compararContrasenia(contrasenia, usuario.contrasenia);
-    if (!contraseniaValida) {
-      return null; // Contraseña incorrecta
-    }
-    // Generar y devolver el JWT con usuario_id y rol
+    if (!contraseniaValida) return null;
+
     const payload = {
       usuario_id: usuario.usuario_id,
       rol: usuario.rol
     };
-    // Usar tu clave secreta real en producción
+
     const token = sign(payload, process.env.JWT_SECRET || "claveSecreta", { expiresIn: "1h" });
     return token;
   } catch (error) {
@@ -91,13 +88,25 @@ export async function loginUsuario(email, contrasenia) {
 }
 
 export async function obtenerUsuarioPorId(usuario_id) {
-try{
-  const sql = 'SELECT usuario_id, nombre, apellido, email, rol FROM usuario WHERE usuario_id = ? LIMIT 1';
-  const [rows] = await pool.execute(sql, [usuario_id]);
-  if (rows.length === 0) return null; // Usuario no encontrado
-    return rows[0]; //Se devuelven los datos sin la contraseña
-  }catch (error) {
+  try {
+    const sql = 'SELECT usuario_id, nombre, apellido, email, rol FROM usuario WHERE usuario_id = ? LIMIT 1';
+    const [rows] = await pool.execute(sql, [usuario_id]);
+    if (rows.length === 0) return null;
+    return rows[0];
+  } catch (error) {
     console.error('Error obteniendo usuario por ID:', error);
     throw error;
+  }
+}
+
+export async function verificarCuenta(token) {
+  try {
+    const decoded = verify(token, process.env.JWT_SECRET || 'claveSecreta');
+    const sql = 'UPDATE usuario SET verificado = true, rol = \"cliente\" WHERE usuario_id = ?';
+    await pool.execute(sql, [decoded.usuario_id]);
+    return true;
+  } catch (err) {
+    console.error('Error al verificar cuenta:', err);
+    return false;
   }
 }

@@ -11,7 +11,7 @@ import { Navigate } from 'react-router-dom';
 import CategoryPage from './pages/CategoryPage/CategoryPage.jsx';
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
-
+import CuentaVerificada from './pages/Verificacion/CuentaVerificada';
 
 function App() {
   return (
@@ -25,8 +25,9 @@ function App() {
           <Route path="/main" element={<MainPage />} />
           <Route path="/products" element={<Products />} />
           <Route path="/category/:id" element={<CategoryPage />} />
+          <Route path="/cuenta-verificada" element={<CuentaVerificada />} />
 
-          {/*Ruta del carrito protegida de usuarios no logueados*/}
+          {/*Rutas protegidas de usuarios no logueados*/}
           <Route element={<ProtectedRoute requireAuth={true} />}>
             <Route path="/cart" element={<Cart />} />
           </Route>

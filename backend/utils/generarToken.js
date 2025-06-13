@@ -1,10 +1,15 @@
 import jwt from 'jsonwebtoken';
 
-const payload = {
-  usuario_id: 1,
-  rol: 'admin'
-};
+const SECRET = process.env.JWT_SECRET || 'claveSecreta'; 
 
-const token = jwt.sign(payload, 'claveSecreta', { expiresIn: '2h' });
+export function generarToken(datos, expiracion = '2h') {
+  return jwt.sign(datos, SECRET, { expiresIn: expiracion });
+}
 
-console.log(token);
+export function verificarToken(token) {
+  try {
+    return jwt.verify(token, SECRET);
+  } catch (err) {
+    return null;
+  }
+}

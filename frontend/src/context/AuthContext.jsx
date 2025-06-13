@@ -48,22 +48,28 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   // Función para loguear (guardar token y actualizar user)
-  const login = (token) => {
-    const payload = decodeToken(token);
-    
-    if (payload && !isTokenExpired(payload)) {
-      localStorage.setItem('token', token);
-      setUser({ 
-        id: payload.usuario_id, 
-        rol: payload.rol,
-        email: payload.email // si tienes email en el payload
-      });
-      return true;
-    } else {
-      console.error('Token inválido o expirado');
-      return false;
-    }
-  };
+ const login = (token) => {
+  if (!token || typeof token !== 'string' || !token.includes('.')) {
+    console.error('Token inválido recibido');
+    return false;
+  }
+
+  const payload = decodeToken(token);
+
+  if (payload && !isTokenExpired(payload)) {
+    localStorage.setItem('token', token);
+    setUser({ 
+      id: payload.usuario_id, 
+      rol: payload.rol,
+      email: payload.email
+    });
+    return true;
+  } else {
+    console.error('Token inválido o expirado');
+    return false;
+  }
+};
+
 
   // Función para desloguear (borrar token y limpiar user)
   const logout = () => {

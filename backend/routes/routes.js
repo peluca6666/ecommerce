@@ -6,6 +6,7 @@ import { registrarUsuario, loginUsuario, obtenerPerfilUsuario } from '../control
 import { agregarProducto, obtenerProductos, actualizarProducto, eliminarProducto } from '../controllers/productoController.js';
 import { actualizarCategoria, crearCategoria, eliminarCategoria, obtenerCategoriaPorId, obtenerCategorias, obtenerCategoriasConConteo, obtenerProductosPorCategoria } from '../controllers/categoriaController.js';
 import { obtenerCarrito, agregarProductoAlCarrito, actualizarProductoEnCarrito, eliminarProductoDelCarrito } from '../controllers/carritoController.js';
+import { verificarCuenta } from '../controllers/usuarioController.js';
 
 const router = express.Router();
 
@@ -13,6 +14,7 @@ const router = express.Router();
 router.post('/register', validarBody(schemaRegistro), registrarUsuario);
 router.post('/login', validarBody(schemaLogin), loginUsuario);
 router.get('/profile', verifyToken, obtenerPerfilUsuario);
+router.get('/verify', verificarCuenta);
 
 // === Rutas de productos ===
 router.get('/producto', obtenerProductos);
