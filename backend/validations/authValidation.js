@@ -5,10 +5,14 @@ export const schemaRegistro = Joi.object({
         'string.email': 'El email debe ser válido',
         'any.required': 'El email es obligatorio',
     }),
-    contrasenia: Joi.string().min(8).required().messages({
-        'string.min': 'La contraseña debe tener al menos 8 caracteres',
-        'any.required': 'La contraseña es obligatoria',
-        
+   contrasenia: Joi.string()
+    .min(8)
+    .pattern(new RegExp('^(?=.*[A-Z])(?=.*\\d)(?=.*[^A-Za-z0-9]).{8,}$'))
+    .required()
+    .messages({
+      'string.min': 'La contraseña debe tener al menos 8 caracteres',
+      'string.pattern.base': 'Debe incluir en la contraseña una mayúscula, un número y un carácter especial',
+      'any.required': 'La contraseña es obligatoria',
     }),
   nombre: Joi.string()
         .min(3)
