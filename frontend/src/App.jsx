@@ -8,38 +8,41 @@ import Admin from './pages/Admin/Admin.jsx';
 import ProtectedRoute from './components/ProtectedRoute/ProtectedRoute.jsx';
 import { AuthProvider } from './context/AuthContext';
 import { Navigate } from 'react-router-dom';
-
-import "slick-carousel/slick/slick.css"; 
+import CategoryPage from './pages/CategoryPage/CategoryPage.jsx';
+import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 
 
 function App() {
   return (
-        <AuthProvider>
-    <Router>
+    <AuthProvider>
+      <Router>
         <Routes>
           {/*Rutas  publicas*/}
-           <Route path="/login" element={<Login />} />
+          <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
-
-             {/*Rutas publicas*/}
           <Route path="/" element={<Navigate to="/main" replace />} />
-           <Route path="/main" element={<MainPage />} />
-        <Route path="/products" element={<Products />} />
+          <Route path="/main" element={<MainPage />} />
+          <Route path="/products" element={<Products />} />
+          <Route path="/category/:id" element={<CategoryPage />} />
 
-        {/*Ruta del carrito protegida de usuarios no logueados*/}
-        <Route path="/cart" element={<Cart />} />
-         
-       
-  {/* Ruta protegida solo para admin */}
-  <Route element={<ProtectedRoute allowedRoles={['admin']} />}>
-    <Route path="/admin" element={<Admin />} />
-  </Route>
+          {/*Ruta del carrito protegida de usuarios no logueados*/}
+          <Route element={<ProtectedRoute requireAuth={true} />}>
+            <Route path="/cart" element={<Cart />} />
+          </Route>
 
-  {/* Página de acceso denegado (podés crearla luego) */}
-  <Route path="/unauthorized" element={<div>No tenés permiso para entrar acá</div>} />
-</Routes>
-    </Router>
+   {/* Ruta protegida solo para admin */}
+          <Route element={<ProtectedRoute allowedRoles={['admin']} />}>
+            <Route path="/admin" element={<Admin />} />
+          </Route>
+
+          {/* Página de acceso denegado */}
+          <Route path="/unauthorized" element={<div>No tenés permiso para entrar acá</div>} />
+          
+          {/* Ruta para páginas no encontradas */}
+          <Route path="*" element={<Navigate to="/main" replace />} />
+        </Routes>
+      </Router>
     </AuthProvider>
   );
 }

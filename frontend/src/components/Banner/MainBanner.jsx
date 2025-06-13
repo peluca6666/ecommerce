@@ -6,19 +6,19 @@ import FiberManualRecordOutlinedIcon from '@mui/icons-material/FiberManualRecord
 
 const bannerData = [
   {
-    imagen: "/images/auriculares.jpg",
+    imagen: "/images/imagenesBanner/auricularesv2.jpg",
     titulo: "Auriculares al mejor precio",
     descripcion: "Disfruta de tu música con la mejor calidad de sonido y comodidad.",
     boton: "Ver productos",
   },
   {
-    imagen: "/images/horno.jpg",
+    imagen: "/images//imagenesBanner/hornov2.jpg",
     titulo: "Ofertas en pequeños electrodomésticos",
     descripcion: "Encuentra todo lo que necesitas para tu hogar a precios increíbles.",
     boton: "Ver ofertas",
   },
   {
-    imagen: "/images/utiles.jpg",
+    imagen: "/images/imagenesBanner/utilesv2.jpg",
     titulo: "Ofertas en útiles escolares",
     descripcion: "Todo lo que necesitas para el regreso a clases, al mejor precio.",
     boton: "Ver útiles",
@@ -33,7 +33,7 @@ const BannerCarousel = () => {
     dots: false,
     infinite: true,
     autoplay: true,
-    speed: 600,
+    speed: 500,
     slidesToShow: 1,
     slidesToScroll: 1,
     arrows: false,
@@ -51,10 +51,11 @@ const BannerCarousel = () => {
           <Box 
             key={index}
             sx={{
-              height: { xs: 200, md: 400 },
+              height: { xs: 200, md: 250 },
               backgroundImage: `url(${banner.imagen})`,
               backgroundSize: 'cover',
               backgroundPosition: 'center',
+               borderRadius: 10,
               position: 'relative',
               color: 'white',
               display: 'flex',

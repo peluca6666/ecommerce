@@ -19,7 +19,7 @@ const MainPage = () => {
   // Función para obtener productos de la API
   const fetchProducto = async () => {
     try {
-      const response = await fetch('/producto'); // Endpoint para tabla producto
+      const response = await fetch('http://localhost:3000/api/producto'); // URL completa
       
       if (!response.ok) {
         throw new Error(`Error HTTP: ${response.status}`);
@@ -36,14 +36,22 @@ const MainPage = () => {
   // Función para obtener categorías de la API
   const fetchCategoria = async () => {
     try {
-      const response = await fetch('/categoria'); // Endpoint para tabla categoria
+      const response = await fetch('http://localhost:3000/api/categoria'); // URL completa
       
       if (!response.ok) {
         throw new Error(`Error HTTP: ${response.status}`);
       }
       
       const data = await response.json();
-      return data;
+      
+      // Ajustar según la estructura de tu API
+      if (data.exito && data.categoria) {
+        return data.categoria; // Tu API devuelve "categoria" no "categorias"
+      } else if (Array.isArray(data)) {
+        return data;
+      } else {
+        return [];
+      }
     } catch (error) {
       console.error('Error al obtener categorías:', error);
       throw error;
@@ -57,19 +65,21 @@ const MainPage = () => {
         setState(prev => ({ ...prev, loading: true, error: null }));
         
         // Cargar productos y categorías en paralelo
-        const [productosData, categoriasData] = await Promise.all([
+        const [productoData, categoriaData] = await Promise.all([
           fetchProducto(),
           fetchCategoria()
         ]);
 
+        
         setState(prev => ({
           ...prev,
-          productos: productosData,
-          categorias: categoriasData,
+          producto: productoData,
+          categoria: categoriaData,
           loading: false
         }));
         
       } catch (error) {
+        
         setState(prev => ({
           ...prev,
           loading: false,
@@ -87,7 +97,6 @@ const MainPage = () => {
 
   // Mostrar spinner mientras carga
   if (state.loading) return <LoadingSpinner />;
-
   // Mostrar error si hubo problemas
   if (state.error) {
     return (
@@ -104,31 +113,28 @@ const MainPage = () => {
     );
   }
 
-  return (
-    <Box>
-      <Header 
-        categories={state.categoria} 
-        cartCount={state.cartCount} 
-      />
-      
-      <Container maxWidth="lg">
-        <MainBanner />
-        <CategorySlider categories={state.categoria} />
-        
-        <Paper elevation={1} sx={{ p: 3, my: 4 }}>
-          <Typography variant="h5" align="center" gutterBottom>
-            PRODUCTOS DESTACADOS
-          </Typography>
-          <ProductGrid 
-            products={state.producto} 
-            onAddToCart={handleAddToCart} 
-          />
-        </Paper>
-      </Container>
-
-      <Footer />
-    </Box>
-  );
-};
+return (
+  <Box sx={{ background: 'linear-gradient(to bottom, #ffffff, #f0f0f0)', minHeight: '100vh' }}>
+    <Header 
+      categoria={state.categoria} 
+      cartCount={state.cartCount} 
+    />
+    <Container maxWidth="lg">
+      <MainBanner />
+      <CategorySlider categoria={state.categoria} />
+      <Paper elevation={1} sx={{ p: 3, my: 4 }}>
+        <Typography variant="h5" align="center" gutterBottom>
+          PRODUCTOS DESTACADOS
+        </Typography>
+        <ProductGrid 
+          products={state.producto} 
+          onAddToCart={handleAddToCart} 
+        />
+      </Paper>
+    </Container>
+    <Footer />
+  </Box>
+);
+}
 
 export default MainPage;

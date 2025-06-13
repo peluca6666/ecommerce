@@ -1,53 +1,111 @@
-import { Button, TextField, Typography, Box } from '@mui/material';
+import { 
+  Button, 
+  TextField, 
+  Typography, 
+  Box, 
+  Link, 
+  Paper, 
+  Divider,
+  CircularProgress
+} from '@mui/material';
+import { Link as RouterLink } from 'react-router-dom';
 
 export default function LoginForm({ formulario, errores, isLoading, handleChange, handleSubmit }) {
     return (
         <Box
-            component="form"
-            onSubmit={handleSubmit}
             sx={{
-                width: '100%',
-                maxWidth: 400,
-                mx: 'auto',
-                mt: 8,
                 display: 'flex',
-                flexDirection: 'column',
-                gap: 2
+                justifyContent: 'center',
+                alignItems: 'center',
+                minHeight: '100vh',
+                bgcolor: '#f5f5f5',
+                p: 2
             }}
         >
-            <Typography variant="h5" align="center">Iniciar sesión</Typography>
-
-            <TextField
-                label="Email"
-                name="email"
-                type="email"
-                value={formulario.email}
-                onChange={handleChange}
-                error={!!errores.email}
-                helperText={errores.email}
-                fullWidth
-            />
-
-            <TextField
-                label="Contraseña"
-                name="contrasenia"
-                type="password"
-                value={formulario.contrasenia}
-                onChange={handleChange}
-                error={!!errores.contrasenia}
-                helperText={errores.contrasenia}
-                fullWidth
-            />
-
-            {errores.general && (
-                <Typography color="error" variant="body2" align="center">
-                    {errores.general}
+            <Paper
+                component="form"
+                onSubmit={handleSubmit}
+                elevation={3}
+                sx={{
+                    width: '100%',
+                    maxWidth: 400,
+                    p: 4,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: 3,
+                    borderRadius: 2
+                }}
+            >
+                <Typography 
+                    variant="h4" 
+                    align="center" 
+                    color="primary"
+                    fontWeight="bold"
+                    gutterBottom
+                >
+                    Iniciar sesión
                 </Typography>
-            )}
 
-            <Button type="submit" variant="contained" disabled={isLoading} fullWidth>
-                {isLoading ? 'Cargando...' : 'Ingresar'}
-            </Button>
+                <TextField
+                    label="Email"
+                    name="email"
+                    type="email"
+                    value={formulario.email}
+                    onChange={handleChange}
+                    error={!!errores.email}
+                    helperText={errores.email}
+                    fullWidth
+                    variant="outlined"
+                    size="small"
+                />
+
+                <TextField
+                    label="Contraseña"
+                    name="contrasenia"
+                    type="password"
+                    value={formulario.contrasenia}
+                    onChange={handleChange}
+                    error={!!errores.contrasenia}
+                    helperText={errores.contrasenia}
+                    fullWidth
+                    variant="outlined"
+                    size="small"
+                />
+
+                {errores.general && (
+                    <Typography color="error" variant="body2" align="center">
+                        {errores.general}
+                    </Typography>
+                )}
+
+                <Button 
+                    type="submit" 
+                    variant="contained" 
+                    disabled={isLoading} 
+                    fullWidth
+                    size="large"
+                    sx={{ mt: 2 }}
+                >
+                    {isLoading ? (
+                        <CircularProgress size={24} color="inherit" />
+                    ) : 'Ingresar'}
+                </Button>
+
+                <Divider sx={{ my: 2 }} />
+
+                <Typography variant="body2" align="center">
+                    ¿No tenés una cuenta?{' '}
+                    <Link 
+                        component={RouterLink} 
+                        to="/registro" 
+                        color="primary"
+                        underline="hover"
+                        fontWeight="medium"
+                    >
+                        Registrate
+                    </Link>
+                </Typography>
+            </Paper>
         </Box>
     );
 }

@@ -1,13 +1,14 @@
 import { Grid } from "@mui/material";
 import ProductCard from "./ProductCard";
 
-const ProductGrid = ({ products, onAddToCart }) => (
+const ProductGrid = ({ producto = [], onAddToCart }) => (
   <Grid container spacing={3}>
-    {products.map(product => (
-      <Grid item xs={12} sm={6} md={3} key={product.id}>
-        <ProductCard product={product} onAddToCart={onAddToCart} />
+    {producto.map(productoIndividual => (
+      <Grid item xs={12} sm={6} md={3} key={productoIndividual.id}>
+        <ProductCard producto={productoIndividual} onAddToCart={onAddToCart} />
       </Grid>
     ))}
   </Grid>
 );
+
 export default ProductGrid;

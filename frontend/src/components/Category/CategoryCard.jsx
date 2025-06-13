@@ -2,12 +2,12 @@ import React from 'react';
 import { Card, CardMedia, CardContent, Typography } from '@mui/material';
 import { useNavigate } from 'react-router-dom'; // Si usas react-router
 
-const CategoryCard = ({ category }) => {
+const CategoryCard = ({ categoria }) => { // Cambié "category" por "categoria"
   const navigate = useNavigate();
 
   const handleClick = () => {
     // Navegar a la página de la categoría (opcional)
-    navigate(`/category/${category.id}`);
+    navigate(`/category/${categoria.categoria_id}`); // Usar categoria_id
   };
 
   return (
@@ -26,18 +26,18 @@ const CategoryCard = ({ category }) => {
       <CardMedia
         component="img"
         height="160"
-        image={category.imagen || 'https://via.placeholder.com/200'} // Imagen por defecto
-        alt={category.nombre}
+        image={categoria.imagen || 'https://via.placeholder.com/200?text=' + encodeURIComponent(categoria.nombre)} // Imagen por defecto con el nombre
+        alt={categoria.nombre}
       />
       
       {/* Nombre de la categoría */}
       <CardContent sx={{ textAlign: 'center' }}>
         <Typography variant="h6" component="h3">
-          {category.nombre}
+          {categoria.nombre} {/* Cambié "category" por "categoria" */}
         </Typography>
       </CardContent>
     </Card>
   );
 };
 
-export default CategoryCard; // Exportación por defecto
+export default CategoryCard;

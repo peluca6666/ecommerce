@@ -35,7 +35,7 @@ export async function obtenerCategorias(req, res) {
     const { activo } = req.query;
 
     try {
-        let query = 'SELECT categoria_id, nombre, activo FROM categoria';
+        let query = 'SELECT categoria_id, nombre, imagen, activo FROM categoria';
         const params = [];
 
         if (activo === 'true') {
