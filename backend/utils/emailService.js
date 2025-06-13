@@ -49,7 +49,7 @@ export async function enviarMailBienvenida(usuario) {
     );
 
     // URL de verificación (CORREGIDO: usa /cuenta-verificada y puerto 5173 por defecto)
-    const frontendBase = process.env.FRONTEND_URL || 'http://localhost:5173';
+    const frontendBase = process.env.FRONTEND_URL || 'http://localhost:5174';
     const urlVerificacion = `${frontendBase}/cuenta-verificada?token=${token}`;
 
     const mailOptions = {

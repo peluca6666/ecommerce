@@ -46,36 +46,27 @@ const Login = () => {
 
 try {
   const response = await axios.post('http://localhost:3000/api/login', formulario);
-  const data = response.data;
 
-  if (data.token && typeof data.token === 'string' && data.token.includes('.')) {
-    const fueValido = login(data.token);
+  const fueValido = login(response.data.token); // actualiza el contexto
 
-    if (fueValido) {
-      const payload = JSON.parse(atob(data.token.split('.')[1]));
-      const rol = payload.rol;
+  if (fueValido) {
+    const rol = JSON.parse(atob(response.data.token.split('.')[1])).rol;
 
-      if (rol === 'admin') {
-        navigate('/admin');
-      } else {
-        navigate('/main');
-      }
+    if (rol === 'admin') {
+      navigate('/admin');
     } else {
-      setErrores({ general: 'Token inválido o expirado' });
+      navigate('/main');
     }
-
-  } else if (data.error) {
-    setErrores({ general: data.error }); // error tipo "no verificado" o credenciales inválidas
   } else {
-    setErrores({ general: 'Respuesta inesperada del servidor' });
+    setErrores({ general: 'Debes verificar tu cuenta para poder iniciar' });
   }
 
 } catch (error) {
   setErrores({
     general: error.response?.data?.error || 'Error al iniciar sesión'
   });
-}
- finally {
+  
+} finally {
     setIsLoading(false);
   }
 };

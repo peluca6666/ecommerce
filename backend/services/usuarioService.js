@@ -30,13 +30,13 @@ export async function crearUsuario(datosUsuario) {
     });
 
     return new Usuario(
-      resultado.insertId,
-      datosUsuario.nombre,
-      datosUsuario.apellido,
-      datosUsuario.email,
-      undefined,
-      'pendiente'
-    ).obtenerPerfil();
+  resultado.insertId,
+  datosUsuario.nombre,
+  datosUsuario.apellido,
+  datosUsuario.email,
+  undefined, // No devuelves la contraseña
+  'pendiente'
+).obtenerPerfil();
   } catch (error) {
     console.error('Error creando usuario:', error);
     throw error;
@@ -50,15 +50,15 @@ export async function obtenerUsuarioPorEmail(email) {
     if (rows.length === 0) return null;
 
     const usuario = rows[0];
-    return new Usuario(
-      usuario.usuario_id,
-      usuario.nombre,
-      usuario.apellido,
-      usuario.email,
-      usuario.contrasenia,
-      usuario.rol,
-      usuario.verificado
-    );
+   return new Usuario(
+  usuario.usuario_id,
+  usuario.nombre,
+  usuario.apellido,
+  usuario.email,
+  usuario.contrasenia,
+  usuario.rol,
+  Boolean(usuario.verificado)  // 👈 fuerza booleano
+);
   } catch (error) {
     console.error('Error obteniendo usuario por mail:', error);
     throw error;

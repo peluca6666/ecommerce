@@ -12,7 +12,7 @@ const router = express.Router();
 
 // === Rutas de autenticación ===
 router.post('/register', validarBody(schemaRegistro), registrarUsuario);
-router.post('/login', validarBody(schemaLogin), loginUsuario);
+router.post('/login', loginUsuario);
 router.get('/profile', verifyToken, obtenerPerfilUsuario);
 router.get('/verify', verificarCuenta);
 

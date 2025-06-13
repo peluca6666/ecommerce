@@ -33,7 +33,6 @@ export const registrarUsuario = async (req, res) => {
 
 export const loginUsuario = async (req, res) => {
   try {
-    // Validar datos con Joi
     const { error, value } = schemaLogin.validate(req.body, { abortEarly: false });
     if (error) {
       const errores = error.details.map(e => e.message);
@@ -42,24 +41,22 @@ export const loginUsuario = async (req, res) => {
 
     const { email, contrasenia } = value;
 
-    // Obtener usuario por email
     const usuario = await obtenerUsuarioPorEmail(email);
     if (!usuario) {
       return res.status(401).json({ error: 'Email o contraseña incorrectos' });
     }
 
-    // Aquí asumimos que serviceLoginUsuario devuelve el token si la contraseña es correcta
-   const token = await serviceLoginUsuario(email, contrasenia);
+    const token = await serviceLoginUsuario(email, contrasenia);
 
-if (token === 'no-verificado') {
-  return res.status(403).json({ error: 'La cuenta aún no fue verificada. Revisá tu correo.' });
-}
+    if (token === 'no-verificado') {
+      return res.status(403).json({ error: 'La cuenta aún no fue verificada. Revisá tu correo.' });
+    }
 
-if (!token) {
-  return res.status(401).json({ error: 'Email o contraseña incorrectos' });
-}
+    if (!token) {
+      return res.status(401).json({ error: 'Email o contraseña incorrectos' });
+    }
 
-    // Enviar token y rol al frontend
+    // ✅ SOLUCIÓN: Solo ejecutar esto si llegamos hasta aquí
     return res.json({ token, rol: usuario.rol });
 
   } catch (err) {

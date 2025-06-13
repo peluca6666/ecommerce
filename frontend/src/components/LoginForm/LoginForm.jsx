@@ -97,7 +97,7 @@ export default function LoginForm({ formulario, errores, isLoading, handleChange
                     ¿No tenés una cuenta?{' '}
                     <Link 
                         component={RouterLink} 
-                        to="/registro" 
+                        to="/register" 
                         color="primary"
                         underline="hover"
                         fontWeight="medium"
