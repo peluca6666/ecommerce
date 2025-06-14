@@ -12,39 +12,48 @@ export async function crearUsuario(datosUsuario) {
   try {
     const hash = await encriptarContrasenia(datosUsuario.contrasenia);
 
-    const sql = 'INSERT INTO usuario (nombre, apellido, email, contrasenia, rol, dni, telefono, direccion) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)';
+    // SQL CORREGIDO: Especificamos las 9 columnas que queremos llenar.
+    const sql = `
+      INSERT INTO usuario 
+      (nombre, apellido, email, contrasenia, rol, verificado, dni, telefono, direccion) 
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `;
+    
+    // VALORES CORREGIDOS: Pasamos 9 valores, uno para cada columna.
+    // Usamos 'null' para los campos que pueden no venir en el formulario de registro.
     const [resultado] = await pool.execute(sql, [
       datosUsuario.nombre,
       datosUsuario.apellido,
       datosUsuario.email,
       hash,
-      'cliente',   // rol correcto por defecto
-      false       // verificado, ok como booleano
+      'cliente', // rol por defecto
+      false,     // 'verificado' es false al crear
+      datosUsuario.dni || null,
+      datosUsuario.telefono || null,
+      datosUsuario.direccion || null
     ]);
 
-    // ✅ SOLUCIÓN: Cambiar 'mail' por 'email'
+    // El envío de email está bien.
     await enviarMailBienvenida({
       id: resultado.insertId,
       nombre: datosUsuario.nombre,
-      email: datosUsuario.email  // ✅ Ahora usa 'email' en lugar de 'mail'
+      email: datosUsuario.email
     });
-verificado
-    return new Usuario(
-  resultado.insertId,
-  datosUsuario.nombre,
-  datosUsuario.apellido,
-  datosUsuario.email,
-  datosUsuario.dni,
-  datosUsuario.telefono,
-  datosUsuario.direccion,
-  undefined, // No se devuelve la contraseña por seguridad
-  'pendiente'
-).obtenerPerfil();
+
+    // RETURN CORREGIDO: Devolvemos un objeto simple y limpio con los datos del nuevo usuario.
+    return {
+      id: resultado.insertId,
+      nombre: datosUsuario.nombre,
+      email: datosUsuario.email,
+      rol: 'cliente'
+    };
+
   } catch (error) {
+    // Este console.error es el que te mostrará el error real en la terminal del servidor.
     console.error('Error creando usuario:', error);
     throw error;
   }
-} 
+}
 
 export async function obtenerUsuarioPorEmail(email) {
   try {
