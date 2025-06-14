@@ -6,7 +6,6 @@ import LoginForm from '../../components/LoginForm/LoginForm.jsx'
 import { useContext } from 'react';
 import { AuthContext } from '../../context/AuthContext'; // asegurate que el path esté bien
 
-
 const Login = () => {
   const [formulario, setFormulario] = useState({
     email: '',

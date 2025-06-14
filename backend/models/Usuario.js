@@ -1,15 +1,28 @@
+// models/Usuario.js (VERSIÓN FINAL CORREGIDA)
+
 export class Usuario {
-    // 1. Añadimos 'verificado' como séptimo parámetro
-    constructor(usuario_id, nombre, apellido, email, contrasenia, rol = 'cliente', verificado = false) {
+    constructor(
+      usuario_id,
+      nombre,
+      apellido,
+      email,
+      contrasenia,
+      rol = 'cliente',
+      verificado = false,
+      dni = null,
+      telefono = null,
+      direccion = null
+    ) {
         this.usuario_id = usuario_id;
         this.nombre = nombre;
         this.apellido = apellido;
-        // Ojo: el parámetro es 'mail', asegúrate de pasarlo consistentemente como 'email' o 'mail'
-        this.email = email; 
+        this.email = email;
         this.contrasenia = contrasenia;
         this.rol = rol;
-        // 2. Asignamos el valor que llega como parámetro
         this.verificado = verificado;
+        this.dni = dni;
+        this.telefono = telefono;
+        this.direccion = direccion;
     }
 
     obtenerPerfil() {
@@ -17,10 +30,11 @@ export class Usuario {
             usuario_id: this.usuario_id,
             nombre: this.nombre,
             apellido: this.apellido,
-            mail: this.mail,
+            email: this.email,
             rol: this.rol,
-            // (Opcional) Puedes añadir 'verificado' aquí si lo necesitas en el perfil
-            verificado: this.verificado 
+            dni: this.dni,
+            telefono: this.telefono,
+            direccion: this.direccion,
         };
     }
 }

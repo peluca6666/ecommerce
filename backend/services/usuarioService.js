@@ -12,7 +12,7 @@ export async function crearUsuario(datosUsuario) {
   try {
     const hash = await encriptarContrasenia(datosUsuario.contrasenia);
 
-    const sql = 'INSERT INTO usuario (nombre, apellido, email, contrasenia, rol, verificado) VALUES (?, ?, ?, ?, ?, ?)';
+    const sql = 'INSERT INTO usuario (nombre, apellido, email, contrasenia, rol, dni, telefono, direccion) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)';
     const [resultado] = await pool.execute(sql, [
       datosUsuario.nombre,
       datosUsuario.apellido,
@@ -28,13 +28,16 @@ export async function crearUsuario(datosUsuario) {
       nombre: datosUsuario.nombre,
       email: datosUsuario.email  // ✅ Ahora usa 'email' en lugar de 'mail'
     });
-
+verificado
     return new Usuario(
   resultado.insertId,
   datosUsuario.nombre,
   datosUsuario.apellido,
   datosUsuario.email,
-  undefined, // No devuelves la contraseña
+  datosUsuario.dni,
+  datosUsuario.telefono,
+  datosUsuario.direccion,
+  undefined, // No se devuelve la contraseña por seguridad
   'pendiente'
 ).obtenerPerfil();
   } catch (error) {
@@ -49,16 +52,21 @@ export async function obtenerUsuarioPorEmail(email) {
     const [rows] = await pool.execute(sql, [email]);
     if (rows.length === 0) return null;
 
-    const usuario = rows[0];
-   return new Usuario(
-  usuario.usuario_id,
-  usuario.nombre,
-  usuario.apellido,
-  usuario.email,
-  usuario.contrasenia,
-  usuario.rol,
-  Boolean(usuario.verificado)  // 👈 fuerza booleano
-);
+    const u = rows[0]; // 'u' de data de usuario
+    
+    // LLAMADA AL CONSTRUCTOR CON EL ORDEN CORREGIDO Y SINCRONIZADO
+    return new Usuario(
+      u.usuario_id,
+      u.nombre,
+      u.apellido,
+      u.email,
+      u.contrasenia,
+      u.rol,
+      Boolean(u.verificado), // 'verificado' ahora está en la 7ª posición
+      u.dni,
+      u.telefono, 
+      u.direccion
+    );
   } catch (error) {
     console.error('Error obteniendo usuario por mail:', error);
     throw error;
@@ -89,7 +97,7 @@ export async function loginUsuario(email, contrasenia) {
 
 export async function obtenerUsuarioPorId(usuario_id) {
   try {
-    const sql = 'SELECT usuario_id, nombre, apellido, email, rol FROM usuario WHERE usuario_id = ? LIMIT 1';
+    const sql = 'SELECT usuario_id, nombre, apellido, email, rol, dni, telefono, direccion FROM usuario WHERE usuario_id = ? LIMIT 1';
     const [rows] = await pool.execute(sql, [usuario_id]);
     if (rows.length === 0) return null;
     return rows[0];
