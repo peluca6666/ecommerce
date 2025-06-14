@@ -1,5 +1,3 @@
-// src/controllers/ventaController.js
-
 import * as ventaService from '../services/ventaService.js';
 
 export const crearVenta = async (req, res) => {
@@ -7,7 +5,7 @@ export const crearVenta = async (req, res) => {
     const usuarioId = req.usuario.id; // Lo obtenemos del middleware verifyToken
     const { productos, metodo_pago, direccion_envio } = req.body;
 
-    if (!productos || !Array.isArray(productos) || productos.length === 0) {
+    if (!productos || !Array.isArray(productos) || productos.length === 0) { // Validamos que productos sea un arreglo no vacío
       return res.status(400).json({ error: 'El campo "productos" debe ser un arreglo no vacío.' });
     }
 

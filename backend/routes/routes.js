@@ -11,33 +11,33 @@ import { crearVenta, obtenerHistorialCompras, listarTodasLasVentas, obtenerDetal
 
 const router = express.Router();
 
-// === Rutas de autenticación ===
+// ------------------------Rutas de autenticación------------------------
 router.post('/register', validarBody(schemaRegistro), registrarUsuario);
 router.post('/login', loginUsuario);
 router.get('/profile', verifyToken, obtenerPerfilUsuario);
 router.get('/verify', verificarCuenta);
 
-// === Rutas de productos ===
+//------------------------ Rutas de productos ------------------------
 router.get('/producto', obtenerProductos);
 router.post('/producto', verifyToken, autorizarPorRol('admin'), agregarProducto);
 router.put('/producto/:id', verifyToken, autorizarPorRol('admin'), actualizarProducto);
 router.delete('/producto/:id', verifyToken, autorizarPorRol('admin'), eliminarProducto);
 
-// === Rutas de categorías ===
+// ------------------------ Rutas de categorías ------------------------
 router.get('/categoria', obtenerCategorias);
 router.get('/categoria/:id/producto', obtenerProductosPorCategoria);
 
-// === Rutas de carrito ===
+// ------------------------ Rutas de carrito ------------------------
 router.get('/carrito', verifyToken, obtenerCarrito);
 router.post('/carrito', verifyToken, agregarProductoAlCarrito);
 router.put('/carrito/:id', verifyToken, actualizarProductoEnCarrito);
 router.delete('/carrito/:id', verifyToken, eliminarProductoDelCarrito);
 
-// === Rutas de ventas ===
+// ------------------------ Rutas de ventas ------------------------
 router.post('/ventas', verifyToken, crearVenta);
 router.get('/ventas/historial', verifyToken, obtenerHistorialCompras);
 
-// === Ruta de administrador ===
+// ------------------------ Ruta de administrador ------------------------
 router.get('/admin', verifyToken, autorizarPorRol('admin'), (req, res) => {
   res.json({ mensaje: 'Acceso a panel de administrador' });
 });

@@ -1,5 +1,3 @@
-// models/Usuario.js (VERSIÓN FINAL CORREGIDA)
-
 export class Usuario {
     constructor(
       usuario_id,
@@ -25,6 +23,7 @@ export class Usuario {
         this.direccion = direccion;
     }
 
+    //obtenerPerfil está acá por motivos de seguridad ya que no queremos exponer la contraseña del usuario.
     obtenerPerfil() {
         return {
             usuario_id: this.usuario_id,

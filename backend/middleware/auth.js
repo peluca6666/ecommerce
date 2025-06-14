@@ -1,6 +1,7 @@
 import pkg from 'jsonwebtoken';
 const { verify } = pkg;
 
+// middleware para verificar el token JWT
 export const verifyToken = (req, res, next) => {
   const authHeader = req.headers['authorization'];
   if (!authHeader) {
@@ -11,7 +12,7 @@ export const verifyToken = (req, res, next) => {
   if (!token) {
     return res.status(401).json({ error: 'Token no válido' });
   }
-
+// Se verifica el token JWT
   try {
     const { usuario_id, rol } = verify(token, process.env.JWT_SECRET || 'claveSecreta');
     req.usuario = { id: usuario_id, rol };
