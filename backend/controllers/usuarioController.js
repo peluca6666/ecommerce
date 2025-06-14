@@ -56,7 +56,7 @@ export const loginUsuario = async (req, res) => {
       return res.status(401).json({ error: 'Email o contraseña incorrectos' });
     }
 
-    // ✅ SOLUCIÓN: Solo ejecutar esto si llegamos hasta aquí
+ 
     return res.json({ token, rol: usuario.rol });
 
   } catch (err) {
