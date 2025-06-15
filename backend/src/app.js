@@ -9,7 +9,7 @@ import { dirname, join } from 'path';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-// Cargar .env
+// Cargamos variables de entorno desde el archivo .env
 dotenv.config({ path: join(__dirname, '../.env') });
 
 const app = express();
@@ -23,7 +23,7 @@ const corsOptions = {
     'http://localhost:5174',
     'http://localhost:5175',
     'http://localhost:5176',
-    'http://localhost:5177', // Tu puerto actual
+    'http://localhost:5177', 
     'http://127.0.0.1:5173',
     'http://127.0.0.1:5177'
   ],
@@ -44,10 +44,10 @@ app.listen(3000, () => {
 (async () => {
   try {
     const conn = await pool.getConnection();
-    console.log("✅ Conexión establecida con MySQL");
+    console.log("Conexión establecida con MySQL");
     conn.release();
   } catch (err) {
-    console.error("❌ No se pudo conectar a la base de datos:", err);
+    console.error(" No se pudo conectar a la base de datos:", err);
     process.exit(1);
   }
 })();

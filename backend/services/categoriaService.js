@@ -1,8 +1,6 @@
-// services/categoriaService.js
-
 import { pool } from '../database/connectionMySQL.js';
 
-// Las constantes que definen reglas de datos y paginación pertenecen al servicio.
+// Constantes para la paginacion y reglas de datos
 const DEFAULT_PAGINATION = {
     LIMIT: 20,
     OFFSET: 0,
@@ -11,9 +9,9 @@ const DEFAULT_PAGINATION = {
 const ALLOWED_ORDERS = ['nombre_producto', 'precio', 'stock_actual', 'fecha_creacion'];
 
 /**
- * Obtiene todas las categorías, con un filtro opcional para mostrar solo las activas.
- * @param {boolean} soloActivos - Si es true, filtra por categorías activas.
- * @returns {Promise<Array>} Un arreglo de objetos de categoría.
+ * Obtiene todas las categorías con un filtro opcional para mostrar solo las activas
+ * @param {boolean} soloActivos - Si es true, filtra por categorías activas
+ * @returns {Promise<Array>} Un array de objetos de categoría.
  */
 export async function getAllCategories(soloActivos = false) {
     let query = 'SELECT categoria_id, nombre, imagen, activo FROM categoria';
@@ -27,9 +25,9 @@ export async function getAllCategories(soloActivos = false) {
 }
 
 /**
- * Obtiene una categoría específica por su ID.
- * @param {number} categoriaId - El ID de la categoría.
- * @returns {Promise<object|null>} El objeto de la categoría o null si no se encuentra.
+ * Obtiene una categoría específica por su id
+ * @param {number} categoriaId 
+ * @returns {Promise<object|null>} El objeto de la categoría o null si no se encuentra
  */
 export async function getCategoryById(categoriaId) {
     const [categorias] = await pool.query(
@@ -40,10 +38,10 @@ export async function getCategoryById(categoriaId) {
 }
 
 /**
- * Crea una nueva categoría.
- * @param {string} nombre - El nombre de la nueva categoría.
- * @param {boolean} activo - El estado inicial de la categoría.
- * @returns {Promise<object>} Un objeto con el ID de la nueva categoría.
+ * Crea una nueva categoria
+ * @param {string} nombre - El nombre de la nueva categoria
+ * @param {boolean} activo - El estado inicial de la categoria
+ * @returns {Promise<object>} Un objeto con el id de la nueva categoria
  */
 export async function createCategory(nombre, activo) {
     try {
@@ -53,25 +51,25 @@ export async function createCategory(nombre, activo) {
         );
         return { categoria_id: resultado.insertId };
     } catch (error) {
-        // Si el error es por una entrada duplicada, lo lanzamos para que el controlador lo maneje.
+        // Si el error es por una entrada duplicada lo lanzamos para que el controlador lo maneje
         if (error.code === 'ER_DUP_ENTRY') {
             const err = new Error('Ya existe una categoría con ese nombre');
-            err.statusCode = 409; // 409 Conflict
+            err.statusCode = 409; 
             throw err;
         }
-        throw error; // Relanzamos cualquier otro error.
+        throw error; 
     }
 }
 
 /**
- * Actualiza una categoría existente.
- * @param {number} categoriaId - El ID de la categoría a actualizar.
- * @param {string} nombre - El nuevo nombre para la categoría.
- * @param {boolean} activo - El nuevo estado para la categoría.
- * @returns {Promise<boolean>} True si la actualización fue exitosa.
+ * Actualiza una categoria existente
+ * @param {number} categoriaId - El id de la categoría que queremos actualizar
+ * @param {string} nombre - El nombre nuevo para la categoría
+ * @param {boolean} activo - Acá ponemos si la categoría está activa o no
+ * @returns {Promise<boolean>} True si la actualización fue exitosa
  */
 export async function updateCategory(categoriaId, nombre, activo) {
-    // Primero, verificamos que la categoría exista.
+    // Primero verificamos que la categoría exista
     const categoriaExistente = await getCategoryById(categoriaId);
     if (!categoriaExistente) {
         const err = new Error('Categoría no encontrada');
@@ -96,23 +94,22 @@ export async function updateCategory(categoriaId, nombre, activo) {
 }
 
 /**
- * Elimina una categoría por su ID.
- * @param {number} categoriaId - El ID de la categoría a eliminar.
- * @returns {Promise<boolean>} True si se eliminó, false si no se encontró.
+ * Elimina una categoria por su id
+ * @param {number} categoriaId 
+ * @returns {Promise<boolean>} True si se eliminó, false si no se encontró
  */
 export async function deleteCategory(categoriaId) {
     const [resultado] = await pool.query(
         'UPDATE categoria SET activo = false WHERE categoria_id = ?',
         [categoriaId]
     );
-    
-    // La lógica para saber si se encontró y se modificó sigue siendo la misma.
+    // Si no se afectó ninguna fila significa que no se encontró la categoria
     return resultado.affectedRows > 0;
 }
 
 /**
- * Obtiene todas las categorías junto con la cantidad de productos en cada una.
- * @returns {Promise<Array>} Arreglo de categorías con sus conteos.
+ * Obtenemos todas las categorias con todos los productos que tienen
+ * @returns {Promise<Array>} 
  */
 export async function getCategoriesWithProductCount() {
     const [categorias] = await pool.query(`
@@ -131,10 +128,10 @@ export async function getCategoriesWithProductCount() {
 
 
 /**
- * Obtiene los productos de una categoría con filtros, paginación y ordenamiento.
- * @param {number} categoriaId - El ID de la categoría.
- * @param {object} options - Opciones de filtrado y paginación.
- * @returns {Promise<object>} Objeto con los productos y la información de paginación.
+ * Obtiene los productos de una categoría con filtros, paginación y ordenamiento
+ * @param {number} categoriaId 
+ * @param {object} options  Opciones de filtrado y paginación
+ * @returns {Promise<object>} Objeto con los productos y la información de paginación
  */
 export async function getProductsByCategoryId(categoriaId, options = {}) {
     const {
@@ -148,7 +145,7 @@ export async function getProductsByCategoryId(categoriaId, options = {}) {
 
     const ordenSeguro = ALLOWED_ORDERS.includes(orden) ? orden : DEFAULT_PAGINATION.ORDER;
 
-    // Verificar existencia y estado de la categoría
+    // Se verifica el estado y la existencia de la categoría
     const categoria = await getCategoryById(categoriaId);
     if (!categoria) {
         const err = new Error('Categoría no encontrada');
@@ -161,10 +158,10 @@ export async function getProductsByCategoryId(categoriaId, options = {}) {
         throw err;
     }
 
-    // Construir la consulta de productos
+    // Consulta de productos por categoría
     let query = `SELECT p.* FROM producto p WHERE p.categoria_id = ?`;
     const params = [categoriaId];
-    // Construir la consulta de conteo
+    // Consulta para contar el total de productos
     let countQuery = `SELECT COUNT(*) as total FROM producto WHERE categoria_id = ?`;
     const countParams = [categoriaId];
 

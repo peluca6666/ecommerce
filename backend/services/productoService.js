@@ -1,9 +1,8 @@
-// services/productoService.js
 import { pool } from '../database/connectionMySQL.js';
 
 /**
- * Obtiene una lista de productos con filtros y paginación.
- * @param {object} options - Opciones de filtrado y paginación.
+ * Lista de productos con filtros y paginación
+ * @param {object} options 
  * @returns {Promise<{productos: Array, paginacion: object}>}
  */
 export async function getAllProducts(options = {}) {
@@ -61,9 +60,9 @@ export async function getAllProducts(options = {}) {
 }
 
 /**
- * Crea un nuevo producto en la base de datos.
- * @param {object} productData - Datos del producto a crear.
- * @returns {Promise<object>} El producto recién creado.
+ * Crea un nuevo producto en la BD
+ * @param {object} productData - Datos del producto a crear
+ * @returns {Promise<object>} - El producto recien creado
  */
 export async function createProduct(productData) {
     const { nombre_producto, descripcion, precio, categoria_id, imagen, imagenes, stock_actual, es_oferta = false } = productData;
@@ -95,10 +94,10 @@ export async function createProduct(productData) {
 }
 
 /**
- * Actualiza un producto existente por su ID.
- * @param {number} productoId - El ID del producto a actualizar.
- * @param {object} updateData - Los campos a actualizar.
- * @returns {Promise<object>} El producto actualizado.
+ * Actualiza un producto por su id
+ * @param {number} productoId - El id del producto que queremos actualizar
+ * @param {object} updateData - Los campos que queremos actualizar
+ * @returns {Promise<object>} - El producto actualizado
  */
 export async function updateProduct(productoId, updateData) {
     const [productoExistente] = await pool.query('SELECT * FROM producto WHERE producto_id = ?', [productoId]);
@@ -111,7 +110,7 @@ export async function updateProduct(productoId, updateData) {
     const camposActualizar = [];
     const valores = [];
 
-    // Validar y construir la consulta dinámicamente
+    // Validar y construir la consulta dinamicamente
     Object.keys(updateData).forEach(key => {
         if (updateData[key] !== undefined) {
             camposActualizar.push(`${key} = ?`);
@@ -139,9 +138,9 @@ export async function updateProduct(productoId, updateData) {
 }
 
 /**
- * Elimina un producto por su ID.
- * @param {number} productoId - El ID del producto a eliminar.
- * @returns {Promise<boolean>} True si el producto fue eliminado.
+ * Elimina un producto por según su id
+ * @param {number} productoId - El id del producto a eliminar
+ * @returns {Promise<boolean>} - True si el producto fue eliminado
  */
 export async function deleteProduct(productoId) {
     try {

@@ -1,21 +1,20 @@
-// src/services/ventaService.js
-
 import { pool } from '../database/connectionMySQL.js';
 
 /**
- * Crea un nuevo registro de venta, con sus detalles, y descuenta el stock.
- * Todo se ejecuta dentro de una transacción para asegurar la integridad de los datos.
+ * Este servicio crea un nuevo registro de venta con sus detalles y descuenta el stock
+ * Todo se ejecuta dentro de una transacción para asegurar la integridad de los datos
  */
+
 export const crearNuevaVenta = async (usuarioId, productos, metodoPago, direccionEnvio) => {
   const connection = await pool.getConnection();
 
   try {
-    await connection.beginTransaction(); // ¡Iniciamos la transacción!
+    await connection.beginTransaction(); // inicia la trasacción
 
-    // PASO 1: Validar stock de cada producto y calcular el total de la venta.
+    // Validar stock de cada producto y calcular el total de la venta
     let totalVenta = 0;
     for (const producto of productos) {
-      // Usamos 'FOR UPDATE' para bloquear la fila y evitar que otro proceso modifique el stock mientras trabajamos.
+      // Se usa 'FOR UPDATE' para bloquear la fila y evitar que otro proceso modifique el stock mientras estamos validando y actualizando.
       const [rows] = await connection.execute('SELECT stock_actual, precio FROM producto WHERE producto_id = ? FOR UPDATE', [producto.producto_id]);
       
       if (rows.length === 0) {
@@ -30,53 +29,49 @@ export const crearNuevaVenta = async (usuarioId, productos, metodoPago, direccio
       totalVenta += rows[0].precio * producto.cantidad;
     }
 
-    // PASO 2: Crear el registro principal en la tabla 'venta'.
+    // Crear el registro principal en la tabla 'venta'
     const ventaSql = 'INSERT INTO venta (usuario_id, fecha_venta, total, estado, metodo_pago, direccion_envio) VALUES (?, NOW(), ?, ?, ?, ?)';
     const [ventaResult] = await connection.execute(ventaSql, [usuarioId, totalVenta, 'Completado', metodoPago, direccionEnvio]);
     const nuevaVentaId = ventaResult.insertId;
 
-    // PASO 3: Guardar cada producto en 'detalle_venta' y actualizar el stock.
+    // Guardar cada producto en 'detalle_venta' y actualizar el stock
     for (const producto of productos) {
       const [rows] = await connection.execute('SELECT precio FROM producto WHERE producto_id = ?', [producto.producto_id]);
       const precioUnitario = rows[0].precio;
 
-      // Insertar el detalle de la venta.
+      // Insertar el detalle de la venta
       const detalleSql = 'INSERT INTO detalle_venta (venta_id, producto_id, cantidad, precio_unitario, subtotal) VALUES (?, ?, ?, ?, ?)';
       await connection.execute(detalleSql, [nuevaVentaId, producto.producto_id, producto.cantidad, precioUnitario, producto.cantidad * precioUnitario]);
 
-      // Actualizar el stock del producto correspondiente.
+      // Actualizar el stock del producto correspondiente
       const updateStockSql = 'UPDATE producto SET stock_actual = stock_actual - ? WHERE producto_id = ?';
       await connection.execute(updateStockSql, [producto.cantidad, producto.producto_id]);
     }
     
-    // Si todo ha ido bien, confirmamos todos los cambios en la base de datos.
+    // Si todo salió bien confirmamos todos los cambios en la base de datos
     await connection.commit();
     
     return { venta_id: nuevaVentaId, total: totalVenta, estado: 'Completado' };
 
   } catch (error) {
-    // Si algo falló en cualquier punto, revertimos todos los cambios.
+    // Si algo falló en cualquier punto, revertimos todos los cambios realizados en la transacción
     await connection.rollback();
     console.error("Transacción de venta revertida por error:", error);
-    throw error; // Lanzamos el error para que el controlador lo atrape.
+    throw error; // Lanzamos el error para que el controlador lo atrape
   } finally {
-    // Pase lo que pase, liberamos la conexión para que pueda ser usada por otros.
+    // Liberamos la conexión para que pueda ser usada por otros procesos
     connection.release();
   }
 };
 
-/**
- * Obtiene el historial de ventas de un usuario específico.
- */
+//Obtenemos las ventas de un usuario específico ================================
 export const obtenerVentasPorUsuario = async (usuarioId) => {
   const sql = 'SELECT venta_id, fecha_venta, total, estado FROM venta WHERE usuario_id = ? ORDER BY fecha_venta DESC';
   const [rows] = await pool.execute(sql, [usuarioId]);
   return rows;
 };
 
-/**
- * Obtiene todas las ventas registradas (para el administrador).
- */
+//Obtenemos todas las ventas para que un administrador pueda verlas ================================
 export const obtenerTodasLasVentas = async () => {
   const sql = `
     SELECT v.venta_id, v.fecha_venta, v.total, v.estado, u.email 
@@ -87,15 +82,13 @@ export const obtenerTodasLasVentas = async () => {
   return rows;
 };
 
-/**
- * Obtiene el detalle completo de una venta, incluyendo los productos.
- */
+//Obtenemos el detalle completo de una venta por su id, incluyendo los productos vendidos  ================================
 export const obtenerDetallePorVentaId = async (ventaId) => {
   const ventaSql = 'SELECT * FROM venta WHERE venta_id = ?';
   const [ventaRows] = await pool.execute(ventaSql, [ventaId]);
 
   if (ventaRows.length === 0) {
-    return null; // La venta no existe
+    return null; 
   }
 
   const detalleSql = `

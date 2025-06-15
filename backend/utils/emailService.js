@@ -6,17 +6,17 @@ import { dirname, join } from 'path';
 
 const { sign } = pkg;
 
-// Cargar variables de entorno
+// Se cargan las variables de entorno desde el archivo .env
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 dotenv.config({ path: join(__dirname, '../.env') });
 
 // Validación básica de credenciales
 if (!process.env.MAIL_USER || !process.env.MAIL_PASS) {
-  console.error('❌ ERROR: Faltan credenciales de email');
+  console.error('ERROR: Faltan credenciales de email');
 }
 if (!process.env.JWT_SECRET) {
-  console.error('❌ ERROR: Falta JWT_SECRET');
+  console.error('ERROR: Falta JWT_SECRET');
 }
 
 const transporter = nodemailer.createTransport({
@@ -31,7 +31,7 @@ const transporter = nodemailer.createTransport({
 });
 
 /**
- * Envía un mail de bienvenida con link de verificación.
+ * Envía un mail de bienvenida con link de verificación
  * @param {Object} usuario - Objeto con id, nombre y mail
  */
 export async function enviarMailBienvenida(usuario) {
@@ -48,7 +48,7 @@ export async function enviarMailBienvenida(usuario) {
       { expiresIn: '24h' }
     );
 
-    // URL de verificación (CORREGIDO: usa /cuenta-verificada y puerto 5173 por defecto)
+    // URL de verificación
     const frontendBase = process.env.FRONTEND_URL || 'http://localhost:5174';
     const urlVerificacion = `${frontendBase}/cuenta-verificada?token=${token}`;
 
@@ -77,23 +77,23 @@ export async function enviarMailBienvenida(usuario) {
     };
 
     const result = await transporter.sendMail(mailOptions);
-    console.log(`✅ Correo enviado a ${emailDestino} (ID: ${result.messageId})`);
+    console.log(`Correo enviado a ${emailDestino} (ID: ${result.messageId})`);
     return result;
 
   } catch (error) {
-    console.error('❌ Error al enviar correo de verificación:', error.message);
+    console.error('Error al enviar correo de verificación:', error.message);
     throw error;
   }
 }
 
-// Test de configuración
+// Test de configuración, nos sirve para verificar que las credenciales y el servidor SMTP están funcionando correctamente
 export async function probarConfiguracionEmail() {
   try {
     await transporter.verify();
-    console.log('✅ Configuración de email válida');
+    console.log('Configuración de email válida');
     return true;
   } catch (error) {
-    console.error('❌ Error en configuración de email:', error.message);
+    console.error('Error en configuración de email:', error.message);
     return false;
   }
 }

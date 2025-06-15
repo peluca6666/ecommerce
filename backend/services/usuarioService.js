@@ -1,5 +1,3 @@
-// services/usuarioService.js
-
 import { encriptarContrasenia, compararContrasenia } from "../utils/encriptador.js";
 import { pool } from "../database/connectionMySQL.js";
 import { Usuario } from "../models/Usuario.js";
@@ -9,9 +7,9 @@ import { enviarMailBienvenida } from '../utils/emailService.js';
 const { sign, verify } = pkg;
 
 /**
- * Crea un nuevo usuario en la base de datos.
- * @param {object} datosUsuario - Datos del usuario (nombre, email, contraseña, etc.).
- * @returns {Promise<object>} El objeto del nuevo usuario creado.
+ * Crea un nuevo usuario en la base de datos
+ * @param {object} datosUsuario - Datos del usuario
+ * @returns {Promise<object>} - El objeto del nuevo usuario creado
  */
 export async function crearUsuario(datosUsuario) {
   try {
@@ -28,7 +26,7 @@ export async function crearUsuario(datosUsuario) {
       datosUsuario.apellido,
       datosUsuario.email,
       hash,
-      'cliente', // rol por defecto
+      'cliente', // rol por defecto, si queremos que sea admin lo establecemos en la BD
       false,     // verificado es false al crear
       datosUsuario.dni || null,
       datosUsuario.telefono || null,
@@ -56,10 +54,10 @@ export async function crearUsuario(datosUsuario) {
 }
 
 /**
- * Procesa el login de un usuario, validando sus credenciales y estado.
- * @param {string} email - Email del usuario.
- * @param {string} contrasenia - Contraseña del usuario.
- * @returns {Promise<string|null>} El token JWT, 'no-verificado', o null si las credenciales son incorrectas.
+ * Procesa el login de un usuario, validando sus credenciales y estado de verificación
+ * @param {string} email - Email del usuario
+ * @param {string} contrasenia - Contraseña del usuario
+ * @returns {Promise<string|null>} - Devuelve el token JWT, 'no-verificado', o null si las credenciales son incorrectas
  */
 export async function loginUsuario(email, contrasenia) {
     const usuario = await obtenerUsuarioPorEmail(email);
@@ -84,9 +82,9 @@ export async function loginUsuario(email, contrasenia) {
 }
 
 /**
- * Verifica una cuenta de usuario usando un token JWT.
- * @param {string} token - El token de verificación.
- * @returns {Promise<string>} 'exitoso', 'no-encontrado' o 'token-invalido'.
+ * Verifica una cuenta de usuario usando un token JWT
+ * @param {string} token - El token de verificación
+ * @returns {Promise<string>} Devuelve 'exitoso', 'no-encontrado' o 'token-invalido'.
  */
 export async function verificarCuentaPorToken(token) {
   try {
@@ -101,7 +99,7 @@ export async function verificarCuentaPorToken(token) {
   }
 }
 
-// --- Funciones de Ayuda del Servicio (no son controladores) ---
+//Funciones de ayuda del servicio de usuario
 
 export async function obtenerUsuarioPorEmail(email) {
   try {
