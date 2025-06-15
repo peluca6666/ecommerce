@@ -34,28 +34,30 @@ const MainPage = () => {
   };
 
   // Función para obtener categorías de la API
-  const fetchCategoria = async () => {
-    try {
-      const response = await fetch('http://localhost:3000/api/categoria'); 
-      
-      if (!response.ok) {
-        throw new Error(`Error HTTP: ${response.status}`);
-      }
-      
-      const data = await response.json();
-      
-      if (data.exito && data.categoria) {
-        return data.categoria; 
-      } else if (Array.isArray(data)) {
-        return data;
-      } else {
-        return [];
-      }
-    } catch (error) {
-      console.error('Error al obtener categorías:', error);
-      throw error;
+const fetchCategoria = async () => {
+  try {
+    const response = await fetch('http://localhost:3000/api/categoria'); 
+    
+    if (!response.ok) {
+      throw new Error(`Error HTTP: ${response.status}`);
     }
-  };
+    
+    const data = await response.json();
+    
+    // LÓGICA CORREGIDA Y SIMPLIFICADA
+    // Verificamos que la respuesta sea exitosa y que contenga la propiedad 'datos'
+    if (data.exito && Array.isArray(data.datos)) {
+      return data.datos; // Devolvemos el arreglo que está en 'datos'
+    } else {
+      // Si la respuesta no tiene el formato esperado, devolvemos un arreglo vacío.
+      console.warn("La respuesta de la API de categorías no tiene el formato esperado:", data);
+      return [];
+    }
+  } catch (error) {
+    console.error('Error al obtener categorías:', error);
+    throw error; // El error será manejado por la función loadData
+  }
+};
 
   // Cargar datos al montar el componente
   useEffect(() => {
