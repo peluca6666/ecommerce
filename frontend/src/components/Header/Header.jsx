@@ -25,7 +25,7 @@ const Header = ({ cartCount }) => {
         minHeight: { xs: 56, sm: 64 }
       }}>
         
-        {/* Menu hamburguesa en móvil */}
+        {/* Menu hamburguesa */}
         {isMobile && (
           <IconButton
             color="inherit"
@@ -50,7 +50,7 @@ const Header = ({ cartCount }) => {
           SaloMarket
         </Typography>
 
-        {/* Buscador - Oculto en móvil muy pequeño */}
+        {/* El buscador se oculta en movil*/}
         {!isMobile && (
           <SearchBar 
             onSearch={(term) => console.log('Buscar:', term)} 
@@ -58,14 +58,14 @@ const Header = ({ cartCount }) => {
           />
         )}
 
-        {/* NavMenu - Solo visible en desktop */}
+        {/* Navmenu solo visible en desktop*/}
         {!isMobile && (
           <Box sx={{ display: 'flex', ml: { sm: 2, md: 4 }, gap: 2 }}>
             <NavMenu />
           </Box>
         )}
 
-        {/* Carrito y usuario - Siempre visible */}
+        {/* Carrito y usuario siempre visible */}
         <Box sx={{ 
           marginLeft: 'auto', 
           display: 'flex', 
@@ -76,14 +76,14 @@ const Header = ({ cartCount }) => {
           <UserButton />
         </Box>
 
-        {/* Drawer para navegación móvil */}
+        {/* Drawer para navegación en celular */}
         <Drawer
           variant="temporary"
           anchor="left"
           open={drawerOpen}
           onClose={handleDrawerToggle}
           ModalProps={{
-            keepMounted: true, // Mejor rendimiento en móvil
+            keepMounted: true, //Mejora el rendimiento en celulares
           }}
           sx={{
             display: { xs: 'block', md: 'none' },

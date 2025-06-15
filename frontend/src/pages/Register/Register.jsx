@@ -38,10 +38,10 @@ export default function Register() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Validaciones - CORREGIDAS para coincidir con el backend
+    // Validaciones 
     const nuevosErrores = {};
     
-    // Validación de nombre (mínimo 3 caracteres como en el backend)
+    // Validación de nombre
     if (!formulario.nombre.trim()) {
       nuevosErrores.nombre = 'El nombre es obligatorio';
     } else if (formulario.nombre.trim().length < 3) {
@@ -50,7 +50,7 @@ export default function Register() {
       nuevosErrores.nombre = 'El nombre no puede contener números ni caracteres especiales';
     }
     
-    // Validación de apellido (mínimo 3 caracteres como en el backend)
+    // Validación de apellido 
     if (!formulario.apellido.trim()) {
       nuevosErrores.apellido = 'El apellido es obligatorio';
     } else if (formulario.apellido.trim().length < 3) {
@@ -66,7 +66,7 @@ export default function Register() {
       nuevosErrores.email = 'El email no es válido';
     }
     
-    // Validación de contraseña - CORREGIDA: mínimo 8 caracteres
+    // Validación de contraseña
     if (!formulario.contrasenia) {
       nuevosErrores.contrasenia = 'La contraseña es obligatoria';
     } else if (formulario.contrasenia.length < 8) {
@@ -85,7 +85,7 @@ export default function Register() {
       setIsLoading(true);
       setMensajeExito('');
       
-      // Debug: ver qué datos se están enviando
+      // Debug para ver qué datos se están enviando
       console.log('Enviando datos:', {
         nombre: formulario.nombre,
         apellido: formulario.apellido,
@@ -113,16 +113,16 @@ export default function Register() {
         
         setIsLoading(false);
         
-        // CORREGIDO: Manejar errores del backend correctamente
+        // Manejar errores del backend 
         if (error.response?.data?.errores) {
           // Si el backend devuelve un array de errores de validación
           const errorMessage = error.response.data.errores.join('. ');
           setErrores({ general: errorMessage });
         } else if (error.response?.data?.error) {
-          // Si el backend devuelve un error específico (como email ya registrado)
+          // Si el backend devuelve un error específico, como email ya registrado por ejemplo
           setErrores({ general: error.response.data.error });
         } else {
-          // Error genérico
+          // Si no hay un error específico, mostramos un mensaje genérico
           setErrores({ general: 'Error de conexión con el servidor' });
         }
       }

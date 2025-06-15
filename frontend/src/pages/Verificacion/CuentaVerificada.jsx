@@ -5,7 +5,7 @@ import { Box, Typography, Button, CircularProgress, Alert } from '@mui/material'
 const CuentaVerificada = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
-  const [estado, setEstado] = useState('cargando'); // 'cargando', 'exito', 'error'
+  const [estado, setEstado] = useState('cargando');
   const [errorMsg, setErrorMsg] = useState('');
 
   useEffect(() => {

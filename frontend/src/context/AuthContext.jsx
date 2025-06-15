@@ -18,7 +18,7 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  // Función para validar si el token ha expirado
+  // Función para validar si el token expiró
   const isTokenExpired = (payload) => {
     if (!payload.exp) return false;
     return Date.now() >= payload.exp * 1000;
@@ -35,10 +35,10 @@ export const AuthProvider = ({ children }) => {
         setUser({ 
           id: payload.usuario_id, 
           rol: payload.rol,
-          email: payload.email // si tienes email en el payload
+          email: payload.email 
         });
       } else {
-        // Token inválido o expirado, lo removemos
+        // Si el token es inválido o expiró, lo eliminamos
         localStorage.removeItem('token');
         setUser(null);
       }
@@ -47,7 +47,7 @@ export const AuthProvider = ({ children }) => {
     setLoading(false);
   }, []);
 
-  // Función para loguear (guardar token y actualizar user)
+  // Función para loguear guardar el token y establecer el usuario
  const login = (token) => {
   if (!token || typeof token !== 'string' || !token.includes('.')) {
     console.error('Token inválido recibido');
@@ -71,7 +71,7 @@ export const AuthProvider = ({ children }) => {
 };
 
 
-  // Función para desloguear (borrar token y limpiar user)
+  // Función para desloguear , borramos el token y limpiamos el usuario
   const logout = () => {
     localStorage.removeItem('token');
     setUser(null);

@@ -22,7 +22,7 @@ const CategorySlider = ({ categoria }) => {
     setScrollPosition(container.scrollLeft);
   };
 
-  // Si no hay categorías, mostrar mensaje
+  // Si no hay categorias, mostrar mensaje
   if (!categoria || categoria.length === 0) {
     return (
       <Box sx={{ p: 2 }}>
@@ -43,13 +43,13 @@ const CategorySlider = ({ categoria }) => {
     px: 2,
     py: 4,
     textAlign: 'center',
-    backgroundColor: 'rgba(255, 255, 255, 0.25)', // gris con 30% de opacidad
+    backgroundColor: 'rgba(255, 255, 255, 0.25)', 
     borderRadius: 2,
     boxShadow: 0,
     my: 4
   }}
 >
-      {/* Título */}
+      {/* Titulo */}
       <Typography
     variant="h5"
     gutterBottom

@@ -1,7 +1,7 @@
 import { useState, useEffect, useContext } from "react";
 import { IconButton, Badge, Menu, MenuItem, Snackbar, Alert, Box, Typography } from "@mui/material";
 import { ShoppingCart } from "@mui/icons-material";
-import { AuthContext } from "../../context/AuthContext"; // Ajusta la ruta según dónde esté tu contexto
+import { AuthContext } from "../../context/AuthContext"; 
 
 const CartDropdown = () => {
   const { isAuthenticated } = useContext(AuthContext);
@@ -10,7 +10,7 @@ const CartDropdown = () => {
   const [carrito, setCarrito] = useState([]);
   const [alertOpen, setAlertOpen] = useState(false);
 
-  // Abrir dropdown (si está logueado, carga el carrito y abre el menú, si no alerta)
+  // Abrir dropdown, si está logueado, carga el carrito y abre el menú, si no alerta
   const handleClick = (event) => {
     if (!isAuthenticated) {
       setAlertOpen(true);
@@ -41,7 +41,7 @@ const CartDropdown = () => {
       });
       if (!res.ok) throw new Error("Error al cargar el carrito");
       const data = await res.json();
-      setCarrito(data.carrito || []); // ajusta según la estructura que devuelve tu backend
+      setCarrito(data.carrito || []); 
     } catch (error) {
       console.error(error);
       setCarrito([]);

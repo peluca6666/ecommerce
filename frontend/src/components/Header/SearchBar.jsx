@@ -66,7 +66,7 @@ const SearchBar = ({ onSearch, initialValue = '' }) => {
               </InputAdornment>
             ),
             sx: {
-              pr: 1, // Padding derecho para el botón de limpiar
+              pr: 1, 
             }
           }
         }}

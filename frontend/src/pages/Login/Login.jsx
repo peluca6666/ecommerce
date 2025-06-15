@@ -4,7 +4,7 @@ import axios from 'axios';
 import { validarLogin } from '../../validations/loginFrontend.js';
 import LoginForm from '../../components/LoginForm/LoginForm.jsx'
 import { useContext } from 'react';
-import { AuthContext } from '../../context/AuthContext'; // asegurate que el path esté bien
+import { AuthContext } from '../../context/AuthContext'; 
 
 const Login = () => {
   const [formulario, setFormulario] = useState({

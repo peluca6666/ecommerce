@@ -88,7 +88,7 @@ const NavMenu = ({ mobile = false, onItemClick, sx }) => {
     );
   }
 
-  // Versión desktop (horizontal) - mantiene tu estructura original
+  // Versión desktop 
   return (
     <>
       <Button color="inherit">OFERTAS</Button>

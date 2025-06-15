@@ -32,7 +32,7 @@ function App() {
             <Route path="/cart" element={<Cart />} />
           </Route>
 
-   {/* Ruta protegida solo para admin */}
+         {/* Ruta protegida solo para admin */}
           <Route element={<ProtectedRoute allowedRoles={['admin']} />}>
             <Route path="/admin" element={<Admin />} />
           </Route>

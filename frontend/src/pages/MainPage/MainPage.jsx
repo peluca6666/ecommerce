@@ -19,7 +19,7 @@ const MainPage = () => {
   // Función para obtener productos de la API
   const fetchProducto = async () => {
     try {
-      const response = await fetch('http://localhost:3000/api/producto'); // URL completa
+      const response = await fetch('http://localhost:3000/api/producto'); 
       
       if (!response.ok) {
         throw new Error(`Error HTTP: ${response.status}`);
@@ -36,7 +36,7 @@ const MainPage = () => {
   // Función para obtener categorías de la API
   const fetchCategoria = async () => {
     try {
-      const response = await fetch('http://localhost:3000/api/categoria'); // URL completa
+      const response = await fetch('http://localhost:3000/api/categoria'); 
       
       if (!response.ok) {
         throw new Error(`Error HTTP: ${response.status}`);
@@ -44,9 +44,8 @@ const MainPage = () => {
       
       const data = await response.json();
       
-      // Ajustar según la estructura de tu API
       if (data.exito && data.categoria) {
-        return data.categoria; // Tu API devuelve "categoria" no "categorias"
+        return data.categoria; 
       } else if (Array.isArray(data)) {
         return data;
       } else {
@@ -64,7 +63,7 @@ const MainPage = () => {
       try {
         setState(prev => ({ ...prev, loading: true, error: null }));
         
-        // Cargar productos y categorías en paralelo
+        // Cargar productos y categorias en paralelo
         const [productoData, categoriaData] = await Promise.all([
           fetchProducto(),
           fetchCategoria()

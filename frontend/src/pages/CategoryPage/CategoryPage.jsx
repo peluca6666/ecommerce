@@ -5,7 +5,7 @@ import ProductGrid from '../../components/Product/ProductGrid';
 import LoadingSpinner from '../../components/common/LoadingSpinner';
 
 const CategoryPage = () => {
-  const { id } = useParams(); // ID de la categoría
+  const { id } = useParams(); 
   const [productos, setProductos] = useState([]);
   const [nombreCategoria, setNombreCategoria] = useState('');
   const [loading, setLoading] = useState(true);

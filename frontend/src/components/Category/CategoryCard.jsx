@@ -1,13 +1,13 @@
 import React from 'react';
 import { Card, CardMedia, CardContent, Typography } from '@mui/material';
-import { useNavigate } from 'react-router-dom'; // Si usas react-router
+import { useNavigate } from 'react-router-dom'; 
 
-const CategoryCard = ({ categoria }) => { // Cambié "category" por "categoria"
+const CategoryCard = ({ categoria }) => { 
   const navigate = useNavigate();
 
   const handleClick = () => {
-    // Navegar a la página de la categoría (opcional)
-    navigate(`/category/${categoria.categoria_id}`); // Usar categoria_id
+    // Navegar a la página de la categoría 
+    navigate(`/category/${categoria.categoria_id}`); 
   };
 
   return (
@@ -15,14 +15,14 @@ const CategoryCard = ({ categoria }) => { // Cambié "category" por "categoria"
       sx={{ 
         cursor: 'pointer',
         '&:hover': {
-          boxShadow: 4, // Efecto de sombra al hover
+          boxShadow: 4, 
           transform: 'scale(1.02)',
           transition: 'all 0.3s ease'
         }
       }}
       onClick={handleClick}
     >
-      {/* Imagen de la categoría */}
+      {/* Imagen de la categoria */}
       <CardMedia
         component="img"
         height="160"
@@ -30,10 +30,10 @@ const CategoryCard = ({ categoria }) => { // Cambié "category" por "categoria"
         alt={categoria.nombre}
       />
       
-      {/* Nombre de la categoría */}
+      {/* Nombre de la categoria */}
       <CardContent sx={{ textAlign: 'center' }}>
         <Typography variant="h6" component="h3">
-          {categoria.nombre} {/* Cambié "category" por "categoria" */}
+          {categoria.nombre} 
         </Typography>
       </CardContent>
     </Card>
