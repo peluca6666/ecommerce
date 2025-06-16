@@ -1,4 +1,4 @@
-import { schemaRegistro, schemaLogin } from '../validations/authValidation.js';
+import { schemaRegistro, schemaLogin, schemaCambioContraseña } from '../validations/authValidation.js';
 import * as usuarioService from '../services/usuarioService.js';
 
 
@@ -88,16 +88,14 @@ export const actualizarPerfilUsuario = async (req, res) => {
 
 export const cambiarContraseñaUsuario = async (req, res) => {
     try {
+        const { error, value } = schemaCambioContraseña.validate(req.body);
+        if (error) {
+            // Usamos el primer error de la lista para dar un feedback claro
+            return res.status(400).json({ exito: false, mensaje: error.details[0].message });
+        }
+      
         const usuarioId = req.usuario.id;
-        const { contraseniaActual, nuevaContrasenia } = req.body;
-
-        if (!contraseniaActual || !nuevaContrasenia) {
-            return res.status(400).json({ exito: false, mensaje: 'Todos los campos son requeridos' });
-        }
-
-        if (nuevaContrasenia.length < 8) {
-             return res.status(400).json({ exito: false, mensaje: 'La nueva contraseña debe tener al menos 8 caracteres' });
-        }
+        const { contraseniaActual, nuevaContrasenia } = value; // Usamos 'value' que son los datos ya validados
 
         await usuarioService.changeUserPassword(usuarioId, contraseniaActual, nuevaContrasenia);
 

@@ -20,7 +20,7 @@ export async function crearUsuario(datosUsuario) {
       (nombre, apellido, email, contrasenia, rol, verificado, dni, telefono, direccion) 
       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
     `;
-    
+
     const params = [
       datosUsuario.nombre,
       datosUsuario.apellido,
@@ -60,25 +60,25 @@ export async function crearUsuario(datosUsuario) {
  * @returns {Promise<string|null>} - Devuelve el token JWT, 'no-verificado', o null si las credenciales son incorrectas
  */
 export async function loginUsuario(email, contrasenia) {
-    const usuario = await obtenerUsuarioPorEmail(email);
-    if (!usuario) {
-        return null; // Usuario no encontrado
-    }
-    if (!usuario.verificado) {
-        return 'no-verificado';
-    }
+  const usuario = await obtenerUsuarioPorEmail(email);
+  if (!usuario) {
+    return null; // Usuario no encontrado
+  }
+  if (!usuario.verificado) {
+    return 'no-verificado';
+  }
 
-    const contraseniaValida = await compararContrasenia(contrasenia, usuario.contrasenia);
-    if (!contraseniaValida) {
-        return null; // Contraseña incorrecta
-    }
+  const contraseniaValida = await compararContrasenia(contrasenia, usuario.contrasenia);
+  if (!contraseniaValida) {
+    return null; // Contraseña incorrecta
+  }
 
-    const payload = {
-      usuario_id: usuario.usuario_id,
-      rol: usuario.rol
-    };
+  const payload = {
+    usuario_id: usuario.usuario_id,
+    rol: usuario.rol
+  };
 
-    return sign(payload, process.env.JWT_SECRET || "claveSecreta", { expiresIn: "1h" });
+  return sign(payload, process.env.JWT_SECRET || "claveSecreta", { expiresIn: "1h" });
 }
 
 /**
@@ -136,36 +136,42 @@ export async function obtenerUsuarioPorId(usuario_id) {
  * @returns {Promise<object>} El objeto del usuario actualizado.
  */
 export async function updateUserProfile(userId, profileData) {
-    const { dni, telefono, direccion } = profileData;
+  const { dni, telefono, direccion, provincia, localidad, codigo_postal } = profileData;
 
-    // Consulta para enviar solamente los campos que se van a actualizar
-    const fieldsToUpdate = [];
-    const values = [];
+  // Consulta para enviar solamente los campos que se van a actualizar
+  const fieldsToUpdate = [];
+  const values = [];
 
-    if (dni !== undefined) {
-        fieldsToUpdate.push('dni = ?');
-        values.push(dni);
-    }
-    if (telefono !== undefined) {
-        fieldsToUpdate.push('telefono = ?');
-        values.push(telefono);
-    }
-    if (direccion !== undefined) {
-        fieldsToUpdate.push('direccion = ?');
-        values.push(direccion);
-    }
+  if (dni !== undefined) {fieldsToUpdate.push('dni = ?');
+    values.push(dni);
+  } if (telefono !== undefined) {fieldsToUpdate.push('telefono = ?');
+    values.push(telefono);
+  } if (direccion !== undefined) { fieldsToUpdate.push('direccion = ?');
+    values.push(direccion);
+  } if (dni !== undefined) { fieldsToUpdate.push('dni = ?'); 
+    values.push(dni); 
+  } if (telefono !== undefined) { fieldsToUpdate.push('telefono = ?'); 
+    values.push(telefono);
+   } if (direccion !== undefined) { fieldsToUpdate.push('direccion = ?');
+     values.push(direccion);
+     } if (provincia !== undefined) { fieldsToUpdate.push('provincia = ?');
+     values.push(provincia);
+     } if (localidad !== undefined) { fieldsToUpdate.push('localidad = ?'); 
+    values.push(localidad); 
+  } if (codigo_postal !== undefined)
+     { fieldsToUpdate.push('codigo_postal = ?');
+     values.push(codigo_postal);
+     } if (fieldsToUpdate.length === 0) {
+    throw { statusCode: 400, message: 'No se proporcionaron campos para actualizar' };
+  }
 
-    if (fieldsToUpdate.length === 0) {
-        throw { statusCode: 400, message: 'No se proporcionaron campos para actualizar' };
-    }
+  const sql = `UPDATE usuario SET ${fieldsToUpdate.join(', ')} WHERE usuario_id = ?`;
+  values.push(userId);
 
-    const sql = `UPDATE usuario SET ${fieldsToUpdate.join(', ')} WHERE usuario_id = ?`;
-    values.push(userId);
+  await pool.execute(sql, values);
 
-    await pool.execute(sql, values);
-
-    // Devolvemos el perfil actualizado
-    return obtenerUsuarioPorId(userId);
+  // Devolvemos el perfil actualizado
+  return obtenerUsuarioPorId(userId);
 }
 
 /**
@@ -176,18 +182,18 @@ export async function updateUserProfile(userId, profileData) {
  * @returns {Promise<boolean>} True si la contraseña se cambió correctamente
  */
 export async function changeUserPassword(userId, contraseniaActual, nuevaContrasenia) {
-    const usuario = await obtenerUsuarioPorEmail((await obtenerUsuarioPorId(userId)).email);
-    if (!usuario) {
-        throw { statusCode: 404, message: 'Usuario no encontrado' };
-    }
+  const usuario = await obtenerUsuarioPorEmail((await obtenerUsuarioPorId(userId)).email);
+  if (!usuario) {
+    throw { statusCode: 404, message: 'Usuario no encontrado' };
+  }
 
-    const contraseniaValida = await compararContrasenia(contraseniaActual, usuario.contrasenia);
-    if (!contraseniaValida) {
-        throw { statusCode: 401, message: 'La contraseña actual es incorrecta' };
-    }
+  const contraseniaValida = await compararContrasenia(contraseniaActual, usuario.contrasenia);
+  if (!contraseniaValida) {
+    throw { statusCode: 401, message: 'La contraseña actual es incorrecta' };
+  }
 
-    const nuevoHash = await encriptarContrasenia(nuevaContrasenia);
-    await pool.execute('UPDATE usuario SET contrasenia = ? WHERE usuario_id = ?', [nuevoHash, userId]);
-    
-    return true;
+  const nuevoHash = await encriptarContrasenia(nuevaContrasenia);
+  await pool.execute('UPDATE usuario SET contrasenia = ? WHERE usuario_id = ?', [nuevoHash, userId]);
+
+  return true;
 }

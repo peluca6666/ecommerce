@@ -38,6 +38,24 @@ export const schemaRegistro = Joi.object({
         })
 });
 
+//validación para el cambio de contraseña
+export const schemaCambioContraseña = Joi.object({
+    contraseniaActual: Joi.string().required().messages({
+        'any.required': 'La contraseña actual es obligatoria.',
+        'string.empty': 'La contraseña actual no puede estar vacía.',
+    }),
+    nuevaContrasenia: Joi.string()
+        .min(8)
+        .pattern(/^(?=.*[A-Z])(?=.*[@$!%*?&]).{8,}$/)
+        .required()
+        .messages({
+            'string.min': 'La nueva contraseña debe tener al menos 8 caracteres.',
+            'string.pattern.base': 'La nueva contraseña debe contener al menos una mayúscula y un caracter especial (@$!%*?&).',
+            'any.required': 'La nueva contraseña es obligatoria.',
+            'string.empty': 'La nueva contraseña не puede estar vacía.',
+        })
+});
+
 export const schemaLogin = Joi.object({
     email: Joi.string().email().required().messages({
         'any.required': 'El email es obligatorio',
