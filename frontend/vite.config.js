@@ -8,6 +8,10 @@ export default defineConfig({
     proxy: {
         '/categoria': 'http://localhost:3000/api',
         '/producto': 'http://localhost:3000/api',
-    }
+    },
+     port: 5173,       
+    strictPort: true, 
+    
   }
 });
+

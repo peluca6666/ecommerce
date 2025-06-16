@@ -71,3 +71,17 @@ export async function eliminarProducto(req, res) {
         return res.status(error.statusCode || 500).json({ exito: false, mensaje: error.message || 'Error interno del servidor' });
     }
 }
+
+export async function obtenerProductosEnOferta(req, res) {
+    try {
+        const productos = await productoService.getOfferProducts();
+        return res.status(200).json({
+            exito: true,
+            mensaje: 'Productos en oferta obtenidos exitosamente',
+            datos: productos
+        });
+    } catch (error) {
+        console.error("Error en obtenerProductosEnOferta Controller:", error);
+        return res.status(500).json({ exito: false, mensaje: 'Error al obtener productos en oferta' });
+    }
+}

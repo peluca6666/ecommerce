@@ -3,7 +3,7 @@ import { verifyToken, autorizarPorRol } from '../middleware/auth.js';
 import { schemaRegistro, schemaLogin } from '../validations/authValidation.js';
 import { validarBody } from '../middleware/validar.js';
 import { registrarUsuario, loginUsuario, obtenerPerfilUsuario } from '../controllers/usuarioController.js';
-import { agregarProducto, obtenerProductos, actualizarProducto, eliminarProducto } from '../controllers/productoController.js';
+import { agregarProducto, obtenerProductos, actualizarProducto, eliminarProducto, obtenerProductosEnOferta } from '../controllers/productoController.js';
 import { actualizarCategoria, crearCategoria, eliminarCategoria, obtenerCategoriaPorId, obtenerCategorias, obtenerCategoriasConConteo, obtenerProductosPorCategoria } from '../controllers/categoriaController.js';
 import { obtenerCarrito, agregarProductoAlCarrito, actualizarProductoEnCarrito, eliminarProductoDelCarrito } from '../controllers/carritoController.js';
 import { verificarCuenta } from '../controllers/usuarioController.js';
@@ -20,6 +20,7 @@ router.get('/verify', verificarCuenta);
 //------------------------ Rutas de productos ------------------------
 router.get('/producto', obtenerProductos);
 router.post('/producto', verifyToken, autorizarPorRol('admin'), agregarProducto);
+router.get('/producto/ofertas', obtenerProductosEnOferta);
 router.put('/producto/:id', verifyToken, autorizarPorRol('admin'), actualizarProducto);
 router.delete('/producto/:id', verifyToken, autorizarPorRol('admin'), eliminarProducto);
 

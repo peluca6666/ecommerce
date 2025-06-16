@@ -49,7 +49,7 @@ export async function enviarMailBienvenida(usuario) {
     );
 
     // URL de verificación
-    const frontendBase = process.env.FRONTEND_URL || 'http://localhost:5174';
+    const frontendBase = process.env.FRONTEND_URL || 'http://localhost:5173';
     const urlVerificacion = `${frontendBase}/cuenta-verificada?token=${token}`;
 
     const mailOptions = {

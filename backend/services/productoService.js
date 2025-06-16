@@ -157,3 +157,19 @@ export async function deleteProduct(productoId) {
     throw error;
   }
 }
+
+/**
+ * Obtiene una lista de productos que están marcados como oferta
+ * @param {number} limite - La cantidad máxima de productos a devolver
+ * @returns {Promise<Array>} - Lista de productos en oferta
+ */
+export async function getOfferProducts(limite = 8) {
+    const query = `
+        SELECT * FROM producto 
+        WHERE activo = true AND es_oferta = true 
+        ORDER BY producto_id DESC 
+        LIMIT ?
+    `;
+    const [productos] = await pool.query(query, [limite]);
+    return productos;
+}

@@ -1,13 +1,19 @@
-import React, { createContext, useState, useEffect } from 'react';
+import React, { createContext, useState, useEffect, useContext } from 'react';
+import { Snackbar, Alert } from '@mui/material';
+import axios from 'axios';
 
 export const AuthContext = createContext();
 
-export const AuthProvider = ({ children }) => {
-  // Estado del usuario - inicializamos como null
-  const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true); // Para manejar el estado de carga inicial
+export const useAuth = () => {
+  return useContext(AuthContext);
+};
 
-  // Función para decodificar token JWT de forma segura
+export const AuthProvider = ({ children }) => {
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [notification, setNotification] = useState({ open: false, message: '', severity: 'info' });
+  const [cart, setCart] = useState({ productos: [], count: 0, total: 0 });
+
   const decodeToken = (token) => {
     try {
       const payload = JSON.parse(atob(token.split('.')[1]));
@@ -18,83 +24,118 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  // Función para validar si el token expiró
   const isTokenExpired = (payload) => {
     if (!payload.exp) return false;
     return Date.now() >= payload.exp * 1000;
   };
 
-  // Cargamos el token guardado en localStorage al inicio
+  const fetchCart = async () => {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      setCart({ productos: [], count: 0, total: 0 });
+      return;
+    }
+    try {
+      const response = await axios.get('http://localhost:3000/api/carrito', {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (response.data.exito) {
+        const itemCount = response.data.productos.reduce((acc, item) => acc + item.cantidad, 0);
+        setCart({
+          productos: response.data.productos,
+          count: itemCount,
+          total: response.data.total
+        });
+      }
+    } catch (error) {
+      console.error("Error al obtener el carrito:", error);
+      setCart({ productos: [], count: 0, total: 0 });
+    }
+  };
+
   useEffect(() => {
     const token = localStorage.getItem('token');
-    
     if (token) {
       const payload = decodeToken(token);
-      
       if (payload && !isTokenExpired(payload)) {
-        setUser({ 
-          id: payload.usuario_id, 
-          rol: payload.rol,
-          email: payload.email 
-        });
+        setUser({ id: payload.usuario_id, rol: payload.rol, email: payload.email });
+        fetchCart();
       } else {
-        // Si el token es inválido o expiró, lo eliminamos
         localStorage.removeItem('token');
         setUser(null);
       }
     }
-    
     setLoading(false);
   }, []);
 
-  // Función para loguear guardar el token y establecer el usuario
- const login = (token) => {
-  if (!token || typeof token !== 'string' || !token.includes('.')) {
-    console.error('Token inválido recibido');
-    return false;
-  }
+  const login = (token) => {
+    if (!token || typeof token !== 'string' || !token.includes('.')) {
+      console.error('Token inválido recibido');
+      return false;
+    }
+    const payload = decodeToken(token);
+    if (payload && !isTokenExpired(payload)) {
+      localStorage.setItem('token', token);
+      setUser({ id: payload.usuario_id, rol: payload.rol, email: payload.email });
+      fetchCart();
+      return true;
+    } else {
+      console.error('Token inválido o expirado');
+      return false;
+    }
+  };
 
-  const payload = decodeToken(token);
-
-  if (payload && !isTokenExpired(payload)) {
-    localStorage.setItem('token', token);
-    setUser({ 
-      id: payload.usuario_id, 
-      rol: payload.rol,
-      email: payload.email
-    });
-    return true;
-  } else {
-    console.error('Token inválido o expirado');
-    return false;
-  }
-};
-
-
-  // Función para desloguear , borramos el token y limpiamos el usuario
   const logout = () => {
     localStorage.removeItem('token');
     setUser(null);
+    setCart({ productos: [], count: 0, total: 0 });
   };
 
-  // Función para obtener el token actual
-  const getToken = () => {
-    return localStorage.getItem('token');
+  const getToken = () => localStorage.getItem('token');
+
+  const showNotification = (message, severity = 'success') => {
+    setNotification({ open: true, message, severity });
   };
 
-  // Estado y funciones que queremos compartir
+  const handleCloseNotification = (event, reason) => {
+    if (reason === 'clickaway') return;
+    setNotification({ ...notification, open: false });
+  };
+
+  const addToCart = async (productoId) => {
+    const token = getToken();
+    if (!token) {
+      showNotification('Debes estar logueado para agregar productos', 'warning');
+      return;
+    }
+    try {
+      await axios.post('http://localhost:3000/api/carrito',
+        { producto_id: productoId, cantidad: 1 },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      await fetchCart();
+      showNotification('Producto agregado al carrito', 'success');
+    } catch (error) {
+      console.error("Error al agregar al carrito:", error);
+      showNotification(error.response?.data?.mensaje || 'Error al agregar producto', 'error');
+    }
+  };
+
   const value = {
-    user,
-    login,
-    logout,
-    getToken,
-    isAuthenticated: !!user,
-    loading
+    user, login, logout, getToken, isAuthenticated: !!user, loading,
+    showNotification,
+    cart,
+    addToCart,
   };
 
   return (
     <AuthContext.Provider value={value}>
       {children}
+      <Snackbar open={notification.open} autoHideDuration={6000} onClose={handleCloseNotification} anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}>
+        <Alert onClose={handleCloseNotification} severity={notification.severity} sx={{ width: '100%' }}>
+          {notification.message}
+        </Alert>
+      </Snackbar>
     </AuthContext.Provider>
   );
 };

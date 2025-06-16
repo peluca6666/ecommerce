@@ -3,13 +3,12 @@ import { Menu as MenuIcon } from "@mui/icons-material";
 import { useState } from "react";
 import SearchBar from "./SearchBar";
 import NavMenu from "./NavMenu";
-import CartButton from "../Cart/CartDropdown.jsx";
+import CartDropdown from "../Cart/CartDropdown.jsx";
 import UserButton from "../common/UserButton.jsx";
 
-const Header = ({ cartCount }) => {
+const Header = ({ categoria }) => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
-  const isTablet = useMediaQuery(theme.breakpoints.down('lg'));
   const [drawerOpen, setDrawerOpen] = useState(false);
 
   const handleDrawerToggle = () => {
@@ -25,64 +24,35 @@ const Header = ({ cartCount }) => {
         minHeight: { xs: 56, sm: 64 }
       }}>
         
-        {/* Menu hamburguesa */}
         {isMobile && (
-          <IconButton
-            color="inherit"
-            aria-label="open drawer"
-            edge="start"
-            onClick={handleDrawerToggle}
-            sx={{ mr: 1 }}
-          >
+          <IconButton color="inherit" edge="start" onClick={handleDrawerToggle} sx={{ mr: 1 }}>
             <MenuIcon />
           </IconButton>
         )}
 
-        {/* Logo */}
-        <Typography 
-          variant={isMobile ? "h5" : isTablet ? "h4" : "h3"} 
-          sx={{ 
-            flexGrow: 0, 
-            mr: { xs: 1, sm: 2, md: 4 },
-            fontSize: { xs: '1.2rem', sm: '1.5rem', md: '2rem' }
-          }}
-        >
+        <Typography variant="h5" sx={{ flexGrow: { xs: 1, md: 0 }, mr: { md: 4 } }}>
           SaloMarket
         </Typography>
 
-        {/* El buscador se oculta en movil*/}
-        {!isMobile && (
-          <SearchBar 
-            onSearch={(term) => console.log('Buscar:', term)} 
-            initialValue="" 
-          />
-        )}
+        {!isMobile && <SearchBar onSearch={(term) => console.log('Buscar:', term)} />}
 
-        {/* Navmenu solo visible en desktop*/}
         {!isMobile && (
-          <Box sx={{ display: 'flex', ml: { sm: 2, md: 4 }, gap: 2 }}>
+          <Box sx={{ display: 'flex', ml: 'auto', gap: 2 }}>
             <NavMenu />
           </Box>
         )}
 
-        {/* Carrito y usuario siempre visible */}
         <Box sx={{ 
-          marginLeft: 'auto', 
+          marginLeft: isMobile ? 0 : 'auto', 
           display: 'flex', 
           alignItems: 'center', 
           gap: { xs: 1, sm: 2 } 
         }}>
-          <CartButton count={cartCount} />
+          <CartDropdown />
           <UserButton />
         </Box>
 
-        {/* Drawer para navegación en celular */}
-        <Drawer
-          variant="temporary"
-          anchor="left"
-          open={drawerOpen}
-          onClose={handleDrawerToggle}
-          ModalProps={{
+        <Drawer variant="temporary" anchor="left" open={drawerOpen} onClose={handleDrawerToggle}  ModalProps={{
             keepMounted: true, //Mejora el rendimiento en celulares
           }}
           sx={{
@@ -124,10 +94,9 @@ const Header = ({ cartCount }) => {
               />
             </ListItem>
           </List>
+         
         </Drawer>
       </Toolbar>
-
-
     </AppBar>
   );
 };
