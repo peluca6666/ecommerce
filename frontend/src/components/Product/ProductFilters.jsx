@@ -1,8 +1,11 @@
 import { useState, useEffect } from 'react';
-import { Box, TextField, Select, MenuItem, FormControl, InputLabel, Paper, Typography } from '@mui/material';
+import { 
+    Box, TextField, Select, MenuItem, FormControl, 
+    InputLabel, Paper, Typography, Checkbox, FormControlLabel 
+} from '@mui/material';
 import axios from 'axios';
 
-const ProductFilters = ({ filtros, onFilterChange }) => {
+const ProductFilters = ({ filtros, onFilterChange, onCheckboxChange }) => {
     const [categorias, setCategorias] = useState([]);
 
     // Obtenemos las categorías para el dropdown cuando el componente se monta
@@ -75,6 +78,17 @@ const ProductFilters = ({ filtros, onFilterChange }) => {
                         <MenuItem value="precio_desc">Precio (Mayor a Menor)</MenuItem>
                     </Select>
                 </FormControl>
+                  <FormControlLabel
+                    control={
+                        <Checkbox
+                            name="es_oferta"
+                            // El checkbox estará marcado si el filtro 'es_oferta' es 'true'
+                            checked={filtros.es_oferta === 'true'}
+                            onChange={onCheckboxChange}
+                        />
+                    }
+                    label="Mostrar solo ofertas"
+                />
             </Box>
         </Paper>
     );

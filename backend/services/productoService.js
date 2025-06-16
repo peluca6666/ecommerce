@@ -6,10 +6,10 @@ import { pool } from '../database/connectionMySQL.js';
  * @returns {Promise<{productos: Array, paginacion: object}>}
  */
 export async function getAllProducts(options = {}) {
-    const { categoria, busqueda, minPrice, maxPrice, sortBy, pagina = 1, limite = 10 } = options;
+    const { categoria, busqueda, minPrice, maxPrice, es_oferta, sortBy, pagina = 1, limite = 10 } = options;
     const offset = (parseInt(pagina) - 1) * parseInt(limite);
 
-    let query = `SELECT * FROM producto WHERE activo = true`;
+      let query = `SELECT * FROM producto WHERE activo = true`;
     let countQuery = `SELECT COUNT(*) as total FROM producto WHERE activo = true`;
     const params = [];
     const countParams = [];
@@ -38,6 +38,10 @@ export async function getAllProducts(options = {}) {
         params.push(parseFloat(maxPrice));
         countParams.push(parseFloat(maxPrice));
     }
+    if (es_oferta === 'true') {
+        query += ` AND es_oferta = true`;
+        countQuery += ` AND es_oferta = true`;
+    }
 
     const validSorts = {
         precio_asc: 'ORDER BY precio ASC',
@@ -55,7 +59,12 @@ export async function getAllProducts(options = {}) {
 
     return {
         productos,
-        paginacion: { total, limite: parseInt(limite), pagina: parseInt(pagina) }
+        paginacion: { 
+            total, 
+            limite: parseInt(limite), 
+            pagina: parseInt(pagina),
+            total_paginas: Math.ceil(total / parseInt(limite))
+        }
     };
 }
 
