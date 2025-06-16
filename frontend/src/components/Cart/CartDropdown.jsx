@@ -13,7 +13,7 @@ const CartDropdown = () => {
     isAuthenticated, 
     cart = { count: 0, productos: [], total: 0 }, 
     showNotification,
-    removeFromCart // Obtenemos la nueva función del contexto
+    removeFromCart
   } = useAuth() || {};
 
   const [anchorEl, setAnchorEl] = useState(null);
@@ -33,6 +33,14 @@ const CartDropdown = () => {
   const open = Boolean(anchorEl);
   const id = open ? 'cart-popover' : undefined;
 
+  const handleRemove = (e, productoId) => {
+    e.stopPropagation();
+    e.preventDefault(); 
+
+
+    removeFromCart(productoId);
+  };
+
   return (
     <>
       <IconButton color="inherit" aria-label="Carrito" onClick={handleClick}>
@@ -46,38 +54,27 @@ const CartDropdown = () => {
         open={open}
         anchorEl={anchorEl}
         onClose={handleClose}
-        anchorOrigin={{
-          vertical: 'bottom',
-          horizontal: 'right',
-        }}
-        transformOrigin={{
-          vertical: 'top',
-          horizontal: 'right',
-        }}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+        transformOrigin={{ vertical: 'top', horizontal: 'right' }}
         slotProps={{ paper: { sx: { width: 360, borderRadius: 2 } } }}
       >
         <Box sx={{ p: 2 }}>
-          <Typography variant="h6" component="div">
-            Tu Carrito
-          </Typography>
+          <Typography variant="h6" component="div">Tu Carrito</Typography>
         </Box>
         <Divider />
 
         {cart.productos.length === 0 ? (
-          <Typography sx={{ p: 2, color: 'text.secondary' }}>
-            Tu carrito está vacío
-          </Typography>
+          <Typography sx={{ p: 2, color: 'text.secondary' }}>Tu carrito está vacío</Typography>
         ) : (
           <List dense>
             {cart.productos.map((producto) => (
               <ListItem
                 key={producto.producto_id}
                 secondaryAction={
-                  <IconButton edge="end" aria-label="delete" onClick={() => removeFromCart(producto.producto_id)}>
+                  <IconButton edge="end" aria-label="delete" onClick={(e) => handleRemove(e, producto.producto_id)}>
                     <DeleteOutline />
                   </IconButton>
                 }
-                // Hacemos que el item sea un enlace
                 component={RouterLink}
                 to={`/producto/${producto.producto_id}`}
                 sx={{ color: 'inherit', textDecoration: 'none', '&:hover': { bgcolor: 'action.hover' } }}
@@ -102,11 +99,11 @@ const CartDropdown = () => {
           </Typography>
           <Button
             component={RouterLink}
-            to="/carrito" 
+            to="/carrito"
             variant="contained"
             fullWidth
             sx={{ mt: 2 }}
-            onClick={handleClose} 
+            onClick={handleClose}
           >
             Ir al Carrito
           </Button>
