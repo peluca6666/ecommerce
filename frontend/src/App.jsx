@@ -2,8 +2,6 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Login from './pages/Login/Login.jsx';
 import Register from './pages/Register/Register.jsx';
 import MainPage from './pages/MainPage/MainPage.jsx';
-import Products from './pages/Productos/ProductListPage.jsx';
-import Cart from './pages/Carrito/Carrito.jsx';
 import Admin from './pages/Admin/Admin.jsx';
 import ProtectedRoute from './components/ProtectedRoute/ProtectedRoute.jsx';
 import { AuthProvider } from './context/AuthContext';
@@ -16,6 +14,7 @@ import ProductDetailPage from './pages/Productos/ProductDetailPage';
 import SobreNosotrosPage from './pages/SobreNosotros/SobreNosotrosPage.jsx';
 import ContactoPage from './pages/Contacto/ContactoPage';
 import ProductListPage from './pages/Productos/ProductListPage.jsx';
+import CartPage from './pages/Carrito/CartPage.jsx';
 
 function App() {
   return (
@@ -35,9 +34,9 @@ function App() {
             <Route path="/contacto" element={<ContactoPage />} />
 
           {/*Rutas protegidas de usuarios no logueados*/}
-          <Route element={<ProtectedRoute requireAuth={true} />}>
-            <Route path="/cart" element={<Cart />} />
-          </Route>
+            <Route element={<ProtectedRoute requireAuth={true} />}>
+                <Route path="/carrito" element={<CartPage />} />
+           </Route>
 
           {/* Ruta protegida solo para admin */}
           <Route element={<ProtectedRoute allowedRoles={['admin']} />}>

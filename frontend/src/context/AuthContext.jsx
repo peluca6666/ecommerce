@@ -141,12 +141,40 @@ const removeFromCart = async (productoId) => {
         }
     };
 
+  const updateCartItemQuantity = async (productoId, cantidad) => {
+        const token = getToken();
+        if (!token) {
+            showNotification('Se requiere autenticación', 'error');
+            return;
+        }
+
+        // Validamos que la cantidad sea un número positivo
+        if (isNaN(cantidad) || cantidad <= 0) {
+            // Si la cantidad es 0 o inválida, lo eliminamos
+            return removeFromCart(productoId);
+        }
+
+        try {
+            // Usamos el endpoint PUT que ya creamos en el backend
+            await axios.put(`http://localhost:3000/api/carrito/${productoId}`, 
+                { cantidad: cantidad },
+                { headers: { Authorization: `Bearer ${token}` } }
+            );
+            await fetchCart(); // Refrescamos el carrito para que se actualice la UI
+            showNotification('Cantidad actualizada', 'success');
+        } catch (error) {
+            console.error("Error al actualizar la cantidad:", error);
+            showNotification(error.response?.data?.mensaje || 'Error al actualizar producto', 'error');
+        }
+    };
+
     const value = {
         user, login, logout, getToken, isAuthenticated: !!user, loading,
         showNotification,
         cart,
         addToCart,
         removeFromCart, 
+         updateCartItemQuantity
     };
 
   return (

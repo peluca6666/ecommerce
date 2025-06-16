@@ -87,10 +87,10 @@ export async function addProductToCart(usuarioId, productoId, cantidad) {
 }
 
 /**
- * Actualiza la cantidad de un producto en el carrito. Si la cantidad es 0 elimina el carrito
- * @param {number} usuarioId 
- * @param {number} productoId 
- * @param {number} cantidad  La nueva cantidad
+ * Actualiza la cantidad de un producto en el carrito. Si la cantidad es 0, lo elimina
+ * @param {number} usuarioId - El ID del usuario
+ * @param {number} productoId - El ID del producto
+ * @param {number} cantidad - La nueva cantidad
  * @returns {Promise<object>} Resultado de la operación
  */
 export async function updateProductInCart(usuarioId, productoId, cantidad) {
@@ -106,10 +106,15 @@ export async function updateProductInCart(usuarioId, productoId, cantidad) {
     if (cantidad === 0) {
       const [deleteResult] = await connection.query('DELETE FROM producto_en_carrito WHERE carrito_id = ? AND producto_id = ?', [carritoId, productoId]);
       await connection.commit();
+      connection.release();
       return { operacion: 'eliminado', afectado: deleteResult.affectedRows > 0 };
     }
 
-    const [[producto]] = await connection.query('SELECT stock_actual FROM producto WHERE producto_id = ? AND activo = true FOR UPDATE', [productoId]);
+    // Seleccionamos el stock y precio del producto para verificar disponibilidad
+    const [[producto]] = await connection.query(
+        'SELECT precio, stock_actual FROM producto WHERE producto_id = ? AND activo = true FOR UPDATE', 
+        [productoId]
+    );
     if (!producto) {
       throw { statusCode: 404, message: 'Producto no encontrado o no disponible' };
     }
@@ -117,12 +122,16 @@ export async function updateProductInCart(usuarioId, productoId, cantidad) {
     if (cantidad > producto.stock_actual) {
       throw { statusCode: 400, message: `Stock insuficiente. Disponible: ${producto.stock_actual}` };
     }
-
+//Buscamos el precio del producto para ponerlo en el carrito
     await connection.query(
-      `INSERT INTO producto_en_carrito (carrito_id, producto_id, cantidad) VALUES (?, ?, ?)
-       ON DUPLICATE KEY UPDATE cantidad = VALUES(cantidad)`,
-      [carritoId, productoId, cantidad]
+      `INSERT INTO producto_en_carrito (carrito_id, producto_id, cantidad, precio_unitario) VALUES (?, ?, ?, ?)
+       ON DUPLICATE KEY UPDATE cantidad = VALUES(cantidad), precio_unitario = VALUES(precio_unitario)`,
+      [carritoId, productoId, cantidad, producto.precio] // Pasamos el precio obtenido
     );
+
+    // Actualizamos el timestamp del carrito
+    await connection.query('UPDATE carrito SET actualizado_en = NOW() WHERE carrito_id = ?', [carritoId]);
+
     await connection.commit();
     return { operacion: 'actualizado', cantidad_nueva: cantidad };
 
@@ -131,7 +140,8 @@ export async function updateProductInCart(usuarioId, productoId, cantidad) {
     console.error('Error en servicio updateProductInCart:', error);
     throw error;
   } finally {
-    connection.release();
+    // Nos aseguramos de que la conexión siempre se libere
+    if (connection) connection.release();
   }
 }
 

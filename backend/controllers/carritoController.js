@@ -30,17 +30,22 @@ export async function agregarProductoAlCarrito(req, res) {
   }
 }
 
+
 export async function actualizarProductoEnCarrito(req, res) {
   try {
     const usuarioId = req.usuario.id;
-    const { producto_id, cantidad } = req.body;
+
+    const { id: productoId } = req.params; 
+    
+    const { cantidad } = req.body;
 
     const cantidadNum = parseInt(cantidad);
-    if (!producto_id || isNaN(cantidadNum) || cantidadNum < 0) {
+    
+    if (!productoId || isNaN(cantidadNum) || cantidadNum < 0) {
       return res.status(400).json({ exito: false, mensaje: 'Datos de producto inválidos. La cantidad debe ser un número mayor o igual a 0.' });
     }
 
-    const resultado = await carritoService.updateProductInCart(usuarioId, parseInt(producto_id), cantidadNum);
+    const resultado = await carritoService.updateProductInCart(usuarioId, parseInt(productoId), cantidadNum);
     return res.status(200).json({ exito: true, mensaje: `Operación realizada: ${resultado.operacion}`, datos: resultado });
 
   } catch (error) {
