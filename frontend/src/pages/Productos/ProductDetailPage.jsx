@@ -4,13 +4,13 @@ import { Container, Grid, Box, Typography, Button, Divider, Paper } from '@mui/m
 import { useAuth } from '../../context/AuthContext';
 import LoadingSpinner from '../../components/common/LoadingSpinner';
 import axios from 'axios';
-import Header from '../../components/Header/Header'; // Asumiendo que quieres el Header en esta página
-import Footer from '../../components/Footer/Footer';   // Y el Footer
+import Header from '../../components/Header/Header';
+import Footer from '../../components/Footer/Footer';  
 
 const ProductDetailPage = () => {
-    const { id } = useParams(); // Obtiene el ID del producto de la URL
-    const navigate = useNavigate(); // Hook para redirigir al usuario
-    const { addToCart } = useAuth(); // Usamos la función del contexto que ya creamos
+    const { id } = useParams(); 
+    const navigate = useNavigate(); 
+    const { addToCart } = useAuth(); 
 
     const [producto, setProducto] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -44,14 +44,11 @@ const ProductDetailPage = () => {
         };
 
         fetchProduct();
-    }, [id]); // El efecto se ejecuta cada vez que el ID de la URL cambia
+    }, [id]); 
 
     const handleBuyNow = async () => {
-        // Como no hay pagos, la lógica de "Comprar Ahora" será:
-        // 1. Agregar el producto al carrito.
-        // 2. Redirigir al usuario a la página del carrito.
         await addToCart(producto.producto_id);
-        navigate('/carrito'); // Asumiendo que tienes una ruta '/carrito'
+        navigate('/carrito'); 
     };
 
     if (loading) return <LoadingSpinner />;
@@ -60,7 +57,7 @@ const ProductDetailPage = () => {
 
     return (
         <>
-            <Header /> {/* Puedes o no incluir el Header/Footer según tu diseño */}
+            <Header /> 
             <Container maxWidth="lg" sx={{ my: 4 }}>
                 <Paper elevation={3} sx={{ p: 4 }}>
                     <Grid container spacing={4}>
@@ -72,7 +69,6 @@ const ProductDetailPage = () => {
                                     alt={producto.nombre_producto} 
                                     style={{ width: '100%', height: 'auto', borderRadius: '8px' }} 
                                 />
-                                {/* Aquí podrías agregar una galería con las otras imágenes si existen */}
                             </Box>
                         </Grid>
                         <Grid item xs={12} md={6}>
