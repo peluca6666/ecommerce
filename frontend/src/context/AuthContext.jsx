@@ -102,7 +102,7 @@ export const AuthProvider = ({ children }) => {
     setNotification({ ...notification, open: false });
   };
 
-  const addToCart = async (productoId) => {
+  const addToCart = async (productoId, cantidad = 1) =>{
     const token = getToken();
     if (!token) {
       showNotification('Debes estar logueado para agregar productos', 'warning');
@@ -110,7 +110,7 @@ export const AuthProvider = ({ children }) => {
     }
     try {
       await axios.post('http://localhost:3000/api/carrito',
-        { producto_id: productoId, cantidad: 1 },
+        { producto_id: productoId, cantidad: cantidad },
         { headers: { Authorization: `Bearer ${token}` } }
       );
       await fetchCart();
