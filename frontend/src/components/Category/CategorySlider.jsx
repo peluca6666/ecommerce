@@ -1,119 +1,125 @@
-import { useState, useRef } from 'react';
-import { Box, IconButton, Typography } from "@mui/material";
-import { ArrowBackIos, ArrowForwardIos } from "@mui/icons-material";
+import { useState, useRef, useEffect } from 'react';
+import { Box, IconButton, Typography, useTheme } from "@mui/material";
+import { ChevronLeft, ChevronRight } from "@mui/icons-material"; // Usaremos estos iconos, son más estándar
 import CategoryCard from "./CategoryCard";
 
 const CategorySlider = ({ categoria }) => {
-  const [scrollPosition, setScrollPosition] = useState(0);
+  const theme = useTheme();
   const sliderRef = useRef(null);
 
+  // Estados para controlar la visibilidad de las flechas 
+  const [showLeftArrow, setShowLeftArrow] = useState(false);
+  const [showRightArrow, setShowRightArrow] = useState(true);
 
-
-  const handleScroll = (direction) => {
+  // FUNCIÓN PARA VERIFICAR LA POSICIÓN DEL SCROLL Y MOSTRAR/OCULTAR FLECHAS 
+  const checkArrows = () => {
     const container = sliderRef.current;
-    const scrollAmount = 300;
+    if (!container) return;
 
-    if (direction === 'left') {
-      container.scrollLeft -= scrollAmount;
-    } else {
-      container.scrollLeft += scrollAmount;
-    }
+    // Mostrar flecha izquierda si no estamos al principio
+    setShowLeftArrow(container.scrollLeft > 0);
 
-    setScrollPosition(container.scrollLeft);
+    // Mostrar flecha derecha si todavía hay contenido por ver a la derecha
+    const maxScrollLeft = container.scrollWidth - container.clientWidth;
+    setShowRightArrow(container.scrollLeft < maxScrollLeft - 1); // -1 para precisión de píxeles
   };
 
-  // Si no hay categorias, mostrar mensaje
+  // Usamos useEffect para agregar y limpiar el listener del evento de scroll 
+  useEffect(() => {
+    const container = sliderRef.current;
+    if (container) {
+      checkArrows(); // Verificamos el estado inicial
+      container.addEventListener('scroll', checkArrows);
+    }
+
+    // Función de limpieza para evitar fugas de memoria
+    return () => {
+      if (container) {
+        container.removeEventListener('scroll', checkArrows);
+      }
+    };
+  }, [categoria]); // Se vuelve a ejecutar si las categorías cambian
+
+  const handleScroll = (scrollOffset) => {
+    if (sliderRef.current) {
+      sliderRef.current.scrollBy({ left: scrollOffset, behavior: 'smooth' });
+    }
+  };
+
   if (!categoria || categoria.length === 0) {
-    return (
-      <Box sx={{ p: 2 }}>
-        <Typography variant="h5" gutterBottom sx={{ mb: 2, fontWeight: 'bold' }}>
-          Categorías
-        </Typography>
-        <Typography variant="body1" color="text.secondary">
-          No hay categorías disponibles
-        </Typography>
-      </Box>
-    );
+    return null; // Si no hay categorías, no renderizamos nada
   }
 
   return (
- <Box
-  sx={{
-    position: 'relative',
-    px: 2,
-    py: 4,
-    textAlign: 'center',
-    backgroundColor: 'rgba(255, 255, 255, 0.25)', 
-    borderRadius: 2,
-    boxShadow: 0,
-    my: 4
-  }}
->
-      {/* Titulo */}
-      <Typography
-    variant="h5"
-    gutterBottom
-    sx={{ mb: 2, fontWeight: 'bold', color: '#fffff' }}
-  >
-    Explora nuestras categorías
-  </Typography>
+    <Box sx={{ py: 4 }}>
+      <Typography variant="h5" gutterBottom sx={{ mb: 2, fontWeight: 'bold', textAlign: 'left' }}>
+        Explora Nuestras Categorías
+      </Typography>
 
+      <Box sx={{ position: 'relative', width: '100%' }}>
 
-      {/* Contenedor principal */}
-      <Box sx={{ display: 'flex', alignItems: 'center' }}>
-        {/* Botón izquierdo */}
-        <IconButton
-          onClick={() => handleScroll('left')}
-          sx={{
-            visibility: scrollPosition > 0 ? 'visible' : 'hidden',
-            position: 'absolute',
-            left: 0,
-            zIndex: 1,
-            bgcolor: 'background.paper',
-            boxShadow: 1,
-            '&:hover': { bgcolor: 'action.hover' }
-          }}
-        >
-          <ArrowBackIos />
-        </IconButton>
-
-        {/* Carrusel de categorías */}
+        {/* Contenido del carousel */}
         <Box
           ref={sliderRef}
           sx={{
             display: 'flex',
-            gap: 4,
+            gap: 3,
             overflowX: 'auto',
-            scrollBehavior: 'smooth',
+            scrollSnapType: 'x mandatory',
             py: 2,
-            px: 1,
-            '&::-webkit-scrollbar': { display: 'none' }
+            '&::-webkit-scrollbar': { display: 'none' },
+            // Gradientes en los extremos para un efecto "fade-out"
+            maskImage: 'linear-gradient(to right, transparent, black 5%, black 95%, transparent)',
           }}
         >
-          {categoria.map((cat, index) => {
-            return (
-              <Box key={cat.categoria_id || index} sx={{ minWidth: 200 }}> {/* Usar categoria_id */}
-                <CategoryCard categoria={cat} />
-              </Box>
-            );
-          })}
+          {categoria.map((cat) => (
+            <Box key={cat.categoria_id} sx={{ scrollSnapAlign: 'start' }}>
+              <CategoryCard categoria={cat} />
+            </Box>
+          ))}
         </Box>
 
-        {/* Botón derecho */}
+        {/* Botones de navegacion*/}
         <IconButton
-          onClick={() => handleScroll('right')}
+          onClick={() => handleScroll(-300)}
           sx={{
-            visibility: sliderRef.current?.scrollWidth > sliderRef.current?.clientWidth + scrollPosition ? 'visible' : 'hidden',
             position: 'absolute',
-            right: 0,
-            zIndex: 1,
-            bgcolor: 'background.paper',
-            boxShadow: 1,
-            '&:hover': { bgcolor: 'action.hover' }
+            left: -16,
+            top: '50%',
+            transform: 'translateY(-50%)',
+            zIndex: 2,
+            bgcolor: 'rgba(255, 255, 255, 0.8)',
+            border: `1px solid ${theme.palette.divider}`,
+            // Lógica de transición para fade-in/out
+            opacity: showLeftArrow ? 1 : 0,
+            pointerEvents: showLeftArrow ? 'auto' : 'none',
+            transition: 'opacity 0.3s ease',
+            '&:hover': { bgcolor: 'white' }
           }}
         >
-          <ArrowForwardIos />
+          <ChevronLeft />
         </IconButton>
+
+        <IconButton
+          onClick={() => handleScroll(300)}
+          sx={{
+            position: 'absolute',
+            right: -16,
+            top: '50%',
+            transform: 'translateY(-50%)',
+            zIndex: 2,
+            bgcolor: 'rgba(255, 255, 255, 0.8)',
+            border: `1px solid ${theme.palette.divider}`,
+            // Lógica de transición para fade-in/out
+            opacity: showRightArrow ? 1 : 0,
+            pointerEvents: showRightArrow ? 'auto' : 'none',
+            transition: 'opacity 0.3s ease',
+            '&:hover': { bgcolor: 'white' }
+          }}
+        >
+          <ChevronRight />
+        </IconButton>
+
       </Box>
     </Box>
   );

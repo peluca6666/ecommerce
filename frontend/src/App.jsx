@@ -13,6 +13,8 @@ import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import CuentaVerificada from './pages/Verificacion/CuentaVerificada';
 import ProductDetailPage from './pages/Productos/ProductDetailPage';
+import SobreNosotrosPage from './pages/SobreNosotros/SobreNosotrosPage.jsx';
+import ContactoPage from './pages/Contacto/ContactoPage';
 
 function App() {
   return (
@@ -28,6 +30,8 @@ function App() {
           <Route path="/categoria/:id/productos" element={<CategoryPage />} />
           <Route path="/cuenta-verificada" element={<CuentaVerificada />} />
           <Route path="/producto/:id" element={<ProductDetailPage />} />
+           <Route path="/sobre-nosotros" element={<SobreNosotrosPage />} />
+            <Route path="/contacto" element={<ContactoPage />} />
 
           {/*Rutas protegidas de usuarios no logueados*/}
           <Route element={<ProtectedRoute requireAuth={true} />}>

@@ -86,6 +86,40 @@ export async function enviarMailBienvenida(usuario) {
   }
 }
 
+/**
+ * Envía un email desde el formulario de contacto al dueño de la tienda.
+ * @param {object} datosFormulario - Objeto con { nombre, email, mensaje }.
+ * @returns {Promise<object>} El resultado de nodemailer.
+ */
+export async function enviarEmailDeContacto(datosFormulario) {
+  const { nombre, email, mensaje } = datosFormulario;
+
+  // El correo se enviará A nosotros MISMOS (el dueño de la tienda).
+  const mailOptions = {
+    from: `"Formulario de Contacto" <${process.env.MAIL_USER}>`,
+    to: process.env.MAIL_USER, // Te envías el correo a ti mismo.
+    subject: `Nuevo mensaje de contacto de: ${nombre}`,
+    html: `
+      <h2>Has recibido un nuevo mensaje desde SaloMarket</h2>
+      <p><strong>De:</strong> ${nombre}</p>
+      <p><strong>Email del remitente:</strong> ${email}</p>
+      <hr>
+      <h3>Mensaje:</h3>
+      <p style="white-space: pre-wrap;">${mensaje}</p>
+    `,
+    replyTo: email // Esto hace que al darle "Responder" en tu email, le respondas al cliente.
+  };
+
+  try {
+    const result = await transporter.sendMail(mailOptions);
+    console.log(`✅ Mensaje de contacto enviado (ID: ${result.messageId})`);
+    return result;
+  } catch (error) {
+    console.error('❌ Error al enviar email de contacto:', error.message);
+    throw new Error('Error en el servicio de envío de correos.');
+  }
+}
+
 // Test de configuración, nos sirve para verificar que las credenciales y el servidor SMTP están funcionando correctamente
 export async function probarConfiguracionEmail() {
   try {

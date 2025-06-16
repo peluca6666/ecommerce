@@ -8,8 +8,12 @@ import { actualizarCategoria, crearCategoria, eliminarCategoria, obtenerCategori
 import { obtenerCarrito, agregarProductoAlCarrito, actualizarProductoEnCarrito, eliminarProductoDelCarrito } from '../controllers/carritoController.js';
 import { verificarCuenta } from '../controllers/usuarioController.js';
 import { crearVenta, obtenerHistorialCompras, listarTodasLasVentas, obtenerDetalleVenta } from '../controllers/ventaController.js';
+import { manejarFormularioContacto } from '../controllers/contactoController.js';
 
 const router = express.Router();
+
+// ------------------------Rutas de contacto------------------------
+router.post('/contacto', manejarFormularioContacto);
 
 // ------------------------Rutas de autenticación------------------------
 router.post('/register', validarBody(schemaRegistro), registrarUsuario);

@@ -1,14 +1,12 @@
-// NavMenu.jsx (CÓDIGO COMPLETO Y REFACTORIZADO)
 import React from 'react'; 
 import { Button, Box } from "@mui/material";
 import { Link as RouterLink, useLocation, useNavigate } from 'react-router-dom';
 
-// 1. Definimos nuestros enlaces en un solo lugar.
 const navLinks = [
     { texto: 'OFERTAS', tipo: 'pagina', ruta: '/productos?es_oferta=true' },
     { texto: 'Catálogo', tipo: 'pagina', ruta: '/productos' },
-    // 👇 CAMBIA EL TIPO DE 'scroll' A 'pagina' Y AJUSTA LA RUTA 👇
-    { texto: 'Sobre Nosotros', tipo: 'pagina', ruta: '/sobreNosotros' },
+
+    { texto: 'Sobre Nosotros', tipo: 'pagina', ruta: '/sobre-nosotros' },
     { texto: 'Contacto', tipo: 'pagina', ruta: '/contacto' },
 ];
 
@@ -60,7 +58,7 @@ const NavMenu = ({ mobile = false, onItemClick }) => {
         return null;
     });
 
-    // 3. Renderizamos los botones. El layout cambia si es móvil, pero los botones son los mismos.
+    // Acá renderizamos los botones, el layout cambia si es móvil, pero los botones son los mismos
     if (mobile) {
         return (
             <Box sx={{
@@ -94,7 +92,3 @@ const NavMenu = ({ mobile = false, onItemClick }) => {
 };
 
 export default NavMenu;
-
-// NOTA: Para que el React.cloneElement funcione, necesitas importar React
-
-// Asegúrate de que esta línea esté al principio del archivo.

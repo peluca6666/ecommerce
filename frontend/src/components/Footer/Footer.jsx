@@ -40,7 +40,7 @@ const Footer = () => (
                     <Link component={RouterLink} to="/productos?es_oferta=true" display="block" variant="body2" color="text.secondary" sx={{ mb: 1, '&:hover': { color: 'primary.main' } }}>
                         Ofertas
                     </Link>
-                    <Link component={RouterLink} to="/sobreNosotros" display="block" variant="body2" color="text.secondary" sx={{ mb: 1, '&:hover': { color: 'primary.main' } }}>
+                    <Link component={RouterLink} to="/sobre-nosotros" display="block" variant="body2" color="text.secondary" sx={{ mb: 1, '&:hover': { color: 'primary.main' } }}>
                         Sobre Nosotros
                     </Link>   
                 </Grid>
