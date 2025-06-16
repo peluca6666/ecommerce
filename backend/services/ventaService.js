@@ -103,3 +103,31 @@ export const obtenerDetallePorVentaId = async (ventaId) => {
     productos: detalleRows
   };
 };
+
+/**
+ * Obtiene el detalle de una venta específica solo si le pertenece al usuario solicitante
+ * @param {number} ventaId 
+ * @param {number} usuarioId 
+ * @returns {Promise<object|null>} El objeto de la venta o null si no se encuentra o no le pertenece
+ */
+export async function getSaleDetailForUser(ventaId, usuarioId) {
+  // Primero verificamos que la venta exista y le pertenezca al usuario
+  const ventaSql = 'SELECT * FROM venta WHERE venta_id = ? AND usuario_id = ?';
+  const [ventaRows] = await pool.execute(ventaSql, [ventaId, usuarioId]);
+
+  if (ventaRows.length === 0) {
+    return null; // La venta no existe o no le pertenece al usuario
+  }
+
+  const detalleSql = `
+    SELECT dv.cantidad, dv.precio_unitario, dv.subtotal, p.nombre_producto, p.producto_id, p.imagen
+    FROM detalle_venta dv
+    JOIN producto p ON dv.producto_id = p.producto_id
+    WHERE dv.venta_id = ?`;
+  const [detalleRows] = await pool.execute(detalleSql, [ventaId]);
+
+  return {
+    ...ventaRows[0],
+    productos: detalleRows
+  };
+}

@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from 'react';
-import { useNavigate,  Link as RouterLink } from 'react-router-dom';
+import { useNavigate, Link as RouterLink } from 'react-router-dom';
 import { Container, Grid, Paper, Typography, Box, Button, Divider, RadioGroup, FormControlLabel, Radio, List, ListItem, ListItemText } from '@mui/material';
 import { useAuth } from '../../context/AuthContext';
 import axios from 'axios';
@@ -10,7 +10,7 @@ import Footer from '../../components/Footer/Footer';
 const CheckoutPage = () => {
     const navigate = useNavigate();
     const { user, cart, getToken, showNotification, refreshCart } = useAuth();
-    
+
     const [shippingAddress, setShippingAddress] = useState(null);
     const [paymentMethod, setPaymentMethod] = useState('tarjeta_simulado'); // Valor por defecto
     const [isProcessing, setIsProcessing] = useState(false);
@@ -50,14 +50,14 @@ const CheckoutPage = () => {
                 metodo_pago: paymentMethod,
                 direccion_envio: shippingAddress
             };
-            
+
             const response = await axios.post('http://localhost:3000/api/ventas', orderData, {
                 headers: { Authorization: `Bearer ${token}` }
             });
 
             showNotification('¡Compra realizada con éxito!', 'success');
             await refreshCart(); // Limpiamos el carrito pidiendo el estado actualizado
-            
+
             // Redirigimos a una futura página de confirmación con el ID de la venta
             navigate(`/orden-confirmada/${response.data.venta.venta_id}`);
 
@@ -86,7 +86,7 @@ const CheckoutPage = () => {
                             ) : (
                                 <Typography color="text.secondary">Cargando dirección...</Typography>
                             )}
-                            <Button component={RouterLink} to="/profile" sx={{mt: 1}}>Editar Dirección</Button>
+                            <Button component={RouterLink} to="/profile" sx={{ mt: 1 }}>Editar Dirección</Button>
                         </Paper>
 
                         {/* Método de pago */}
@@ -118,10 +118,10 @@ const CheckoutPage = () => {
                                 <Typography variant="h6">Total</Typography>
                                 <Typography variant="h6" fontWeight="bold">${cart.total.toFixed(2)}</Typography>
                             </Box>
-                            <Button 
-                                variant="contained" 
-                                fullWidth 
-                                size="large" 
+                            <Button
+                                variant="contained"
+                                fullWidth
+                                size="large"
                                 sx={{ mt: 3 }}
                                 disabled={cart.productos.length === 0 || isProcessing}
                                 onClick={handlePlaceOrder}

@@ -7,7 +7,7 @@ import { agregarProducto, obtenerProductos, actualizarProducto, eliminarProducto
 import { actualizarCategoria, crearCategoria, eliminarCategoria, obtenerCategoriaPorId, obtenerCategorias, obtenerCategoriasConConteo, obtenerProductosPorCategoria } from '../controllers/categoriaController.js';
 import { obtenerCarrito, agregarProductoAlCarrito, actualizarProductoEnCarrito, eliminarProductoDelCarrito } from '../controllers/carritoController.js';
 import { verificarCuenta } from '../controllers/usuarioController.js';
-import { crearVenta, obtenerHistorialCompras, listarTodasLasVentas, obtenerDetalleVenta } from '../controllers/ventaController.js';
+import { crearVenta, obtenerHistorialCompras, listarTodasLasVentas, obtenerDetalleVenta, obtenerDetalleVentaUsuario } from '../controllers/ventaController.js';
 import { manejarFormularioContacto } from '../controllers/contactoController.js';
 
 const router = express.Router();
@@ -42,6 +42,7 @@ router.delete('/carrito/:id', verifyToken, eliminarProductoDelCarrito);
 // ------------------------ Rutas de ventas ------------------------
 router.post('/ventas', verifyToken, crearVenta);
 router.get('/ventas/historial', verifyToken, obtenerHistorialCompras);
+router.get('/ventas/:id', verifyToken, obtenerDetalleVentaUsuario);
 
 // ------------------------ Rutas de perfil ------------------------
 router.put('/profile', verifyToken, actualizarPerfilUsuario);

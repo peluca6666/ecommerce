@@ -17,6 +17,7 @@ import ProductListPage from './pages/Productos/ProductListPage.jsx';
 import CartPage from './pages/Carrito/CartPage.jsx';
 import ProfilePage from './pages/Profile/ProfilePage.jsx';
 import CheckoutPage from './pages/Checkout/CheckoutPage.jsx';
+import OrderConfirmationPage from './pages/OrderConfirmation/OrderConfirmationPage.jsx';
 
 function App() {
   return (
@@ -40,6 +41,7 @@ function App() {
                 <Route path="/carrito" element={<CartPage />} />
                 <Route path="/checkout" element={<CheckoutPage />} />
                  <Route path="/profile" element={<ProfilePage />} />
+                 <Route path="/orden-confirmada/:id" element={<OrderConfirmationPage />} />
            </Route>
 
           {/* Ruta protegida solo para admin */}

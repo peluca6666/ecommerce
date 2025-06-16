@@ -54,3 +54,22 @@ export const obtenerDetalleVenta = async (req, res) => {
       res.status(500).json({ error: 'Error interno del servidor al obtener el detalle de la venta' });
     }
 };
+
+export const obtenerDetalleVentaUsuario = async (req, res) => {
+    try {
+        const usuarioId = req.usuario.id; // Del token
+        const { id: ventaId } = req.params; // De la URL
+
+        const venta = await ventaService.getSaleDetailForUser(parseInt(ventaId), usuarioId);
+        
+        if (!venta) {
+            return res.status(404).json({ exito: false, mensaje: 'Orden no encontrada o no te pertenece' });
+        }
+        
+        res.status(200).json({ exito: true, datos: venta });
+
+    } catch (error) {
+        console.error("Error al obtener detalle de venta para usuario:", error);
+        res.status(500).json({ exito: false, mensaje: 'Error interno del servidor' });
+    }
+};
