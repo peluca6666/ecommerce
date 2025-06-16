@@ -2,7 +2,7 @@ import express from 'express';
 import { verifyToken, autorizarPorRol } from '../middleware/auth.js';
 import { schemaRegistro, schemaLogin } from '../validations/authValidation.js';
 import { validarBody } from '../middleware/validar.js';
-import { registrarUsuario, loginUsuario, obtenerPerfilUsuario } from '../controllers/usuarioController.js';
+import { registrarUsuario, loginUsuario, obtenerPerfilUsuario, actualizarPerfilUsuario, cambiarContraseñaUsuario } from '../controllers/usuarioController.js';
 import { agregarProducto, obtenerProductos, actualizarProducto, eliminarProducto, obtenerProductosEnOferta, obtenerProductoPorId } from '../controllers/productoController.js';
 import { actualizarCategoria, crearCategoria, eliminarCategoria, obtenerCategoriaPorId, obtenerCategorias, obtenerCategoriasConConteo, obtenerProductosPorCategoria } from '../controllers/categoriaController.js';
 import { obtenerCarrito, agregarProductoAlCarrito, actualizarProductoEnCarrito, eliminarProductoDelCarrito } from '../controllers/carritoController.js';
@@ -42,6 +42,10 @@ router.delete('/carrito/:id', verifyToken, eliminarProductoDelCarrito);
 // ------------------------ Rutas de ventas ------------------------
 router.post('/ventas', verifyToken, crearVenta);
 router.get('/ventas/historial', verifyToken, obtenerHistorialCompras);
+
+// ------------------------ Rutas de perfil ------------------------
+router.put('/profile', verifyToken, actualizarPerfilUsuario);
+router.post('/profile/change-password', verifyToken, cambiarContraseñaUsuario);
 
 // ------------------------ Ruta de administrador ------------------------
 router.get('/admin', verifyToken, autorizarPorRol('admin'), (req, res) => {

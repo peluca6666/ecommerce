@@ -128,3 +128,66 @@ export async function obtenerUsuarioPorId(usuario_id) {
     throw error;
   }
 }
+
+/**
+ * Actualiza los datos del perfil de un usuario
+ * @param {number} userId 
+ * @param {object} profileData - Este es el objeto con los datos a actualizar, por ej dni, telefono, dirección
+ * @returns {Promise<object>} El objeto del usuario actualizado.
+ */
+export async function updateUserProfile(userId, profileData) {
+    const { dni, telefono, direccion } = profileData;
+
+    // Consulta para enviar solamente los campos que se van a actualizar
+    const fieldsToUpdate = [];
+    const values = [];
+
+    if (dni !== undefined) {
+        fieldsToUpdate.push('dni = ?');
+        values.push(dni);
+    }
+    if (telefono !== undefined) {
+        fieldsToUpdate.push('telefono = ?');
+        values.push(telefono);
+    }
+    if (direccion !== undefined) {
+        fieldsToUpdate.push('direccion = ?');
+        values.push(direccion);
+    }
+
+    if (fieldsToUpdate.length === 0) {
+        throw { statusCode: 400, message: 'No se proporcionaron campos para actualizar' };
+    }
+
+    const sql = `UPDATE usuario SET ${fieldsToUpdate.join(', ')} WHERE usuario_id = ?`;
+    values.push(userId);
+
+    await pool.execute(sql, values);
+
+    // Devolvemos el perfil actualizado
+    return obtenerUsuarioPorId(userId);
+}
+
+/**
+ * Cambia la contraseña de un usuario después de verificar la contraseña actual
+ * @param {number} userId 
+ * @param {string} contraseniaActual 
+ * @param {string} nuevaContrasenia 
+ * @returns {Promise<boolean>} True si la contraseña se cambió correctamente
+ */
+export async function changeUserPassword(userId, contraseniaActual, nuevaContrasenia) {
+    const usuario = await obtenerUsuarioPorEmail((await obtenerUsuarioPorId(userId)).email);
+    if (!usuario) {
+        throw { statusCode: 404, message: 'Usuario no encontrado' };
+    }
+
+    const contraseniaValida = await compararContrasenia(contraseniaActual, usuario.contrasenia);
+    if (!contraseniaValida) {
+        throw { statusCode: 401, message: 'La contraseña actual es incorrecta' };
+    }
+
+    const nuevoHash = await encriptarContrasenia(nuevaContrasenia);
+    await pool.execute('UPDATE usuario SET contrasenia = ? WHERE usuario_id = ?', [nuevoHash, userId]);
+    
+    return true;
+}

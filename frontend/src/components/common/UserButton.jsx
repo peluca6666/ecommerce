@@ -25,12 +25,12 @@ const UserButton = () => {
   const handleLogout = () => {
     logout();
     handleClose();
-    navigate("/"); // O la ruta que quieras post logout
+    navigate("/"); 
   };
 
   const handleProfile = () => {
     handleClose();
-    navigate("/perfil"); // Ejemplo ruta perfil
+    navigate("/profile"); 
   };
 
   return (

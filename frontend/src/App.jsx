@@ -15,6 +15,7 @@ import SobreNosotrosPage from './pages/SobreNosotros/SobreNosotrosPage.jsx';
 import ContactoPage from './pages/Contacto/ContactoPage';
 import ProductListPage from './pages/Productos/ProductListPage.jsx';
 import CartPage from './pages/Carrito/CartPage.jsx';
+import ProfilePage from './pages/Profile/ProfilePage.jsx';
 
 function App() {
   return (
@@ -36,6 +37,7 @@ function App() {
           {/*Rutas protegidas de usuarios no logueados*/}
             <Route element={<ProtectedRoute requireAuth={true} />}>
                 <Route path="/carrito" element={<CartPage />} />
+                 <Route path="/profile" element={<ProfilePage />} />
            </Route>
 
           {/* Ruta protegida solo para admin */}

@@ -68,6 +68,46 @@ export const obtenerPerfilUsuario = async (req, res) => {
   }
 };
 
+export const actualizarPerfilUsuario = async (req, res) => {
+    try {
+        const usuarioId = req.usuario.id;
+        const datosPerfil = req.body;
+
+        const usuarioActualizado = await usuarioService.updateUserProfile(usuarioId, datosPerfil);
+
+        res.status(200).json({
+            exito: true,
+            mensaje: 'Perfil actualizado correctamente',
+            datos: usuarioActualizado
+        });
+    } catch (error) {
+        console.error("Error al actualizar perfil:", error);
+        res.status(error.statusCode || 500).json({ exito: false, mensaje: error.message || 'Error interno del servidor' });
+    }
+};
+
+export const cambiarContraseñaUsuario = async (req, res) => {
+    try {
+        const usuarioId = req.usuario.id;
+        const { contraseniaActual, nuevaContrasenia } = req.body;
+
+        if (!contraseniaActual || !nuevaContrasenia) {
+            return res.status(400).json({ exito: false, mensaje: 'Todos los campos son requeridos' });
+        }
+
+        if (nuevaContrasenia.length < 8) {
+             return res.status(400).json({ exito: false, mensaje: 'La nueva contraseña debe tener al menos 8 caracteres' });
+        }
+
+        await usuarioService.changeUserPassword(usuarioId, contraseniaActual, nuevaContrasenia);
+
+        res.status(200).json({ exito: true, mensaje: 'Contraseña actualizada exitosamente' });
+    } catch (error) {
+        console.error("Error al cambiar contraseña:", error);
+        res.status(error.statusCode || 500).json({ exito: false, mensaje: error.message || 'Error interno del servidor' });
+    }
+};
+
 // Controlador para verificar la cuenta del usuario mediante un token
 export const verificarCuenta = async (req, res) => {
   const { token } = req.query;
