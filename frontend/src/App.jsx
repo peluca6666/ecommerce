@@ -16,6 +16,7 @@ import ContactoPage from './pages/Contacto/ContactoPage';
 import ProductListPage from './pages/Productos/ProductListPage.jsx';
 import CartPage from './pages/Carrito/CartPage.jsx';
 import ProfilePage from './pages/Profile/ProfilePage.jsx';
+import CheckoutPage from './pages/Checkout/CheckoutPage.jsx';
 
 function App() {
   return (
@@ -37,6 +38,7 @@ function App() {
           {/*Rutas protegidas de usuarios no logueados*/}
             <Route element={<ProtectedRoute requireAuth={true} />}>
                 <Route path="/carrito" element={<CartPage />} />
+                <Route path="/checkout" element={<CheckoutPage />} />
                  <Route path="/profile" element={<ProfilePage />} />
            </Route>
 

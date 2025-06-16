@@ -29,7 +29,7 @@ export const AuthProvider = ({ children }) => {
     return Date.now() >= payload.exp * 1000;
   };
 
-  const fetchCart = async () => {
+  const refreshCart = async () => {
     const token = localStorage.getItem('token');
     if (!token) {
       setCart({ productos: [], count: 0, total: 0 });
@@ -59,7 +59,7 @@ export const AuthProvider = ({ children }) => {
       const payload = decodeToken(token);
       if (payload && !isTokenExpired(payload)) {
         setUser({ id: payload.usuario_id, rol: payload.rol, email: payload.email });
-        fetchCart();
+        refreshCart();
       } else {
         localStorage.removeItem('token');
         setUser(null);
@@ -77,7 +77,7 @@ export const AuthProvider = ({ children }) => {
     if (payload && !isTokenExpired(payload)) {
       localStorage.setItem('token', token);
       setUser({ id: payload.usuario_id, rol: payload.rol, email: payload.email });
-      fetchCart();
+      refreshCart();
       return true;
     } else {
       console.error('Token inválido o expirado');
@@ -113,7 +113,7 @@ export const AuthProvider = ({ children }) => {
         { producto_id: productoId, cantidad: cantidad },
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      await fetchCart();
+      await refreshCart();
       showNotification('Producto agregado al carrito', 'success');
     } catch (error) {
       console.error("Error al agregar al carrito:", error);
@@ -132,7 +132,7 @@ const removeFromCart = async (productoId) => {
                 headers: { Authorization: `Bearer ${token}` }
             });
             
-            await fetchCart();
+            await refreshCart();
             showNotification('Producto eliminado del carrito', 'info');
         } catch (error) {
             console.error("Error al eliminar del carrito:", error);
@@ -160,7 +160,7 @@ const removeFromCart = async (productoId) => {
                 { cantidad: cantidad },
                 { headers: { Authorization: `Bearer ${token}` } }
             );
-            await fetchCart(); // Refrescamos el carrito para que se actualice la UI
+            await refreshCart(); // Refrescamos el carrito para que se actualice la UI
             showNotification('Cantidad actualizada', 'success');
         } catch (error) {
             console.error("Error al actualizar la cantidad:", error);
@@ -174,7 +174,8 @@ const removeFromCart = async (productoId) => {
         cart,
         addToCart,
         removeFromCart, 
-         updateCartItemQuantity
+         updateCartItemQuantity,
+          refreshCart,
     };
 
   return (

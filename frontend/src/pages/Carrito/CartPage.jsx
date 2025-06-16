@@ -48,12 +48,16 @@ const CartPage = () => {
                                 <Typography variant="h6">Total</Typography>
                                 <Typography variant="h6" fontWeight="bold">${cart.total.toFixed(2)}</Typography>
                             </Box>
+                            // ...
                             <Button 
                                 variant="contained" 
                                 fullWidth 
                                 size="large" 
                                 sx={{ mt: 3 }}
-                                disabled={cart.productos.length === 0} >
+                                disabled={cart.productos.length === 0}
+                                component={RouterLink}
+                                to="/checkout"          
+                            >
                                 Continuar Compra
                             </Button>
                         </Paper>
