@@ -1,64 +1,30 @@
 import React from 'react'; 
 import { Button, Box } from "@mui/material";
-import { Link as RouterLink, useLocation, useNavigate } from 'react-router-dom';
+import { Link as RouterLink } from 'react-router-dom';
 
 const navLinks = [
-    { texto: 'OFERTAS', tipo: 'pagina', ruta: '/productos?es_oferta=true' },
-    { texto: 'Catálogo', tipo: 'pagina', ruta: '/productos' },
-
-    { texto: 'Sobre Nosotros', tipo: 'pagina', ruta: '/sobre-nosotros' },
-    { texto: 'Contacto', tipo: 'pagina', ruta: '/contacto' },
+    { texto: 'OFERTAS', ruta: '/productos?es_oferta=true' },
+    { texto: 'Catálogo', ruta: '/productos' },
+    { texto: 'Sobre Nosotros', ruta: '/sobre-nosotros' },
+    { texto: 'Contacto', ruta: '/contacto' },
 ];
 
 const NavMenu = ({ mobile = false, onItemClick }) => {
-    const navigate = useNavigate();
-    const location = useLocation();
+ 
+    const navButtons = navLinks.map((link) => (
+        <Button
+            key={link.texto}
+            color="inherit"
+            component={RouterLink}
+            to={link.ruta}
+            onClick={onItemClick} // Esto cierra el menú móvil al hacer clic
+        >
+            {link.texto}
+        </Button>
+    ));
 
-    // 2. Creamos una función para manejar el scroll suave
-    const handleScroll = (elementId) => {
-        // Si ya estamos en la página principal, hacemos scroll
-        if (location.pathname === '/') {
-            const element = document.getElementById(elementId);
-            if (element) {
-                element.scrollIntoView({ behavior: 'smooth', block: 'start' });
-            }
-        } else {
-            // Si estamos en otra página, navegamos a la principal y luego hacemos scroll
-            navigate(`/#${elementId}`);
-        }
-        // Si es el menú móvil, lo cerramos después del clic
-        if (onItemClick) onItemClick();
-    };
-
-    const navButtons = navLinks.map((link) => {
-        if (link.tipo === 'pagina') {
-            return (
-                <Button
-                    key={link.texto}
-                    color="inherit"
-                    component={RouterLink}
-                    to={link.ruta}
-                    onClick={onItemClick}
-                >
-                    {link.texto}
-                </Button>
-            );
-        }
-        if (link.tipo === 'scroll') {
-            return (
-                <Button
-                    key={link.texto}
-                    color="inherit"
-                    onClick={() => handleScroll(link.ruta)}
-                >
-                    {link.texto}
-                </Button>
-            );
-        }
-        return null;
-    });
-
-    // Acá renderizamos los botones, el layout cambia si es móvil, pero los botones son los mismos
+    //Logica para mostrar el menú de navegación
+    // Si es móvil, mostramos los botones en una columna
     if (mobile) {
         return (
             <Box sx={{
@@ -68,7 +34,6 @@ const NavMenu = ({ mobile = false, onItemClick }) => {
                 width: '100%'
             }}>
                 {navButtons.map(button => (
-                    // Clonamos el botón para añadirle estilos específicos para móvil
                     React.cloneElement(button, { 
                         sx: { 
                             justifyContent: 'flex-start', 
