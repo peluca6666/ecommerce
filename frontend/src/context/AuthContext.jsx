@@ -121,12 +121,33 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const value = {
-    user, login, logout, getToken, isAuthenticated: !!user, loading,
-    showNotification,
-    cart,
-    addToCart,
-  };
+const removeFromCart = async (productoId) => {
+        const token = getToken();
+        if (!token) {
+            showNotification('Se requiere autenticación', 'error');
+            return;
+        }
+        try {
+            await axios.delete(`http://localhost:3000/api/carrito/${productoId}`, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+            
+            await fetchCart();
+            showNotification('Producto eliminado del carrito', 'info');
+        } catch (error) {
+            console.error("Error al eliminar del carrito:", error);
+            const mensajeError = error.response?.data?.mensaje || 'Error al eliminar producto';
+            showNotification(mensajeError, 'error');
+        }
+    };
+
+    const value = {
+        user, login, logout, getToken, isAuthenticated: !!user, loading,
+        showNotification,
+        cart,
+        addToCart,
+        removeFromCart, 
+    };
 
   return (
     <AuthContext.Provider value={value}>

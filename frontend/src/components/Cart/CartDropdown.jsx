@@ -1,15 +1,19 @@
 import { useState } from "react";
-import { IconButton, Badge, Menu, MenuItem } from "@mui/material";
-import { ShoppingCart } from "@mui/icons-material";
+import { Link as RouterLink } from "react-router-dom";
+import { 
+    IconButton, Badge, Popover, Box, Typography, 
+    Divider, Button, List, ListItem, ListItemAvatar, 
+    Avatar, ListItemText 
+} from "@mui/material";
+import { ShoppingCart, DeleteOutline } from "@mui/icons-material";
 import { useAuth } from "../../context/AuthContext";
 
 const CartDropdown = () => {
-
-  // Si el objeto del contexto no tiene 'cart', se le asigna un valor por defecto
   const { 
-    isAuthenticated = false, 
-    cart = { count: 0, productos: [] }, 
-    showNotification = () => {} 
+    isAuthenticated, 
+    cart = { count: 0, productos: [], total: 0 }, 
+    showNotification,
+    removeFromCart // Obtenemos la nueva función del contexto
   } = useAuth() || {};
 
   const [anchorEl, setAnchorEl] = useState(null);
@@ -26,6 +30,9 @@ const CartDropdown = () => {
     setAnchorEl(null);
   };
 
+  const open = Boolean(anchorEl);
+  const id = open ? 'cart-popover' : undefined;
+
   return (
     <>
       <IconButton color="inherit" aria-label="Carrito" onClick={handleClick}>
@@ -34,21 +41,77 @@ const CartDropdown = () => {
         </Badge>
       </IconButton>
 
-      <Menu
+      <Popover
+        id={id}
+        open={open}
         anchorEl={anchorEl}
-        open={Boolean(anchorEl)}
         onClose={handleClose}
+        anchorOrigin={{
+          vertical: 'bottom',
+          horizontal: 'right',
+        }}
+        transformOrigin={{
+          vertical: 'top',
+          horizontal: 'right',
+        }}
+        slotProps={{ paper: { sx: { width: 360, borderRadius: 2 } } }}
       >
+        <Box sx={{ p: 2 }}>
+          <Typography variant="h6" component="div">
+            Tu Carrito
+          </Typography>
+        </Box>
+        <Divider />
+
         {cart.productos.length === 0 ? (
-          <MenuItem disabled>Tu carrito está vacío</MenuItem>
+          <Typography sx={{ p: 2, color: 'text.secondary' }}>
+            Tu carrito está vacío
+          </Typography>
         ) : (
-          cart.productos.map((producto) => (
-            <MenuItem key={producto.producto_id}>
-              {producto.nombre_producto} x {producto.cantidad}
-            </MenuItem>
-          ))
+          <List dense>
+            {cart.productos.map((producto) => (
+              <ListItem
+                key={producto.producto_id}
+                secondaryAction={
+                  <IconButton edge="end" aria-label="delete" onClick={() => removeFromCart(producto.producto_id)}>
+                    <DeleteOutline />
+                  </IconButton>
+                }
+                // Hacemos que el item sea un enlace
+                component={RouterLink}
+                to={`/producto/${producto.producto_id}`}
+                sx={{ color: 'inherit', textDecoration: 'none', '&:hover': { bgcolor: 'action.hover' } }}
+              >
+                <ListItemAvatar>
+                  <Avatar variant="rounded" src={producto.imagen} />
+                </ListItemAvatar>
+                <ListItemText
+                  primary={producto.nombre_producto}
+                  secondary={`Cantidad: ${producto.cantidad} - $${(producto.subtotal).toFixed(2)}`}
+                />
+              </ListItem>
+            ))}
+          </List>
         )}
-      </Menu>
+
+        <Divider />
+        <Box sx={{ p: 2 }}>
+          <Typography variant="h6" sx={{ display: 'flex', justifyContent: 'space-between' }}>
+            <span>Total:</span>
+            <span>${(cart.total || 0).toFixed(2)}</span>
+          </Typography>
+          <Button
+            component={RouterLink}
+            to="/carrito" 
+            variant="contained"
+            fullWidth
+            sx={{ mt: 2 }}
+            onClick={handleClose} 
+          >
+            Ir al Carrito
+          </Button>
+        </Box>
+      </Popover>
     </>
   );
 };

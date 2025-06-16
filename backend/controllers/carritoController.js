@@ -52,17 +52,20 @@ export async function actualizarProductoEnCarrito(req, res) {
 export async function eliminarProductoDelCarrito(req, res) {
   try {
     const usuarioId = req.usuario.id;
-    const { producto_id } = req.body;
-    if (!producto_id) {     //Verifica que se haya enviado el ID del producto
+    
+    const { id } = req.params; 
+
+    if (!id) {
       return res.status(400).json({ exito: false, mensaje: 'Se requiere el ID del producto' });
     }
 
-    const fueEliminado = await carritoService.removeProductFromCart(usuarioId, parseInt(producto_id));
+    // Le pasamos el ID del producto al servicio para que lo elimine
+    const fueEliminado = await carritoService.removeProductFromCart(usuarioId, parseInt(id));
 
     if (fueEliminado) {
       return res.status(200).json({ exito: true, mensaje: 'Producto eliminado del carrito' });
     } else {
-      return res.status(404).json({ exito: false, mensaje: 'El producto no se encontró en el carrito' }); 
+      return res.status(404).json({ exito: false, mensaje: 'El producto no se encontró en el carrito' });
     }
 
   } catch (error) {

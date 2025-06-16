@@ -5,6 +5,7 @@ import SearchBar from "./SearchBar";
 import NavMenu from "./NavMenu";
 import CartDropdown from "../Cart/CartDropdown.jsx";
 import UserButton from "../common/UserButton.jsx";
+import { Link as RouterLink } from 'react-router-dom';
 
 const Header = ({ categoria }) => {
   const theme = useTheme();
@@ -30,9 +31,20 @@ const Header = ({ categoria }) => {
           </IconButton>
         )}
 
-        <Typography variant="h5" sx={{ flexGrow: { xs: 1, md: 0 }, mr: { md: 4 } }}>
-          SaloMarket
-        </Typography>
+        <Typography
+  variant="h5"
+  component={RouterLink}
+  to="/main"
+  sx={{
+    flexGrow: { xs: 1, md: 0 },
+    mr: { md: 4 },
+    textDecoration: 'none',
+    color: 'inherit',
+    cursor: 'pointer',
+  }}
+>
+  SaloMarket
+</Typography>
 
         {!isMobile && <SearchBar onSearch={(term) => console.log('Buscar:', term)} />}
 
