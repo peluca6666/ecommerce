@@ -74,32 +74,40 @@ export async function getAllProducts(options = {}) {
  * @returns {Promise<object>} - El producto recien creado
  */
 export async function createProduct(productData) {
-    const { nombre_producto, descripcion, precio, categoria_id, imagen, imagenes, stock_actual, es_oferta = false } = productData;
+    const { nombre_producto, descripcion, precio, categoria_id, imagen, imagenes, stock_actual, precio_anterior } = productData;
 
     if (!nombre_producto || !precio || !stock_actual) {
         const err = new Error('Nombre, precio y stock son requeridos');
         err.statusCode = 400;
         throw err;
     }
-    
+
+    // Logica para validar y convertir los precios
+    const precioFinal = parseFloat(precio);
+    const precioAnteriorFinal = precio_anterior ? parseFloat(precio_anterior) : null;
+
+    const esOfertaFinal = (precioAnteriorFinal != null && precioFinal < precioAnteriorFinal);
+
     const query = `INSERT INTO producto 
-      (nombre_producto, descripcion, precio, categoria_id, imagen, imagenes, stock_actual, activo, es_oferta) 
-      VALUES (?, ?, ?, ?, ?, ?, ?, true, ?)`;
+      (nombre_producto, descripcion, precio, precio_anterior, categoria_id, imagen, imagenes, stock_actual, activo, es_oferta) 
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, true, ?)`;
     
     const params = [
         nombre_producto,
         descripcion || null,
-        parseFloat(precio),
+        precioFinal,
+        precioAnteriorFinal, // Guardamos el precio anterior
         categoria_id || null,
-        imagen || null,
         JSON.stringify(Array.isArray(imagenes) ? imagenes : []),
         parseInt(stock_actual),
-        Boolean(es_oferta)
+        esOfertaFinal // Guardamos el valor calculado de es_oferta
     ];
 
     const [result] = await pool.query(query, params);
     
-    return { productoId: result.insertId, ...productData };
+    // Devolvemos el producto completo como fue guardado
+    const [[nuevoProducto]] = await pool.query('SELECT * FROM producto WHERE producto_id = ?', [result.insertId]);
+    return nuevoProducto;
 }
 
 /**
