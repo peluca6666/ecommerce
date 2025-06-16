@@ -15,6 +15,7 @@ import CuentaVerificada from './pages/Verificacion/CuentaVerificada';
 import ProductDetailPage from './pages/Productos/ProductDetailPage';
 import SobreNosotrosPage from './pages/SobreNosotros/SobreNosotrosPage.jsx';
 import ContactoPage from './pages/Contacto/ContactoPage';
+import ProductListPage from './pages/Productos/ProductListPage.jsx';
 
 function App() {
   return (
@@ -26,7 +27,7 @@ function App() {
           <Route path="/register" element={<Register />} />
           <Route path="/" element={<Navigate to="/main" replace />} />
           <Route path="/main" element={<MainPage />} />
-          <Route path="/products" element={<Products />} />
+          <Route path="/productos" element={<ProductListPage />} />
           <Route path="/categoria/:id/productos" element={<CategoryPage />} />
           <Route path="/cuenta-verificada" element={<CuentaVerificada />} />
           <Route path="/producto/:id" element={<ProductDetailPage />} />

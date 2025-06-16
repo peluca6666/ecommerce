@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Container, Paper, Typography, Box } from "@mui/material";
+import { Container, Paper, Typography, Box, Button,} from "@mui/material";
 import Header from "../../components/Header/Header";
 import MainBanner from "../../components/Banner/MainBanner";
 import CategorySlider from "../../components/Category/CategorySlider";
@@ -7,7 +7,7 @@ import ProductGrid from "../../components/Product/ProductGrid";
 import Footer from "../../components/Footer/Footer";
 import LoadingSpinner from "../../components/common/LoadingSpinner";
 import { useAuth } from "../../context/AuthContext";
-
+import { Link } from "react-router-dom";
 
 const MainPage = () => {
   const [state, setState] = useState({
@@ -143,9 +143,19 @@ const MainPage = () => {
           <Typography variant="h5" align="center" gutterBottom>
             OFERTAS IMPERDIBLES
           </Typography>
-          <ProductGrid
-            productos={state.ofertas}
-          />
+  <ProductGrid
+    productos={state.ofertas}
+  />
+  <Box sx={{ mt: 4, textAlign: 'center' }}>
+    <Button 
+      component={Link} 
+      to="/productos?es_oferta=true" 
+      variant="contained"
+      color="primary"
+    >
+      Ver Todas las Ofertas
+    </Button>
+  </Box>
         </Paper>
       </Container>
       <Footer />
