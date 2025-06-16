@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react';
 import { Container, Box, Typography, Paper, Tabs, Tab, TextField, Button, Grid, Stack } from '@mui/material';
-import { PersonOutline, LockOutlined } from '@mui/icons-material';
+import { PersonOutline, LockOutlined, ReceiptOutlined  } from '@mui/icons-material';
 import { useAuth } from '../../context/AuthContext';
 import axios from 'axios';
 import Header from '../../components/Header/Header';
 import Footer from '../../components/Footer/Footer';
 import LoadingSpinner from '../../components/common/LoadingSpinner';
+import PurchaseHistoryTab from '../../components/Profile/PurchaseHistoryTab'; 
 
 // componente auxiliar para manejar el contenido de cada pestaña
 const TabPanel = (props) => {
@@ -145,9 +146,11 @@ const ProfilePage = () => {
                     Mi Cuenta
                 </Typography>
                 <Paper elevation={3} sx={{ borderRadius: 4, overflow: 'hidden' }}>
+
                     <Tabs value={tabIndex} onChange={handleTabChange} variant="fullWidth" indicatorColor="primary" textColor="primary">
                         <Tab icon={<PersonOutline />} iconPosition="start" label="Mis Datos" />
-                        <Tab icon={<LockOutlined />} iconPosition="start" label="Seguridad" />
+                         <Tab icon={<LockOutlined />} iconPosition="start" label="Seguridad" />
+                        <Tab icon={< ReceiptOutlined/>} iconPosition="start" label="Mis compras" />
                     </Tabs>
                     
                     <TabPanel value={tabIndex} index={0}>
@@ -183,6 +186,9 @@ const ProfilePage = () => {
                                 </Box>
                            </Stack>
                         </form>
+                    </TabPanel>
+                    <TabPanel value = {tabIndex} index={2}>
+                        <PurchaseHistoryTab />
                     </TabPanel>
                 </Paper>
             </Container>

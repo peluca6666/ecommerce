@@ -66,7 +66,7 @@ export const crearNuevaVenta = async (usuarioId, productos, metodoPago, direccio
 
 //Obtenemos las ventas de un usuario específico ================================
 export const obtenerVentasPorUsuario = async (usuarioId) => {
-  const sql = 'SELECT venta_id, fecha_venta, total, estado FROM venta WHERE usuario_id = ? ORDER BY fecha_venta DESC';
+  const sql = 'SELECT venta_id, fecha_venta, total, estado, metodo_pago FROM venta WHERE usuario_id = ? ORDER BY fecha_venta DESC';
   const [rows] = await pool.execute(sql, [usuarioId]);
   return rows;
 };
