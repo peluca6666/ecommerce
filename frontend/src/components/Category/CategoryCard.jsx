@@ -1,42 +1,34 @@
-import React from 'react';
-import { Card, CardMedia, CardContent, Typography } from '@mui/material';
-import { useNavigate } from 'react-router-dom'; 
+import { Card, CardActionArea, CardMedia, CardContent, Typography } from '@mui/material';
+import { Link } from 'react-router-dom'; // Importamos Link
 
-const CategoryCard = ({ categoria }) => { 
-  const navigate = useNavigate();
-
-  const handleClick = () => {
-    // Navegar a la página de la categoría 
-    navigate(`/category/${categoria.categoria_id}`); 
-  };
-
+const CategoryCard = ({ categoria }) => {
   return (
-    <Card 
-      sx={{ 
-        cursor: 'pointer',
+    //Envolvemos todo en un componente Link que no tiene decoración de texto
+    <Link to={`/categoria/${categoria.categoria_id}/productos`} style={{ textDecoration: 'none' }}>
+      <Card sx={{ 
+        width: 200, 
+        textAlign: 'center',
+        transition: 'transform 0.2s, box-shadow 0.2s',
         '&:hover': {
-          boxShadow: 4, 
-          transform: 'scale(1.02)',
-          transition: 'all 0.3s ease'
+            transform: 'translateY(-5px)',
+            boxShadow: 6,
         }
-      }}
-      onClick={handleClick}
-    >
-      {/* Imagen de la categoria */}
-      <CardMedia
-        component="img"
-        height="160"
-        image={categoria.imagen || 'https://via.placeholder.com/200?text=' + encodeURIComponent(categoria.nombre)} // Imagen por defecto con el nombre
-        alt={categoria.nombre}
-      />
-      
-      {/* Nombre de la categoria */}
-      <CardContent sx={{ textAlign: 'center' }}>
-        <Typography variant="h6" component="h3">
-          {categoria.nombre} 
-        </Typography>
-      </CardContent>
-    </Card>
+      }}>
+        <CardActionArea>
+          <CardMedia
+            component="img"
+            height="140"
+            image={categoria.imagen || 'https://via.placeholder.com/200x140'}
+            alt={categoria.nombre}
+          />
+          <CardContent>
+            <Typography gutterBottom variant="h6" component="div">
+              {categoria.nombre}
+            </Typography>
+          </CardContent>
+        </CardActionArea>
+      </Card>
+    </Link>
   );
 };
 

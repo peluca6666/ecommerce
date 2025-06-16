@@ -1,8 +1,10 @@
 import { useParams } from 'react-router-dom';
 import { useState, useEffect } from 'react';
-import { Container, Typography, Paper } from '@mui/material';
+import { Container, Typography, Paper, Box } from '@mui/material';
 import ProductGrid from '../../components/Product/ProductGrid';
 import LoadingSpinner from '../../components/common/LoadingSpinner';
+import Header from '../../components/Header/Header';
+import Footer from '../../components/Footer/Footer';
 
 const CategoryPage = () => {
   const { id } = useParams(); 
@@ -15,12 +17,22 @@ const CategoryPage = () => {
     const fetchProductosPorCategoria = async () => {
       try {
         setLoading(true);
-        const res = await fetch(`/categoria/${id}/producto`);
-        if (!res.ok) throw new Error(`HTTP error ${res.status}`);
+        setError(null);
+        // Usamos la URL completa del backend
+        const res = await fetch(`http://localhost:3000/api/categoria/${id}/producto`);
+        
+        if (!res.ok) throw new Error(`Error HTTP: ${res.status}`);
+        
         const data = await res.json();
 
-        setProductos(data.productos || []);
-        setNombreCategoria(data.categoria || 'Categoría');
+        //Leemos la respuesta con el formato que definimos en el backend
+        if (data.exito) {
+            setProductos(data.datos || []);
+            setNombreCategoria(data.categoria || 'Categoría');
+        } else {
+            throw new Error(data.mensaje || 'Error al cargar los datos');
+        }
+
       } catch (err) {
         console.error(err);
         setError('Error al cargar los productos de esta categoría.');
@@ -30,34 +42,36 @@ const CategoryPage = () => {
     };
 
     fetchProductosPorCategoria();
-  }, [id]);
+  }, [id]); // Se ejecuta cada vez que el ID de la categoría cambia
 
   if (loading) return <LoadingSpinner />;
 
-  if (error) {
-    return (
-      <Container maxWidth="lg">
-        <Paper elevation={1} sx={{ p: 3, my: 4, textAlign: 'center' }}>
-          <Typography variant="h6" color="error">{error}</Typography>
-        </Paper>
-      </Container>
-    );
-  }
-
   return (
-    <Container maxWidth="lg">
-      <Typography variant="h4" sx={{ mt: 4, mb: 2, fontWeight: 'bold' }}>
-        {nombreCategoria}
-      </Typography>
+    <>
+      <Header />
+      <Container maxWidth="lg" sx={{ my: 4 }}>
+        {error ? (
+          <Paper elevation={1} sx={{ p: 3, textAlign: 'center' }}>
+            <Typography variant="h6" color="error">{error}</Typography>
+          </Paper>
+        ) : (
+          <>
+            <Typography variant="h4" sx={{ mb: 2, fontWeight: 'bold' }}>
+              {nombreCategoria}
+            </Typography>
 
-      {productos.length === 0 ? (
-        <Typography variant="body1">
-          No hay productos disponibles en esta categoría.
-        </Typography>
-      ) : (
-        <ProductGrid products={productos} />
-      )}
-    </Container>
+            {productos.length === 0 ? (
+              <Typography variant="body1">
+                No hay productos disponibles en esta categoría.
+              </Typography>
+            ) : (
+              <ProductGrid productos={productos} />
+            )}
+          </>
+        )}
+      </Container>
+      <Footer />
+    </>
   );
 };
 

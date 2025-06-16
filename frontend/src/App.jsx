@@ -25,7 +25,7 @@ function App() {
           <Route path="/" element={<Navigate to="/main" replace />} />
           <Route path="/main" element={<MainPage />} />
           <Route path="/products" element={<Products />} />
-          <Route path="/category/:id" element={<CategoryPage />} />
+          <Route path="/categoria/:id/productos" element={<CategoryPage />} />
           <Route path="/cuenta-verificada" element={<CuentaVerificada />} />
           <Route path="/producto/:id" element={<ProductDetailPage />} />
 
