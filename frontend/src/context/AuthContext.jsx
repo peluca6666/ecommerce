@@ -102,7 +102,7 @@ export const AuthProvider = ({ children }) => {
     setNotification({ ...notification, open: false });
   };
 
-  const addToCart = async (productoId, cantidad = 1) =>{
+  const addToCart = async (productoId, cantidad = 1) => {
     const token = getToken();
     if (!token) {
       showNotification('Debes estar logueado para agregar productos', 'warning');

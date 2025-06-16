@@ -34,14 +34,14 @@ function App() {
             <Route path="/cart" element={<Cart />} />
           </Route>
 
-         {/* Ruta protegida solo para admin */}
+          {/* Ruta protegida solo para admin */}
           <Route element={<ProtectedRoute allowedRoles={['admin']} />}>
             <Route path="/admin" element={<Admin />} />
           </Route>
 
           {/* Página de acceso denegado */}
           <Route path="/unauthorized" element={<div>No tenés permiso para entrar acá</div>} />
-          
+
           {/* Ruta para páginas no encontradas */}
           <Route path="*" element={<Navigate to="/main" replace />} />
         </Routes>

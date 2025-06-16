@@ -7,6 +7,7 @@ import LoadingSpinner from '../../components/common/LoadingSpinner';
 import axios from 'axios';
 import Header from '../../components/Header/Header';
 import Footer from '../../components/Footer/Footer';
+import ProductGrid from '../../components/Product/ProductGrid';
 
 const ProductDetailPage = () => {
     const { id } = useParams();
@@ -16,19 +17,20 @@ const ProductDetailPage = () => {
     const [producto, setProducto] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-
-    // --- NUEVOS ESTADOS ---
     const [selectedImage, setSelectedImage] = useState(''); // Para la imagen principal de la galería
     const [cantidad, setCantidad] = useState(1); // Para el selector de cantidad
 
+    const [productosRelacionados, setProductosRelacionados] = useState([]);
+
     useEffect(() => {
-        const fetchProduct = async () => {
+        const fetchProductData = async () => {
             try {
                 setLoading(true);
+                setProductosRelacionados([]); // Limpiamos los relacionados anteriores al cargar uno nuevo
                 const response = await axios.get(`http://localhost:3000/api/producto/${id}`);
+
                 if (response.data.exito) {
                     const productData = response.data.datos;
-                    // Parsear el string de imágenes a un array
                     if (typeof productData.imagenes === 'string') {
                         try {
                             productData.imagenes = JSON.parse(productData.imagenes);
@@ -37,8 +39,22 @@ const ProductDetailPage = () => {
                         }
                     }
                     setProducto(productData);
-                    // Establecemos la imagen principal al cargar los datos
                     setSelectedImage(productData.imagen || 'https://via.placeholder.com/500');
+
+                    if (productData.categoria_id) {
+                        try {
+                            const relatedResponse = await axios.get(`http://localhost:3000/api/categoria/${productData.categoria_id}/producto`);
+                            if (relatedResponse.data.exito) {
+                                // Filtramos para no mostrar el producto actual en la lista de relacionados
+                                const related = relatedResponse.data.datos.filter(p => p.producto_id !== productData.producto_id);
+                                setProductosRelacionados(related);
+                            }
+                        } catch (relatedError) {
+                            console.error("Error al obtener productos relacionados:", relatedError);
+                            // No establecemos un error principal si solo falla esta parte
+                        }
+                    }
+
                 } else {
                     setError(response.data.mensaje);
                 }
@@ -50,7 +66,8 @@ const ProductDetailPage = () => {
             }
         };
 
-        fetchProduct();
+
+        fetchProductData();
     }, [id]);
 
     // LOGICA PARA EL SELECTOR DE CANTIDAD
@@ -70,7 +87,7 @@ const ProductDetailPage = () => {
 
     const handleBuyNow = async () => {
         await addToCart(producto.producto_id, cantidad);
-        navigate('/carrito'); 
+        navigate('/carrito');
     };
 
     if (loading) return <LoadingSpinner />;
@@ -89,10 +106,10 @@ const ProductDetailPage = () => {
                         {/* GALERIA DE IMAGENES */}
                         <Grid item xs={12} md={6}>
                             <Box sx={{ mb: 2 }}>
-                                <img 
-                                    src={selectedImage} 
-                                    alt={producto.nombre_producto} 
-                                    style={{ width: '100%', height: 'auto', borderRadius: '8px', border: '1px solid #ddd' }} 
+                                <img
+                                    src={selectedImage}
+                                    alt={producto.nombre_producto}
+                                    style={{ width: '100%', height: 'auto', borderRadius: '8px', border: '1px solid #ddd' }}
                                 />
                             </Box>
                             <Box sx={{ display: 'flex', gap: 1, overflowX: 'auto' }}>
@@ -132,7 +149,7 @@ const ProductDetailPage = () => {
                             <Typography variant="body2" color="text.secondary">
                                 Stock disponible: {producto.stock_actual} unidades
                             </Typography>
-                            
+
                             {/* SELECTOR DE CANTIDAD*/}
                             <Box sx={{ my: 3, display: 'flex', alignItems: 'center', gap: 1 }}>
                                 <Typography variant="subtitle1" fontWeight="medium">Cantidad:</Typography>
@@ -157,6 +174,20 @@ const ProductDetailPage = () => {
                         </Grid>
                     </Grid>
                 </Paper>
+
+
+                {/* --- CAMBIO 3: Añadimos la nueva sección en el JSX --- */}
+                {/* Solo mostramos la sección si encontramos productos relacionados */}
+                {productosRelacionados.length > 0 && (
+                    <Box sx={{ mt: 6 }}>
+                        <Typography variant="h5" component="h2" gutterBottom fontWeight="bold">
+                            También te podría interesar
+                        </Typography>
+                        <Divider sx={{ mb: 3 }} />
+                        <ProductGrid productos={productosRelacionados} />
+                    </Box>
+                )}
+
             </Container>
             <Footer />
         </>
