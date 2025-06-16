@@ -1,6 +1,7 @@
 
 import * as productoService from '../services/productoService.js';
 
+
 export async function obtenerProductos(req, res) {
     try {
         // El controlador pasa las opciones de la query directamente al servicio
@@ -83,5 +84,26 @@ export async function obtenerProductosEnOferta(req, res) {
     } catch (error) {
         console.error("Error en obtenerProductosEnOferta Controller:", error);
         return res.status(500).json({ exito: false, mensaje: 'Error al obtener productos en oferta' });
+    }
+}
+
+export async function obtenerProductoPorId(req, res) {
+    try {
+        const { id } = req.params;
+        if (isNaN(parseInt(id))) {
+            return res.status(400).json({ exito: false, mensaje: 'ID de producto inválido' });
+        }
+        
+        const producto = await productoService.obtenerProductoPorId(parseInt(id));
+        
+        if (!producto) {
+            return res.status(404).json({ exito: false, mensaje: 'Producto no encontrado o no disponible' });
+        }
+        
+        return res.status(200).json({ exito: true, datos: producto });
+
+    } catch (error) {
+        console.error("Error en obtenerProductoPorId Controller:", error);
+        return res.status(500).json({ exito: false, mensaje: 'Error interno del servidor' });
     }
 }

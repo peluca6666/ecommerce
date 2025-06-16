@@ -173,3 +173,19 @@ export async function getOfferProducts(limite = 8) {
     const [productos] = await pool.query(query, [limite]);
     return productos;
 }
+
+/**
+ * Obtiene un único producto por su ID, si está activo.
+ * @param {number} productoId - El ID del producto.
+ * @returns {Promise<object|null>} El objeto del producto o null si no se encuentra o está inactivo.
+ */
+export async function obtenerProductoPorId(productoId) {
+    const query = 'SELECT * FROM producto WHERE producto_id = ? AND activo = true';
+    const [productos] = await pool.query(query, [productoId]);
+    
+    if (productos.length === 0) {
+        return null;
+    }
+    
+    return productos[0];
+}
