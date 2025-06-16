@@ -34,9 +34,36 @@ const ProductCard = ({ producto }) => {
                 }}>
                     {producto.descripcion}
                 </Typography>
-                <Typography variant="h5" component="p" sx={{ mt: 2, fontWeight: 'bold' }}>
-                    ${producto.precio}
-                </Typography>
+
+               {/* Lógica de Precio Mejorada */}
+{producto.precio_anterior && producto.precio_anterior > producto.precio ? (
+    // Si hay un precio anterior válido, mostramos ambos
+    <Box>
+        <Typography 
+            component="span" 
+            sx={{ 
+                textDecoration: 'line-through', 
+                color: 'text.secondary',
+                mr: 1 
+            }}
+        >
+            ${producto.precio_anterior}
+        </Typography>
+        <Typography 
+            variant="h5" 
+            component="span" 
+            sx={{ fontWeight: 'bold', color: 'error.main' }}
+        >
+            ${producto.precio}
+        </Typography>
+    </Box>
+) : (
+    // Si no, mostramos solo el precio normal
+    <Typography variant="h5" sx={{ fontWeight: 'bold' }}>
+        ${producto.precio}
+    </Typography>
+)}
+
             </CardContent>
             <CardActions sx={{ display: 'flex', flexDirection: 'column', p: 2, gap: 1 }}>
                 <Button 

@@ -3,7 +3,6 @@ import { Button, Box } from "@mui/material";
 import { Link as RouterLink } from 'react-router-dom';
 
 const navLinks = [
-    { texto: 'OFERTAS', ruta: '/productos?es_oferta=true' },
     { texto: 'Catálogo', ruta: '/productos' },
     { texto: 'Sobre Nosotros', ruta: '/sobre-nosotros' },
     { texto: 'Contacto', ruta: '/contacto' },

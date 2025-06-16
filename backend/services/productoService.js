@@ -109,21 +109,37 @@ export async function createProduct(productData) {
  * @returns {Promise<object>} - El producto actualizado
  */
 export async function updateProduct(productoId, updateData) {
-    const [productoExistente] = await pool.query('SELECT * FROM producto WHERE producto_id = ?', [productoId]);
-    if (productoExistente.length === 0) {
+    const [productoExistenteResult] = await pool.query('SELECT * FROM producto WHERE producto_id = ?', [productoId]);
+    if (productoExistenteResult.length === 0) {
         const err = new Error('Producto no encontrado');
         err.statusCode = 404;
         throw err;
+    }
+    const productoExistente = productoExistenteResult[0];
+
+    // Verificamos si los datos entrantes modifican alguno de los precios
+    if (updateData.precio !== undefined || updateData.precio_anterior !== undefined) {
+        // Tomamos el nuevo precio o mantenemos el existente si no se modifica
+        const precioFinal = updateData.precio !== undefined ? parseFloat(updateData.precio) : productoExistente.precio;
+        // Hacemos lo mismo para el precio anterior
+        const precioAnteriorFinal = updateData.precio_anterior !== undefined ? parseFloat(updateData.precio_anterior) : productoExistente.precio_anterior;
+
+        // es oferta si hay precio anterior y es mayor al precio actual
+        const debeSerOferta = (precioAnteriorFinal != null && precioFinal < precioAnteriorFinal);
+        
+        // Forzamos el valor correcto de 'es_oferta' en los datos a actualizar
+        updateData.es_oferta = debeSerOferta;
     }
 
     const camposActualizar = [];
     const valores = [];
 
-    // Validar y construir la consulta dinamicamente
+//Logica para construir la consulta de actualización
     Object.keys(updateData).forEach(key => {
         if (updateData[key] !== undefined) {
             camposActualizar.push(`${key} = ?`);
-            if (key === 'imagenes') {
+            // Manejo especial para el campo de imágenes que es un JSON
+            if (key === 'imagenes' && Array.isArray(updateData[key])) {
                 valores.push(JSON.stringify(updateData[key]));
             } else {
                 valores.push(updateData[key]);
