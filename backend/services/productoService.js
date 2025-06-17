@@ -64,7 +64,6 @@ export async function getAllProducts(options = {}) {
     query += ` LIMIT ? OFFSET ?`;
     params.push(parseInt(limite), offset);
 
-    // Las llamadas a la BD no cambian
     const [productos] = await pool.query(query, params);
     const [[{ total }]] = await pool.query(countQuery, countParams);
 
@@ -85,40 +84,61 @@ export async function getAllProducts(options = {}) {
  * @returns {Promise<object>} - El producto recien creado
  */
 export async function createProduct(productData) {
-    const { nombre_producto, descripcion, precio, categoria_id, imagen, imagenes, stock_actual, precio_anterior } = productData;
-
+//Datos que vienen de la BD
+    const { 
+        nombre_producto, 
+        descripcion, 
+        precio, 
+        precio_anterior, 
+        categoria_id, 
+        stock_actual,
+    } = productData;
+//Validacion inicial
     if (!nombre_producto || !precio || !stock_actual) {
         const err = new Error('Nombre, precio y stock son requeridos');
         err.statusCode = 400;
         throw err;
     }
 
-    // Logica para validar y convertir los precios
+    //logica y preparacion de datos
     const precioFinal = parseFloat(precio);
     const precioAnteriorFinal = precio_anterior ? parseFloat(precio_anterior) : null;
-
     const esOfertaFinal = (precioAnteriorFinal != null && precioFinal < precioAnteriorFinal);
 
-    const query = `INSERT INTO producto 
-      (nombre_producto, descripcion, precio, precio_anterior, categoria_id, imagen, imagenes, stock_actual, activo, es_oferta) 
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, true, ?)`;
+    //consulta sql
+    const query = `
+      INSERT INTO producto (
+        nombre_producto, descripcion, precio, precio_anterior, categoria_id, 
+        imagen, imagenes, stock_actual, activo, es_oferta
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `;
     
+    // parametros
     const params = [
         nombre_producto,
         descripcion || null,
         precioFinal,
-        precioAnteriorFinal, // Guardamos el precio anterior
+        precioAnteriorFinal,
         categoria_id || null,
-        JSON.stringify(Array.isArray(imagenes) ? imagenes : []),
+        null, // 
+        '[]', 
         parseInt(stock_actual),
-        esOfertaFinal // Guardamos el valor calculado de es_oferta
+        true,
+        esOfertaFinal, 
     ];
 
-    const [result] = await pool.query(query, params);
-    
-    // Devolvemos el producto completo como fue guardado
-    const [[nuevoProducto]] = await pool.query('SELECT * FROM producto WHERE producto_id = ?', [result.insertId]);
-    return nuevoProducto;
+    try {
+        const [result] = await pool.query(query, params);
+        
+        // Devolvemos el producto completo como fue guardado
+        const [[nuevoProducto]] = await pool.query('SELECT * FROM producto WHERE producto_id = ?', [result.insertId]);
+        return nuevoProducto;
+
+    } catch (error) {
+        console.error("Error al crear el producto en la BD:", error);
+        // Relanzamos el error para que el controlador lo atrape
+        throw new Error('Error de base de datos al crear el producto');
+    }
 }
 
 /**
