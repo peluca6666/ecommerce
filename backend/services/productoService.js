@@ -1,59 +1,70 @@
 import { pool } from '../database/connectionMySQL.js';
 
 /**
- * Lista de productos con filtros y paginación
+ * Lista de productos con filtros y paginación, incluyendo nombre de categoría
  * @param {object} options 
  * @returns {Promise<{productos: Array, paginacion: object}>}
  */
 export async function getAllProducts(options = {}) {
     const { categoria, busqueda, minPrice, maxPrice, es_oferta, sortBy, pagina = 1, limite = 10 } = options;
     const offset = (parseInt(pagina) - 1) * parseInt(limite);
-
-      let query = `SELECT * FROM producto WHERE activo = true`;
+    // Usamos 'p' como alias para producto y 'c' para categoria
+    let query = `
+      SELECT 
+        p.*, 
+        c.nombre AS nombre_categoria 
+      FROM 
+        producto p 
+      LEFT JOIN 
+        categoria c ON p.categoria_id = c.categoria_id 
+      WHERE p.activo = true
+    `;
     let countQuery = `SELECT COUNT(*) as total FROM producto WHERE activo = true`;
+    
     const params = [];
     const countParams = [];
 
     if (categoria) {
-        query += ` AND categoria_id = ?`;
-        countQuery += ` AND categoria_id = ?`;
+        query += ` AND p.categoria_id = ?`;
+        countQuery += ` AND categoria_id = ?`; 
         params.push(categoria);
         countParams.push(categoria);
     }
     if (busqueda) {
-        query += ` AND nombre_producto LIKE ?`;
+        query += ` AND p.nombre_producto LIKE ?`;
         countQuery += ` AND nombre_producto LIKE ?`;
         params.push(`%${busqueda}%`);
         countParams.push(`%${busqueda}%`);
     }
     if (minPrice && !isNaN(minPrice)) {
-        query += ` AND precio >= ?`;
+        query += ` AND p.precio >= ?`;
         countQuery += ` AND precio >= ?`;
         params.push(parseFloat(minPrice));
         countParams.push(parseFloat(minPrice));
     }
     if (maxPrice && !isNaN(maxPrice)) {
-        query += ` AND precio <= ?`;
+        query += ` AND p.precio <= ?`;
         countQuery += ` AND precio <= ?`;
         params.push(parseFloat(maxPrice));
         countParams.push(parseFloat(maxPrice));
     }
     if (es_oferta === 'true') {
-        query += ` AND es_oferta = true`;
+        query += ` AND p.es_oferta = true`;
         countQuery += ` AND es_oferta = true`;
     }
 
     const validSorts = {
-        precio_asc: 'ORDER BY precio ASC',
-        precio_desc: 'ORDER BY precio DESC',
-        nombre_asc: 'ORDER BY nombre_producto ASC',
-        nombre_desc: 'ORDER BY nombre_producto DESC'
+        precio_asc: 'ORDER BY p.precio ASC',
+        precio_desc: 'ORDER BY p.precio DESC',
+        nombre_asc: 'ORDER BY p.nombre_producto ASC',
+        nombre_desc: 'ORDER BY p.nombre_producto DESC'
     };
-    query += ` ${validSorts[sortBy] || 'ORDER BY nombre_producto ASC'}`;
+    query += ` ${validSorts[sortBy] || 'ORDER BY p.nombre_producto ASC'}`;
     
     query += ` LIMIT ? OFFSET ?`;
     params.push(parseInt(limite), offset);
 
+    // Las llamadas a la BD no cambian
     const [productos] = await pool.query(query, params);
     const [[{ total }]] = await pool.query(countQuery, countParams);
 

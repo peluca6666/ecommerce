@@ -6,9 +6,10 @@ import Title from './Title';
 
 const columns = [
   { field: 'producto_id', headerName: 'ID', width: 70 },
-  { field: 'nombre', headerName: 'Nombre del Producto', width: 300 },
+  { field: 'nombre_producto', headerName: 'Nombre del Producto', width: 300 },
   { field: 'precio', headerName: 'Precio', type: 'number', width: 130 },
   { field: 'stock_actual', headerName: 'Stock', type: 'number', width: 100 },
+   { field: 'nombre_categoria', headerName: 'Categoria', type: 'number', width: 100 },
   { 
     field: 'activo', 
     headerName: 'Estado', 
