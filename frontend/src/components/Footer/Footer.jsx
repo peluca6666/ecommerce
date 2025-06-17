@@ -20,7 +20,7 @@ const Footer = () => (
             <Grid container spacing={5}>
                 
                 {/*  Sobre Nosotros */}
-                <Grid item xs={12} sm={4}>
+                <Grid xs={12} sm={4}>
                     <Typography variant="h6" color="text.primary" gutterBottom>
                         SaloMarket
                     </Typography>
@@ -30,7 +30,7 @@ const Footer = () => (
                 </Grid>
 
                 {/* Navegación */}
-                <Grid item xs={12} sm={4}>
+                <Grid xs={12} sm={4}>
                     <Typography variant="h6" color="text.primary" gutterBottom>
                         Navegación
                     </Typography>
@@ -46,7 +46,7 @@ const Footer = () => (
                 </Grid>
 
                 {/*Contacto y Redes Sociales*/}
-                <Grid item xs={12} sm={4}>
+                <Grid xs={12} sm={4}>
                     <Typography variant="h6" color="text.primary" gutterBottom>
                         Contacto
                     </Typography>

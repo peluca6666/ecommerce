@@ -31,7 +31,7 @@ export const crearNuevaVenta = async (usuarioId, productos, metodoPago, direccio
     }
 
     const ventaSql = 'INSERT INTO venta (usuario_id, fecha_venta, total, estado, metodo_pago, direccion_envio) VALUES (?, NOW(), ?, ?, ?, ?)';
-    const [ventaResult] = await connection.execute(ventaSql, [usuarioId, totalVenta, 'Completado', metodoPago, direccionEnvio]);
+   const [ventaResult] = await connection.execute(ventaSql, [usuarioId, totalVenta, 'Procesando', metodoPago, direccionEnvio]);
     const nuevaVentaId = ventaResult.insertId;
 
     for (const producto of productos) {
@@ -101,6 +101,71 @@ export async function obtenerDetalleDeVentaParaAdmin(ventaId) {
 export async function obtenerDetalleDeVentaParaCliente(ventaId, usuarioId) {
   return _obtenerDetalleVenta(ventaId, usuarioId); // Llama a la función interna con usuarioId
 }
+
+
+/**Esto nos sirve para manejar los estados de las ventas desde el panel de administrador, por ejemplo para cancelar una venta 
+ * Cancela una venta y devuelve el stock de los productos al inventario
+ * @param {number} ventaId - El ID de la venta a cancelar
+ * @returns {Promise<boolean>} True si la cancelación fue exitosa
+ */
+export async function cancelarVenta(ventaId) {
+    const connection = await pool.getConnection();
+    await connection.beginTransaction();
+
+    try {
+        //Se obtienen todos los productos y cantidades de esa venta
+        const [detalles] = await connection.execute(
+            'SELECT producto_id, cantidad FROM detalle_venta WHERE venta_id = ?',
+            [ventaId]
+        );
+
+        if (detalles.length === 0) {
+            throw new Error('No se encontraron detalles para esta venta.');
+        }
+
+        // Por cada producto devolvemos su cantidad al stock principal
+        for (const item of detalles) {
+            await connection.execute(
+                'UPDATE producto SET stock_actual = stock_actual + ? WHERE producto_id = ?',
+                [item.cantidad, item.producto_id]
+            );
+        }
+
+        // Actualizamos el estado de la venta a 'cancelado'
+        const [updateResult] = await connection.execute(
+            "UPDATE venta SET estado = 'Cancelado' WHERE venta_id = ?",
+            [ventaId]
+        );
+
+        if (updateResult.affectedRows === 0) {
+            throw new Error('No se encontró la venta para actualizar su estado.');
+        }
+
+        // Si todo salió bien confirmamos los cambios
+        await connection.commit();
+        return true;
+
+    } catch (error) {
+        // Si cualquier paso falla revertimos todo para no dejar datos inconsistentes
+        await connection.rollback();
+        console.error("Error al cancelar la venta:", error);
+        throw error; // Relanzamos para que el controlador lo maneje
+    } finally {
+        if (connection) connection.release();
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 // Logica interna ===================================================

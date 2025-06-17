@@ -1,12 +1,12 @@
 import { useState, useEffect } from 'react';
 import { Container, Box, Typography, Paper, Tabs, Tab, TextField, Button, Grid, Stack } from '@mui/material';
-import { PersonOutline, LockOutlined, ReceiptOutlined  } from '@mui/icons-material';
+import { PersonOutline, LockOutlined, ReceiptOutlined } from '@mui/icons-material';
 import { useAuth } from '../../context/AuthContext';
 import axios from 'axios';
 import Header from '../../components/Header/Header';
 import Footer from '../../components/Footer/Footer';
 import LoadingSpinner from '../../components/common/LoadingSpinner';
-import PurchaseHistoryTab from '../../components/Profile/PurchaseHistoryTab'; 
+import PurchaseHistoryTab from '../../components/Profile/PurchaseHistoryTab';
 
 // componente auxiliar para manejar el contenido de cada pestaña
 const TabPanel = (props) => {
@@ -114,6 +114,7 @@ const ProfilePage = () => {
 
     const handlePasswordSubmit = async (e) => {
         e.preventDefault();
+        // Lógica de validación de contraseña...
         if (passwordData.nuevaContrasenia !== passwordData.confirmarContrasenia) {
             showNotification('Las nuevas contraseñas no coinciden.', 'error');
             return;
@@ -149,21 +150,22 @@ const ProfilePage = () => {
 
                     <Tabs value={tabIndex} onChange={handleTabChange} variant="fullWidth" indicatorColor="primary" textColor="primary">
                         <Tab icon={<PersonOutline />} iconPosition="start" label="Mis Datos" />
-                         <Tab icon={<LockOutlined />} iconPosition="start" label="Seguridad" />
-                        <Tab icon={< ReceiptOutlined/>} iconPosition="start" label="Mis compras" />
+                        <Tab icon={<LockOutlined />} iconPosition="start" label="Seguridad" />
+                        <Tab icon={<ReceiptOutlined/>} iconPosition="start" label="Mis compras" />
                     </Tabs>
                     
                     <TabPanel value={tabIndex} index={0}>
                         <Typography variant="h6" sx={{ mb: 3 }}>Información Personal y de Envío</Typography>
                         <form onSubmit={handleProfileSubmit}>
+                            {/* CAMBIO: Se eliminó la prop 'item' de todos los Grid hijos */}
                             <Grid container spacing={3}>
-                                <Grid item xs={12} sm={6}><TextField fullWidth label="DNI" name="dni" value={profileData.dni} onChange={handleProfileChange} /></Grid>
-                                <Grid item xs={12} sm={6}><TextField fullWidth label="Teléfono" name="telefono" value={profileData.telefono} onChange={handleProfileChange} /></Grid>
-                                <Grid item xs={12}><TextField fullWidth label="Dirección (Calle y Número)" name="direccion" value={profileData.direccion} onChange={handleProfileChange} /></Grid>
-                                <Grid item xs={12} sm={6}><TextField fullWidth label="Localidad" name="localidad" value={profileData.localidad} onChange={handleProfileChange} /></Grid>
-                                <Grid item xs={12} sm={6}><TextField fullWidth label="Código Postal" name="codigo_postal" value={profileData.codigo_postal} onChange={handleProfileChange} /></Grid>
-                                <Grid item xs={12}><TextField fullWidth label="Provincia" name="provincia" value={profileData.provincia} onChange={handleProfileChange} /></Grid>
-                                <Grid item xs={12}>
+                                <Grid xs={12} sm={6}><TextField fullWidth label="DNI" name="dni" value={profileData.dni} onChange={handleProfileChange} /></Grid>
+                                <Grid xs={12} sm={6}><TextField fullWidth label="Teléfono" name="telefono" value={profileData.telefono} onChange={handleProfileChange} /></Grid>
+                                <Grid xs={12}><TextField fullWidth label="Dirección (Calle y Número)" name="direccion" value={profileData.direccion} onChange={handleProfileChange} /></Grid>
+                                <Grid xs={12} sm={6}><TextField fullWidth label="Localidad" name="localidad" value={profileData.localidad} onChange={handleProfileChange} /></Grid>
+                                <Grid xs={12} sm={6}><TextField fullWidth label="Código Postal" name="codigo_postal" value={profileData.codigo_postal} onChange={handleProfileChange} /></Grid>
+                                <Grid xs={12}><TextField fullWidth label="Provincia" name="provincia" value={profileData.provincia} onChange={handleProfileChange} /></Grid>
+                                <Grid xs={12}>
                                     <Button type="submit" variant="contained" disabled={isSubmittingProfile}>
                                         {isSubmittingProfile ? 'Guardando...' : 'Guardar Cambios'}
                                     </Button>
@@ -187,7 +189,8 @@ const ProfilePage = () => {
                            </Stack>
                         </form>
                     </TabPanel>
-                    <TabPanel value = {tabIndex} index={2}>
+                    
+                    <TabPanel value={tabIndex} index={2}>
                         <PurchaseHistoryTab />
                     </TabPanel>
                 </Paper>

@@ -53,7 +53,7 @@ const ContactoPage = () => {
             <Grid container spacing={5}>
                 
                 {/* Información de Contacto*/}
-                <Grid item xs={12} md={5}>
+                <Grid xs={12} md={5}>
                     <Typography variant="h5" fontWeight="600" sx={{ mb: 2 }}>
                         Información Directa
                     </Typography>
@@ -93,37 +93,41 @@ const ContactoPage = () => {
                 </Grid>
 
                 {/*Columna Derecha: Formulario*/}
-                <Grid item xs={12} md={7}>
+                <Grid xs={12} md={7}>
                     <Typography variant="h5" fontWeight="600" sx={{ mb: 2 }}>
                         Envíanos un Mensaje
                     </Typography>
                     <form onSubmit={handleSubmit}>
                         <Grid container spacing={2}>
-                            <Grid item xs={12}>
+                            <Grid xs={12}>
                                 <TextField
                                     fullWidth required label="Tu Nombre" name="nombre"
                                     value={formData.nombre} onChange={handleChange}
-                                    InputProps={{ // Añadimos un icono al campo
-                                        startAdornment: <AccountCircle sx={{ mr: 1, color: 'action.active' }} />,
+                                    slotProps={{
+                                        input: {
+                                            startAdornment: <AccountCircle sx={{ mr: 1, color: 'action.active' }} />,
+                                        }
                                     }}
                                 />
-                            </Grid>
-                            <Grid item xs={12}>
                                 <TextField
                                     fullWidth required type="email" label="Tu Email" name="email"
                                     value={formData.email} onChange={handleChange}
-                                    InputProps={{ // Añadimos un icono al campo
-                                        startAdornment: <AlternateEmail sx={{ mr: 1, color: 'action.active' }} />,
+                                    slotProps={{
+                                        input: {
+                                            startAdornment: <AlternateEmail sx={{ mr: 1, color: 'action.active' }} />,
+                                        }
                                     }}
                                 />
+                                
+        
                             </Grid>
-                            <Grid item xs={12}>
+                            <Grid xs={12}>
                                 <TextField
                                     fullWidth required multiline rows={5} label="Tu Mensaje"
                                     name="mensaje" value={formData.mensaje} onChange={handleChange}
                                 />
                             </Grid>
-                            <Grid item xs={12}>
+                            <Grid xs={12}>
                                 <Button
                                     type="submit" fullWidth variant="contained" size="large"
                                     endIcon={<SendIcon />} disabled={isSending}
