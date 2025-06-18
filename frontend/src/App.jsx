@@ -21,6 +21,7 @@ import AdminDashboardPage from './pages/Admin/AdminDashboardPage';
 import AdminProductsPage from './pages/Admin/AdminProductsPage';
 import AdminSalesPage from './pages/Admin/AdminSalesPage';
 import AdminUsersPage from './pages/Admin/AdminUsersPage';
+import AdminSaleDetailPage from './pages/Admin/AdminSaleDetailPage.jsx';
 
 function App() {
   return (
@@ -53,8 +54,10 @@ function App() {
               <Route path="productos" element={<AdminProductsPage />} />
               <Route path="ventas" element={<AdminSalesPage />} />
               <Route path="usuarios" element={<AdminUsersPage />} />
+              <Route path="ventas/:id" element = {<AdminSaleDetailPage/>}/>
             </Route>
           </Route>
+          
           {/* Página de acceso denegado */}
           <Route path="/unauthorized" element={<div>No tenés permiso para entrar acá</div>} />
 
