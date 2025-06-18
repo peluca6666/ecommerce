@@ -3,6 +3,11 @@ import { useState, useEffect } from 'react';
 import { DataGrid } from '@mui/x-data-grid';
 import { Box, Button, Typography, Dialog, DialogActions, DialogContent, DialogTitle, TextField, Select, MenuItem, InputLabel, FormControl, styled } from '@mui/material';
 import Title from './Title';
+import { /*...,*/ IconButton } from '@mui/material';
+import EditIcon from '@mui/icons-material/Edit';
+import ToggleOnIcon from '@mui/icons-material/ToggleOn';
+import ToggleOffIcon from '@mui/icons-material/ToggleOff';
+
 
 const columns = [
   { field: 'producto_id', headerName: 'ID', width: 70 },
@@ -111,6 +116,7 @@ export default function AdminProductsPage() {
     setNewProduct({ ...newProduct, [name]: value });
   };
   
+  
   const handleFileChange = (e) => {
     if (e.target.files[0]) {
       setMainImageFile(e.target.files[0]);
@@ -123,6 +129,67 @@ export default function AdminProductsPage() {
       setSecondaryImageFiles(Array.from(e.target.files));
     }
   };
+
+ const handleToggleActivo = async (id, estadoActual) => {
+    // Pedir confirmacion
+    const confirmacion = window.confirm(
+      `¿Estás seguro de que querés ${estadoActual ? 'DESACTIVAR' : 'ACTIVAR'} este producto?`
+    );
+
+    if (!confirmacion) return;
+
+    try {
+      const token = localStorage.getItem('token');
+      // Usamos un nuevo endpoint en el backend que crearemos en el siguiente paso
+      const response = await fetch(`http://localhost:3000/api/producto/${id}/toggle-activo`, {
+        method: 'PUT',
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+
+      if (!response.ok) {
+        throw new Error('Falló al cambiar el estado del producto');
+      }
+      
+      alert('Estado del producto actualizado con éxito');
+      fetchProducts(); // Refrescamos la tabla para ver el cambio
+    } catch (err) {
+      alert(`Error: ${err.message}`);
+    }
+  };
+
+   const columns = [
+    { field: 'producto_id', headerName: 'ID', width: 70 },
+    { field: 'nombre_producto', headerName: 'Nombre del Producto', width: 300 },
+    { field: 'nombre_categoria', headerName: 'Categoría', width: 180 },
+    { field: 'precio', headerName: 'Precio', type: 'number', width: 130 },
+    { field: 'stock_actual', headerName: 'Stock', type: 'number', width: 100 },
+    { 
+      field: 'activo', 
+      headerName: 'Estado', 
+      width: 130,
+      renderCell: (params) => (
+        <Typography color={params.value ? 'green' : 'red'}>
+          {params.value ? 'Activo' : 'Inactivo'}
+        </Typography>
+      ),
+    },
+    {
+      field: 'acciones',
+      headerName: 'Acciones',
+      width: 150,
+      sortable: false, // No queremos que se pueda ordenar por esta columna
+      renderCell: (params) => (
+        <Box>
+          <IconButton onClick={() => alert('Próximamente: Editar producto ' + params.row.producto_id)}>
+            <EditIcon />
+          </IconButton>
+          <IconButton onClick={() => handleToggleActivo(params.row.producto_id, params.row.activo)}>
+            {params.row.activo ? <ToggleOnIcon color="success" /> : <ToggleOffIcon color="error" />}
+          </IconButton>
+        </Box>
+      ),
+    },
+  ];
 
    const handleCreateProduct = async () => {
   const formData = new FormData();
@@ -172,7 +239,6 @@ export default function AdminProductsPage() {
       alert(`Error: ${err.message}`);
     }
   };
-
 
     if (loading) return <Typography>Cargando productos...</Typography>;
   if (error) return <Typography color="error">Error: {error}</Typography>;

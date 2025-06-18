@@ -3,7 +3,7 @@ import { verifyToken, autorizarPorRol } from '../middleware/auth.js';
 import { schemaRegistro, schemaLogin } from '../validations/authValidation.js';
 import { validarBody } from '../middleware/validar.js';
 import { registrarUsuario, loginUsuario, obtenerPerfilUsuario, actualizarPerfilUsuario, cambiarContraseñaUsuario } from '../controllers/usuarioController.js';
-import { agregarProducto, obtenerProductos, actualizarProducto, eliminarProducto, obtenerProductosEnOferta, obtenerProductoPorId } from '../controllers/productoController.js';
+import { agregarProducto, obtenerProductos, actualizarProducto, eliminarProducto, obtenerProductosEnOferta, obtenerProductoPorId, toggleActivoProducto} from '../controllers/productoController.js';
 import { actualizarCategoria, crearCategoria, eliminarCategoria, obtenerCategoriaPorId, obtenerCategorias, obtenerCategoriasConConteo, obtenerProductosPorCategoria } from '../controllers/categoriaController.js';
 import { obtenerCarrito, agregarProductoAlCarrito, actualizarProductoEnCarrito, eliminarProductoDelCarrito } from '../controllers/carritoController.js';
 import { verificarCuenta } from '../controllers/usuarioController.js';
@@ -63,5 +63,6 @@ router.put('/categoria/:id', verifyToken, autorizarPorRol('admin'), actualizarCa
 router.delete('/categoria/:id', verifyToken, autorizarPorRol('admin'), eliminarCategoria)
 router.get('/admin/ventas', verifyToken, autorizarPorRol('admin'), listarTodasLasVentas);
 router.get('/admin/ventas/:id', verifyToken, autorizarPorRol('admin'), obtenerDetalleVenta);
+router.put('/producto/:id/toggle-activo', verifyToken, autorizarPorRol('admin'), toggleActivoProducto);
 
 export default router;

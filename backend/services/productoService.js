@@ -255,3 +255,12 @@ export async function obtenerProductoPorId(productoId) {
 
     return productos[0];
 }
+
+//activar o desactivar productos 
+export async function toggleProductStatus(productoId) {
+  const query = 'UPDATE producto SET activo = NOT activo WHERE producto_id = ?';
+  const [result] = await pool.query(query, [productoId]);
+  
+  //nos dice si alguna fila fue afectada. Si es 0, el producto no existía
+  return result.affectedRows > 0;
+}

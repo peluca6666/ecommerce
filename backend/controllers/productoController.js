@@ -114,3 +114,17 @@ export async function obtenerProductoPorId(req, res) {
         return res.status(500).json({ exito: false, mensaje: 'Error interno del servidor' });
     }
 }
+
+//activar o desactivar productos
+export async function toggleActivoProducto(req, res) {
+  try {
+    const { id } = req.params;
+    const resultado = await productoService.toggleProductStatus(id);
+    if (!resultado) {
+      return res.status(404).json({ exito: false, mensaje: 'Producto no encontrado' });
+    }
+    res.json({ exito: true, mensaje: 'Estado del producto actualizado' });
+  } catch (error) {
+    res.status(500).json({ exito: false, mensaje: error.message });
+  }
+}
