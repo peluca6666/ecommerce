@@ -155,21 +155,6 @@ export async function cancelarVenta(ventaId) {
     }
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-// Logica interna ===================================================
-
 /**
  * Función interna y genérica para obtener el detalle de una venta
  * Es reutilizada por las funciones de admin y cliente
@@ -178,7 +163,17 @@ export async function cancelarVenta(ventaId) {
  * @private
  */
 async function _obtenerDetalleVenta(ventaId, usuarioId = null) {
-    let ventaSql = 'SELECT * FROM venta WHERE venta_id = ?';
+     let ventaSql = `
+      SELECT 
+        v.*, 
+        u.nombre, u.apellido, u.dni, u.telefono, u.email 
+      FROM 
+        venta v 
+      JOIN 
+        usuario u ON v.usuario_id = u.usuario_id 
+      WHERE 
+        v.venta_id = ?
+    `;
     const params = [ventaId];
 
     if (usuarioId) {
@@ -203,4 +198,11 @@ async function _obtenerDetalleVenta(ventaId, usuarioId = null) {
         ...ventaRows[0],
         productos: detalleRows
     };
+}
+
+export async function updateSaleStatus(ventaId, nuevoEstado) {
+  const query = 'UPDATE venta SET estado = ? WHERE venta_id = ?';
+  const [result] = await pool.query(query, [nuevoEstado, ventaId]);
+  
+  return result.affectedRows > 0;
 }

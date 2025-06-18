@@ -7,7 +7,7 @@ import { agregarProducto, obtenerProductos, actualizarProducto, eliminarProducto
 import { actualizarCategoria, crearCategoria, eliminarCategoria, obtenerCategoriaPorId, obtenerCategorias, obtenerCategoriasConConteo, obtenerProductosPorCategoria } from '../controllers/categoriaController.js';
 import { obtenerCarrito, agregarProductoAlCarrito, actualizarProductoEnCarrito, eliminarProductoDelCarrito } from '../controllers/carritoController.js';
 import { verificarCuenta } from '../controllers/usuarioController.js';
-import { crearVenta, obtenerHistorialCompras, listarTodasLasVentas, obtenerDetalleVenta, obtenerDetalleVentaUsuario } from '../controllers/ventaController.js';
+import { crearVenta, obtenerHistorialCompras, listarTodasLasVentas, obtenerDetalleVenta, obtenerDetalleVentaUsuario, actualizarEstadoVenta } from '../controllers/ventaController.js';
 import { manejarFormularioContacto } from '../controllers/contactoController.js';
 import { upload } from '../middleware/upload.js';
 
@@ -64,5 +64,6 @@ router.delete('/categoria/:id', verifyToken, autorizarPorRol('admin'), eliminarC
 router.get('/admin/ventas', verifyToken, autorizarPorRol('admin'), listarTodasLasVentas);
 router.get('/admin/ventas/:id', verifyToken, autorizarPorRol('admin'), obtenerDetalleVenta);
 router.put('/producto/:id/toggle-activo', verifyToken, autorizarPorRol('admin'), toggleActivoProducto);
+router.put('/admin/ventas/:id/status', verifyToken, autorizarPorRol('admin'), actualizarEstadoVenta);
 
 export default router;

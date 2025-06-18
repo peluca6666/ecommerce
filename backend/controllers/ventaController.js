@@ -79,3 +79,22 @@ export const obtenerDetalleVentaUsuario = async (req, res) => {
         res.status(500).json({ exito: false, mensaje: 'Error interno del servidor' });
     }
 };
+
+export async function actualizarEstadoVenta(req, res) {
+  try {
+    const { id } = req.params;
+    const { estado } = req.body; // Sacamos el nuevo estado del cuerpo de la petición
+
+    if (!estado) {
+      return res.status(400).json({ exito: false, mensaje: 'El nuevo estado es requerido' });
+    }
+
+    const resultado = await ventaService.updateSaleStatus(id, estado);
+    if (!resultado) {
+      return res.status(404).json({ exito: false, mensaje: 'Venta no encontrada' });
+    }
+    res.json({ exito: true, mensaje: 'Estado de la venta actualizado correctamente' });
+  } catch (error) {
+    res.status(500).json({ exito: false, mensaje: error.message });
+  }
+}
