@@ -197,3 +197,42 @@ export async function changeUserPassword(userId, contraseniaActual, nuevaContras
 
   return true;
 }
+
+/**
+ * Obtiene todos los usuarios para el panel de admin
+ * No devuelve la contraseña por seguridad
+ * @returns {Promise<Array>}
+ */
+export async function obtenerTodosLosUsuarios() {
+  try {
+    const sql = 'SELECT usuario_id, nombre, apellido, email, dni, direccion, telefono, provincia, localidad, codigo_postal, rol, activo FROM usuario ORDER BY usuario_id DESC';
+    const [rows] = await pool.query(sql);
+    return rows;
+  } catch (error) {
+    console.error("ERROR EN EL SERVICIO AL BUSCAR TODOS LOS USUARIOS:", error);
+    throw error;
+  }
+}
+
+/**
+ * Podemos cambiar el rol de un usuario
+ * @param {number} usuarioId
+ * @param {string} nuevoRol cliente o admin
+ * @returns {Promise<boolean>}
+ */
+export async function updateUserRole(usuarioId, nuevoRol) {
+  const query = 'UPDATE usuario SET rol = ? WHERE usuario_id = ?';
+  const [result] = await pool.query(query, [nuevoRol, usuarioId]);
+  return result.affectedRows > 0;
+}
+
+/**
+ * Activa o desactiva la cuenta de un usuario
+ * @param {number} usuarioId
+ * @returns {Promise<boolean>}
+ */
+export async function toggleUserStatus(usuarioId) {
+  const query = 'UPDATE usuario SET activo = NOT activo WHERE usuario_id = ?';
+  const [result] = await pool.query(query, [usuarioId]);
+  return result.affectedRows > 0;
+}

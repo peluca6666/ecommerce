@@ -98,3 +98,13 @@ export async function actualizarEstadoVenta(req, res) {
     res.status(500).json({ exito: false, mensaje: error.message });
   }
 }
+
+export async function obtenerVentasPorUsuarioAdmin(req, res) {
+  try {
+    const { id } = req.params; // Sacamos el ID del usuario de la URL
+    const ventas = await ventaService.obtenerVentasDeUsuarioPorAdmin(id);
+    res.json({ exito: true, datos: ventas });
+  } catch (error) {
+    res.status(500).json({ exito: false, mensaje: error.message });
+  }
+}

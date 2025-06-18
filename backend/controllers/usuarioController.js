@@ -122,7 +122,7 @@ export const verificarCuenta = async (req, res) => {
     if (resultado === 'no-encontrado') {
       return res.status(404).json({ error: 'Usuario no encontrado' });
     }
-    // Para 'token-invalido' o cualquier otro caso
+    // Para token-invalido o cualquier otro caso
     return res.status(400).json({ error: 'Token inválido o expirado' });
 
   } catch (error) {
@@ -130,3 +130,39 @@ export const verificarCuenta = async (req, res) => {
     return res.status(500).json({ error: 'Error interno del servidor' });
   }
 };
+
+export async function obtenerTodosLosUsuarios(req, res) {
+  try {
+    const usuarios = await usuarioService.obtenerTodosLosUsuarios();
+    res.json({ exito: true, datos: usuarios });
+  } catch (error) {
+    console.error("ERROR GRAVE EN EL CONTROLADOR DE USUARIOS:", error); 
+    res.status(500).json({ exito: false, mensaje: 'Error interno del servidor al obtener usuarios.' });
+  }
+}
+
+export async function cambiarRolUsuario(req, res) {
+  try {
+    const { id } = req.params;
+    const { rol } = req.body;
+    if (!rol || (rol !== 'cliente' && rol !== 'admin')) {
+        return res.status(400).json({ exito: false, mensaje: 'Rol no válido' });
+    }
+    const resultado = await usuarioService.updateUserRole(id, rol);
+    if (!resultado) return res.status(404).json({ exito: false, mensaje: 'Usuario no encontrado' });
+    res.json({ exito: true, mensaje: 'Rol actualizado correctamente' });
+  } catch (error) {
+    res.status(500).json({ exito: false, mensaje: error.message });
+  }
+}
+
+export async function cambiarEstadoUsuario(req, res) {
+  try {
+    const { id } = req.params;
+    const resultado = await usuarioService.toggleUserStatus(id);
+    if (!resultado) return res.status(404).json({ exito: false, mensaje: 'Usuario no encontrado' });
+    res.json({ exito: true, mensaje: 'Estado del usuario actualizado' });
+  } catch (error) {
+    res.status(500).json({ exito: false, mensaje: error.message });
+  }
+}

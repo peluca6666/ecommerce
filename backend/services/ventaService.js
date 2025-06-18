@@ -156,10 +156,10 @@ export async function cancelarVenta(ventaId) {
 }
 
 /**
- * Función interna y genérica para obtener el detalle de una venta
+ * Función para obtener el detalle de una venta
  * Es reutilizada por las funciones de admin y cliente
  * @param {number} ventaId 
- * @param {number|null} [usuarioId=null] - El ID del usuario que debe ser el dueño de la venta, si es null no se verifica
+ * @param {number|null} [usuarioId=null] - El id del usuario que debe ser el dueño de la venta, si es null no se verifica
  * @private
  */
 async function _obtenerDetalleVenta(ventaId, usuarioId = null) {
@@ -205,4 +205,15 @@ export async function updateSaleStatus(ventaId, nuevoEstado) {
   const [result] = await pool.query(query, [nuevoEstado, ventaId]);
   
   return result.affectedRows > 0;
+}
+
+/**
+ * Obtiene el historial de ventas de un usuario especifico para usar en el panel de admin
+ * @param {number} usuarioId
+ * @returns {Promise<Array>}
+ */
+export async function obtenerVentasDeUsuarioPorAdmin(usuarioId) {
+  const sql = 'SELECT venta_id, fecha_venta, total, estado FROM venta WHERE usuario_id = ? ORDER BY fecha_venta DESC';
+  const [rows] = await pool.execute(sql, [usuarioId]);
+  return rows;
 }

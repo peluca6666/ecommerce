@@ -92,7 +92,7 @@ export default function AdminSaleDetailPage() {
             <Typography>{saleDetails.direccion_envio}</Typography>
           </Paper>
 
-          {/* panel para gestionar el estado */}
+          {/* Panel para gestionar el estado */}
           <Paper sx={{ p: 2 }}>
             <Typography variant="h6" gutterBottom>Gestionar Estado de la Venta</Typography>
             <FormControl fullWidth>
