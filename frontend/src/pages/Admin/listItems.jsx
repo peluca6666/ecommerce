@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
-
+import InventoryIcon from '@mui/icons-material/Inventory';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import CategoryIcon from '@mui/icons-material/Category';
@@ -24,7 +24,7 @@ export const mainListItems = (
     <Link to="/admin/productos" style={{ textDecoration: 'none', color: 'inherit' }}>
       <ListItemButton>
         <ListItemIcon>
-          <CategoryIcon />
+          <InventoryIcon />
         </ListItemIcon>
         <ListItemText primary="Productos" />
       </ListItemButton>
@@ -48,6 +48,11 @@ export const mainListItems = (
         <ListItemText primary="Usuarios" />
       </ListItemButton>
     </Link>
-
+<Link to="/admin/categorias" style={{ textDecoration: 'none', color: 'inherit' }}>
+    <ListItemButton>
+        <ListItemIcon><CategoryIcon /></ListItemIcon>
+        <ListItemText primary="Categorías" />
+    </ListItemButton>
+</Link>
   </React.Fragment>
 );

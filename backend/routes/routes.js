@@ -4,7 +4,16 @@ import { schemaRegistro, schemaLogin } from '../validations/authValidation.js';
 import { validarBody } from '../middleware/validar.js';
 import { registrarUsuario, loginUsuario, obtenerPerfilUsuario, actualizarPerfilUsuario, cambiarContraseñaUsuario, verificarCuenta, obtenerTodosLosUsuarios, cambiarRolUsuario, cambiarEstadoUsuario  } from '../controllers/usuarioController.js';
 import { agregarProducto, obtenerProductos, actualizarProducto, eliminarProducto, obtenerProductosEnOferta, obtenerProductoPorId, toggleActivoProducto} from '../controllers/productoController.js';
-import { actualizarCategoria, crearCategoria, eliminarCategoria, obtenerCategoriaPorId, obtenerCategorias, obtenerCategoriasConConteo, obtenerProductosPorCategoria } from '../controllers/categoriaController.js';
+import { 
+  obtenerCategorias,
+  obtenerCategoriasConConteo,
+  obtenerProductosPorCategoria,
+  obtenerTodasCategoriasAdmin,
+  crearCategoria,
+  actualizarCategoria,
+ cambiarEstadoCategoria,
+  obtenerCategoriaPorId
+} from '../controllers/categoriaController.js';
 import { obtenerCarrito, agregarProductoAlCarrito, actualizarProductoEnCarrito, eliminarProductoDelCarrito } from '../controllers/carritoController.js';
 import { crearVenta, obtenerHistorialCompras, listarTodasLasVentas, obtenerDetalleVenta, obtenerDetalleVentaUsuario, actualizarEstadoVenta, obtenerVentasPorUsuarioAdmin } from '../controllers/ventaController.js';
 import { manejarFormularioContacto } from '../controllers/contactoController.js';
@@ -25,6 +34,7 @@ router.get('/verify', verificarCuenta);
 router.get('/producto', obtenerProductos);
 router.get('/producto/ofertas', obtenerProductosEnOferta);
 router.get('/producto/:id', obtenerProductoPorId);
+
 
 // ------------------------ Rutas de categorías ------------------------
 router.get('/categoria', obtenerCategorias);
@@ -50,7 +60,7 @@ router.post('/producto', verifyToken, autorizarPorRol('admin'), upload.fields([
   { name: 'imagen', maxCount: 1 },
   { name: 'imagenes', maxCount: 10 }
 ]), agregarProducto);
-router.put('/producto/:id', verifyToken, autorizarPorRol('admin'), actualizarProducto);
+router.put('/producto/:id', verifyToken, autorizarPorRol('admin'), upload.fields([{ name: 'imagen', maxCount: 1 }, { name: 'imagenes', maxCount: 10 }]), actualizarProducto);
 router.delete('/producto/:id', verifyToken, autorizarPorRol('admin'), eliminarProducto);
 router.get('/admin', verifyToken, autorizarPorRol('admin'), (req, res) => {
   res.json({ mensaje: 'Acceso a panel de administrador' });});
@@ -58,7 +68,7 @@ router.get('/categoria/:id', verifyToken, autorizarPorRol('admin'), obtenerCateg
 router.get('/categoria/conteo', verifyToken, autorizarPorRol('admin'), obtenerCategoriasConConteo);
 router.post('/categoria', verifyToken, autorizarPorRol('admin'), crearCategoria);
 router.put('/categoria/:id', verifyToken, autorizarPorRol('admin'), actualizarCategoria);
-router.delete('/categoria/:id', verifyToken, autorizarPorRol('admin'), eliminarCategoria)
+router.put('/admin/categorias/:id/toggle-activo', verifyToken, autorizarPorRol('admin'), cambiarEstadoCategoria);
 router.get('/admin/ventas', verifyToken, autorizarPorRol('admin'), listarTodasLasVentas);
 router.get('/admin/ventas/:id', verifyToken, autorizarPorRol('admin'), obtenerDetalleVenta);
 router.put('/producto/:id/toggle-activo', verifyToken, autorizarPorRol('admin'), toggleActivoProducto);
@@ -67,5 +77,8 @@ router.get('/admin/usuarios', verifyToken, autorizarPorRol('admin'), obtenerTodo
 router.put('/admin/usuarios/:id/rol', verifyToken, autorizarPorRol('admin'), cambiarRolUsuario);
 router.put('/admin/usuarios/:id/toggle-activo', verifyToken, autorizarPorRol('admin'), cambiarEstadoUsuario);
 router.get('/admin/usuarios/:id/ventas', verifyToken, autorizarPorRol('admin'), obtenerVentasPorUsuarioAdmin);
+router.get('/admin/categorias', verifyToken, autorizarPorRol('admin'), obtenerTodasCategoriasAdmin);
+router.post('/admin/categorias', verifyToken, autorizarPorRol('admin'), upload.single('imagen'), crearCategoria);
+router.put('/admin/categorias/:id', verifyToken, autorizarPorRol('admin'), upload.single('imagen'), actualizarCategoria);
 
 export default router;

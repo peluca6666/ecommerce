@@ -2,7 +2,7 @@ import { pool } from '../database/connectionMySQL.js';
 
 
 /**
- * Lista de productos con filtros y paginación para el PANEL DE ADMIN
+ * Lista de productos con filtros y paginación para el panel de admin
  * @param {object} options 
  * @returns {Promise<{productos: Array, paginacion: object}>}
  */
@@ -102,12 +102,9 @@ export async function createProduct(productData, files) {
 
   // Obtenemos la ruta de la imagen principal 
   //files.imagen es un array, por eso tomamos el primer elemento [0]
-  const imagenPath = files && files.imagen ? files.imagen[0].path : null;
-
-  // Obtenemos las rutas de las imágenes secundarias y las guardamos como un string JSON
-  // como files.imagenes es un array de archivos, usamos map para sacarles el path a cada uno
-  const imagenesPaths = files && files.imagenes ? files.imagenes.map(file => file.path) : [];
-  const imagenesJson = JSON.stringify(imagenesPaths);
+const imagenPath = files && files.imagen ? files.imagen[0].path.replace(/\\/g, '/') : null;
+const imagenesPaths = files && files.imagenes ? files.imagenes.map(file => file.path.replace(/\\/g, '/')) : [];
+const imagenesJson = JSON.stringify(imagenesPaths);
 
   const precioFinal = parseFloat(precio);
   const precioAnteriorFinal = precio_anterior ? parseFloat(precio_anterior) : null;
@@ -149,7 +146,8 @@ export async function createProduct(productData, files) {
  * @param {object} updateData - Los campos que queremos actualizar
  * @returns {Promise<object>} - El producto actualizado
  */
-export async function updateProduct(id, productData) {
+export async function updateProduct(id, productData, files) {
+  // Desestructuramos los posibles campos de texto que pueden venir
   const { 
     nombre_producto, 
     descripcion, 
@@ -159,38 +157,51 @@ export async function updateProduct(id, productData) {
     stock_actual 
   } = productData;
 
-  const precioFinal = parseFloat(precio);
-  const precioAnteriorFinal = precio_anterior ? parseFloat(precio_anterior) : null;
-  const esOfertaFinal = (precioAnteriorFinal != null && precioFinal < precioAnteriorFinal);
+  const setClauses = [];
+  const params = [];
 
-  const query = `
-    UPDATE producto SET
-      nombre_producto = ?,
-      descripcion = ?,
-      precio = ?,
-      precio_anterior = ?,
-      categoria_id = ?,
-      stock_actual = ?,
-      es_oferta = ?
-    WHERE producto_id = ?
-  `;
+  //Armado dinámico de la consulta
+  if (nombre_producto) { setClauses.push('nombre_producto = ?'); params.push(nombre_producto); }
+  if (descripcion) { setClauses.push('descripcion = ?'); params.push(descripcion); }
+  if (precio) { setClauses.push('precio = ?'); params.push(parseFloat(precio)); }
+  if (precio_anterior) { setClauses.push('precio_anterior = ?'); params.push(parseFloat(precio_anterior)); }
+  if (categoria_id) { setClauses.push('categoria_id = ?'); params.push(parseInt(categoria_id)); }
+  if (stock_actual) { setClauses.push('stock_actual = ?'); params.push(parseInt(stock_actual)); }
+
+  // Lógica para la imagen principal
+  if (files && files.imagen && files.imagen[0]) {
+    const imagenPath = files.imagen[0].path.replace(/\\/g, '/');
+    setClauses.push('imagen = ?');
+    params.push(imagenPath);
+  }
+
+  // Lógica para las imágenes secundarias
+  if (files && files.imagenes && files.imagenes.length > 0) {
+    const imagenesPaths = files.imagenes.map(file => file.path.replace(/\\/g, '/'));
+    setClauses.push('imagenes = ?');
+    params.push(JSON.stringify(imagenesPaths));
+  }
   
-  const params = [
-    nombre_producto,
-    descripcion,
-    precioFinal,
-    precioAnteriorFinal,
-    categoria_id,
-    parseInt(stock_actual),
-    esOfertaFinal,
-    id 
-  ];
+  // Lógica para recalcular si es oferta, solo si se cambia algún precio
+  if (precio || precio_anterior) {
+    const precioFinal = precio ? parseFloat(precio) : (await obtenerProductoPorId(id)).precio;
+    const precioAnteriorFinal = precio_anterior ? parseFloat(precio_anterior) : (await obtenerProductoPorId(id)).precio_anterior;
+    const esOfertaFinal = (precioAnteriorFinal != null && precioFinal < precioAnteriorFinal);
+    setClauses.push('es_oferta = ?');
+    params.push(esOfertaFinal);
+  }
+
+  if (setClauses.length === 0) {
+    throw new Error('No se proporcionaron campos para actualizar');
+  }
+
+  const query = `UPDATE producto SET ${setClauses.join(', ')} WHERE producto_id = ?`;
+  params.push(id);
 
   const [result] = await pool.query(query, params);
-
   if (result.affectedRows === 0) return null;
 
-  // Devolvemos el producto actualizado 
+  // Devolvemos el producto actualizado con el join para tener toda la data
   const [[productoActualizado]] = await pool.query(
     'SELECT p.*, c.nombre AS nombre_categoria FROM producto p LEFT JOIN categoria c ON p.categoria_id = c.categoria_id WHERE p.producto_id = ?', 
     [id]

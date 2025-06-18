@@ -43,22 +43,18 @@ export async function agregarProducto(req, res) {
 }
 
 export async function actualizarProducto(req, res) {
-    try {
-        const { id } = req.params;
-        if (isNaN(parseInt(id))) {
-            return res.status(400).json({ exito: false, mensaje: 'ID de producto inválido' });
-        }
-        
-        const productoActualizado = await productoService.updateProduct(parseInt(id), req.body);
-        return res.status(200).json({
-            exito: true,
-            mensaje: 'Producto actualizado correctamente',
-            datos: productoActualizado
-        });
-    } catch (error) {
-        console.error("Error en actualizarProducto Controller:", error);
-        return res.status(error.statusCode || 500).json({ exito: false, mensaje: error.message || 'Error interno del servidor' });
+  try {
+    const { id } = req.params;
+    // Le pasamos el body con los textos y files con los archivos
+    const productoActualizado = await productoService.updateProduct(id, req.body, req.files);
+    if (!productoActualizado) {
+      return res.status(404).json({ exito: false, mensaje: 'Producto no encontrado' });
     }
+    res.json({ exito: true, mensaje: 'Producto actualizado correctamente', datos: productoActualizado });
+  } catch (error) {
+    console.error("Error en actualizarProducto Controller:", error);
+    res.status(500).json({ exito: false, mensaje: error.message });
+  }
 }
 
 export async function eliminarProducto(req, res) {
