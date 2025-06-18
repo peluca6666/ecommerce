@@ -149,59 +149,53 @@ export async function createProduct(productData, files) {
  * @param {object} updateData - Los campos que queremos actualizar
  * @returns {Promise<object>} - El producto actualizado
  */
-export async function updateProduct(productoId, updateData) {
-    const [productoExistenteResult] = await pool.query('SELECT * FROM producto WHERE producto_id = ?', [productoId]);
-    if (productoExistenteResult.length === 0) {
-        const err = new Error('Producto no encontrado');
-        err.statusCode = 404;
-        throw err;
-    }
-    const productoExistente = productoExistenteResult[0];
+export async function updateProduct(id, productData) {
+  const { 
+    nombre_producto, 
+    descripcion, 
+    precio, 
+    precio_anterior, 
+    categoria_id, 
+    stock_actual 
+  } = productData;
 
-    // Verificamos si los datos entrantes modifican alguno de los precios
-    if (updateData.precio !== undefined || updateData.precio_anterior !== undefined) {
+  const precioFinal = parseFloat(precio);
+  const precioAnteriorFinal = precio_anterior ? parseFloat(precio_anterior) : null;
+  const esOfertaFinal = (precioAnteriorFinal != null && precioFinal < precioAnteriorFinal);
 
-        // Tomamos el nuevo precio o mantenemos el existente si no se modifica
-        const precioFinal = updateData.precio !== undefined ? parseFloat(updateData.precio) : productoExistente.precio;
+  const query = `
+    UPDATE producto SET
+      nombre_producto = ?,
+      descripcion = ?,
+      precio = ?,
+      precio_anterior = ?,
+      categoria_id = ?,
+      stock_actual = ?,
+      es_oferta = ?
+    WHERE producto_id = ?
+  `;
+  
+  const params = [
+    nombre_producto,
+    descripcion,
+    precioFinal,
+    precioAnteriorFinal,
+    categoria_id,
+    parseInt(stock_actual),
+    esOfertaFinal,
+    id 
+  ];
 
-        // Hacemos lo mismo para el precio anterior
-        const precioAnteriorFinal = updateData.precio_anterior !== undefined ? parseFloat(updateData.precio_anterior) : productoExistente.precio_anterior;
+  const [result] = await pool.query(query, params);
 
-        // es oferta si hay precio anterior y es mayor al precio actual
-        const debeSerOferta = (precioAnteriorFinal != null && precioFinal < precioAnteriorFinal);
+  if (result.affectedRows === 0) return null;
 
-        updateData.es_oferta = debeSerOferta;
-    }
-
-    const camposActualizar = [];
-    const valores = [];
-
-    //Logica para construir la consulta de actualización
-    Object.keys(updateData).forEach(key => {
-        if (updateData[key] !== undefined) {
-            camposActualizar.push(`${key} = ?`);
-            // Manejo especial para el campo de imágenes que es un JSON
-            if (key === 'imagenes' && Array.isArray(updateData[key])) {
-                valores.push(JSON.stringify(updateData[key]));
-            } else {
-                valores.push(updateData[key]);
-            }
-        }
-    });
-
-    if (camposActualizar.length === 0) {
-        const err = new Error('No se proporcionaron campos para actualizar');
-        err.statusCode = 400;
-        throw err;
-    }
-
-    const query = `UPDATE producto SET ${camposActualizar.join(', ')} WHERE producto_id = ?`;
-    valores.push(productoId);
-
-    await pool.query(query, valores);
-
-    const [[productoActualizado]] = await pool.query('SELECT * FROM producto WHERE producto_id = ?', [productoId]);
-    return productoActualizado;
+  // Devolvemos el producto actualizado 
+  const [[productoActualizado]] = await pool.query(
+    'SELECT p.*, c.nombre AS nombre_categoria FROM producto p LEFT JOIN categoria c ON p.categoria_id = c.categoria_id WHERE p.producto_id = ?', 
+    [id]
+  );
+  return productoActualizado;
 }
 
 /**

@@ -26,10 +26,6 @@ export async function obtenerProductos(req, res) {
 }
 
 export async function agregarProducto(req, res) {
-  console.log("--- DEBUG: Datos recibidos en el controlador ---");
-  console.log("REQ.BODY:", req.body);
-  console.log("REQ.FILES:", req.files); 
-  console.log("----------------------------------------------");
 
   try {
     // Se le pasa el body y el objeto de archivo req.files al servicio
