@@ -22,7 +22,6 @@ import AdminProductsPage from './pages/Admin/AdminProductsPage';
 import AdminSalesPage from './pages/Admin/AdminSalesPage';
 import AdminUsersPage from './pages/Admin/AdminUsersPage';
 
-
 function App() {
   return (
     <AuthProvider>

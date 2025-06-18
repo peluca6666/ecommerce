@@ -9,6 +9,7 @@ import { obtenerCarrito, agregarProductoAlCarrito, actualizarProductoEnCarrito, 
 import { verificarCuenta } from '../controllers/usuarioController.js';
 import { crearVenta, obtenerHistorialCompras, listarTodasLasVentas, obtenerDetalleVenta, obtenerDetalleVentaUsuario } from '../controllers/ventaController.js';
 import { manejarFormularioContacto } from '../controllers/contactoController.js';
+import { upload } from '../middleware/upload.js';
 
 const router = express.Router();
 
@@ -23,10 +24,7 @@ router.get('/verify', verificarCuenta);
 
 //------------------------ Rutas de productos ------------------------
 router.get('/producto', obtenerProductos);
-router.post('/producto', verifyToken, autorizarPorRol('admin'), agregarProducto);
 router.get('/producto/ofertas', obtenerProductosEnOferta);
-router.put('/producto/:id', verifyToken, autorizarPorRol('admin'), actualizarProducto);
-router.delete('/producto/:id', verifyToken, autorizarPorRol('admin'), eliminarProducto);
 router.get('/producto/:id', obtenerProductoPorId);
 
 // ------------------------ Rutas de categorías ------------------------
@@ -49,6 +47,12 @@ router.put('/profile', verifyToken, actualizarPerfilUsuario);
 router.post('/profile/change-password', verifyToken, cambiarContraseñaUsuario);
 
 // ------------------------ Ruta de administrador ------------------------
+router.post('/producto', verifyToken, autorizarPorRol('admin'), upload.fields([
+  { name: 'imagen', maxCount: 1 },
+  { name: 'imagenes', maxCount: 10 }
+]), agregarProducto);
+router.put('/producto/:id', verifyToken, autorizarPorRol('admin'), actualizarProducto);
+router.delete('/producto/:id', verifyToken, autorizarPorRol('admin'), eliminarProducto);
 router.get('/admin', verifyToken, autorizarPorRol('admin'), (req, res) => {
   res.json({ mensaje: 'Acceso a panel de administrador' });
 });

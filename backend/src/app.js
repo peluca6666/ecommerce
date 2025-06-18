@@ -6,6 +6,7 @@ import routes from '../routes/routes.js';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
 
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
@@ -14,7 +15,11 @@ dotenv.config({ path: join(__dirname, '../.env') });
 
 const app = express();
 
-// Configuración de CORS simplificada
+//middlewares de body parsing
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+// Configuración de CORS 
 const corsOptions = {
   origin: [
     'http://localhost:3000',
@@ -31,12 +36,15 @@ const corsOptions = {
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
 };
-
 app.use(cors(corsOptions));
 
-app.use(express.json());
+//ruta para servir archivos estaticos 
+app.use('/public', express.static('public'));
+
+//rutas de la api
 app.use('/api', routes);
 
+//levanta el servidor
 app.listen(3000, () => {
   console.log('Servidor corriendo en puerto 3000');
 });

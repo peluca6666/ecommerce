@@ -26,17 +26,24 @@ export async function obtenerProductos(req, res) {
 }
 
 export async function agregarProducto(req, res) {
-    try {
-        const nuevoProducto = await productoService.createProduct(req.body);
-        return res.status(201).json({
-            exito: true,
-            mensaje: 'Producto agregado correctamente',
-            datos: nuevoProducto
-        });
-    } catch (error) {
-        console.error("Error en agregarProducto Controller:", error);
-        return res.status(error.statusCode || 500).json({ exito: false, mensaje: error.message || 'Error interno del servidor' });
-    }
+  console.log("--- DEBUG: Datos recibidos en el controlador ---");
+  console.log("REQ.BODY:", req.body);
+  console.log("REQ.FILES:", req.files); 
+  console.log("----------------------------------------------");
+
+  try {
+    // Se le pasa el body y el objeto de archivo req.files al servicio
+    const nuevoProducto = await productoService.createProduct(req.body, req.files);
+    
+    return res.status(201).json({
+        exito: true,
+        mensaje: 'Producto agregado correctamente',
+        datos: nuevoProducto
+    });
+  } catch (error) {
+    console.error("Error en agregarProducto Controller:", error);
+    return res.status(error.statusCode || 500).json({ exito: false, mensaje: error.message || 'Error interno del servidor' });
+  }
 }
 
 export async function actualizarProducto(req, res) {

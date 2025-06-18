@@ -20,13 +20,13 @@ export async function getAllProducts(options = {}) {
       WHERE p.activo = true
     `;
     let countQuery = `SELECT COUNT(*) as total FROM producto WHERE activo = true`;
-    
+
     const params = [];
     const countParams = [];
 
     if (categoria) {
         query += ` AND p.categoria_id = ?`;
-        countQuery += ` AND categoria_id = ?`; 
+        countQuery += ` AND categoria_id = ?`;
         params.push(categoria);
         countParams.push(categoria);
     }
@@ -60,7 +60,7 @@ export async function getAllProducts(options = {}) {
         nombre_desc: 'ORDER BY p.nombre_producto DESC'
     };
     query += ` ${validSorts[sortBy] || 'ORDER BY p.nombre_producto ASC'}`;
-    
+
     query += ` LIMIT ? OFFSET ?`;
     params.push(parseInt(limite), offset);
 
@@ -69,9 +69,9 @@ export async function getAllProducts(options = {}) {
 
     return {
         productos,
-        paginacion: { 
-            total, 
-            limite: parseInt(limite), 
+        paginacion: {
+            total,
+            limite: parseInt(limite),
             pagina: parseInt(pagina),
             total_paginas: Math.ceil(total / parseInt(limite))
         }
@@ -83,67 +83,68 @@ export async function getAllProducts(options = {}) {
  * @param {object} productData - Datos del producto a crear
  * @returns {Promise<object>} - El producto recien creado
  */
-export async function createProduct(productData) {
-//Datos que vienen de la BD
-    const { 
-        nombre_producto, 
-        descripcion, 
-        precio, 
-        precio_anterior, 
-        categoria_id, 
-        stock_actual,
-    } = productData;
-//Validacion inicial
-    if (!nombre_producto || !precio || !stock_actual) {
-        const err = new Error('Nombre, precio y stock son requeridos');
-        err.statusCode = 400;
-        throw err;
-    }
+export async function createProduct(productData, files) { // <-- RECIBE "files"
+  const { 
+      nombre_producto, 
+      descripcion, 
+      precio, 
+      precio_anterior, 
+      categoria_id, 
+      stock_actual,
+  } = productData;
 
-    //logica y preparacion de datos
-    const precioFinal = parseFloat(precio);
-    const precioAnteriorFinal = precio_anterior ? parseFloat(precio_anterior) : null;
-    const esOfertaFinal = (precioAnteriorFinal != null && precioFinal < precioAnteriorFinal);
+  if (!nombre_producto || !precio || !stock_actual) {
+      const err = new Error('Nombre, precio y stock son requeridos');
+      err.statusCode = 400;
+      throw err;
+  }
 
-    //consulta sql
-    const query = `
-      INSERT INTO producto (
-        nombre_producto, descripcion, precio, precio_anterior, categoria_id, 
-        imagen, imagenes, stock_actual, activo, es_oferta
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-    `;
-    
-    // parametros
-    const params = [
-        nombre_producto,
-        descripcion || null,
-        precioFinal,
-        precioAnteriorFinal,
-        categoria_id || null,
-        null, // 
-        '[]', 
-        parseInt(stock_actual),
-        true,
-        esOfertaFinal, 
-    ];
+  // Obtenemos la ruta de la imagen principal (si existe)
+  // `files.imagen` es un array, por eso tomamos el primer elemento [0]
+  const imagenPath = files && files.imagen ? files.imagen[0].path : null;
 
-    try {
-        const [result] = await pool.query(query, params);
-        
-        // Devolvemos el producto completo como fue guardado
-        const [[nuevoProducto]] = await pool.query('SELECT * FROM producto WHERE producto_id = ?', [result.insertId]);
-        return nuevoProducto;
+  // Obtenemos LAS RUTAS de las imágenes secundarias y las guardamos como un string JSON
+  // `files.imagenes` es un array de archivos, usamos map para sacarles el path a cada uno
+  const imagenesPaths = files && files.imagenes ? files.imagenes.map(file => file.path) : [];
+  const imagenesJson = JSON.stringify(imagenesPaths);
 
-    } catch (error) {
-        console.error("Error al crear el producto en la BD:", error);
-        // Relanzamos el error para que el controlador lo atrape
-        throw new Error('Error de base de datos al crear el producto');
-    }
+  const precioFinal = parseFloat(precio);
+  const precioAnteriorFinal = precio_anterior ? parseFloat(precio_anterior) : null;
+  const esOfertaFinal = (precioAnteriorFinal != null && precioFinal < precioAnteriorFinal);
+
+  const query = `
+    INSERT INTO producto (
+      nombre_producto, descripcion, precio, precio_anterior, categoria_id, 
+      imagen, imagenes, stock_actual, activo, es_oferta
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+  `;
+  
+  const params = [
+      nombre_producto,
+      descripcion || null,
+      precioFinal,
+      precioAnteriorFinal,
+      categoria_id || null,
+      imagenPath,     // La ruta de la imagen principal
+      imagenesJson,   // El array de rutas de las secundarias
+      parseInt(stock_actual),
+      true,
+      esOfertaFinal, 
+  ];
+
+  try {
+    const [result] = await pool.query(query, params);
+    const [[nuevoProducto]] = await pool.query('SELECT * FROM producto WHERE producto_id = ?', [result.insertId]);
+    return nuevoProducto;
+  } catch (error) {
+    console.error("Error al crear el producto en la BD:", error);
+    throw new Error('Error de base de datos al crear el producto');
+  }
 }
 
 /**
  * Actualiza un producto por su id
- * @param {number} productoId - El id del producto que queremos actualizar
+ * @param {number} productoId
  * @param {object} updateData - Los campos que queremos actualizar
  * @returns {Promise<object>} - El producto actualizado
  */
@@ -158,22 +159,23 @@ export async function updateProduct(productoId, updateData) {
 
     // Verificamos si los datos entrantes modifican alguno de los precios
     if (updateData.precio !== undefined || updateData.precio_anterior !== undefined) {
+
         // Tomamos el nuevo precio o mantenemos el existente si no se modifica
         const precioFinal = updateData.precio !== undefined ? parseFloat(updateData.precio) : productoExistente.precio;
+
         // Hacemos lo mismo para el precio anterior
         const precioAnteriorFinal = updateData.precio_anterior !== undefined ? parseFloat(updateData.precio_anterior) : productoExistente.precio_anterior;
 
         // es oferta si hay precio anterior y es mayor al precio actual
         const debeSerOferta = (precioAnteriorFinal != null && precioFinal < precioAnteriorFinal);
-        
-        // Forzamos el valor correcto de 'es_oferta' en los datos a actualizar
+
         updateData.es_oferta = debeSerOferta;
     }
 
     const camposActualizar = [];
     const valores = [];
 
-//Logica para construir la consulta de actualización
+    //Logica para construir la consulta de actualización
     Object.keys(updateData).forEach(key => {
         if (updateData[key] !== undefined) {
             camposActualizar.push(`${key} = ?`);
@@ -208,18 +210,18 @@ export async function updateProduct(productoId, updateData) {
  */
 export async function deleteProduct(productoId) {
     try {
-         const [result] = await pool.query('UPDATE producto SET activo = false WHERE producto_id = ?', [productoId]);
+        const [result] = await pool.query('UPDATE producto SET activo = false WHERE producto_id = ?', [productoId]);
 
-    if (result.affectedRows === 0) {
-        const err = new Error('Producto no encontrado');
-        err.statusCode = 404;
-        throw err;
+        if (result.affectedRows === 0) {
+            const err = new Error('Producto no encontrado');
+            err.statusCode = 404;
+            throw err;
+        }
+        return true;
+    } catch (error) {
+
+        throw error;
     }
-    return true; 
-  } catch (error) {
-   
-    throw error;
-  }
 }
 
 /**
@@ -239,17 +241,17 @@ export async function getOfferProducts(limite = 8) {
 }
 
 /**
- * Obtiene un único producto por su ID, si está activo.
- * @param {number} productoId - El ID del producto.
- * @returns {Promise<object|null>} El objeto del producto o null si no se encuentra o está inactivo.
+ * Obtiene un único producto por su id si está activo
+ * @param {number} productoId 
+ * @returns {Promise<object|null>} El objeto del producto o null si no se encuentra o está inactivo
  */
 export async function obtenerProductoPorId(productoId) {
     const query = 'SELECT * FROM producto WHERE producto_id = ? AND activo = true';
     const [productos] = await pool.query(query, [productoId]);
-    
+
     if (productos.length === 0) {
         return null;
     }
-    
+
     return productos[0];
 }

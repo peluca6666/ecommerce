@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { useState, useEffect } from 'react';
 import { DataGrid } from '@mui/x-data-grid';
-import { Box, Button, Typography, Dialog, DialogActions, DialogContent, DialogTitle, TextField, Select, MenuItem, InputLabel, FormControl } from '@mui/material';
+import { Box, Button, Typography, Dialog, DialogActions, DialogContent, DialogTitle, TextField, Select, MenuItem, InputLabel, FormControl, styled } from '@mui/material';
 import Title from './Title';
 
 const columns = [
@@ -31,12 +31,25 @@ const initialProductState = {
   categoria_id: '',
 };
 
+// componente para subir archivos
+const VisuallyHiddenInput = styled('input')({
+  clip: 'rect(0 0 0 0)',
+  clipPath: 'inset(50%)',
+  height: 1,
+  overflow: 'hidden',
+  position: 'absolute',
+  bottom: 0,
+  left: 0,
+  whiteSpace: 'nowrap',
+  width: 1,
+});
+
 export default function AdminProductsPage() {
   // Estados para la tabla
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [open, setOpen] = useState(false); // Para abrir/cerrar el modal
+  const [open, setOpen] = useState(false); // Para abrir o cerrar el modal
   const [newProduct, setNewProduct] = useState(initialProductState); // Para los datos del nuevo producto
   const [categories, setCategories] = useState([]); // Para el menú de categorias
 
@@ -78,11 +91,19 @@ export default function AdminProductsPage() {
     fetchProducts();
   }, []);
 
+  //nos sirve para poder agregar una imagen principal cuando agregamos un producto desde el dashboard de admin
+  const [mainImageFile, setMainImageFile] = useState(null);
+
+  //y esto nos sirve para poder agregar las imagenes secundarias
+  const [secondaryImageFiles, setSecondaryImageFiles] = useState([]);
+
   // Funciones para manejar el modal y el formulario
   const handleClickOpen = () => setOpen(true);
   const handleClose = () => {
     setOpen(false);
     setNewProduct(initialProductState); // Reseteamos el formulario al cerrar
+      setMainImageFile(null);
+    setSecondaryImageFiles([]); 
   };
 
   const handleInputChange = (e) => {
@@ -90,16 +111,48 @@ export default function AdminProductsPage() {
     setNewProduct({ ...newProduct, [name]: value });
   };
   
+  const handleFileChange = (e) => {
+    if (e.target.files[0]) {
+      setMainImageFile(e.target.files[0]);
+    }
+  };
+
+ const handleMultipleFileChange = (e) => {
+    // e.target.files es una lista, la convertimos a un array para guardarla
+    if (e.target.files) {
+      setSecondaryImageFiles(Array.from(e.target.files));
+    }
+  };
+
    const handleCreateProduct = async () => {
+  const formData = new FormData();
+
+  // Agregamos los campos de texto
+  Object.keys(newProduct).forEach(key => {
+    formData.append(key, newProduct[key]);
+  });
+
+  // agregamos la imagen principal 
+  if (mainImageFile) {
+    formData.append('imagen', mainImageFile);
+  }
+
+  // Agregamos las imágenes secundarias 
+  if (secondaryImageFiles.length > 0) {
+    secondaryImageFiles.forEach(file => {
+      formData.append('imagenes', file);
+    });
+  }
+    
+    console.log("Datos a enviar:", ...formData.entries());
     try {
       const token = localStorage.getItem('token');
       const response = await fetch('http://localhost:3000/api/producto', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
         },
-        body: JSON.stringify(newProduct),
+           body: formData, 
       });
 
       if (!response.ok) {
@@ -161,6 +214,34 @@ export default function AdminProductsPage() {
               ))}
             </Select>
           </FormControl>
+           <Button
+            component="label"
+            role={undefined}
+            variant="contained"
+            tabIndex={-1}
+            sx={{ mt: 2 }}
+            onChange={handleFileChange}
+          >
+            Seleccionar Imagen Principal
+            <VisuallyHiddenInput type="file" onChange={handleFileChange} />
+          </Button>
+          {/* Mostramos el nombre del archivo seleccionado para que el usuario sepa que se cargó */}
+          {mainImageFile && <Typography sx={{ display: 'inline', ml: 2 }}>{mainImageFile.name}</Typography>}
+<Box sx={{ mt: 2 }}> {/* Lo envuelvo en un Box para que quede prolijo abajo */}
+  <Button
+    component="label"
+    variant="outlined"
+  >
+    Seleccionar Imágenes Secundarias
+    {/* El atributo "multiple" permite elegir varios archivos */}
+    <VisuallyHiddenInput type="file" multiple onChange={handleMultipleFileChange} />
+  </Button>
+  {/* Mostramos la cantidad de archivos seleccionados */}
+  {secondaryImageFiles.length > 0 && <Typography sx={{ display: 'inline', ml: 2 }}>{secondaryImageFiles.length} archivos seleccionados</Typography>}
+</Box>
+         {/* Mostramos la cantidad de archivos seleccionados */}
+          {secondaryImageFiles.length > 0 && <Typography sx={{ display: 'inline', ml: 2 }}>{secondaryImageFiles.length} archivos seleccionados</Typography>}
+
         </DialogContent>
         <DialogActions>
           <Button onClick={handleClose}>Cancelar</Button>
