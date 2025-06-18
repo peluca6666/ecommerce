@@ -1,14 +1,15 @@
 import { pool } from '../database/connectionMySQL.js';
 
+
 /**
- * Lista de productos con filtros y paginación, incluyendo nombre de categoría
+ * Lista de productos con filtros y paginación para el PANEL DE ADMIN
  * @param {object} options 
  * @returns {Promise<{productos: Array, paginacion: object}>}
  */
 export async function getAllProducts(options = {}) {
     const { categoria, busqueda, minPrice, maxPrice, es_oferta, sortBy, pagina = 1, limite = 10 } = options;
     const offset = (parseInt(pagina) - 1) * parseInt(limite);
-    // Usamos 'p' como alias para producto y 'c' para categoria
+
     let query = `
       SELECT 
         p.*, 
@@ -16,11 +17,11 @@ export async function getAllProducts(options = {}) {
       FROM 
         producto p 
       LEFT JOIN 
-        categoria c ON p.categoria_id = c.categoria_id 
-      WHERE p.activo = true
+        categoria c ON p.categoria_id = c.categoria_id
+      WHERE 1=1 
     `;
-    let countQuery = `SELECT COUNT(*) as total FROM producto WHERE activo = true`;
-
+    let countQuery = `SELECT COUNT(*) as total FROM producto WHERE 1=1`;
+    
     const params = [];
     const countParams = [];
 
@@ -49,8 +50,8 @@ export async function getAllProducts(options = {}) {
         countParams.push(parseFloat(maxPrice));
     }
     if (es_oferta === 'true') {
-        query += ` AND p.es_oferta = true`;
-        countQuery += ` AND es_oferta = true`;
+        query += ` AND p.es_oferta = true AND p.activo = true`;
+        countQuery += ` AND es_oferta = true AND activo = true`;
     }
 
     const validSorts = {
@@ -59,8 +60,8 @@ export async function getAllProducts(options = {}) {
         nombre_asc: 'ORDER BY p.nombre_producto ASC',
         nombre_desc: 'ORDER BY p.nombre_producto DESC'
     };
-    query += ` ${validSorts[sortBy] || 'ORDER BY p.nombre_producto ASC'}`;
-
+    query += ` ${validSorts[sortBy] || 'ORDER BY p.producto_id DESC'}`; // Ordenamiento por id descendente por defecto
+    
     query += ` LIMIT ? OFFSET ?`;
     params.push(parseInt(limite), offset);
 
@@ -69,9 +70,9 @@ export async function getAllProducts(options = {}) {
 
     return {
         productos,
-        paginacion: {
-            total,
-            limite: parseInt(limite),
+        paginacion: { 
+            total, 
+            limite: parseInt(limite), 
             pagina: parseInt(pagina),
             total_paginas: Math.ceil(total / parseInt(limite))
         }
@@ -83,7 +84,7 @@ export async function getAllProducts(options = {}) {
  * @param {object} productData - Datos del producto a crear
  * @returns {Promise<object>} - El producto recien creado
  */
-export async function createProduct(productData, files) { // <-- RECIBE "files"
+export async function createProduct(productData, files) { 
   const { 
       nombre_producto, 
       descripcion, 
@@ -99,12 +100,12 @@ export async function createProduct(productData, files) { // <-- RECIBE "files"
       throw err;
   }
 
-  // Obtenemos la ruta de la imagen principal (si existe)
-  // `files.imagen` es un array, por eso tomamos el primer elemento [0]
+  // Obtenemos la ruta de la imagen principal 
+  //files.imagen es un array, por eso tomamos el primer elemento [0]
   const imagenPath = files && files.imagen ? files.imagen[0].path : null;
 
-  // Obtenemos LAS RUTAS de las imágenes secundarias y las guardamos como un string JSON
-  // `files.imagenes` es un array de archivos, usamos map para sacarles el path a cada uno
+  // Obtenemos las rutas de las imágenes secundarias y las guardamos como un string JSON
+  // como files.imagenes es un array de archivos, usamos map para sacarles el path a cada uno
   const imagenesPaths = files && files.imagenes ? files.imagenes.map(file => file.path) : [];
   const imagenesJson = JSON.stringify(imagenesPaths);
 
