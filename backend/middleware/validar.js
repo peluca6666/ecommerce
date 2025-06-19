@@ -1,5 +1,4 @@
-//Middleware para validar req.body contra un schema Joi antes de llegar al controlador
-
+// Middleware que valida req.body según un schema Joi antes de pasar al controlador
 export const validarBody = (schema) => {
   return (req, res, next) => {
     const { error } = schema.validate(req.body);

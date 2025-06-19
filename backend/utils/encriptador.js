@@ -1,7 +1,7 @@
 import bcrypt from 'bcrypt';
 
 export async function encriptarContrasenia(contraseniaPlano) {
-  const saltRounds = 13;
+  const saltRounds = 13; // número de rondas para generar el salt
   const hash = await bcrypt.hash(contraseniaPlano, saltRounds);
   return hash;
 }

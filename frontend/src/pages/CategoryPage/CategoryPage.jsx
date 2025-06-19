@@ -18,21 +18,18 @@ const CategoryPage = () => {
       try {
         setLoading(true);
         setError(null);
-        // Usamos la URL completa del backend
-        const res = await fetch(`http://localhost:3000/api/categoria/${id}/producto`);
         
+        const res = await fetch(`http://localhost:3000/api/categoria/${id}/producto`);
         if (!res.ok) throw new Error(`Error HTTP: ${res.status}`);
         
         const data = await res.json();
 
-        //Leemos la respuesta con el formato que definimos en el backend
         if (data.exito) {
-            setProductos(data.datos || []);
-            setNombreCategoria(data.categoria || 'Categoría');
+          setProductos(data.datos || []);
+          setNombreCategoria(data.categoria || 'Categoría');
         } else {
-            throw new Error(data.mensaje || 'Error al cargar los datos');
+          throw new Error(data.mensaje || 'Error al cargar los datos');
         }
-
       } catch (err) {
         console.error(err);
         setError('Error al cargar los productos de esta categoría.');
@@ -42,7 +39,7 @@ const CategoryPage = () => {
     };
 
     fetchProductosPorCategoria();
-  }, [id]); // Se ejecuta cada vez que el ID de la categoría cambia
+  }, [id]); // vuelve a buscar si cambia la categoría
 
   if (loading) return <LoadingSpinner />;
 

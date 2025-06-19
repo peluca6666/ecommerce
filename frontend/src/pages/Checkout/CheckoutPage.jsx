@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useNavigate, Link as RouterLink } from 'react-router-dom';
 import { Container, Grid, Paper, Typography, Box, Button, Divider, RadioGroup, FormControlLabel, Radio, List, ListItem, ListItemText } from '@mui/material';
@@ -12,10 +11,10 @@ const CheckoutPage = () => {
     const { user, cart, getToken, showNotification, refreshCart } = useAuth();
 
     const [shippingAddress, setShippingAddress] = useState(null);
-    const [paymentMethod, setPaymentMethod] = useState('tarjeta_simulado'); // Valor por defecto
+    const [paymentMethod, setPaymentMethod] = useState('tarjeta_simulado'); // Método de pago por defecto
     const [isProcessing, setIsProcessing] = useState(false);
 
-    // Obtenemos la dirección del perfil del usuario al cargar la página
+    // Traemos la dirección del usuario para mostrarla en el checkout
     useEffect(() => {
         const fetchProfile = async () => {
             try {
@@ -35,10 +34,11 @@ const CheckoutPage = () => {
         }
     }, [user, getToken, showNotification]);
 
+    // Maneja el envío del pedido al backend
     const handlePlaceOrder = async () => {
         if (!shippingAddress) {
             showNotification('Por favor, completa tu dirección de envío en tu perfil.', 'warning');
-            navigate('/profile'); // Redirigir al perfil para que complete los datos
+            navigate('/profile'); // Lo mandamos al perfil si no tiene dirección
             return;
         }
 
@@ -56,9 +56,9 @@ const CheckoutPage = () => {
             });
 
             showNotification('¡Compra realizada con éxito!', 'success');
-            await refreshCart(); // Limpiamos el carrito pidiendo el estado actualizado
+            await refreshCart(); // Limpiamos el carrito
 
-            // Redirigimos a una futura página de confirmación con el ID de la venta
+            // Redirigimos a la página de confirmación con el ID de la venta
             navigate(`/orden-confirmada/${response.data.venta.venta_id}`);
 
         } catch (error) {
@@ -76,9 +76,7 @@ const CheckoutPage = () => {
                     Finalizar Compra
                 </Typography>
                 <Grid container spacing={4}>
-                    {/*Detalles y formularios */}
                     <Grid item xs={12} md={7}>
-                        {/* Dirección de envío */}
                         <Paper sx={{ p: 3, mb: 3 }}>
                             <Typography variant="h6" gutterBottom>1. Dirección de Envío</Typography>
                             {shippingAddress ? (
@@ -89,7 +87,6 @@ const CheckoutPage = () => {
                             <Button component={RouterLink} to="/profile" sx={{ mt: 1 }}>Editar Dirección</Button>
                         </Paper>
 
-                        {/* Método de pago */}
                         <Paper sx={{ p: 3 }}>
                             <Typography variant="h6" gutterBottom>2. Método de Pago</Typography>
                             <RadioGroup value={paymentMethod} onChange={(e) => setPaymentMethod(e.target.value)}>
@@ -100,7 +97,6 @@ const CheckoutPage = () => {
                         </Paper>
                     </Grid>
 
-                    {/*Resumen de la Orden */}
                     <Grid item xs={12} md={5}>
                         <Paper sx={{ p: 3, position: 'sticky', top: '80px' }}>
                             <Typography variant="h6" gutterBottom>Resumen de tu Pedido</Typography>

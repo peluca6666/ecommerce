@@ -12,28 +12,29 @@ const PurchaseHistoryTab = () => {
     const [error, setError] = useState(null);
 
     useEffect(() => {
-       const fetchHistory = async () => {
-    setLoading(true); 
-    try {
-        const token = getToken();
-        const response = await axios.get('http://localhost:3000/api/ventas/historial', {
-            headers: { Authorization: `Bearer ${token}` }
-        });
+        // Traemos el historial de compras al montar el componente
+        const fetchHistory = async () => {
+            setLoading(true);
+            try {
+                const token = getToken();
+                const response = await axios.get('http://localhost:3000/api/ventas/historial', {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
 
-        if (response.data && response.data.exito) {
-            setOrdenes(response.data.datos || []);
-        } else {
-            // Si la API responde con exito: false
-            setError("Hubo un problema al cargar tu historial.");
-        }
+                if (response.data && response.data.exito) {
+                    setOrdenes(response.data.datos || []);
+                } else {
+                    // La API devolvió un error o no hubo éxito
+                    setError("Hubo un problema al cargar tu historial.");
+                }
 
-    } catch (err) {
-        console.error("Error al cargar el historial:", err);
-        setError("No se pudo cargar tu historial de compras.");
-    } finally {
-        setLoading(false);
-    }
-};
+            } catch (err) {
+                console.error("Error al cargar el historial:", err);
+                setError("No se pudo cargar tu historial de compras.");
+            } finally {
+                setLoading(false);
+            }
+        };
         fetchHistory();
     }, [getToken]);
 

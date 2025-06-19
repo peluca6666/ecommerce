@@ -6,12 +6,11 @@ import { dirname, join } from 'path';
 
 const { sign } = pkg;
 
-// Se cargan las variables de entorno desde el archivo .env
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 dotenv.config({ path: join(__dirname, '../.env') });
 
-// Validación básica de credenciales
+// Aviso si faltan credenciales importantes
 if (!process.env.MAIL_USER || !process.env.MAIL_PASS) {
   console.error('ERROR: Faltan credenciales de email');
 }
@@ -31,8 +30,8 @@ const transporter = nodemailer.createTransport({
 });
 
 /**
- * Envía un mail de bienvenida con link de verificación
- * @param {Object} usuario - Objeto con id, nombre y mail
+ * Envía un mail de bienvenida con link para verificar cuenta
+ * @param {Object} usuario - debe tener id, nombre y email
  */
 export async function enviarMailBienvenida(usuario) {
   try {
@@ -41,14 +40,14 @@ export async function enviarMailBienvenida(usuario) {
       throw new Error('Faltan datos del usuario para enviar el correo');
     }
 
-    // Generar token JWT
+    // Genero token JWT para verificar cuenta
     const token = sign(
       { usuario_id: usuario.id },
       process.env.JWT_SECRET,
       { expiresIn: '24h' }
     );
 
-    // URL de verificación
+    // URL para que el usuario confirme su cuenta
     const frontendBase = process.env.FRONTEND_URL || 'http://localhost:5173';
     const urlVerificacion = `${frontendBase}/cuenta-verificada?token=${token}`;
 
@@ -87,17 +86,16 @@ export async function enviarMailBienvenida(usuario) {
 }
 
 /**
- * Envía un email desde el formulario de contacto al dueño de la tienda.
- * @param {object} datosFormulario - Objeto con { nombre, email, mensaje }.
- * @returns {Promise<object>} El resultado de nodemailer.
+ * Envía un email desde el formulario de contacto al dueño de la tienda
+ * @param {object} datosFormulario - { nombre, email, mensaje }
  */
 export async function enviarEmailDeContacto(datosFormulario) {
   const { nombre, email, mensaje } = datosFormulario;
 
-  // El correo se enviará A nosotros MISMOS (el dueño de la tienda).
+  // El mail llega al dueño, con respuesta directa al cliente
   const mailOptions = {
     from: `"Formulario de Contacto" <${process.env.MAIL_USER}>`,
-    to: process.env.MAIL_USER, // Te envías el correo a ti mismo.
+    to: process.env.MAIL_USER,
     subject: `Nuevo mensaje de contacto de: ${nombre}`,
     html: `
       <h2>Has recibido un nuevo mensaje desde SaloMarket</h2>
@@ -107,20 +105,20 @@ export async function enviarEmailDeContacto(datosFormulario) {
       <h3>Mensaje:</h3>
       <p style="white-space: pre-wrap;">${mensaje}</p>
     `,
-    replyTo: email // Esto hace que al darle "Responder" en tu email, le respondas al cliente.
+    replyTo: email
   };
 
   try {
     const result = await transporter.sendMail(mailOptions);
-    console.log(`✅ Mensaje de contacto enviado (ID: ${result.messageId})`);
+    console.log(` Mensaje de contacto enviado (ID: ${result.messageId})`);
     return result;
   } catch (error) {
-    console.error('❌ Error al enviar email de contacto:', error.message);
+    console.error(' Error al enviar email de contacto:', error.message);
     throw new Error('Error en el servicio de envío de correos.');
   }
 }
 
-// Test de configuración, nos sirve para verificar que las credenciales y el servidor SMTP están funcionando correctamente
+// Verifica que las credenciales SMTP estén bien configuradas
 export async function probarConfiguracionEmail() {
   try {
     await transporter.verify();

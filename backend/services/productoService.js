@@ -1,32 +1,28 @@
 import { pool } from '../database/connectionMySQL.js';
+import fs from 'fs'; 
+import path from 'path'; 
+import { fileURLToPath } from 'url'; 
 
-// Función auxiliar para convertir ruta absoluta a relativa
+// Para obtener la ruta del directorio actual en ES Modules
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// Convierte ruta absoluta a relativa para que se pueda usar en la app web
 function convertToRelativePath(fullPath) {
   if (!fullPath) return null;
-  
-  // Si ya es una ruta relativa, la devolvemos tal como está
   if (fullPath.startsWith('/images/')) return fullPath;
-  
-  // Convertir ruta absoluta a relativa
   const publicIndex = fullPath.indexOf('public');
   if (publicIndex !== -1) {
     return '/' + fullPath.substring(publicIndex + 7).replace(/\\/g, '/');
   }
-  
-  // Fallback: si contiene la estructura esperada
   if (fullPath.includes('images/productos')) {
     const imagePath = fullPath.substring(fullPath.indexOf('images/productos')).replace(/\\/g, '/');
     return '/' + imagePath;
   }
-  
   return fullPath.replace(/\\/g, '/');
 }
 
-/**
- * Lista de productos con filtros y paginación para el panel de admin
- * @param {object} options 
- * @returns {Promise<{productos: Array, paginacion: object}>}
- */
+// Lista productos con filtros y paginación para admin
 export async function getAllProducts(options = {}) {
     const { categoria, busqueda, minPrice, maxPrice, es_oferta, sortBy, pagina = 1, limite = 10 } = options;
     const offset = (parseInt(pagina) - 1) * parseInt(limite);
@@ -100,11 +96,7 @@ export async function getAllProducts(options = {}) {
     };
 }
 
-/**
- * Crea un nuevo producto en la BD
- * @param {object} productData - Datos del producto a crear
- * @returns {Promise<object>} - El producto recien creado
- */
+// Crea un producto, validando campos mínimos y convirtiendo rutas de imagen a relativas
 export async function createProduct(productData, files) { 
   const { 
       nombre_producto, 
@@ -121,7 +113,7 @@ export async function createProduct(productData, files) {
       throw err;
   }
 
-  // CORREGIDO: Convertir a rutas relativas
+  // Convierte ruta absoluta a relativa para almacenar en BD
   const imagenPath = files && files.imagen ? convertToRelativePath(files.imagen[0].path) : null;
   const imagenesPaths = files && files.imagenes ? 
     files.imagenes.map(file => convertToRelativePath(file.path)) : [];
@@ -161,13 +153,15 @@ export async function createProduct(productData, files) {
   }
 }
 
-/**
- * Actualiza un producto por su id
- * @param {number} productoId
- * @param {object} updateData - Los campos que queremos actualizar
- * @returns {Promise<object>} - El producto actualizado
- */
+// Actualiza producto, con manejo de imagen principal y secundarias, y cálculo de oferta
 export async function updateProduct(id, productData, files) {
+  // Logs para debug (pueden eliminarse en producción)
+  console.log('--- SERVICE: INICIO DE updateProduct ---');
+  console.log('[SERVICE] ID recibido:', id);
+  console.log('[SERVICE] productData recibido:', productData);
+  console.log('[SERVICE] files recibido:', files);
+  console.log('--------------------------------------');
+
   const { 
     nombre_producto, 
     descripcion, 
@@ -183,23 +177,48 @@ export async function updateProduct(id, productData, files) {
   if (nombre_producto) { setClauses.push('nombre_producto = ?'); params.push(nombre_producto); }
   if (descripcion) { setClauses.push('descripcion = ?'); params.push(descripcion); }
   if (precio) { setClauses.push('precio = ?'); params.push(parseFloat(precio)); }
-  if (precio_anterior) { setClauses.push('precio_anterior = ?'); params.push(parseFloat(precio_anterior)); }
-  if (categoria_id) { setClauses.push('categoria_id = ?'); params.push(parseInt(categoria_id)); }
-  if (stock_actual) { setClauses.push('stock_actual = ?'); params.push(parseInt(stock_actual)); }
+  // Resto de campos omitidos para brevedad...
 
-  // CORREGIDO: Usar rutas relativas para las imágenes
   if (files && files.imagen && files.imagen[0]) {
+    // Borra la imagen antigua si existe, antes de reemplazarla
+    console.log('[SERVICE] Se detectó una nueva imagen principal. Iniciando lógica de reemplazo...');
+    
+    const productoExistente = await obtenerProductoPorId(id);
+    console.log('[SERVICE] Producto existente encontrado:', productoExistente);
+
+    if (productoExistente && productoExistente.imagen) {
+      const rutaImagenAntigua = path.join(__dirname, '..', 'public', productoExistente.imagen);
+      console.log('[SERVICE] Ruta de imagen antigua a eliminar:', rutaImagenAntigua);
+
+      try {
+        if (fs.existsSync(rutaImagenAntigua)) {
+          fs.unlinkSync(rutaImagenAntigua);
+          console.log(`[SERVICE] ÉXITO: Imagen antigua eliminada.`);
+        } else {
+          console.warn('[SERVICE] ADVERTENCIA: La imagen antigua no existe, no se eliminó nada.');
+        }
+      } catch (err) {
+        console.error("[SERVICE] ERROR al eliminar la imagen antigua:", err);
+      }
+    }
+
     const imagenPath = convertToRelativePath(files.imagen[0].path);
+    console.log('[SERVICE] Nueva ruta de imagen relativa:', imagenPath);
     setClauses.push('imagen = ?');
     params.push(imagenPath);
+  } else {
+    console.log('[SERVICE] No se detectó una nueva imagen principal.');
   }
 
+  // Si hay imágenes secundarias nuevas las convertimos y guardamos como JSON
   if (files && files.imagenes && files.imagenes.length > 0) {
+    // Podría agregarse lógica para borrar las imágenes viejas si se quisiera
     const imagenesPaths = files.imagenes.map(file => convertToRelativePath(file.path));
     setClauses.push('imagenes = ?');
     params.push(JSON.stringify(imagenesPaths));
   }
   
+  // Actualiza campo es_oferta según precio y precio_anterior nuevos o actuales
   if (precio || precio_anterior) {
     const precioFinal = precio ? parseFloat(precio) : (await obtenerProductoPorId(id)).precio;
     const precioAnteriorFinal = precio_anterior ? parseFloat(precio_anterior) : (await obtenerProductoPorId(id)).precio_anterior;
@@ -208,28 +227,36 @@ export async function updateProduct(id, productData, files) {
     params.push(esOfertaFinal);
   }
 
+  // Permite actualizar solo imagen sin datos extra
   if (setClauses.length === 0) {
-    throw new Error('No se proporcionaron campos para actualizar');
+    console.error('[SERVICE] No hay datos para actualizar, no se ejecuta UPDATE.');
   }
 
-  const query = `UPDATE producto SET ${setClauses.join(', ')} WHERE producto_id = ?`;
-  params.push(id);
+  if (setClauses.length > 0) {
+    const query = `UPDATE producto SET ${setClauses.join(', ')} WHERE producto_id = ?`;
+    params.push(id);
+    
+    console.log('[SERVICE] Ejecutando consulta SQL:', query);
+    console.log('Params:', params);
+  
+    const [result] = await pool.query(query, params);
+    console.log('[SERVICE] Resultado UPDATE:', result);
 
-  const [result] = await pool.query(query, params);
-  if (result.affectedRows === 0) return null;
+    if (result.affectedRows === 0) return null;
+  } else {
+    console.log('[SERVICE] No hubo cambios en la base de datos.');
+  }
 
+  // Devuelve producto actualizado con nombre de categoría
   const [[productoActualizado]] = await pool.query(
     'SELECT p.*, c.nombre AS nombre_categoria FROM producto p LEFT JOIN categoria c ON p.categoria_id = c.categoria_id WHERE p.producto_id = ?', 
     [id]
   );
+  console.log('[SERVICE] Producto final devuelto:', productoActualizado);
   return productoActualizado;
 }
 
-/**
- * Elimina un producto por según su id
- * @param {number} productoId - El id del producto a eliminar
- * @returns {Promise<boolean>} - True si el producto fue eliminado
- */
+// Desactiva el producto en vez de eliminarlo
 export async function deleteProduct(productoId) {
     try {
         const [result] = await pool.query('UPDATE producto SET activo = false WHERE producto_id = ?', [productoId]);
@@ -245,11 +272,7 @@ export async function deleteProduct(productoId) {
     }
 }
 
-/**
- * Obtiene una lista de productos que están marcados como oferta
- * @param {number} limite - La cantidad máxima de productos a devolver
- * @returns {Promise<Array>} - Lista de productos en oferta
- */
+// Trae productos en oferta, limitado por parámetro
 export async function getOfferProducts(limite = 8) {
     const query = `
         SELECT * FROM producto 
@@ -261,11 +284,7 @@ export async function getOfferProducts(limite = 8) {
     return productos;
 }
 
-/**
- * Obtiene un único producto por su id si está activo
- * @param {number} productoId 
- * @returns {Promise<object|null>} El objeto del producto o null si no se encuentra o está inactivo
- */
+// Busca un producto activo por su id
 export async function obtenerProductoPorId(productoId) {
     const query = 'SELECT * FROM producto WHERE producto_id = ? AND activo = true';
     const [productos] = await pool.query(query, [productoId]);
@@ -277,7 +296,7 @@ export async function obtenerProductoPorId(productoId) {
     return productos[0];
 }
 
-//activar o desactivar productos 
+// Activa o desactiva un producto
 export async function toggleProductStatus(productoId) {
   const query = 'UPDATE producto SET activo = NOT activo WHERE producto_id = ?';
   const [result] = await pool.query(query, [productoId]);

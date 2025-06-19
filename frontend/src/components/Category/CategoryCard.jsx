@@ -1,21 +1,21 @@
 import { Card, CardActionArea, CardMedia, CardContent, Typography } from '@mui/material';
-import { Link } from 'react-router-dom'; // Importamos Link
+import { Link } from 'react-router-dom';
 
 const CategoryCard = ({ categoria }) => {
    const BASE_URL = 'http://localhost:3000';
 
+   // Si la categoría tiene imagen, la usamos con la base URL, sino ponemos un placeholder
     const imageUrl = categoria.imagen 
-    ? `${BASE_URL}${categoria.imagen}`
-    : 'https://via.placeholder.com/200x140';
+      ? `${BASE_URL}${categoria.imagen}`
+      : 'https://via.placeholder.com/200x140';
 
    return (
     <Link to={`/categoria/${categoria.categoria_id}/productos`} style={{ textDecoration: 'none' }}>
-      <Card sx={{ /* ...tus estilos */ }}>
+      <Card>
         <CardActionArea>
           <CardMedia
             component="img"
             height="140"
-            // 3. USA LA NUEVA VARIABLE 'imageUrl'
             image={imageUrl}
             alt={categoria.nombre}
           />

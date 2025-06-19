@@ -13,8 +13,7 @@ import { useDebounce } from '../../hooks/useDebounce';
 const ProductListPage = () => {
     const [searchParams, setSearchParams] = useSearchParams();
 
-    // Función para leer los filtros de la URL y crear un objeto de estado inicial.
-    // Esto asegura que se capturen todos los parámetros cada vez que se carga la página.
+    // Inicializamos filtros a partir de los parámetros de la URL para mantener estado sincronizado con URL
     const getInitialFilters = () => ({
         busqueda: searchParams.get('busqueda') || '',
         categoria: searchParams.get('categoria') || '',
@@ -31,13 +30,15 @@ const ProductListPage = () => {
     const [pagina, setPagina] = useState(parseInt(searchParams.get('pagina')) || 1);
     const [totalPaginas, setTotalPaginas] = useState(0);
 
+    // Usamos debounce para evitar hacer demasiadas peticiones mientras el usuario escribe la búsqueda
     const debouncedBusqueda = useDebounce(filtros.busqueda, 500);
 
-    // Este useEffect busca los productos cada vez que un filtro o la página cambian
+    // Se ejecuta al cambiar filtros o página para obtener productos filtrados paginados
     useEffect(() => {
         const fetchProductos = async () => {
             setLoading(true);
             
+            // Armamos parámetros para la API según filtros y página actual
             const params = new URLSearchParams({ pagina, limite: 10 });
             if (debouncedBusqueda) params.append('busqueda', debouncedBusqueda);
             if (filtros.categoria) params.append('categoria', filtros.categoria);
@@ -54,6 +55,7 @@ const ProductListPage = () => {
                 if (response.data.exito) {
                     setProductos(response.data.datos);
                     setTotalPaginas(response.data.paginacion.total_paginas);
+                    setError(null); // limpiamos error si todo salió bien
                 } else {
                     setError('No se pudieron cargar los productos.');
                 }
@@ -65,8 +67,8 @@ const ProductListPage = () => {
         };
         fetchProductos();
     }, [pagina, debouncedBusqueda, filtros.categoria, filtros.minPrice, filtros.maxPrice, filtros.sortBy, filtros.es_oferta]);
-    
-    // Este useEffect actualiza la URL cuando cambias un filtro en la página
+
+    // Sincronizamos filtros y página en el estado con los parámetros de la URL para que se pueda compartir o refrescar manteniendo estado
     useEffect(() => {
         const params = {};
         if (filtros.busqueda) params.busqueda = filtros.busqueda;
@@ -80,30 +82,31 @@ const ProductListPage = () => {
         setSearchParams(params, { replace: true });
     }, [filtros, pagina, setSearchParams]);
 
+    // Actualizamos filtros al cambiar inputs de texto, reiniciando página a 1
     const handleFilterChange = (event) => {
         const { name, value } = event.target;
         setFiltros(prev => ({ ...prev, [name]: value }));
         setPagina(1);
     };
-    
-     const handleCheckboxChange = (event) => {
+
+    // Actualizamos filtros para checkboxes, usando 'true' o '' para controlar la URL
+    const handleCheckboxChange = (event) => {
         const { name, checked } = event.target;
         setFiltros(prev => ({
             ...prev,
-            // Si el checkbox está marcado ponemos el valor 'true'.
-            // Si no, lo ponemos como un string vacío para que el filtro se elimine de la URL
             [name]: checked ? 'true' : ''
         }));
         setPagina(1);
     };
 
+    // Cambia la página en la paginación
     const handlePageChange = (event, value) => {
         setPagina(value);
     };
 
     if (loading && productos.length === 0) return <LoadingSpinner />;
     if (error) return <Typography color="error">Error: {error}</Typography>;
-    
+
     return (
         <Box>
             <Header />
@@ -113,8 +116,7 @@ const ProductListPage = () => {
                 </Typography>
                 <Grid container spacing={4}>
                     <Grid item xs={12} md={3}>
-
-                         <ProductFilters 
+                        <ProductFilters 
                             filtros={filtros} 
                             onFilterChange={handleFilterChange}
                             onCheckboxChange={handleCheckboxChange}

@@ -5,9 +5,10 @@ import { useAuth } from '../../context/AuthContext';
 const ProductCard = ({ producto }) => {
     const { addToCart } = useAuth();
 
-    // Construir la URL completa de la imagen
-    const BASE_URL = 'http://localhost:3000'; // Es mejor guardar esto en una variable de entorno (.env)
+    // URL base para las imágenes (ideal usar .env)
+    const BASE_URL = 'http://localhost:3000';
     
+    // Armo la URL completa de la imagen o uso placeholder si no tiene
     const imageUrl = producto.imagen 
         ? `${BASE_URL}${producto.imagen}` 
         : 'https://via.placeholder.com/200';
@@ -26,7 +27,6 @@ const ProductCard = ({ producto }) => {
              <CardMedia
                 component="img"
                 height="200"
-                // Usa la nueva variable 'imageUrl'
                 image={imageUrl}
                 alt={producto.nombre_producto}
                 sx={{ objectFit: 'cover' }}
@@ -43,34 +43,32 @@ const ProductCard = ({ producto }) => {
                     {producto.descripcion}
                 </Typography>
 
-               {/* Lógica de Precio Mejorada */}
-{producto.precio_anterior && producto.precio_anterior > producto.precio ? (
-    // Si hay un precio anterior válido, mostramos ambos
-    <Box>
-        <Typography 
-            component="span" 
-            sx={{ 
-                textDecoration: 'line-through', 
-                color: 'text.secondary',
-                mr: 1 
-            }}
-        >
-            ${producto.precio_anterior}
-        </Typography>
-        <Typography 
-            variant="h5" 
-            component="span" 
-            sx={{ fontWeight: 'bold', color: 'error.main' }}
-        >
-            ${producto.precio}
-        </Typography>
-    </Box>
-) : (
-    // Si no, mostramos solo el precio normal
-    <Typography variant="h5" sx={{ fontWeight: 'bold' }}>
-        ${producto.precio}
-    </Typography>
-)}
+                {/* Precio con posible descuento */}
+                {producto.precio_anterior && producto.precio_anterior > producto.precio ? (
+                    <Box>
+                        <Typography 
+                            component="span" 
+                            sx={{ 
+                                textDecoration: 'line-through', 
+                                color: 'text.secondary',
+                                mr: 1 
+                            }}
+                        >
+                            ${producto.precio_anterior}
+                        </Typography>
+                        <Typography 
+                            variant="h5" 
+                            component="span" 
+                            sx={{ fontWeight: 'bold', color: 'error.main' }}
+                        >
+                            ${producto.precio}
+                        </Typography>
+                    </Box>
+                ) : (
+                    <Typography variant="h5" sx={{ fontWeight: 'bold' }}>
+                        ${producto.precio}
+                    </Typography>
+                )}
 
             </CardContent>
             <CardActions sx={{ display: 'flex', flexDirection: 'column', p: 2, gap: 1 }}>

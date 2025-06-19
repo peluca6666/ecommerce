@@ -18,6 +18,7 @@ const CartDropdown = () => {
 
   const [anchorEl, setAnchorEl] = useState(null);
 
+  // Abre el popover si el usuario está logueado, sino muestra aviso
   const handleClick = (event) => {
     if (!isAuthenticated) {
       showNotification('Debes estar logueado para acceder al carrito', 'warning');
@@ -33,11 +34,10 @@ const CartDropdown = () => {
   const open = Boolean(anchorEl);
   const id = open ? 'cart-popover' : undefined;
 
+  // Elimina un producto del carrito sin que se active el link
   const handleRemove = (e, productoId) => {
     e.stopPropagation();
     e.preventDefault(); 
-
-
     removeFromCart(productoId);
   };
 

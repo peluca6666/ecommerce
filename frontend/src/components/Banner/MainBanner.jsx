@@ -29,6 +29,7 @@ const BannerCarousel = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
   const sliderRef = useRef(null);
 
+  // Configuración del slider
   const settings = {
     dots: false,
     infinite: true,
@@ -37,9 +38,10 @@ const BannerCarousel = () => {
     slidesToShow: 1,
     slidesToScroll: 1,
     arrows: false,
-    beforeChange: (current, next) => setCurrentSlide(next),
+    beforeChange: (current, next) => setCurrentSlide(next), // Actualiza el slide activo
   };
 
+  // Mueve el slider al slide indicado
   const goToSlide = (index) => {
     sliderRef.current.slickGoTo(index);
   };
@@ -55,7 +57,7 @@ const BannerCarousel = () => {
               backgroundImage: `url(${banner.imagen})`,
               backgroundSize: 'cover',
               backgroundPosition: 'center',
-               borderRadius: 10,
+              borderRadius: 10,
               position: 'relative',
               color: 'white',
               display: 'flex',
@@ -64,24 +66,25 @@ const BannerCarousel = () => {
               px: 2
             }}
           >
+            {/* Overlay oscuro para que el texto se vea mejor */}
             <Paper
-  elevation={0}
-  sx={{
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    width: '100%',
-    height: '100%',
-    bgcolor: 'rgba(0, 0, 0, 0.4)', // oscuro translúcido
-    display: 'flex',
-    flexDirection: 'column',
-    justifyContent: 'center',
-    alignItems: 'center',
-    textAlign: 'center',
-    color: 'white',
-    p: 3
-  }}
->
+              elevation={0}
+              sx={{
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                width: '100%',
+                height: '100%',
+                bgcolor: 'rgba(0, 0, 0, 0.4)',
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'center',
+                alignItems: 'center',
+                textAlign: 'center',
+                color: 'white',
+                p: 3
+              }}
+            >
               <Typography variant="h4" gutterBottom sx={{ fontWeight: 'bold' }}>
                 {banner.titulo}
               </Typography>
@@ -101,7 +104,7 @@ const BannerCarousel = () => {
         ))}
       </Slider>
 
-      {/* Controles personalizados */}
+      {/* Indicadores para navegar entre slides */}
       <Box sx={{ 
         display: 'flex', 
         justifyContent: 'center', 

@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Container, Grid, Box, Typography, Button, Divider, Paper, IconButton } from '@mui/material';
-import { AddCircleOutline, RemoveCircleOutline } from '@mui/icons-material'; // Iconos para el selector
+import { AddCircleOutline, RemoveCircleOutline } from '@mui/icons-material'; // Iconos para selector de cantidad
 import { useAuth } from '../../context/AuthContext';
 import LoadingSpinner from '../../components/common/LoadingSpinner';
 import axios from 'axios';
@@ -17,8 +17,9 @@ const ProductDetailPage = () => {
     const [producto, setProducto] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-    const [selectedImage, setSelectedImage] = useState(''); // Para la imagen principal de la galería
-    const [cantidad, setCantidad] = useState(1); // Para el selector de cantidad
+    const [selectedImage, setSelectedImage] = useState(''); // Imagen principal que se muestra
+    const [cantidad, setCantidad] = useState(1); // Cantidad seleccionada para agregar al carrito
+    const BASE_URL = 'http://localhost:3000';
 
     const [productosRelacionados, setProductosRelacionados] = useState([]);
 
@@ -26,11 +27,13 @@ const ProductDetailPage = () => {
         const fetchProductData = async () => {
             try {
                 setLoading(true);
-                setProductosRelacionados([]); // Limpiamos los relacionados anteriores al cargar uno nuevo
+                setProductosRelacionados([]); // Limpiamos productos relacionados para el nuevo producto
                 const response = await axios.get(`http://localhost:3000/api/producto/${id}`);
 
                 if (response.data.exito) {
                     const productData = response.data.datos;
+
+                    // Asegurarnos que 'imagenes' es un array, no string
                     if (typeof productData.imagenes === 'string') {
                         try {
                             productData.imagenes = JSON.parse(productData.imagenes);
@@ -39,19 +42,25 @@ const ProductDetailPage = () => {
                         }
                     }
                     setProducto(productData);
-                    setSelectedImage(productData.imagen || 'https://via.placeholder.com/500');
 
+                    // Configuramos la imagen principal o fallback si no existe
+                    if (productData.imagen) {
+                        setSelectedImage(`${BASE_URL}${productData.imagen}`);
+                    } else {
+                        setSelectedImage('https://via.placeholder.com/500');
+                    }
+
+                    // Buscamos productos relacionados de la misma categoría (excepto el actual)
                     if (productData.categoria_id) {
                         try {
                             const relatedResponse = await axios.get(`http://localhost:3000/api/categoria/${productData.categoria_id}/producto`);
                             if (relatedResponse.data.exito) {
-                                // Filtramos para no mostrar el producto actual en la lista de relacionados
                                 const related = relatedResponse.data.datos.filter(p => p.producto_id !== productData.producto_id);
                                 setProductosRelacionados(related);
                             }
                         } catch (relatedError) {
                             console.error("Error al obtener productos relacionados:", relatedError);
-                            // No establecemos un error principal si solo falla esta parte
+                            // No interrumpimos si falla esta parte
                         }
                     }
 
@@ -66,25 +75,25 @@ const ProductDetailPage = () => {
             }
         };
 
-
         fetchProductData();
     }, [id]);
 
-    // LOGICA PARA EL SELECTOR DE CANTIDAD
+    // Controla el incremento/decremento de la cantidad, sin salirse del stock ni bajar de 1
     const handleCantidadChange = (change) => {
         setCantidad(prev => {
             const nuevaCantidad = prev + change;
-            if (nuevaCantidad < 1) return 1; // No permitir menos de 1
-            if (nuevaCantidad > producto.stock_actual) return producto.stock_actual; // No permitir más que el stock
+            if (nuevaCantidad < 1) return 1;
+            if (nuevaCantidad > producto.stock_actual) return producto.stock_actual;
             return nuevaCantidad;
         });
     };
 
+    // Llama a la función para agregar al carrito la cantidad seleccionada
     const handleAddToCart = async () => {
-        // Pasamos la cantidad seleccionada a la función del contexto
         await addToCart(producto.producto_id, cantidad);
     };
 
+    // Agrega al carrito y redirige directo al carrito para comprar
     const handleBuyNow = async () => {
         await addToCart(producto.producto_id, cantidad);
         navigate('/carrito');
@@ -94,8 +103,10 @@ const ProductDetailPage = () => {
     if (error) return <Typography color="error" align="center" sx={{ mt: 4 }}>Error: {error}</Typography>;
     if (!producto) return <Typography align="center" sx={{ mt: 4 }}>Producto no encontrado.</Typography>;
 
-    // Combinamos la imagen principal con la galería para el carrusel
-    const allImages = [producto.imagen, ...producto.imagenes].filter(Boolean);
+    // Convertimos todas las imágenes (principal + galería) a URLs completas
+    const allImages = [producto.imagen, ...producto.imagenes]
+        .filter(Boolean)
+        .map(imgRelativa => `${BASE_URL}${imgRelativa}`);
 
     return (
         <>
@@ -103,7 +114,7 @@ const ProductDetailPage = () => {
             <Container maxWidth="lg" sx={{ my: 4 }}>
                 <Paper elevation={3} sx={{ p: { xs: 2, md: 4 } }}>
                     <Grid container spacing={4}>
-                        {/* GALERIA DE IMAGENES */}
+                        {/* Galería de imágenes con thumbnails para seleccionar */}
                         <Grid item xs={12} md={6}>
                             <Box sx={{ mb: 2 }}>
                                 <img
@@ -133,8 +144,8 @@ const ProductDetailPage = () => {
                                 ))}
                             </Box>
                         </Grid>
-                        {/* GALERIA DE IMAGENES*/}
 
+                        {/* Detalles del producto y acciones */}
                         <Grid item xs={12} md={6}>
                             <Typography variant="h4" component="h1" gutterBottom fontWeight="bold">
                                 {producto.nombre_producto}
@@ -150,7 +161,7 @@ const ProductDetailPage = () => {
                                 Stock disponible: {producto.stock_actual} unidades
                             </Typography>
 
-                            {/* SELECTOR DE CANTIDAD*/}
+                            {/* Selector de cantidad con botones + y - */}
                             <Box sx={{ my: 3, display: 'flex', alignItems: 'center', gap: 1 }}>
                                 <Typography variant="subtitle1" fontWeight="medium">Cantidad:</Typography>
                                 <IconButton onClick={() => handleCantidadChange(-1)} disabled={cantidad <= 1}>
@@ -175,9 +186,7 @@ const ProductDetailPage = () => {
                     </Grid>
                 </Paper>
 
-
-                {/* --- CAMBIO 3: Añadimos la nueva sección en el JSX --- */}
-                {/* Solo mostramos la sección si encontramos productos relacionados */}
+                {/* Productos relacionados solo si existen */}
                 {productosRelacionados.length > 0 && (
                     <Box sx={{ mt: 6 }}>
                         <Typography variant="h5" component="h2" gutterBottom fontWeight="bold">

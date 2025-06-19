@@ -22,6 +22,7 @@ export default function LoginForm({ formulario, errores, isLoading, handleChange
                 p: 2
             }}
         >
+            {/* Formulario de login */}
             <Paper
                 component="form"
                 onSubmit={handleSubmit}
@@ -72,12 +73,14 @@ export default function LoginForm({ formulario, errores, isLoading, handleChange
                     size="small"
                 />
 
+                {/* Mensaje de error general */}
                 {errores.general && (
                     <Typography color="error" variant="body2" align="center">
                         {errores.general}
                     </Typography>
                 )}
 
+                {/* Botón de enviar con spinner mientras carga */}
                 <Button 
                     type="submit" 
                     variant="contained" 

@@ -2,7 +2,7 @@ import { Paper, Typography, Box, Button, Chip } from '@mui/material';
 import { Link as RouterLink } from 'react-router-dom';
 
 const OrderItem = ({ orden }) => {
-    // Función para dar color al estado de la orden
+    // Devuelve un color para el chip según el estado de la orden
     const getStatusChipColor = (estado) => {
         if (estado === 'Completado') return 'success';
         if (estado === 'Pendiente') return 'warning';
@@ -11,7 +11,18 @@ const OrderItem = ({ orden }) => {
     };
 
     return (
-        <Paper variant="outlined" sx={{ p: 2, mb: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 2 }}>
+        <Paper 
+          variant="outlined" 
+          sx={{ 
+            p: 2, 
+            mb: 2, 
+            display: 'flex', 
+            justifyContent: 'space-between', 
+            alignItems: 'center', 
+            flexWrap: 'wrap', 
+            gap: 2 
+          }}
+        >
             <Box>
                 <Typography variant="subtitle1" fontWeight="bold">Orden #{orden.venta_id}</Typography>
                 <Typography variant="body2" color="text.secondary">

@@ -12,6 +12,7 @@ import ToggleOffIcon from '@mui/icons-material/ToggleOff';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 
 export default function AdminUsersPage() {
+  // Estados: lista de usuarios, carga, error, modal, usuario seleccionado, ventas e indicador de carga de ventas
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -20,6 +21,7 @@ export default function AdminUsersPage() {
   const [userSales, setUserSales] = useState([]);
   const [salesLoading, setSalesLoading] = useState(false);
 
+  // Obtener lista de usuarios con autorización
   const fetchUsers = async () => {
     try {
       const token = localStorage.getItem('token');
@@ -36,10 +38,12 @@ export default function AdminUsersPage() {
     }
   };
 
+  // Obtener usuarios al montar el componente
   useEffect(() => {
     fetchUsers();
   }, []);
 
+  // Cambiar el rol de un usuario con confirmación
   const handleRoleChange = async (id, nuevoRol) => {
     const confirmacion = window.confirm(`¿Estás seguro de que querés cambiar el rol a "${nuevoRol}"?`);
     if (!confirmacion) return;
@@ -59,6 +63,7 @@ export default function AdminUsersPage() {
     }
   };
 
+  // Activar o desactivar un usuario con confirmación
   const handleToggleStatus = async (id, estadoActual) => {
     const confirmacion = window.confirm(`¿Seguro que querés ${estadoActual ? 'desactivar' : 'activar'} este usuario?`);
     if (!confirmacion) return;
@@ -74,6 +79,7 @@ export default function AdminUsersPage() {
     }
   };
 
+  // Mostrar detalles y cargar historial de compras de un usuario
   const handleViewDetails = async (user) => {
     setSelectedUser(user);
     setDetailModalOpen(true);
@@ -94,12 +100,14 @@ export default function AdminUsersPage() {
     }
   };
 
+  // Cerrar modal de detalle
   const handleCloseDetailModal = () => {
     setDetailModalOpen(false);
     setSelectedUser(null);
     setUserSales([]);
   };
 
+  // Columnas de la tabla: incluye ID, nombre, email, rol editable, estado con toggle, y acción para ver detalle
   const columns = [
     { field: 'usuario_id', headerName: 'ID', width: 70 },
     { field: 'nombre', headerName: 'Nombre', width: 150 },
@@ -150,9 +158,11 @@ export default function AdminUsersPage() {
     }
   ];
 
+  // Muestra mensaje mientras carga o si hay error
   if (loading) return <Typography>Cargando usuarios...</Typography>;
   if (error) return <Typography color="error">Error: {error}</Typography>;
 
+  // Render principal con tabla y modal
   return (
     <Box sx={{ height: '80vh', width: '100%' }}>
       <Title>Gestión de Usuarios</Title>
@@ -166,6 +176,7 @@ export default function AdminUsersPage() {
           <>
             <DialogTitle>Detalle de Usuario: {selectedUser.nombre} {selectedUser.apellido}</DialogTitle>
             <DialogContent>
+              {/* Info personal del usuario */}
               <Typography variant="h6">Información Personal</Typography>
               <Typography><strong>ID:</strong> {selectedUser.usuario_id}</Typography>
               <Typography><strong>Email:</strong> {selectedUser.email}</Typography>
@@ -175,12 +186,10 @@ export default function AdminUsersPage() {
               <Typography><strong>Provincia:</strong> {selectedUser.Provincia}</Typography>
               <Typography><strong>Localidad:</strong> {selectedUser.Localidad}</Typography>
               <Typography><strong>Código postal:</strong> {selectedUser.codigo_postal}</Typography>
-
-
-
-
               <Typography><strong>Rol:</strong> {selectedUser.rol}</Typography>
               <Typography><strong>Estado:</strong> {selectedUser.activo ? 'Activo' : 'Inactivo'}</Typography>
+
+              {/* Historial de compras del usuario */}
               <Divider sx={{ my: 2 }} />
               <Typography variant="h6">Historial de Compras</Typography>
               {salesLoading ? (
@@ -194,7 +203,9 @@ export default function AdminUsersPage() {
                           primary={<MuiLink component={RouterLink} to={`/admin/ventas/${sale.venta_id}`}>Venta #{sale.venta_id}</MuiLink>}
                           secondary={`Fecha: ${new Date(sale.fecha_venta).toLocaleDateString('es-AR')} - Total: $${Number(sale.total).toLocaleString('es-AR')}`}
                         />
-                        <Typography variant="body2" color={sale.estado === 'Completado' ? 'green' : 'orange'}>{sale.estado}</Typography>
+                        <Typography variant="body2" color={sale.estado === 'Completado' ? 'green' : 'orange'}>
+                          {sale.estado}
+                        </Typography>
                       </ListItem>
                     ))}
                   </List>

@@ -8,7 +8,7 @@ import axios from 'axios';
 const ProductFilters = ({ filtros, onFilterChange, onCheckboxChange }) => {
     const [categorias, setCategorias] = useState([]);
 
-    // Obtenemos las categorías para el dropdown cuando el componente se monta
+    // Carga las categorías activas al montar el componente para el filtro
     useEffect(() => {
         const fetchCategorias = async () => {
             try {
@@ -78,11 +78,11 @@ const ProductFilters = ({ filtros, onFilterChange, onCheckboxChange }) => {
                         <MenuItem value="precio_desc">Precio (Mayor a Menor)</MenuItem>
                     </Select>
                 </FormControl>
-                  <FormControlLabel
+                <FormControlLabel
                     control={
                         <Checkbox
                             name="es_oferta"
-                            // El checkbox estará marcado si el filtro 'es_oferta' es 'true'
+                            // Checkeamos si el filtro de ofertas está activo
                             checked={filtros.es_oferta === 'true'}
                             onChange={onCheckboxChange}
                         />

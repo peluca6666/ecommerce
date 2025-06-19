@@ -6,21 +6,21 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+// Configuración de multer para subir imágenes de categorías
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    // Definimos la ruta específica para las imágenes de categorías
     const uploadPath = path.join(__dirname, '../public/images/categorias');
     
-    // Aseguramos que el directorio exista
+    // Crea la carpeta si no existe
     fs.mkdirSync(uploadPath, { recursive: true });
-    
+
     cb(null, uploadPath); 
   },
   filename: (req, file, cb) => {
     const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-    // Usamos el nombre del campo 'imagen' para consistencia
     cb(null, 'imagen-' + uniqueSuffix + path.extname(file.originalname));
   }
 });
 
+// Middleware que maneja la subida de imágenes de categoría
 export const uploadCategoria = multer({ storage: storage });

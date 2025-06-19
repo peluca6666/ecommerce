@@ -32,19 +32,19 @@ const Header = ({ categoria }) => {
         )}
 
         <Typography
-  variant="h5"
-  component={RouterLink}
-  to="/main"
-  sx={{
-    flexGrow: { xs: 1, md: 0 },
-    mr: { md: 4 },
-    textDecoration: 'none',
-    color: 'inherit',
-    cursor: 'pointer',
-  }}
->
-  SaloMarket
-</Typography>
+          variant="h5"
+          component={RouterLink}
+          to="/main"
+          sx={{
+            flexGrow: { xs: 1, md: 0 },
+            mr: { md: 4 },
+            textDecoration: 'none',
+            color: 'inherit',
+            cursor: 'pointer',
+          }}
+        >
+          SaloMarket
+        </Typography>
 
         {!isMobile && <SearchBar onSearch={(term) => console.log('Buscar:', term)} />}
 
@@ -64,9 +64,12 @@ const Header = ({ categoria }) => {
           <UserButton />
         </Box>
 
-        <Drawer variant="temporary" anchor="left" open={drawerOpen} onClose={handleDrawerToggle}  ModalProps={{
-            keepMounted: true, //Mejora el rendimiento en celulares
-          }}
+        <Drawer 
+          variant="temporary" 
+          anchor="left" 
+          open={drawerOpen} 
+          onClose={handleDrawerToggle}  
+          ModalProps={{ keepMounted: true }} // Evita desmontar en móviles para mejor rendimiento
           sx={{
             display: { xs: 'block', md: 'none' },
             '& .MuiDrawer-paper': { 
@@ -78,7 +81,7 @@ const Header = ({ categoria }) => {
         >
           <List>
             <ListItem sx={{ px: 2, pb: 2 }}>
-              {/* Buscador en el drawer */}
+              {/* Buscador en el menú lateral */}
               <SearchBar 
                 onSearch={(term) => {
                   console.log('Buscar:', term);
@@ -106,7 +109,6 @@ const Header = ({ categoria }) => {
               />
             </ListItem>
           </List>
-         
         </Drawer>
       </Toolbar>
     </AppBar>

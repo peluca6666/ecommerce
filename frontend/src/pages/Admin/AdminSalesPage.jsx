@@ -11,16 +11,16 @@ import Title from './Title';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 
 export default function AdminSalesPage() {
+  // Estados para la lista de ventas, carga, error, modal, venta seleccionada y estado nuevo
   const [sales, setSales] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [isDetailModalOpen, setDetailModalOpen] = useState(false);
   const [selectedSale, setSelectedSale] = useState(null);
   const [detailLoading, setDetailLoading] = useState(false);
+  const [newStatus, setNewStatus] = useState(''); // Estado para el dropdown de estado
 
-  // Estado para el dropdown
-  const [newStatus, setNewStatus] = useState('');
-
+  // Función para obtener todas las ventas desde la API con token
   const fetchSales = async () => {
     try {
       setLoading(true);
@@ -38,10 +38,12 @@ export default function AdminSalesPage() {
     }
   };
 
+  // Hook para cargar ventas al montar el componente
   useEffect(() => {
     fetchSales();
   }, []);
   
+  // Mostrar modal y cargar detalle de venta específica
   const handleViewDetails = async (sale) => {
     setDetailModalOpen(true);
     setDetailLoading(true);
@@ -53,7 +55,7 @@ export default function AdminSalesPage() {
       if (!response.ok) throw new Error('No se pudo cargar el detalle de la venta');
       const data = await response.json();
       setSelectedSale(data.datos);
-      setNewStatus(data.datos.estado); // Inicializamos el select con el estado actual
+      setNewStatus(data.datos.estado); // Seteamos estado actual para editar
     } catch (err) {
       console.error(err);
     } finally {
@@ -61,12 +63,13 @@ export default function AdminSalesPage() {
     }
   };
 
+  // Cerrar modal y limpiar estado seleccionado
   const handleCloseDetailModal = () => {
     setDetailModalOpen(false);
     setSelectedSale(null);
   };
 
-  // Función para actualizar el estado
+  // Actualizar estado de venta con confirmación y refrescar lista
   const handleStatusChange = async () => {
     const confirmacion = window.confirm(`¿Estás seguro de que querés cambiar el estado a "${newStatus}"?`);
     if (!confirmacion) return;
@@ -88,15 +91,14 @@ export default function AdminSalesPage() {
       }
 
       alert('¡Estado actualizado con éxito!');
-      // Cerramos el modal y refrescamos la tabla principal para ver el cambio
       handleCloseDetailModal();
-      fetchSales(); 
-      
+      fetchSales(); // Refrescar tabla con estado actualizado
     } catch (err) {
       alert(`Error: ${err.message}`);
     }
   };
 
+  // Definición de columnas para la tabla DataGrid
   const columns = [
     { field: 'venta_id', headerName: 'ID Venta', width: 90 },
     { 
@@ -111,8 +113,7 @@ export default function AdminSalesPage() {
       headerName: 'Total', 
       type: 'number',
       width: 130,
-      // Formateamos el total como moneda
-      valueFormatter: (value) => `$ ${Number(value || 0).toLocaleString('es-AR')}`
+      valueFormatter: (value) => `$ ${Number(value || 0).toLocaleString('es-AR')}` // Formato moneda AR
     },
     { 
       field: 'estado', 
@@ -142,7 +143,7 @@ export default function AdminSalesPage() {
   if (loading) return <Typography>Cargando ventas...</Typography>;
   if (error) return <Typography color="error">Error: {error}</Typography>;
 
-   return (
+  return (
     <Box sx={{ height: '80vh', width: '100%' }}>
       <Title>Gestión de Ventas</Title>
       <DataGrid
@@ -152,12 +153,14 @@ export default function AdminSalesPage() {
         initialState={{ sorting: { sortModel: [{ field: 'venta_id', sort: 'desc' }] } }}
       />
 
-      {/* Modal para mostrar las opciones de una venta*/}
+      {/* Modal para mostrar detalles y gestionar estado de una venta */}
       <Dialog open={isDetailModalOpen} onClose={handleCloseDetailModal} fullWidth maxWidth="md">
         <DialogTitle>Detalle de Venta #{selectedSale?.venta_id}</DialogTitle>
         <DialogContent>
           {detailLoading ? (
-            <Box sx={{ display: 'flex', justifyContent: 'center', my: 4 }}><CircularProgress /></Box>
+            <Box sx={{ display: 'flex', justifyContent: 'center', my: 4 }}>
+              <CircularProgress />
+            </Box>
           ) : selectedSale ? (
             <Box sx={{ pt: 1 }}>
               <Grid container spacing={3}>
@@ -175,7 +178,7 @@ export default function AdminSalesPage() {
                     <Typography>{selectedSale.direccion_envio}</Typography>
                   </Paper>
 
-                 {/* Panel de gestión de estado */}
+                  {/* Panel para cambiar estado de la venta */}
                   <Paper sx={{ p: 2 }}>
                     <Typography variant="h6" gutterBottom>Gestionar Estado</Typography>
                     <FormControl fullWidth>
@@ -183,7 +186,8 @@ export default function AdminSalesPage() {
                       <Select
                         value={newStatus}
                         label="Estado"
-                        onChange={(e) => setNewStatus(e.target.value)}  >
+                        onChange={(e) => setNewStatus(e.target.value)}
+                      >
                         <MenuItem value="Procesando">Procesando</MenuItem>
                         <MenuItem value="Enviado">Enviado</MenuItem>
                         <MenuItem value="Completado">Completado</MenuItem>
@@ -202,16 +206,29 @@ export default function AdminSalesPage() {
                       {selectedSale.productos.map((item) => (
                         <ListItem key={item.detalle_id} sx={{ py: 1, px: 0 }}>
                           <ListItemText 
-                            primary={<MuiLink component={RouterLink} to={`/producto/${item.producto_id}`} color="primary" sx={{ textDecoration: 'none' }}>{item.nombre_producto}</MuiLink>}
+                            primary={
+                              <MuiLink 
+                                component={RouterLink} 
+                                to={`/producto/${item.producto_id}`} 
+                                color="primary" 
+                                sx={{ textDecoration: 'none' }}
+                              >
+                                {item.nombre_producto}
+                              </MuiLink>
+                            }
                             secondary={`Cantidad: ${item.cantidad}`} 
                           />
-                          <Typography variant="body2">$ {(item.cantidad * item.precio_unitario).toLocaleString('es-AR')}</Typography>
+                          <Typography variant="body2">
+                            $ {(item.cantidad * item.precio_unitario).toLocaleString('es-AR')}
+                          </Typography>
                         </ListItem>
                       ))}
                       <Divider />
                       <ListItem sx={{ py: 1, px: 0 }}>
                         <ListItemText primary="Total" />
-                        <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>$ {Number(selectedSale.total).toLocaleString('es-AR')}</Typography>
+                        <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>
+                          $ {Number(selectedSale.total).toLocaleString('es-AR')}
+                        </Typography>
                       </ListItem>
                     </List>
                   </Paper>

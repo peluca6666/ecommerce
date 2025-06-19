@@ -8,7 +8,7 @@ import Footer from '../../components/Footer/Footer';
 import LoadingSpinner from '../../components/common/LoadingSpinner';
 import PurchaseHistoryTab from '../../components/Profile/PurchaseHistoryTab';
 
-// componente auxiliar para manejar el contenido de cada pestaña
+// Componente auxiliar para mostrar contenido solo en la pestaña activa
 const TabPanel = (props) => {
     const { children, value, index, ...other } = props;
     return (
@@ -30,11 +30,14 @@ const TabPanel = (props) => {
 
 const ProfilePage = () => {
     const { user, getToken, showNotification } = useAuth();
+
+    // Estados para controlar carga, pestaña activa y envío de formularios
     const [loading, setLoading] = useState(true);
     const [tabIndex, setTabIndex] = useState(0);
     const [isSubmittingProfile, setIsSubmittingProfile] = useState(false);
     const [isSubmittingPassword, setIsSubmittingPassword] = useState(false);
 
+    // Datos del perfil para el formulario de edición
     const [profileData, setProfileData] = useState({
         dni: '',
         telefono: '',
@@ -44,13 +47,14 @@ const ProfilePage = () => {
         codigo_postal: ''
     });
 
+    // Datos para el formulario de cambio de contraseña
     const [passwordData, setPasswordData] = useState({
         contraseniaActual: '',
         nuevaContrasenia: '',
         confirmarContrasenia: ''
     });
 
-    // Carga los datos del perfil del usuario al montar la página
+    // Cargar datos del perfil al montar el componente
     useEffect(() => {
         const fetchProfile = async () => {
             if (!user) {
@@ -80,22 +84,25 @@ const ProfilePage = () => {
                 setLoading(false);
             }
         };
-
         fetchProfile();
     }, [user, getToken, showNotification]);
 
+    // Cambiar pestaña activa
     const handleTabChange = (event, newValue) => {
         setTabIndex(newValue);
     };
 
+    // Actualizar estado al cambiar inputs de perfil
     const handleProfileChange = (e) => {
         setProfileData({ ...profileData, [e.target.name]: e.target.value });
     };
     
+    // Actualizar estado al cambiar inputs de contraseña
     const handlePasswordChange = (e) => {
         setPasswordData({ ...passwordData, [e.target.name]: e.target.value });
     };
 
+    // Enviar formulario para actualizar perfil
     const handleProfileSubmit = async (e) => {
         e.preventDefault();
         setIsSubmittingProfile(true);
@@ -112,9 +119,10 @@ const ProfilePage = () => {
         }
     };
 
+    // Enviar formulario para cambiar contraseña
     const handlePasswordSubmit = async (e) => {
         e.preventDefault();
-        // Lógica de validación de contraseña...
+        // Validación simple: verificar que nuevas contraseñas coincidan
         if (passwordData.nuevaContrasenia !== passwordData.confirmarContrasenia) {
             showNotification('Las nuevas contraseñas no coinciden.', 'error');
             return;
@@ -129,6 +137,7 @@ const ProfilePage = () => {
                 headers: { Authorization: `Bearer ${token}` }
             });
             showNotification(response.data.mensaje, 'success');
+            // Limpiar campos luego de cambiar la contraseña
             setPasswordData({ contraseniaActual: '', nuevaContrasenia: '', confirmarContrasenia: '' });
         } catch (error) {
             showNotification(error.response?.data?.mensaje || 'Error al cambiar la contraseña.', 'error');
@@ -147,17 +156,17 @@ const ProfilePage = () => {
                     Mi Cuenta
                 </Typography>
                 <Paper elevation={3} sx={{ borderRadius: 4, overflow: 'hidden' }}>
-
+                    {/* Tabs para seleccionar sección del perfil */}
                     <Tabs value={tabIndex} onChange={handleTabChange} variant="fullWidth" indicatorColor="primary" textColor="primary">
                         <Tab icon={<PersonOutline />} iconPosition="start" label="Mis Datos" />
                         <Tab icon={<LockOutlined />} iconPosition="start" label="Seguridad" />
-                        <Tab icon={<ReceiptOutlined/>} iconPosition="start" label="Mis compras" />
+                        <Tab icon={<ReceiptOutlined />} iconPosition="start" label="Mis compras" />
                     </Tabs>
                     
+                    {/* Panel de datos personales */}
                     <TabPanel value={tabIndex} index={0}>
                         <Typography variant="h6" sx={{ mb: 3 }}>Información Personal y de Envío</Typography>
                         <form onSubmit={handleProfileSubmit}>
-                            {/* CAMBIO: Se eliminó la prop 'item' de todos los Grid hijos */}
                             <Grid container spacing={3}>
                                 <Grid xs={12} sm={6}><TextField fullWidth label="DNI" name="dni" value={profileData.dni} onChange={handleProfileChange} /></Grid>
                                 <Grid xs={12} sm={6}><TextField fullWidth label="Teléfono" name="telefono" value={profileData.telefono} onChange={handleProfileChange} /></Grid>
@@ -174,6 +183,7 @@ const ProfilePage = () => {
                         </form>
                     </TabPanel>
 
+                    {/* Panel para cambiar contraseña */}
                     <TabPanel value={tabIndex} index={1}>
                         <Typography variant="h6" sx={{ mb: 3 }}>Actualizar Contraseña</Typography>
                         <form onSubmit={handlePasswordSubmit}>
@@ -190,6 +200,7 @@ const ProfilePage = () => {
                         </form>
                     </TabPanel>
                     
+                    {/* Panel para historial de compras */}
                     <TabPanel value={tabIndex} index={2}>
                         <PurchaseHistoryTab />
                     </TabPanel>

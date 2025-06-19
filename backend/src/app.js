@@ -10,16 +10,16 @@ import path from 'path';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-// Cargamos variables de entorno desde el archivo .env
+// Cargo variables de entorno desde .env
 dotenv.config({ path: join(__dirname, '../.env') });
 
 const app = express();
 
-//middlewares de body parsing
+// Para recibir JSON y datos en formato URL-encoded
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Configuración de CORS 
+// Configuración de CORS para los dominios que usamos en local
 const corsOptions = {
   origin: [
     'http://localhost:3000',
@@ -38,28 +38,28 @@ const corsOptions = {
 };
 app.use(cors(corsOptions));
 
-// CORREGIDO: Configuración de archivos estáticos
-// Servir archivos desde la carpeta public
-app.use(express.static(path.join(__dirname, '../public'))); 
+// Archivos estáticos para servir frontend y assets
+app.use(express.static(path.join(__dirname, '../public')));
 
-// Ruta específica para imágenes (redundante pero asegura el acceso)
+// Ruta específica para imágenes, para asegurarnos que se puedan acceder bien
 app.use('/images', express.static(path.join(__dirname, '../public/images')));
 
-//rutas de la api
+// Rutas de la API
 app.use('/api', routes);
 
-//levanta el servidor
+// Levanto el servidor en el puerto 3000
 app.listen(3000, () => {
   console.log('Servidor corriendo en puerto 3000');
 });
 
+// Verifico conexión a la base antes de arrancar todo
 (async () => {
   try {
     const conn = await pool.getConnection();
     console.log("Conexión establecida con MySQL");
     conn.release();
   } catch (err) {
-    console.error(" No se pudo conectar a la base de datos:", err);
+    console.error("No se pudo conectar a la base de datos:", err);
     process.exit(1);
   }
 })();

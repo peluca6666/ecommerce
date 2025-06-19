@@ -4,13 +4,13 @@ import { Link as RouterLink } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 
 const CartItem = ({ item }) => {
-    // Obtenemos las funciones para modificar el carrito desde el contexto global
+    // Funciones para actualizar cantidad y eliminar producto del carrito
     const { updateCartItemQuantity, removeFromCart } = useAuth();
 
     return (
         <Grid container alignItems="center" spacing={2} sx={{ mb: 2, pb: 2, borderBottom: '1px solid #eee' }}>
             
-            {/*  Imagen y Nombre del Producto */}
+            {/* Imagen y nombre del producto con link a la página del producto */}
             <Grid item xs={12} sm={5} sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
                 <Avatar 
                     variant="rounded" 
@@ -33,13 +33,13 @@ const CartItem = ({ item }) => {
                 </Box>
             </Grid>
 
-            {/* Selector de Cantidad */}
+            {/* Controles para modificar la cantidad del producto */}
             <Grid item xs={6} sm={4}>
                 <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                     <IconButton 
                         aria-label="reducir cantidad"
                         onClick={() => updateCartItemQuantity(item.producto_id, item.cantidad - 1)}
-                        disabled={item.cantidad <= 1} // Deshabilitamos si la cantidad es 1
+                        disabled={item.cantidad <= 1} // No se puede bajar de 1
                     >
                         <RemoveCircleOutline />
                     </IconButton>
@@ -55,7 +55,7 @@ const CartItem = ({ item }) => {
                 </Box>
             </Grid>
             
-            {/*Subtotal y Botón de Eliminar */}
+            {/* Subtotal y botón para eliminar el producto */}
             <Grid item xs={6} sm={3} sx={{ textAlign: 'right', display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: 1 }}>
                  <Typography variant="subtitle1" fontWeight="bold">
                     ${(item.subtotal || item.cantidad * item.precio_actual).toFixed(2)}

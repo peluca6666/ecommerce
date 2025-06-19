@@ -1,12 +1,10 @@
 import { pool } from '../database/connectionMySQL.js';
 
-// Constantes de configuración que ya tenías
+// Configuración básica para paginación y orden permitido
 const DEFAULT_PAGINATION = { LIMIT: 20, OFFSET: 0, ORDER: 'nombre_producto' };
 const ALLOWED_ORDERS = ['nombre_producto', 'precio', 'stock_actual', 'fecha_creacion'];
 
-/**
- * Obtiene todas las categorías. Puede filtrar por activas para el público general
- */
+// Devuelve todas las categorías, con opción de traer solo las activas (para público)
 export async function obtenerCategorias(soloActivos = false) {
     let query = 'SELECT categoria_id, nombre, imagen, activo FROM categoria';
     if (soloActivos) {
@@ -17,28 +15,22 @@ export async function obtenerCategorias(soloActivos = false) {
     return categorias;
 }
 
-/**
- * Obtiene TODAS las categorías sin filtro para el panel de admin
- */
+// Devuelve todas las categorías sin filtro, para admin
 export async function obtenerTodasCategoriasAdmin() {
   const [rows] = await pool.query('SELECT * FROM categoria ORDER BY categoria_id DESC');
   return rows;
 }
 
-/**
- * Obtiene una categoría específica por su id
- */
+// Trae una categoría específica por su id
 export async function obtenerCategoriaPorId(categoriaId) {
     const [rows] = await pool.query('SELECT * FROM categoria WHERE categoria_id = ?', [categoriaId]);
     return rows.length > 0 ? rows[0] : null;
 }
 
-/**
- * Crea una nueva categoría, manejando nombre, imagen opcional y estado activo
- */
+// Crea categoría con nombre obligatorio, imagen opcional y estado activo por defecto
 export async function crearCategoria(categoryData, file) {
   const { nombre, activo = true } = categoryData;
-   const imagenPath = file ? `/images/categorias/${file.filename}` : null;
+  const imagenPath = file ? `/images/categorias/${file.filename}` : null;
 
   if (!nombre || nombre.trim() === '') {
     const err = new Error('El nombre de la categoría es obligatorio');
@@ -46,9 +38,9 @@ export async function crearCategoria(categoryData, file) {
     throw err;
   }
   
-   try {
+  try {
     const sql = 'INSERT INTO categoria (nombre, imagen, activo) VALUES (?, ?, ?)';
-    // Usamos la nueva variable 'imagenPath'
+    // Inserta la categoría y luego busca el registro creado para devolverlo
     const [resultado] = await pool.query(sql, [nombre.trim(), imagenPath, true]);
     const [[nuevaCategoria]] = await pool.query('SELECT * FROM categoria WHERE categoria_id = ?', [resultado.insertId]);
     return nuevaCategoria;
@@ -62,9 +54,8 @@ export async function crearCategoria(categoryData, file) {
   }
 }
 
-/**
- * Actualiza una categoría existente, manejando nombre, estado e imagen opcional
- */
+// Actualiza categoría; puede cambiar nombre, activo e imagen (opcional)
+// Arma dinámicamente el SET de la consulta según los datos que recibe
 export async function actualizarCategoria(id, categoryData, file) {
   const { nombre, activo } = categoryData;
   const setClauses = [];
@@ -104,18 +95,14 @@ export async function actualizarCategoria(id, categoryData, file) {
   }
 }
 
-/**
- * Cambia el estado de una categoría
- */
+// Cambia el estado activo/inactivo de una categoría con un toggle simple
 export async function cambiarEstadoCategoria(categoriaId) {
   const query = 'UPDATE categoria SET activo = NOT activo WHERE categoria_id = ?';
   const [result] = await pool.query(query, [categoriaId]);
   return result.affectedRows > 0;
 }
 
-/**
- * Obtiene categorías con la cantidad de productos que tienen
- */
+// Devuelve categorías activas con la cantidad de productos que tienen
 export async function obtenerCategoriasConConteo() {
     const [rows] = await pool.query(`
       SELECT 
@@ -129,9 +116,7 @@ export async function obtenerCategoriasConConteo() {
     return rows;
 }
 
-/**
- * Obtiene los productos de una categoría con filtros y paginación
- */
+// Devuelve productos de una categoría con filtros (oferta, rango precio) y paginación
 export async function obtenerProductosPorCategoria(categoriaId, options = {}) {
     const {
       limit = DEFAULT_PAGINATION.LIMIT,
@@ -184,4 +169,3 @@ export async function obtenerProductosPorCategoria(categoriaId, options = {}) {
         paginacion: { total, limit: parseInt(limit), offset: parseInt(offset) }
     };
 }
-

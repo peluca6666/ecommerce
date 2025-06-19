@@ -1,44 +1,36 @@
 import { useState, useRef, useEffect } from 'react';
 import { Box, IconButton, Typography, useTheme } from "@mui/material";
-import { ChevronLeft, ChevronRight } from "@mui/icons-material"; // Usaremos estos iconos, son más estándar
+import { ChevronLeft, ChevronRight } from "@mui/icons-material";
 import CategoryCard from "./CategoryCard";
 
 const CategorySlider = ({ categoria }) => {
   const theme = useTheme();
   const sliderRef = useRef(null);
 
-  // Estados para controlar la visibilidad de las flechas 
+  // Estados para mostrar/ocultar flechas según posición scroll
   const [showLeftArrow, setShowLeftArrow] = useState(false);
   const [showRightArrow, setShowRightArrow] = useState(true);
 
-  // FUNCIÓN PARA VERIFICAR LA POSICIÓN DEL SCROLL Y MOSTRAR/OCULTAR FLECHAS 
   const checkArrows = () => {
     const container = sliderRef.current;
     if (!container) return;
 
-    // Mostrar flecha izquierda si no estamos al principio
     setShowLeftArrow(container.scrollLeft > 0);
 
-    // Mostrar flecha derecha si todavía hay contenido por ver a la derecha
     const maxScrollLeft = container.scrollWidth - container.clientWidth;
-    setShowRightArrow(container.scrollLeft < maxScrollLeft - 1); // -1 para precisión de píxeles
+    setShowRightArrow(container.scrollLeft < maxScrollLeft - 1);
   };
 
-  // Usamos useEffect para agregar y limpiar el listener del evento de scroll 
   useEffect(() => {
     const container = sliderRef.current;
     if (container) {
-      checkArrows(); // Verificamos el estado inicial
+      checkArrows();
       container.addEventListener('scroll', checkArrows);
     }
-
-    // Función de limpieza para evitar fugas de memoria
     return () => {
-      if (container) {
-        container.removeEventListener('scroll', checkArrows);
-      }
+      if (container) container.removeEventListener('scroll', checkArrows);
     };
-  }, [categoria]); // Se vuelve a ejecutar si las categorías cambian
+  }, [categoria]);
 
   const handleScroll = (scrollOffset) => {
     if (sliderRef.current) {
@@ -46,9 +38,7 @@ const CategorySlider = ({ categoria }) => {
     }
   };
 
-  if (!categoria || categoria.length === 0) {
-    return null; // Si no hay categorías, no renderizamos nada
-  }
+  if (!categoria || categoria.length === 0) return null;
 
   return (
     <Box sx={{ py: 4 }}>
@@ -57,8 +47,6 @@ const CategorySlider = ({ categoria }) => {
       </Typography>
 
       <Box sx={{ position: 'relative', width: '100%' }}>
-
-        {/* Contenido del carousel */}
         <Box
           ref={sliderRef}
           sx={{
@@ -68,7 +56,6 @@ const CategorySlider = ({ categoria }) => {
             scrollSnapType: 'x mandatory',
             py: 2,
             '&::-webkit-scrollbar': { display: 'none' },
-            // Gradientes en los extremos para un efecto "fade-out"
             maskImage: 'linear-gradient(to right, transparent, black 5%, black 95%, transparent)',
           }}
         >
@@ -79,7 +66,7 @@ const CategorySlider = ({ categoria }) => {
           ))}
         </Box>
 
-        {/* Botones de navegacion*/}
+        {/* Flecha izquierda */}
         <IconButton
           onClick={() => handleScroll(-300)}
           sx={{
@@ -90,7 +77,6 @@ const CategorySlider = ({ categoria }) => {
             zIndex: 2,
             bgcolor: 'rgba(255, 255, 255, 0.8)',
             border: `1px solid ${theme.palette.divider}`,
-            // Lógica de transición para fade-in/out
             opacity: showLeftArrow ? 1 : 0,
             pointerEvents: showLeftArrow ? 'auto' : 'none',
             transition: 'opacity 0.3s ease',
@@ -100,6 +86,7 @@ const CategorySlider = ({ categoria }) => {
           <ChevronLeft />
         </IconButton>
 
+        {/* Flecha derecha */}
         <IconButton
           onClick={() => handleScroll(300)}
           sx={{
@@ -110,7 +97,6 @@ const CategorySlider = ({ categoria }) => {
             zIndex: 2,
             bgcolor: 'rgba(255, 255, 255, 0.8)',
             border: `1px solid ${theme.palette.divider}`,
-            // Lógica de transición para fade-in/out
             opacity: showRightArrow ? 1 : 0,
             pointerEvents: showRightArrow ? 'auto' : 'none',
             transition: 'opacity 0.3s ease',
@@ -119,7 +105,6 @@ const CategorySlider = ({ categoria }) => {
         >
           <ChevronRight />
         </IconButton>
-
       </Box>
     </Box>
   );

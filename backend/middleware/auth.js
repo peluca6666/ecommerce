@@ -1,7 +1,7 @@
 import pkg from 'jsonwebtoken';
 const { verify } = pkg;
 
-// middleware para verificar el token JWT
+// Verifica si el token JWT está presente y es válido
 export const verifyToken = (req, res, next) => {
   const authHeader = req.headers['authorization'];
   if (!authHeader) {
@@ -12,7 +12,7 @@ export const verifyToken = (req, res, next) => {
   if (!token) {
     return res.status(401).json({ error: 'Token no válido' });
   }
-// Se verifica el token JWT
+
   try {
     const { usuario_id, rol } = verify(token, process.env.JWT_SECRET || 'claveSecreta');
     req.usuario = { id: usuario_id, rol };
@@ -23,7 +23,7 @@ export const verifyToken = (req, res, next) => {
   }
 };
 
-// middleware para proteger rutas que requieren autenticación 
+// Verifica que el usuario tenga el rol necesario para acceder a una ruta
 export const autorizarPorRol = (rolRequerido) => {
   return (req, res, next) => {
     if (!req.usuario) {
@@ -32,6 +32,6 @@ export const autorizarPorRol = (rolRequerido) => {
     if (req.usuario.rol !== rolRequerido) {
       return res.status(403).json({ error: 'Acceso denegado: rol no autorizado' });
     }
-    next(); 
+    next();
   };
 };

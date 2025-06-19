@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Container, Paper, Typography, Box, Button,} from "@mui/material";
+import { Container, Paper, Typography, Box, Button } from "@mui/material";
 import Header from "../../components/Header/Header";
 import MainBanner from "../../components/Banner/MainBanner";
 import CategorySlider from "../../components/Category/CategorySlider";
@@ -20,7 +20,7 @@ const MainPage = () => {
 
   const { cart = { count: 0 }, loading: authLoading = true } = useAuth() || {};
 
-  // Función para obtener productos de la API
+  // Trae todos los productos
   const fetchProducto = async () => {
     try {
       const response = await fetch('http://localhost:3000/api/producto');
@@ -28,7 +28,7 @@ const MainPage = () => {
         throw new Error(`Error HTTP: ${response.status}`);
       }
       const data = await response.json();
-      // Devolvemos solo el arreglo de productos, igual que en las otras funciones
+      // Si la respuesta está bien, devolvemos productos, sino un arreglo vacío
       return data.exito && Array.isArray(data.datos) ? data.datos : [];
     } catch (error) {
       console.error('Error al obtener productos:', error);
@@ -36,41 +36,36 @@ const MainPage = () => {
     }
   };
 
-  // Función para obtener categorías de la API
+  // Trae las categorías disponibles
   const fetchCategoria = async () => {
     try {
       const response = await fetch('http://localhost:3000/api/categoria');
-
       if (!response.ok) {
         throw new Error(`Error HTTP: ${response.status}`);
       }
-
       const data = await response.json();
 
-      // Verificamos que la respuesta sea exitosa y que contenga la propiedad 'datos'
+      // Validamos el formato esperado
       if (data.exito && Array.isArray(data.datos)) {
-        return data.datos; // Devolvemos el arreglo que está en 'datos'
+        return data.datos;
       } else {
-        // Si la respuesta no tiene el formato esperado, devolvemos un arreglo vacío
-        console.warn("La respuesta de la API de categorías no tiene el formato esperado:", data);
+        console.warn("Respuesta inesperada de categorías:", data);
         return [];
       }
     } catch (error) {
       console.error('Error al obtener categorías:', error);
-      throw error; // El error será manejado por la función loadData
+      throw error;
     }
   };
 
-  // Función para obtener ofertas de la API
+  // Trae productos que están en oferta
   const fetchOfertas = async () => {
     try {
       const response = await fetch('http://localhost:3000/api/producto/ofertas');
       if (!response.ok) {
         throw new Error(`Error HTTP: ${response.status}`);
       }
-      
-      const data = await response.json(
-      );
+      const data = await response.json();
 
       return data.exito && Array.isArray(data.datos) ? data.datos : [];
     } catch (error) {
@@ -79,12 +74,12 @@ const MainPage = () => {
     }
   };
 
-  // Cargar datos al montar el componente
+  // Carga datos al montar el componente
   useEffect(() => {
     const loadData = async () => {
       try {
         setState(prev => ({ ...prev, loading: true, error: null }));
-        // Cargar productos y categorias en paralelo
+        // Cargamos todo en paralelo para mejorar tiempos
         const [productoData, categoriaData, ofertasData] = await Promise.all([
           fetchProducto(),
           fetchCategoria(),
@@ -98,9 +93,7 @@ const MainPage = () => {
           ofertas: ofertasData,
           loading: false
         }));
-
       } catch (error) {
-
         setState(prev => ({
           ...prev,
           loading: false,
@@ -112,10 +105,10 @@ const MainPage = () => {
     loadData();
   }, []);
 
-  // Mostrar spinner mientras carga
+  // Mientras carga, mostramos un spinner
   if (state.loading || authLoading) return <LoadingSpinner />;
 
-  // Mostrar error si hubo problemas
+  // Si hay error, mostramos mensaje
   if (state.error) {
     return (
       <Container maxWidth="lg">
@@ -133,9 +126,7 @@ const MainPage = () => {
 
   return (
     <Box sx={{ background: 'linear-gradient(to bottom, #ffffff, #f0f0f0)', minHeight: '100vh' }}>
-      <Header
-        categoria={state.categoria}
-      />
+      <Header categoria={state.categoria} />
       <Container maxWidth="lg">
         <MainBanner />
         <CategorySlider categoria={state.categoria} />
@@ -143,19 +134,17 @@ const MainPage = () => {
           <Typography variant="h5" align="center" gutterBottom>
             OFERTAS IMPERDIBLES
           </Typography>
-  <ProductGrid
-    productos={state.ofertas}
-  />
-  <Box sx={{ mt: 4, textAlign: 'center' }}>
-    <Button 
-      component={Link} 
-      to="/productos?es_oferta=true" 
-      variant="contained"
-      color="primary"
-    >
-      Ver Todas las Ofertas
-    </Button>
-  </Box>
+          <ProductGrid productos={state.ofertas} />
+          <Box sx={{ mt: 4, textAlign: 'center' }}>
+            <Button
+              component={Link}
+              to="/productos?es_oferta=true"
+              variant="contained"
+              color="primary"
+            >
+              Ver Todas las Ofertas
+            </Button>
+          </Box>
         </Paper>
       </Container>
       <Footer />

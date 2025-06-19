@@ -6,7 +6,7 @@ import Header from '../../components/Header/Header';
 import Footer from '../../components/Footer/Footer';
 
 const CartPage = () => {
-    // Obtenemos el estado completo del carrito desde nuestro contexto global
+    // Traemos el carrito desde el contexto (productos y total)
     const { cart } = useAuth() || { cart: { productos: [], total: 0 } };
 
     return (
@@ -17,7 +17,7 @@ const CartPage = () => {
                     Tu Carrito de Compras
                 </Typography>
                 <Grid container spacing={4}>
-                    {/*Lista de Productos */}
+                    {/* Lista de productos */}
                     <Grid item xs={12} md={8}>
                         <Paper elevation={2} sx={{ p: 3 }}>
                             {cart.productos.length === 0 ? (
@@ -30,7 +30,7 @@ const CartPage = () => {
                         </Paper>
                     </Grid>
 
-                    {/* Columna Derecha: Resumen de la Orden */}
+                    {/* Resumen del pedido */}
                     <Grid item xs={12} md={4}>
                         <Paper elevation={2} sx={{ p: 3 }}>
                             <Typography variant="h6" gutterBottom>Resumen de tu compra</Typography>
@@ -48,7 +48,6 @@ const CartPage = () => {
                                 <Typography variant="h6">Total</Typography>
                                 <Typography variant="h6" fontWeight="bold">${cart.total.toFixed(2)}</Typography>
                             </Box>
-                            // ...
                             <Button 
                                 variant="contained" 
                                 fullWidth 

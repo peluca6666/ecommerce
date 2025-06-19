@@ -1,6 +1,6 @@
 import * as ventaService from '../services/ventaService.js';
 
-// Controlador para crear una nueva venta
+// Crea una nueva venta a partir del carrito del usuario
 export const crearVenta = async (req, res) => {
   try {
     const usuarioId = req.usuario.id;
@@ -19,71 +19,70 @@ export const crearVenta = async (req, res) => {
   }
 };
 
-// Controlador para obtener el historial de compras de un usuario
+// Devuelve el historial de compras del usuario logueado
 export const obtenerHistorialCompras = async (req, res) => {
-    try {
-      const usuarioId = req.usuario.id;
-      const historial = await ventaService.obtenerHistorialDeVentas(usuarioId);
-      res.status(200).json({ exito: true, datos: historial });
-    } catch (error) {
-      console.error('Error en el controlador al obtener el historial:', error);
-      res.status(500).json({ exito: false, mensaje: 'Error interno del servidor al obtener el historial de compras' });
-    }
+  try {
+    const usuarioId = req.usuario.id;
+    const historial = await ventaService.obtenerHistorialDeVentas(usuarioId);
+    res.status(200).json({ exito: true, datos: historial });
+  } catch (error) {
+    console.error('Error en el controlador al obtener el historial:', error);
+    res.status(500).json({ exito: false, mensaje: 'Error interno del servidor al obtener el historial de compras' });
+  }
 };
 
-
- // Controlador para que un administrador liste todas las ventas del sistema
+// Devuelve todas las ventas del sistema (admin)
 export const listarTodasLasVentas = async (req, res) => {
-    try {
-      const ventas = await ventaService.obtenerTodasLasVentas();
-      res.status(200).json({ exito: true, datos: ventas });
-    } catch (error) {
-      console.error('Error en el controlador al listar ventas:', error);
-      res.status(500).json({ exito: false, mensaje: 'Error interno del servidor al obtener todas las ventas' });
-    }
+  try {
+    const ventas = await ventaService.obtenerTodasLasVentas();
+    res.status(200).json({ exito: true, datos: ventas });
+  } catch (error) {
+    console.error('Error en el controlador al listar ventas:', error);
+    res.status(500).json({ exito: false, mensaje: 'Error interno del servidor al obtener todas las ventas' });
+  }
 };
 
-// Controlador para que un administrador obtenga el detalle de cualquier venta
+// Devuelve el detalle completo de una venta (admin)
 export const obtenerDetalleVenta = async (req, res) => {
-    try {
-      const { id } = req.params;
-      const detalle = await ventaService.obtenerDetalleDeVentaParaAdmin(parseInt(id));
-      
-      if (!detalle) {
-        return res.status(404).json({ exito: false, mensaje: 'Venta no encontrada' });
-      }
-      
-      res.status(200).json({ exito: true, datos: detalle });
-    } catch (error) {
-      console.error('Error en el controlador al obtener detalle de venta (admin):', error);
-      res.status(500).json({ exito: false, mensaje: 'Error interno del servidor' });
+  try {
+    const { id } = req.params;
+    const detalle = await ventaService.obtenerDetalleDeVentaParaAdmin(parseInt(id));
+    
+    if (!detalle) {
+      return res.status(404).json({ exito: false, mensaje: 'Venta no encontrada' });
     }
+    
+    res.status(200).json({ exito: true, datos: detalle });
+  } catch (error) {
+    console.error('Error en el controlador al obtener detalle de venta (admin):', error);
+    res.status(500).json({ exito: false, mensaje: 'Error interno del servidor' });
+  }
 };
 
-// Controlador para que un usuario obtenga el detalle de sus propias compras
+// Devuelve el detalle de una venta pero solo si le pertenece al usuario
 export const obtenerDetalleVentaUsuario = async (req, res) => {
-    try {
-        const usuarioId = req.usuario.id;
-        const { id: ventaId } = req.params;
-        
-        const venta = await ventaService.obtenerDetalleDeVentaParaCliente(parseInt(ventaId), usuarioId);
-        
-        if (!venta) {
-            return res.status(404).json({ exito: false, mensaje: 'Orden no encontrada o no te pertenece' });
-        }
-        
-        res.status(200).json({ exito: true, datos: venta });
+  try {
+    const usuarioId = req.usuario.id;
+    const { id: ventaId } = req.params;
 
-    } catch (error) {
-        console.error("Error al obtener detalle de venta para usuario:", error);
-        res.status(500).json({ exito: false, mensaje: 'Error interno del servidor' });
+    const venta = await ventaService.obtenerDetalleDeVentaParaCliente(parseInt(ventaId), usuarioId);
+
+    if (!venta) {
+      return res.status(404).json({ exito: false, mensaje: 'Orden no encontrada o no te pertenece' });
     }
+
+    res.status(200).json({ exito: true, datos: venta });
+  } catch (error) {
+    console.error("Error al obtener detalle de venta para usuario:", error);
+    res.status(500).json({ exito: false, mensaje: 'Error interno del servidor' });
+  }
 };
 
+// Actualiza el estado de una venta (admin)
 export async function actualizarEstadoVenta(req, res) {
   try {
     const { id } = req.params;
-    const { estado } = req.body; // Sacamos el nuevo estado del cuerpo de la petición
+    const { estado } = req.body;
 
     if (!estado) {
       return res.status(400).json({ exito: false, mensaje: 'El nuevo estado es requerido' });
@@ -99,9 +98,10 @@ export async function actualizarEstadoVenta(req, res) {
   }
 }
 
+// Muestra las ventas realizadas por un usuario específico (admin)
 export async function obtenerVentasPorUsuarioAdmin(req, res) {
   try {
-    const { id } = req.params; // Sacamos el ID del usuario de la URL
+    const { id } = req.params;
     const ventas = await ventaService.obtenerVentasDeUsuarioPorAdmin(id);
     res.json({ exito: true, datos: ventas });
   } catch (error) {

@@ -46,6 +46,7 @@ const RegistroForm = ({ formulario, errores, isLoading, onChange, onSubmit, mens
           Crear cuenta
         </Typography>
 
+        {/* Campos de nombre y apellido juntos */}
         <Box sx={{ display: 'flex', gap: 2 }}>
           <TextField
             fullWidth
@@ -72,6 +73,7 @@ const RegistroForm = ({ formulario, errores, isLoading, onChange, onSubmit, mens
           />
         </Box>
 
+        {/* Email */}
         <TextField
           fullWidth
           label="Email"
@@ -84,6 +86,7 @@ const RegistroForm = ({ formulario, errores, isLoading, onChange, onSubmit, mens
           size="small"
         />
 
+        {/* Contraseña */}
         <TextField
           fullWidth
           label="Contraseña"
@@ -97,6 +100,7 @@ const RegistroForm = ({ formulario, errores, isLoading, onChange, onSubmit, mens
           size="small"
         />
 
+        {/* Confirmar contraseña */}
         <TextField
           fullWidth
           label="Confirmar contraseña"
@@ -110,6 +114,7 @@ const RegistroForm = ({ formulario, errores, isLoading, onChange, onSubmit, mens
           size="small"
         />
 
+        {/* Mensajes de error general y éxito */}
         {errores.general && (
           <Typography color="error" variant="body2" align="center">
             {errores.general}
@@ -122,6 +127,7 @@ const RegistroForm = ({ formulario, errores, isLoading, onChange, onSubmit, mens
           </Typography>
         )}
 
+        {/* Botón de envío */}
         <Button
           fullWidth
           variant="contained"
@@ -135,6 +141,7 @@ const RegistroForm = ({ formulario, errores, isLoading, onChange, onSubmit, mens
 
         <Divider sx={{ my: 2 }} />
 
+        {/* Link para ir al login */}
         <Typography variant="body2" align="center">
           ¿Ya tenés una cuenta?{' '}
           <Link 

@@ -16,14 +16,13 @@ const NavMenu = ({ mobile = false, onItemClick }) => {
             color="inherit"
             component={RouterLink}
             to={link.ruta}
-            onClick={onItemClick} // Esto cierra el menú móvil al hacer clic
+            onClick={onItemClick} // Para cerrar el menú en móvil cuando clickean
         >
             {link.texto}
         </Button>
     ));
 
-    //Logica para mostrar el menú de navegación
-    // Si es móvil, mostramos los botones en una columna
+    // Si es móvil, mostramos los botones en columna con estilo adaptado
     if (mobile) {
         return (
             <Box sx={{
@@ -47,7 +46,7 @@ const NavMenu = ({ mobile = false, onItemClick }) => {
         );
     }
     
-    // Versión de escritorio
+    // Menú para escritorio, en fila
     return (
         <Box sx={{ display: 'flex', gap: 2 }}>
             {navButtons}
