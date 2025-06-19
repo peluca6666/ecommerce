@@ -1,5 +1,26 @@
 import { pool } from '../database/connectionMySQL.js';
 
+// Función auxiliar para convertir ruta absoluta a relativa
+function convertToRelativePath(fullPath) {
+  if (!fullPath) return null;
+  
+  // Si ya es una ruta relativa, la devolvemos tal como está
+  if (fullPath.startsWith('/images/')) return fullPath;
+  
+  // Convertir ruta absoluta a relativa
+  const publicIndex = fullPath.indexOf('public');
+  if (publicIndex !== -1) {
+    return '/' + fullPath.substring(publicIndex + 7).replace(/\\/g, '/');
+  }
+  
+  // Fallback: si contiene la estructura esperada
+  if (fullPath.includes('images/productos')) {
+    const imagePath = fullPath.substring(fullPath.indexOf('images/productos')).replace(/\\/g, '/');
+    return '/' + imagePath;
+  }
+  
+  return fullPath.replace(/\\/g, '/');
+}
 
 /**
  * Lista de productos con filtros y paginación para el panel de admin
@@ -60,7 +81,7 @@ export async function getAllProducts(options = {}) {
         nombre_asc: 'ORDER BY p.nombre_producto ASC',
         nombre_desc: 'ORDER BY p.nombre_producto DESC'
     };
-    query += ` ${validSorts[sortBy] || 'ORDER BY p.producto_id DESC'}`; // Ordenamiento por id descendente por defecto
+    query += ` ${validSorts[sortBy] || 'ORDER BY p.producto_id DESC'}`;
     
     query += ` LIMIT ? OFFSET ?`;
     params.push(parseInt(limite), offset);
@@ -100,11 +121,11 @@ export async function createProduct(productData, files) {
       throw err;
   }
 
-  // Obtenemos la ruta de la imagen principal 
-  //files.imagen es un array, por eso tomamos el primer elemento [0]
-const imagenPath = files && files.imagen ? files.imagen[0].path.replace(/\\/g, '/') : null;
-const imagenesPaths = files && files.imagenes ? files.imagenes.map(file => file.path.replace(/\\/g, '/')) : [];
-const imagenesJson = JSON.stringify(imagenesPaths);
+  // CORREGIDO: Convertir a rutas relativas
+  const imagenPath = files && files.imagen ? convertToRelativePath(files.imagen[0].path) : null;
+  const imagenesPaths = files && files.imagenes ? 
+    files.imagenes.map(file => convertToRelativePath(file.path)) : [];
+  const imagenesJson = JSON.stringify(imagenesPaths);
 
   const precioFinal = parseFloat(precio);
   const precioAnteriorFinal = precio_anterior ? parseFloat(precio_anterior) : null;
@@ -123,8 +144,8 @@ const imagenesJson = JSON.stringify(imagenesPaths);
       precioFinal,
       precioAnteriorFinal,
       categoria_id || null,
-      imagenPath,     // La ruta de la imagen principal
-      imagenesJson,   // El array de rutas de las secundarias
+      imagenPath,
+      imagenesJson,
       parseInt(stock_actual),
       true,
       esOfertaFinal, 
@@ -147,7 +168,6 @@ const imagenesJson = JSON.stringify(imagenesPaths);
  * @returns {Promise<object>} - El producto actualizado
  */
 export async function updateProduct(id, productData, files) {
-  // Desestructuramos los posibles campos de texto que pueden venir
   const { 
     nombre_producto, 
     descripcion, 
@@ -160,7 +180,6 @@ export async function updateProduct(id, productData, files) {
   const setClauses = [];
   const params = [];
 
-  //Armado dinámico de la consulta
   if (nombre_producto) { setClauses.push('nombre_producto = ?'); params.push(nombre_producto); }
   if (descripcion) { setClauses.push('descripcion = ?'); params.push(descripcion); }
   if (precio) { setClauses.push('precio = ?'); params.push(parseFloat(precio)); }
@@ -168,21 +187,19 @@ export async function updateProduct(id, productData, files) {
   if (categoria_id) { setClauses.push('categoria_id = ?'); params.push(parseInt(categoria_id)); }
   if (stock_actual) { setClauses.push('stock_actual = ?'); params.push(parseInt(stock_actual)); }
 
-  // Lógica para la imagen principal
+  // CORREGIDO: Usar rutas relativas para las imágenes
   if (files && files.imagen && files.imagen[0]) {
-    const imagenPath = files.imagen[0].path.replace(/\\/g, '/');
+    const imagenPath = convertToRelativePath(files.imagen[0].path);
     setClauses.push('imagen = ?');
     params.push(imagenPath);
   }
 
-  // Lógica para las imágenes secundarias
   if (files && files.imagenes && files.imagenes.length > 0) {
-    const imagenesPaths = files.imagenes.map(file => file.path.replace(/\\/g, '/'));
+    const imagenesPaths = files.imagenes.map(file => convertToRelativePath(file.path));
     setClauses.push('imagenes = ?');
     params.push(JSON.stringify(imagenesPaths));
   }
   
-  // Lógica para recalcular si es oferta, solo si se cambia algún precio
   if (precio || precio_anterior) {
     const precioFinal = precio ? parseFloat(precio) : (await obtenerProductoPorId(id)).precio;
     const precioAnteriorFinal = precio_anterior ? parseFloat(precio_anterior) : (await obtenerProductoPorId(id)).precio_anterior;
@@ -201,7 +218,6 @@ export async function updateProduct(id, productData, files) {
   const [result] = await pool.query(query, params);
   if (result.affectedRows === 0) return null;
 
-  // Devolvemos el producto actualizado con el join para tener toda la data
   const [[productoActualizado]] = await pool.query(
     'SELECT p.*, c.nombre AS nombre_categoria FROM producto p LEFT JOIN categoria c ON p.categoria_id = c.categoria_id WHERE p.producto_id = ?', 
     [id]
@@ -225,7 +241,6 @@ export async function deleteProduct(productoId) {
         }
         return true;
     } catch (error) {
-
         throw error;
     }
 }
@@ -267,6 +282,5 @@ export async function toggleProductStatus(productoId) {
   const query = 'UPDATE producto SET activo = NOT activo WHERE producto_id = ?';
   const [result] = await pool.query(query, [productoId]);
   
-  //nos dice si alguna fila fue afectada. Si es 0, el producto no existía
   return result.affectedRows > 0;
 }

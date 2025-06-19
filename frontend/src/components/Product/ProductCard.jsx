@@ -5,6 +5,13 @@ import { useAuth } from '../../context/AuthContext';
 const ProductCard = ({ producto }) => {
     const { addToCart } = useAuth();
 
+    // Construir la URL completa de la imagen
+    const BASE_URL = 'http://localhost:3000'; // Es mejor guardar esto en una variable de entorno (.env)
+    
+    const imageUrl = producto.imagen 
+        ? `${BASE_URL}${producto.imagen}` 
+        : 'https://via.placeholder.com/200';
+
     return (
         <Card sx={{ 
             height: '100%', 
@@ -16,10 +23,11 @@ const ProductCard = ({ producto }) => {
                 boxShadow: 6,
             }
         }}>
-            <CardMedia
+             <CardMedia
                 component="img"
                 height="200"
-                image={producto.imagen || 'https://via.placeholder.com/200'}
+                // Usa la nueva variable 'imageUrl'
+                image={imageUrl}
                 alt={producto.nombre_producto}
                 sx={{ objectFit: 'cover' }}
             />

@@ -5,7 +5,7 @@ import dotenv from 'dotenv';
 import routes from '../routes/routes.js';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
-
+import path from 'path';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -38,8 +38,12 @@ const corsOptions = {
 };
 app.use(cors(corsOptions));
 
-//ruta para servir archivos estaticos 
-app.use('/public', express.static('public'));
+// CORREGIDO: Configuración de archivos estáticos
+// Servir archivos desde la carpeta public
+app.use(express.static(path.join(__dirname, '../public'))); 
+
+// Ruta específica para imágenes (redundante pero asegura el acceso)
+app.use('/images', express.static(path.join(__dirname, '../public/images')));
 
 //rutas de la api
 app.use('/api', routes);
