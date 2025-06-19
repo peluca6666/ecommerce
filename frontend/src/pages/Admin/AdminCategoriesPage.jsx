@@ -130,9 +130,15 @@ const fetchCategories = async () => {
       field: 'imagen',
       headerName: 'Imagen',
       width: 100,
-      renderCell: (params) => (
-        params.value ? <img src={`http://localhost:3000/${params.value}`} alt={params.row.nombre} style={{ width: 50, height: 50, objectFit: 'cover' }} /> : 'Sin imagen'
-      )
+      renderCell: (params) => {
+         const BASE_URL = 'http://localhost:3000';
+        const imageUrl = params.value ? `${BASE_URL}${params.value}` : null;
+       return (
+          imageUrl
+            ? <img src={imageUrl} alt={params.row.nombre} style={{ width: 50, height: 50, objectFit: 'cover' }} />
+            : 'Sin imagen'
+        );
+      }
     },
     { field: 'nombre', headerName: 'Nombre', width: 300 },
     { 

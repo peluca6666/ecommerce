@@ -2,23 +2,21 @@ import { Card, CardActionArea, CardMedia, CardContent, Typography } from '@mui/m
 import { Link } from 'react-router-dom'; // Importamos Link
 
 const CategoryCard = ({ categoria }) => {
-  return (
-    //Envolvemos todo en un componente Link que no tiene decoración de texto
+   const BASE_URL = 'http://localhost:3000';
+
+    const imageUrl = categoria.imagen 
+    ? `${BASE_URL}${categoria.imagen}`
+    : 'https://via.placeholder.com/200x140';
+
+   return (
     <Link to={`/categoria/${categoria.categoria_id}/productos`} style={{ textDecoration: 'none' }}>
-      <Card sx={{ 
-        width: 200, 
-        textAlign: 'center',
-        transition: 'transform 0.2s, box-shadow 0.2s',
-        '&:hover': {
-            transform: 'translateY(-5px)',
-            boxShadow: 6,
-        }
-      }}>
+      <Card sx={{ /* ...tus estilos */ }}>
         <CardActionArea>
           <CardMedia
             component="img"
             height="140"
-            image={categoria.imagen || 'https://via.placeholder.com/200x140'}
+            // 3. USA LA NUEVA VARIABLE 'imageUrl'
+            image={imageUrl}
             alt={categoria.nombre}
           />
           <CardContent>

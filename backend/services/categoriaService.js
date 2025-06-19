@@ -38,7 +38,7 @@ export async function obtenerCategoriaPorId(categoriaId) {
  */
 export async function crearCategoria(categoryData, file) {
   const { nombre, activo = true } = categoryData;
-  const imagen = file ? file.path : null;
+   const imagenPath = file ? `/images/categorias/${file.filename}` : null;
 
   if (!nombre || nombre.trim() === '') {
     const err = new Error('El nombre de la categoría es obligatorio');
@@ -46,9 +46,10 @@ export async function crearCategoria(categoryData, file) {
     throw err;
   }
   
-  try {
+   try {
     const sql = 'INSERT INTO categoria (nombre, imagen, activo) VALUES (?, ?, ?)';
-    const [resultado] = await pool.query(sql, [nombre.trim(), imagen, activo]);
+    // Usamos la nueva variable 'imagenPath'
+    const [resultado] = await pool.query(sql, [nombre.trim(), imagenPath, true]);
     const [[nuevaCategoria]] = await pool.query('SELECT * FROM categoria WHERE categoria_id = ?', [resultado.insertId]);
     return nuevaCategoria;
   } catch (error) {
@@ -79,7 +80,7 @@ export async function actualizarCategoria(id, categoryData, file) {
   }
   if (file) {
     setClauses.push('imagen = ?');
-    params.push(file.path.replace(/\\/g, '/'));
+    params.push(`/images/categorias/${file.filename}`);
   }
 
   if (setClauses.length === 0) {

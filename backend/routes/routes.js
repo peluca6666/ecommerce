@@ -18,6 +18,7 @@ import { obtenerCarrito, agregarProductoAlCarrito, actualizarProductoEnCarrito, 
 import { crearVenta, obtenerHistorialCompras, listarTodasLasVentas, obtenerDetalleVenta, obtenerDetalleVentaUsuario, actualizarEstadoVenta, obtenerVentasPorUsuarioAdmin } from '../controllers/ventaController.js';
 import { manejarFormularioContacto } from '../controllers/contactoController.js';
 import { upload } from '../middleware/upload.js';
+import { uploadCategoria } from '../middleware/uploadCategoria.js';
 
 const router = express.Router();
 
@@ -66,8 +67,8 @@ router.get('/admin', verifyToken, autorizarPorRol('admin'), (req, res) => {
   res.json({ mensaje: 'Acceso a panel de administrador' });});
 router.get('/categoria/:id', verifyToken, autorizarPorRol('admin'), obtenerCategoriaPorId);
 router.get('/categoria/conteo', verifyToken, autorizarPorRol('admin'), obtenerCategoriasConConteo);
-router.post('/categoria', verifyToken, autorizarPorRol('admin'), crearCategoria);
-router.put('/categoria/:id', verifyToken, autorizarPorRol('admin'), actualizarCategoria);
+router.post('/admin/categorias', verifyToken, autorizarPorRol('admin'), uploadCategoria.single('imagen'), crearCategoria);
+router.put('/admin/categorias/:id', verifyToken, autorizarPorRol('admin'), uploadCategoria.single('imagen'), actualizarCategoria);
 router.put('/admin/categorias/:id/toggle-activo', verifyToken, autorizarPorRol('admin'), cambiarEstadoCategoria);
 router.get('/admin/ventas', verifyToken, autorizarPorRol('admin'), listarTodasLasVentas);
 router.get('/admin/ventas/:id', verifyToken, autorizarPorRol('admin'), obtenerDetalleVenta);
