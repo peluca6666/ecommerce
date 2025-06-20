@@ -2,9 +2,6 @@ import { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Container, Grid, Paper, Typography, Box, Pagination } from '@mui/material';
 import axios from 'axios';
-
-import Header from '../../components/Header/Header';
-import Footer from '../../components/Footer/Footer';
 import ProductGrid from '../../components/Product/ProductGrid';
 import LoadingSpinner from '../../components/common/LoadingSpinner';
 import ProductFilters from '../../components/Product/ProductFilters';
@@ -109,7 +106,6 @@ const ProductListPage = () => {
 
     return (
         <Box>
-            <Header />
             <Container maxWidth="lg" sx={{ my: 4 }}>
                 <Typography variant="h4" component="h1" gutterBottom fontWeight="bold">
                     Nuestro Catálogo
@@ -138,7 +134,6 @@ const ProductListPage = () => {
                     </Grid>
                 </Grid>
             </Container>
-            <Footer />
         </Box>
     );
 };

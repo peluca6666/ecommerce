@@ -3,8 +3,6 @@ import { Container, Box, Typography, Paper, TextField, Button, Grid, List, ListI
 import { Send as SendIcon, EmailOutlined as EmailIcon, PhoneOutlined as PhoneIcon, LocationOnOutlined as LocationIcon, AccountCircle, AlternateEmail } from '@mui/icons-material';
 import { useAuth } from '../../context/AuthContext';
 import axios from 'axios';
-import Header from '../../components/Header/Header';
-import Footer from '../../components/Footer/Footer';
 
 const ContactoPage = () => {
     const { showNotification } = useAuth();
@@ -40,7 +38,6 @@ const ContactoPage = () => {
 
     return (
         <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', bgcolor: 'grey.50' }}>
-            <Header />
             <Container component="main" maxWidth="lg" sx={{ my: { xs: 2, md: 6 } }}>
                 <Paper elevation={6} sx={{ p: { xs: 2, md: 5 }, borderRadius: '16px' }}>
                     <Box sx={{ mb: 5, textAlign: 'center' }}>
@@ -151,7 +148,6 @@ const ContactoPage = () => {
                     </Grid>
                 </Paper>
             </Container>
-            <Footer />
         </Box>
     );
 };

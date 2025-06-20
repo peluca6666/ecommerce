@@ -3,8 +3,6 @@ import { useState, useEffect } from 'react';
 import { Container, Typography, Paper, Box } from '@mui/material';
 import ProductGrid from '../../components/Product/ProductGrid';
 import LoadingSpinner from '../../components/common/LoadingSpinner';
-import Header from '../../components/Header/Header';
-import Footer from '../../components/Footer/Footer';
 
 const CategoryPage = () => {
   const { id } = useParams(); 
@@ -45,7 +43,6 @@ const CategoryPage = () => {
 
   return (
     <>
-      <Header />
       <Container maxWidth="lg" sx={{ my: 4 }}>
         {error ? (
           <Paper elevation={1} sx={{ p: 3, textAlign: 'center' }}>
@@ -67,7 +64,6 @@ const CategoryPage = () => {
           </>
         )}
       </Container>
-      <Footer />
     </>
   );
 };

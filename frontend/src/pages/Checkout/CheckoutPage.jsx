@@ -3,8 +3,6 @@ import { useNavigate, Link as RouterLink } from 'react-router-dom';
 import { Container, Grid, Paper, Typography, Box, Button, Divider, RadioGroup, FormControlLabel, Radio, List, ListItem, ListItemText } from '@mui/material';
 import { useAuth } from '../../context/AuthContext';
 import axios from 'axios';
-import Header from '../../components/Header/Header';
-import Footer from '../../components/Footer/Footer';
 
 const CheckoutPage = () => {
     const navigate = useNavigate();
@@ -70,7 +68,6 @@ const CheckoutPage = () => {
 
     return (
         <Box sx={{ bgcolor: 'grey.100', minHeight: '100vh' }}>
-            <Header />
             <Container maxWidth="lg" sx={{ my: 4 }}>
                 <Typography variant="h4" component="h1" gutterBottom fontWeight="bold">
                     Finalizar Compra
@@ -128,7 +125,6 @@ const CheckoutPage = () => {
                     </Grid>
                 </Grid>
             </Container>
-            <Footer />
         </Box>
     );
 };

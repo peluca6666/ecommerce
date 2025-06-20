@@ -1,10 +1,8 @@
 import { useState, useEffect } from "react";
 import { Container, Paper, Typography, Box, Button } from "@mui/material";
-import Header from "../../components/Header/Header";
 import MainBanner from "../../components/Banner/MainBanner";
 import CategorySlider from "../../components/Category/CategorySlider";
 import ProductGrid from "../../components/Product/ProductGrid";
-import Footer from "../../components/Footer/Footer";
 import LoadingSpinner from "../../components/common/LoadingSpinner";
 import { useAuth } from "../../context/AuthContext";
 import { Link } from "react-router-dom";
@@ -126,7 +124,6 @@ const MainPage = () => {
 
   return (
     <Box sx={{ background: 'linear-gradient(to bottom, #ffffff, #f0f0f0)', minHeight: '100vh' }}>
-      <Header categoria={state.categoria} />
       <Container maxWidth="lg">
         <MainBanner />
         <CategorySlider categoria={state.categoria} />
@@ -147,7 +144,6 @@ const MainPage = () => {
           </Box>
         </Paper>
       </Container>
-      <Footer />
     </Box>
   );
 }

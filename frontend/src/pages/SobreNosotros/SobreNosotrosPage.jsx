@@ -1,7 +1,5 @@
 import { Container, Box, Typography, Paper, Grid, Avatar, Button } from '@mui/material';
 import { Link as RouterLink } from 'react-router-dom';
-import Header from '../../components/Header/Header';
-import Footer from '../../components/Footer/Footer';
 
 // Iconos para la sección de valores
 import VerifiedUserOutlinedIcon from '@mui/icons-material/VerifiedUserOutlined';
@@ -29,7 +27,6 @@ const SobreNosotrosPage = () => {
 
     return (
         <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
-            <Header />
 
             {/* Contenido principal*/}
             <Container component="main" maxWidth="lg" sx={{ flexGrow: 1, py: { xs: 4, md: 6 } }}>
@@ -90,10 +87,7 @@ const SobreNosotrosPage = () => {
                         Ver Nuestro Catálogo
                     </Button>
                 </Box>
-
             </Container>
-
-            <Footer />
         </Box>
     );
 };

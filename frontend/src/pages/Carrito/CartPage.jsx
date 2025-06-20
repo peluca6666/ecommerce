@@ -2,16 +2,13 @@ import { Container, Grid, Paper, Typography, Box, Button, Divider } from '@mui/m
 import { Link as RouterLink } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import CartItem from '../../components/Cart/CartItem';
-import Header from '../../components/Header/Header';
-import Footer from '../../components/Footer/Footer';
 
 const CartPage = () => {
     // Traemos el carrito desde el contexto (productos y total)
     const { cart } = useAuth() || { cart: { productos: [], total: 0 } };
 
     return (
-        <Box sx={{ bgcolor: 'grey.100', minHeight: '100vh' }}>
-            <Header />
+        <Box sx={{ bgcolor: 'grey.100', minHeight: '100vh' }}>       
             <Container maxWidth="lg" sx={{ my: 4 }}>
                 <Typography variant="h4" component="h1" gutterBottom fontWeight="bold">
                     Tu Carrito de Compras
@@ -63,7 +60,6 @@ const CartPage = () => {
                     </Grid>
                 </Grid>
             </Container>
-            <Footer />
         </Box>
     );
 };

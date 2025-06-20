@@ -3,8 +3,6 @@ import { Container, Box, Typography, Paper, Tabs, Tab, TextField, Button, Grid, 
 import { PersonOutline, LockOutlined, ReceiptOutlined } from '@mui/icons-material';
 import { useAuth } from '../../context/AuthContext';
 import axios from 'axios';
-import Header from '../../components/Header/Header';
-import Footer from '../../components/Footer/Footer';
 import LoadingSpinner from '../../components/common/LoadingSpinner';
 import PurchaseHistoryTab from '../../components/Profile/PurchaseHistoryTab';
 
@@ -150,7 +148,6 @@ const ProfilePage = () => {
 
     return (
         <Box sx={{ bgcolor: 'grey.100', minHeight: '100vh' }}>
-            <Header />
             <Container maxWidth="md" sx={{ my: 4 }}>
                 <Typography variant="h4" component="h1" gutterBottom fontWeight="bold">
                     Mi Cuenta
@@ -206,7 +203,6 @@ const ProfilePage = () => {
                     </TabPanel>
                 </Paper>
             </Container>
-            <Footer />
         </Box>
     );
 };

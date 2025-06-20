@@ -4,8 +4,6 @@ import { Container, Box, Typography, Paper, Button, Divider, List, ListItem, Lis
 import { CheckCircleOutline } from '@mui/icons-material';
 import { useAuth } from '../../context/AuthContext';
 import axios from 'axios';
-import Header from '../../components/Header/Header';
-import Footer from '../../components/Footer/Footer';
 import LoadingSpinner from '../../components/common/LoadingSpinner';
 
 const OrderConfirmationPage = () => {
@@ -51,7 +49,6 @@ const OrderConfirmationPage = () => {
 
     return (
         <Box sx={{ bgcolor: 'grey.100', minHeight: '100vh' }}>
-            <Header />
             <Container maxWidth="md" sx={{ my: 4 }}>
                 <Paper elevation={3} sx={{ p: { xs: 2, md: 4 }, textAlign: 'center' }}>
                     <CheckCircleOutline sx={{ fontSize: 60, color: 'success.main', mb: 2 }} />
@@ -105,7 +102,6 @@ const OrderConfirmationPage = () => {
                     </Button>
                 </Paper>
             </Container>
-            <Footer />
         </Box>
     );
 }

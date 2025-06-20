@@ -1,10 +1,15 @@
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { AuthProvider } from './context/AuthContext';
+
+// 1. IMPORTAMOS NUESTRA NUEVA PLANTILLA
+import MainLayout from './components/Layout/MainLayout'; 
+
+// Importamos todas tus páginas...
 import Login from './pages/Login/Login.jsx';
 import Register from './pages/Register/Register.jsx';
 import MainPage from './pages/MainPage/MainPage.jsx';
 import ProtectedRoute from './components/ProtectedRoute/ProtectedRoute.jsx';
-import { AuthProvider } from './context/AuthContext';
-import { Navigate } from 'react-router-dom';
 import CategoryPage from './pages/CategoryPage/CategoryPage.jsx';
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
@@ -28,41 +33,45 @@ function App() {
     <AuthProvider>
       <Router>
         <Routes>
-          {/*Rutas  publicas*/}
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
-          <Route path="/" element={<Navigate to="/main" replace />} />
-          <Route path="/main" element={<MainPage />} />
-          <Route path="/productos" element={<ProductListPage />} />
-          <Route path="/categoria/:id/productos" element={<CategoryPage />} />
-          <Route path="/cuenta-verificada" element={<CuentaVerificada />} />
-          <Route path="/producto/:id" element={<ProductDetailPage />} />
-          <Route path="/sobre-nosotros" element={<SobreNosotrosPage />} />
-          <Route path="/contacto" element={<ContactoPage />} />
+          {/* --- 2. RUTA "CONTENEDORA" QUE USA LA PLANTILLA --- */}
+          {/* Todas las páginas que pongamos aquí adentro tendrán Header y Footer */}
+          <Route element={<MainLayout />}>
+            
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
+            <Route path="/main" element={<MainPage />} />
+            <Route path="/productos" element={<ProductListPage />} />
+            <Route path="/categoria/:id/productos" element={<CategoryPage />} />
+            <Route path="/producto/:id" element={<ProductDetailPage />} />
+            <Route path="/sobre-nosotros" element={<SobreNosotrosPage />} />
+            <Route path="/contacto" element={<ContactoPage />} />
 
-          {/*Rutas protegidas de usuarios no logueados*/}
-          <Route element={<ProtectedRoute requireAuth={true} />}>
-            <Route path="/carrito" element={<CartPage />} />
-            <Route path="/checkout" element={<CheckoutPage />} />
-            <Route path="/profile" element={<ProfilePage />} />
-            <Route path="/orden-confirmada/:id" element={<OrderConfirmationPage />} />
+            {/* Rutas protegidas que también usan el Layout */}
+            <Route element={<ProtectedRoute requireAuth={true} />}>
+              <Route path="/carrito" element={<CartPage />} />
+              <Route path="/checkout" element={<CheckoutPage />} />
+              <Route path="/profile" element={<ProfilePage />} />
+              <Route path="/orden-confirmada/:id" element={<OrderConfirmationPage />} />
+            </Route>
+
           </Route>
+          {/* --- FIN DEL GRUPO QUE USA LA PLANTILLA --- */}
 
-          {/*Ruta de admin*/}
+
+          {/* Estas rutas quedan afuera porque no queremos que usen ese layout (o tienen el suyo propio) */}
+          <Route path="/" element={<Navigate to="/main" replace />} />
+          <Route path="/cuenta-verificada" element={<CuentaVerificada />} />
+          
           <Route element={<ProtectedRoute allowedRoles={['admin']} />}>
             <Route path="/admin" element={<AdminDashboardPage />}>
               <Route path="productos" element={<AdminProductsPage />} />
               <Route path="ventas" element={<AdminSalesPage />} />
               <Route path="usuarios" element={<AdminUsersPage />} />
-               <Route path="categorias" element={<AdminCategoriesPage />} />
-              
+              <Route path="categorias" element={<AdminCategoriesPage />} />
             </Route>
           </Route>
           
-          {/* Página de acceso denegado */}
           <Route path="/unauthorized" element={<div>No tenés permiso para entrar acá</div>} />
-
-          {/* Ruta para páginas no encontradas */}
           <Route path="*" element={<Navigate to="/main" replace />} />
         </Routes>
       </Router>
