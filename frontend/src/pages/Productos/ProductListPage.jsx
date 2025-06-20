@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Container, Grid, Paper, Typography, Box, Pagination } from '@mui/material';
 import axios from 'axios';
+
 import ProductGrid from '../../components/Product/ProductGrid';
 import LoadingSpinner from '../../components/common/LoadingSpinner';
 import ProductFilters from '../../components/Product/ProductFilters';

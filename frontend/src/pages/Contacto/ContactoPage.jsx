@@ -1,11 +1,13 @@
-import { useState } from 'react';
-import { Container, Box, Typography, Paper, TextField, Button, Grid, List, ListItem, ListItemIcon, ListItemText, Divider } from '@mui/material';
-import { Send as SendIcon, EmailOutlined as EmailIcon, PhoneOutlined as PhoneIcon, LocationOnOutlined as LocationIcon, AccountCircle, AlternateEmail } from '@mui/icons-material';
+import React, { useState } from 'react';
+import { Container, Box, Typography, Paper, TextField, Button, Grid, List, ListItem, ListItemIcon, ListItemText, Divider, useTheme, CircularProgress, InputAdornment } from '@mui/material';
+import { Send as SendIcon, EmailOutlined as EmailIcon, PhoneOutlined as PhoneIcon, LocationOnOutlined as LocationIcon, PersonOutline as PersonOutlineIcon, AlternateEmail as AlternateEmailIcon } from '@mui/icons-material';
 import { useAuth } from '../../context/AuthContext';
 import axios from 'axios';
 
 const ContactoPage = () => {
     const { showNotification } = useAuth();
+    const theme = useTheme();
+
     const [formData, setFormData] = useState({
         nombre: '',
         email: '',
@@ -13,23 +15,20 @@ const ContactoPage = () => {
     });
     const [isSending, setIsSending] = useState(false);
 
-    // Actualiza el estado del formulario a medida que el usuario escribe
     const handleChange = (event) => {
         const { name, value } = event.target;
         setFormData(prev => ({ ...prev, [name]: value }));
     };
 
-    // Envía el formulario al backend
     const handleSubmit = async (event) => {
         event.preventDefault();
         setIsSending(true);
         try {
             const response = await axios.post('http://localhost:3000/api/contacto', formData);
             showNotification(response.data.mensaje, 'success');
-            // Limpiamos el formulario después de enviar con éxito
             setFormData({ nombre: '', email: '', mensaje: '' });
         } catch (error) {
-            const mensajeError = error.response?.data?.mensaje || 'No se pudo enviar el mensaje.';
+            const mensajeError = error.response?.data?.mensaje || 'No se pudo enviar el mensaje. Intenta de nuevo.';
             showNotification(mensajeError, 'error');
         } finally {
             setIsSending(false);
@@ -37,58 +36,102 @@ const ContactoPage = () => {
     };
 
     return (
-        <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', bgcolor: 'grey.50' }}>
+        <Box 
+            sx={{ 
+                display: 'flex', 
+                flexDirection: 'column', 
+                minHeight: '100vh', 
+                background: `linear-gradient(135deg, ${theme.palette.primary.light} 30%, ${theme.palette.background.default} 90%)`,
+                [theme.breakpoints.down('sm')]: { 
+                    background: theme.palette.background.default, 
+                },
+                py: { xs: 2, md: 4 }
+            }}
+        >
             <Container component="main" maxWidth="lg" sx={{ my: { xs: 2, md: 6 } }}>
-                <Paper elevation={6} sx={{ p: { xs: 2, md: 5 }, borderRadius: '16px' }}>
-                    <Box sx={{ mb: 5, textAlign: 'center' }}>
-                        <Typography variant="h3" component="h1" fontWeight="bold" gutterBottom>
-                            Contactanos!
+                <Paper 
+                    elevation={6} 
+                    sx={{ 
+                        p: { xs: 3, md: 6 }, 
+                        borderRadius: theme.shape.borderRadius * 3, 
+                        boxShadow: theme.shadows[10], 
+                        bgcolor: 'background.paper', 
+                    }}
+                >
+                    <Box sx={{ mb: { xs: 3, md: 5 }, textAlign: 'center' }}>
+                        <Typography 
+                            variant="h3" 
+                            component="h1" 
+                            fontWeight="bold" 
+                            gutterBottom
+                            color="primary.main" 
+                        >
+                            Contactanos
                         </Typography>
-                        <Typography variant="body1" color="text.secondary">
-                            Estamos acá para ayudarte. Completa el formulario o utiliza nuestros canales directos.
+                        <Typography variant="body1" color="text.secondary" sx={{ maxWidth: '600px', mx: 'auto' }}>
+                            Estamos acá para ayudarte. Completa el formulario y nos pondremos en contacto, o utiliza nuestros canales directos.
                         </Typography>
                     </Box>
 
-                    <Grid container spacing={5}>
-                        {/* Información de contacto */}
-                        <Grid xs={12} md={5}>
-                            <Typography variant="h5" fontWeight="600" sx={{ mb: 2 }}>
-                                Información Directa
+                    <Grid container spacing={{ xs: 4, md: 6 }}>
+                        <Grid item xs={12} md={5}>
+                            <Typography variant="h5" fontWeight="bold" color="text.primary" sx={{ mb: { xs: 2, md: 3 } }}>
+                                Canales Directos
                             </Typography>
-                            <List>
-                                <ListItem disablePadding sx={{ mb: 2 }}>
+                            <List sx={{ '.MuiListItem-root': { mb: 1, '&:last-child': { mb: 0 } } }}>
+                                <ListItem disablePadding>
                                     <ListItemIcon sx={{ minWidth: 40, color: 'primary.main' }}>
-                                        <EmailIcon />
+                                        <EmailIcon fontSize="medium" />
                                     </ListItemIcon>
-                                    <ListItemText primary="Email" secondary="contacto@salomarket.com" />
-                                </ListItem>
-                                <ListItem disablePadding sx={{ mb: 2 }}>
-                                    <ListItemIcon sx={{ minWidth: 40, color: 'primary.main' }}>
-                                        <PhoneIcon />
-                                    </ListItemIcon>
-                                    <ListItemText primary="Teléfono" secondary="+54 123 456 789" />
+                                    <ListItemText 
+                                        primary={
+                                            <Typography variant="subtitle1" fontWeight="medium" color="text.primary">Email</Typography>
+                                        } 
+                                        secondary={
+                                            <Typography variant="body2" color="text.secondary">contacto@salomarket.com</Typography>
+                                        } 
+                                    />
                                 </ListItem>
                                 <ListItem disablePadding>
                                     <ListItemIcon sx={{ minWidth: 40, color: 'primary.main' }}>
-                                        <LocationIcon />
+                                        <PhoneIcon fontSize="medium" />
                                     </ListItemIcon>
-                                    <ListItemText primary="Nuestra Oficina" secondary="Av. Siempre Viva 742, Córdoba, Argentina" />
+                                    <ListItemText 
+                                        primary={
+                                            <Typography variant="subtitle1" fontWeight="medium" color="text.primary">Teléfono</Typography>
+                                        } 
+                                        secondary={
+                                            <Typography variant="body2" color="text.secondary">+54 123 456 789</Typography>
+                                        } 
+                                    />
+                                </ListItem>
+                                <ListItem disablePadding>
+                                    <ListItemIcon sx={{ minWidth: 40, color: 'primary.main' }}>
+                                        <LocationIcon fontSize="medium" />
+                                    </ListItemIcon>
+                                    <ListItemText 
+                                        primary={
+                                            <Typography variant="subtitle1" fontWeight="medium" color="text.primary">Nuestra Oficina</Typography>
+                                        } 
+                                        secondary={
+                                            <Typography variant="body2" color="text.secondary">Av. Siempre Viva 742, Córdoba, Argentina</Typography>
+                                        } 
+                                    />
                                 </ListItem>
                             </List>
-                            <Divider sx={{ my: 4 }} />
+                            <Divider sx={{ my: { xs: 3, md: 4 } }} />
                             <Typography variant="body2" color="text.secondary">
                                 Nuestro horario de atención es de Lunes a Viernes, de 9:00 a 18:00 hs.
                             </Typography>
                         </Grid>
 
-                        {/* Formulario de contacto */}
-                        <Grid xs={12} md={7}>
-                            <Typography variant="h5" fontWeight="600" sx={{ mb: 2 }}>
+                        <Grid item xs={12} md={7}>
+                            <Typography variant="h5" fontWeight="bold" color="text.primary" sx={{ mb: { xs: 2, md: 3 } }}>
                                 Envíanos un Mensaje
                             </Typography>
                             <form onSubmit={handleSubmit}>
-                                <Grid container spacing={2}>
-                                    <Grid xs={12}>
+                                <Grid container spacing={3}>
+                                    <Grid item xs={12}>
                                         <TextField
                                             fullWidth
                                             required
@@ -96,12 +139,19 @@ const ContactoPage = () => {
                                             name="nombre"
                                             value={formData.nombre}
                                             onChange={handleChange}
-                                            slotProps={{
-                                                input: {
-                                                    startAdornment: <AccountCircle sx={{ mr: 1, color: 'action.active' }} />,
-                                                }
+                                            variant="outlined"
+                                            size="medium"
+                                            sx={{ '& .MuiOutlinedInput-root': { borderRadius: '10px' } }}
+                                            InputProps={{ 
+                                                startAdornment: (
+                                                    <InputAdornment position="start">
+                                                        <PersonOutlineIcon color="action" />
+                                                    </InputAdornment>
+                                                ),
                                             }}
                                         />
+                                    </Grid>
+                                    <Grid item xs={12}>
                                         <TextField
                                             fullWidth
                                             required
@@ -110,36 +160,54 @@ const ContactoPage = () => {
                                             name="email"
                                             value={formData.email}
                                             onChange={handleChange}
-                                            slotProps={{
-                                                input: {
-                                                    startAdornment: <AlternateEmail sx={{ mr: 1, color: 'action.active' }} />,
-                                                }
+                                            variant="outlined"
+                                            size="medium"
+                                            sx={{ '& .MuiOutlinedInput-root': { borderRadius: '10px' } }}
+                                            InputProps={{ 
+                                                startAdornment: (
+                                                    <InputAdornment position="start">
+                                                        <AlternateEmailIcon color="action" />
+                                                    </InputAdornment>
+                                                ),
                                             }}
                                         />
                                     </Grid>
-                                    <Grid xs={12}>
+                                    <Grid item xs={12}>
                                         <TextField
                                             fullWidth
                                             required
                                             multiline
-                                            rows={5}
+                                            rows={6}
                                             label="Tu Mensaje"
                                             name="mensaje"
                                             value={formData.mensaje}
                                             onChange={handleChange}
+                                            variant="outlined"
+                                            size="medium"
+                                            sx={{ '& .MuiOutlinedInput-root': { borderRadius: '10px' } }}
                                         />
                                     </Grid>
-                                    <Grid xs={12}>
+                                    <Grid item xs={12}>
                                         <Button
                                             type="submit"
                                             fullWidth
                                             variant="contained"
-                                            size="large"
-                                            endIcon={<SendIcon />}
+                                            size="large"                                     
+                                            endIcon={isSending ? null : <SendIcon />} 
                                             disabled={isSending}
-                                            sx={{ py: 1.5, fontWeight: 'bold' }}
+                                            sx={{ 
+                                                py: 1.5, 
+                                                fontWeight: 'bold',
+                                                borderRadius: '10px', 
+                                                boxShadow: theme.shadows[4], 
+                                                '&:hover': {
+                                                    transform: 'translateY(-2px)',
+                                                    boxShadow: theme.shadows[7],
+                                                },
+                                                transition: 'all 0.3s ease-in-out'
+                                            }}
                                         >
-                                            {isSending ? 'Enviando...' : 'Enviar Mensaje'}
+                                            {isSending ? <CircularProgress size={24} color="inherit" /> : 'Enviar Mensaje'}
                                         </Button>
                                     </Grid>
                                 </Grid>

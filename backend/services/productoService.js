@@ -1,7 +1,7 @@
 import { pool } from '../database/connectionMySQL.js';
-import fs from 'fs'; 
-import path from 'path'; 
-import { fileURLToPath } from 'url'; 
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
 // Para obtener la ruta del directorio actual en ES Modules
 const __filename = fileURLToPath(import.meta.url);
@@ -9,20 +9,24 @@ const __dirname = path.dirname(__filename);
 
 // Convierte ruta absoluta a relativa para que se pueda usar en la app web
 function convertToRelativePath(fullPath) {
-  if (!fullPath) return null;
-  if (fullPath.startsWith('/images/')) return fullPath;
-  const publicIndex = fullPath.indexOf('public');
-  if (publicIndex !== -1) {
-    return '/' + fullPath.substring(publicIndex + 7).replace(/\\/g, '/');
-  }
-  if (fullPath.includes('images/productos')) {
-    const imagePath = fullPath.substring(fullPath.indexOf('images/productos')).replace(/\\/g, '/');
-    return '/' + imagePath;
-  }
-  return fullPath.replace(/\\/g, '/');
+    if (!fullPath) return null;
+    if (fullPath.startsWith('/images/')) return fullPath;
+    const publicIndex = fullPath.indexOf('public');
+    if (publicIndex !== -1) {
+        return '/' + fullPath.substring(publicIndex + 7).replace(/\\/g, '/');
+    }
+    if (fullPath.includes('images/productos')) {
+        const imagePath = fullPath.substring(fullPath.indexOf('images/productos')).replace(/\\/g, '/');
+        return '/' + imagePath;
+    }
+    return fullPath.replace(/\\/g, '/');
 }
 
-// Lista productos con filtros y paginación para admin
+/**
+ * Lista productos con filtros y paginación para el panel de admin
+ * @param {object} options - Opciones de filtrado y paginación
+ * @returns {Promise<object>}
+ */
 export async function getAllProducts(options = {}) {
     const { categoria, busqueda, minPrice, maxPrice, es_oferta, sortBy, pagina = 1, limite = 10 } = options;
     const offset = (parseInt(pagina) - 1) * parseInt(limite);
@@ -96,171 +100,153 @@ export async function getAllProducts(options = {}) {
     };
 }
 
-// Crea un producto, validando campos mínimos y convirtiendo rutas de imagen a relativas
+/**
+ * Crea un producto, validando campos mínimos y convirtiendo rutas de imagen a relativas
+ * @param {object} productData - Datos del producto
+ * @param {object} files - Archivos subidos
+ * @returns {Promise<object>}
+ */
 export async function createProduct(productData, files) { 
-  const { 
-      nombre_producto, 
-      descripcion, 
-      precio, 
-      precio_anterior, 
-      categoria_id, 
-      stock_actual,
-  } = productData;
+    const { 
+        nombre_producto, 
+        descripcion, 
+        precio, 
+        precio_anterior, 
+        categoria_id, 
+        stock_actual,
+    } = productData;
 
-  if (!nombre_producto || !precio || !stock_actual) {
-      const err = new Error('Nombre, precio y stock son requeridos');
-      err.statusCode = 400;
-      throw err;
-  }
-
-  // Convierte ruta absoluta a relativa para almacenar en BD
-  const imagenPath = files && files.imagen ? convertToRelativePath(files.imagen[0].path) : null;
-  const imagenesPaths = files && files.imagenes ? 
-    files.imagenes.map(file => convertToRelativePath(file.path)) : [];
-  const imagenesJson = JSON.stringify(imagenesPaths);
-
-  const precioFinal = parseFloat(precio);
-  const precioAnteriorFinal = precio_anterior ? parseFloat(precio_anterior) : null;
-  const esOfertaFinal = (precioAnteriorFinal != null && precioFinal < precioAnteriorFinal);
-
-  const query = `
-    INSERT INTO producto (
-      nombre_producto, descripcion, precio, precio_anterior, categoria_id, 
-      imagen, imagenes, stock_actual, activo, es_oferta
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-  `;
-  
-  const params = [
-      nombre_producto,
-      descripcion || null,
-      precioFinal,
-      precioAnteriorFinal,
-      categoria_id || null,
-      imagenPath,
-      imagenesJson,
-      parseInt(stock_actual),
-      true,
-      esOfertaFinal, 
-  ];
-
-  try {
-    const [result] = await pool.query(query, params);
-    const [[nuevoProducto]] = await pool.query('SELECT * FROM producto WHERE producto_id = ?', [result.insertId]);
-    return nuevoProducto;
-  } catch (error) {
-    console.error("Error al crear el producto en la BD:", error);
-    throw new Error('Error de base de datos al crear el producto');
-  }
-}
-
-// Actualiza producto, con manejo de imagen principal y secundarias, y cálculo de oferta
-export async function updateProduct(id, productData, files) {
-  // Logs para debug (pueden eliminarse en producción)
-  console.log('--- SERVICE: INICIO DE updateProduct ---');
-  console.log('[SERVICE] ID recibido:', id);
-  console.log('[SERVICE] productData recibido:', productData);
-  console.log('[SERVICE] files recibido:', files);
-  console.log('--------------------------------------');
-
-  const { 
-    nombre_producto, 
-    descripcion, 
-    precio, 
-    precio_anterior, 
-    categoria_id, 
-    stock_actual 
-  } = productData;
-
-  const setClauses = [];
-  const params = [];
-
-  if (nombre_producto) { setClauses.push('nombre_producto = ?'); params.push(nombre_producto); }
-  if (descripcion) { setClauses.push('descripcion = ?'); params.push(descripcion); }
-  if (precio) { setClauses.push('precio = ?'); params.push(parseFloat(precio)); }
-  // Resto de campos omitidos para brevedad...
-
-  if (files && files.imagen && files.imagen[0]) {
-    // Borra la imagen antigua si existe, antes de reemplazarla
-    console.log('[SERVICE] Se detectó una nueva imagen principal. Iniciando lógica de reemplazo...');
-    
-    const productoExistente = await obtenerProductoPorId(id);
-    console.log('[SERVICE] Producto existente encontrado:', productoExistente);
-
-    if (productoExistente && productoExistente.imagen) {
-      const rutaImagenAntigua = path.join(__dirname, '..', 'public', productoExistente.imagen);
-      console.log('[SERVICE] Ruta de imagen antigua a eliminar:', rutaImagenAntigua);
-
-      try {
-        if (fs.existsSync(rutaImagenAntigua)) {
-          fs.unlinkSync(rutaImagenAntigua);
-          console.log(`[SERVICE] ÉXITO: Imagen antigua eliminada.`);
-        } else {
-          console.warn('[SERVICE] ADVERTENCIA: La imagen antigua no existe, no se eliminó nada.');
-        }
-      } catch (err) {
-        console.error("[SERVICE] ERROR al eliminar la imagen antigua:", err);
-      }
+    if (!nombre_producto || !precio || stock_actual == null || stock_actual === '') {
+        const err = new Error('Nombre, precio y stock son requeridos');
+        err.statusCode = 400;
+        throw err;
     }
 
-    const imagenPath = convertToRelativePath(files.imagen[0].path);
-    console.log('[SERVICE] Nueva ruta de imagen relativa:', imagenPath);
-    setClauses.push('imagen = ?');
-    params.push(imagenPath);
-  } else {
-    console.log('[SERVICE] No se detectó una nueva imagen principal.');
-  }
+    const imagenPath = files && files.imagen ? convertToRelativePath(files.imagen[0].path) : null;
+    const imagenesPaths = files && files.imagenes ? 
+        files.imagenes.map(file => convertToRelativePath(file.path)) : [];
+    const imagenesJson = JSON.stringify(imagenesPaths);
 
-  // Si hay imágenes secundarias nuevas las convertimos y guardamos como JSON
-  if (files && files.imagenes && files.imagenes.length > 0) {
-    // Podría agregarse lógica para borrar las imágenes viejas si se quisiera
-    const imagenesPaths = files.imagenes.map(file => convertToRelativePath(file.path));
-    setClauses.push('imagenes = ?');
-    params.push(JSON.stringify(imagenesPaths));
-  }
-  
-  // Actualiza campo es_oferta según precio y precio_anterior nuevos o actuales
-  if (precio || precio_anterior) {
-    const precioFinal = precio ? parseFloat(precio) : (await obtenerProductoPorId(id)).precio;
-    const precioAnteriorFinal = precio_anterior ? parseFloat(precio_anterior) : (await obtenerProductoPorId(id)).precio_anterior;
+    const precioFinal = parseFloat(precio);
+    const precioAnteriorFinal = precio_anterior ? parseFloat(precio_anterior) : null;
     const esOfertaFinal = (precioAnteriorFinal != null && precioFinal < precioAnteriorFinal);
-    setClauses.push('es_oferta = ?');
-    params.push(esOfertaFinal);
-  }
 
-  // Permite actualizar solo imagen sin datos extra
-  if (setClauses.length === 0) {
-    console.error('[SERVICE] No hay datos para actualizar, no se ejecuta UPDATE.');
-  }
-
-  if (setClauses.length > 0) {
-    const query = `UPDATE producto SET ${setClauses.join(', ')} WHERE producto_id = ?`;
-    params.push(id);
+    const query = `
+        INSERT INTO producto (
+            nombre_producto, descripcion, precio, precio_anterior, categoria_id, 
+            imagen, imagenes, stock_actual, activo, es_oferta
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `;
     
-    console.log('[SERVICE] Ejecutando consulta SQL:', query);
-    console.log('Params:', params);
-  
-    const [result] = await pool.query(query, params);
-    console.log('[SERVICE] Resultado UPDATE:', result);
+    const params = [
+        nombre_producto,
+        descripcion || null,
+        precioFinal,
+        precioAnteriorFinal,
+        categoria_id || null,
+        imagenPath,
+        imagenesJson,
+        parseInt(stock_actual),
+        true,
+        esOfertaFinal, 
+    ];
 
-    if (result.affectedRows === 0) return null;
-  } else {
-    console.log('[SERVICE] No hubo cambios en la base de datos.');
-  }
-
-  // Devuelve producto actualizado con nombre de categoría
-  const [[productoActualizado]] = await pool.query(
-    'SELECT p.*, c.nombre AS nombre_categoria FROM producto p LEFT JOIN categoria c ON p.categoria_id = c.categoria_id WHERE p.producto_id = ?', 
-    [id]
-  );
-  console.log('[SERVICE] Producto final devuelto:', productoActualizado);
-  return productoActualizado;
+    try {
+        const [result] = await pool.query(query, params);
+        const [[nuevoProducto]] = await pool.query('SELECT * FROM producto WHERE producto_id = ?', [result.insertId]);
+        return nuevoProducto;
+    } catch (error) {
+        console.error("Error al crear el producto en la BD:", error);
+        throw new Error('Error de base de datos al crear el producto');
+    }
 }
 
-// Desactiva el producto en vez de eliminarlo
+/**
+ * Actualiza un producto, con manejo de imagen principal y secundarias, y cálculo de oferta
+ * @param {number} id - ID del producto a actualizar
+ * @param {object} productData - Datos del producto
+ * @param {object} files - Archivos subidos
+ * @returns {Promise<object|null>}
+ */
+export async function updateProduct(id, productData, files) {
+    const { 
+        nombre_producto, 
+        descripcion, 
+        precio, 
+        precio_anterior, 
+        categoria_id, 
+        stock_actual 
+    } = productData;
+
+    const setClauses = [];
+    const params = [];
+
+    if (nombre_producto) { setClauses.push('nombre_producto = ?'); params.push(nombre_producto); }
+    if (descripcion) { setClauses.push('descripcion = ?'); params.push(descripcion); }
+    if (precio != null && precio !== '') { setClauses.push('precio = ?'); params.push(parseFloat(precio)); }
+    if (precio_anterior != null && precio_anterior !== '') { setClauses.push('precio_anterior = ?'); params.push(parseFloat(precio_anterior)); }
+    if (categoria_id) { setClauses.push('categoria_id = ?'); params.push(parseInt(categoria_id)); }
+    
+    // Se valida que el stock no sea nulo/indefinido ni una cadena vacía
+    // Esto permite que el valor 0 se guarde correctamente
+    if (stock_actual != null && stock_actual !== '') {
+        setClauses.push('stock_actual = ?');
+        params.push(parseInt(stock_actual));
+    }
+
+    if (files && files.imagen && files.imagen[0]) {
+        const productoExistente = await obtenerProductoPorId(id);
+        if (productoExistente && productoExistente.imagen) {
+            const rutaImagenAntigua = path.join(__dirname, '..', 'public', productoExistente.imagen);
+            if (fs.existsSync(rutaImagenAntigua)) {
+                fs.unlinkSync(rutaImagenAntigua);
+            }
+        }
+        const imagenPath = convertToRelativePath(files.imagen[0].path);
+        setClauses.push('imagen = ?');
+        params.push(imagenPath);
+    }
+
+    if (files && files.imagenes && files.imagenes.length > 0) {
+        const imagenesPaths = files.imagenes.map(file => convertToRelativePath(file.path));
+        setClauses.push('imagenes = ?');
+        params.push(JSON.stringify(imagenesPaths));
+    }
+    
+    if (precio || precio_anterior) {
+        const productoActual = await obtenerProductoPorId(id);
+        const precioFinal = precio ? parseFloat(precio) : productoActual.precio;
+        const precioAnteriorFinal = precio_anterior ? parseFloat(precio_anterior) : productoActual.precio_anterior;
+        const esOfertaFinal = (precioAnteriorFinal != null && precioFinal < precioAnteriorFinal);
+        setClauses.push('es_oferta = ?');
+        params.push(esOfertaFinal);
+    }
+
+    if (setClauses.length === 0) {
+        throw new Error('No se proporcionaron campos para actualizar');
+    }
+    
+    const query = `UPDATE producto SET ${setClauses.join(', ')} WHERE producto_id = ?`;
+    params.push(id);
+  
+    const [result] = await pool.query(query, params);
+    if (result.affectedRows === 0) return null;
+
+    const [[productoActualizado]] = await pool.query(
+        'SELECT p.*, c.nombre AS nombre_categoria FROM producto p LEFT JOIN categoria c ON p.categoria_id = c.categoria_id WHERE p.producto_id = ?', 
+        [id]
+    );
+    return productoActualizado;
+}
+
+/**
+ * Desactiva el producto 
+ * @param {number} productoId - ID del producto a desactivar
+ * @returns {Promise<boolean>}
+ */
 export async function deleteProduct(productoId) {
     try {
         const [result] = await pool.query('UPDATE producto SET activo = false WHERE producto_id = ?', [productoId]);
-
         if (result.affectedRows === 0) {
             const err = new Error('Producto no encontrado');
             err.statusCode = 404;
@@ -272,7 +258,11 @@ export async function deleteProduct(productoId) {
     }
 }
 
-// Trae productos en oferta, limitado por parámetro
+/**
+ * Trae productos en oferta, limitado por parámetro.
+ * @param {number} limite - Cantidad máxima de ofertas a traer.
+ * @returns {Promise<Array>}
+ */
 export async function getOfferProducts(limite = 8) {
     const query = `
         SELECT * FROM producto 
@@ -284,22 +274,27 @@ export async function getOfferProducts(limite = 8) {
     return productos;
 }
 
-// Busca un producto activo por su id
+/**
+ * Busca un producto activo por su id.
+ * @param {number} productoId - ID del producto.
+ * @returns {Promise<object|null>}
+ */
 export async function obtenerProductoPorId(productoId) {
-    const query = 'SELECT * FROM producto WHERE producto_id = ? AND activo = true';
+    const query = 'SELECT * FROM producto WHERE producto_id = ?';
     const [productos] = await pool.query(query, [productoId]);
-
     if (productos.length === 0) {
         return null;
     }
-
     return productos[0];
 }
 
-// Activa o desactiva un producto
+/**
+ * Activa o desactiva un producto.
+ * @param {number} productoId - ID del producto.
+ * @returns {Promise<boolean>}
+ */
 export async function toggleProductStatus(productoId) {
-  const query = 'UPDATE producto SET activo = NOT activo WHERE producto_id = ?';
-  const [result] = await pool.query(query, [productoId]);
-  
-  return result.affectedRows > 0;
+    const query = 'UPDATE producto SET activo = NOT activo WHERE producto_id = ?';
+    const [result] = await pool.query(query, [productoId]);
+    return result.affectedRows > 0;
 }

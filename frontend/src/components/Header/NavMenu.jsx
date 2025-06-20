@@ -42,6 +42,7 @@ const NavMenu = ({ mobile = false, onItemClick }) => {
 
     // Manejadores para el menu de escritorio con hover
     const handleMenuOpen = (event) => {
+        // Cancelar cualquier cierre pendiente
         if (openDelay) {
             clearTimeout(openDelay);
             setOpenDelay(null);
@@ -50,6 +51,7 @@ const NavMenu = ({ mobile = false, onItemClick }) => {
     };
 
     const handleMenuClose = () => {
+        // Retrasar el cierre para permitir el hover
         const delay = setTimeout(() => {
             setAnchorEl(null);
             if (onItemClick) onItemClick();
@@ -82,7 +84,7 @@ const NavMenu = ({ mobile = false, onItemClick }) => {
 
         return (
             <Box sx={{ width: '100%' }}>
-                {/* Botón para abrir/cerrar el dropdown de categorias */}
+                {/* Botón para abrir/cerrar el dropdown de catregorias */}
                 <Button sx={mobileButtonStyle} onClick={handleToggleMobileCategories}>
                     <ListItemText primary="Categorías" />
                     {openMobileCategories ? <ExpandLess /> : <ExpandMore />}
@@ -91,7 +93,7 @@ const NavMenu = ({ mobile = false, onItemClick }) => {
                 {/* Contenedor colapsable con la lista de categorías */}
                 <Collapse in={openMobileCategories} timeout="auto" unmountOnExit>
                     <List component="div" disablePadding>
-                        {/* Enlace estático a "Ver todo" */}
+                        {/* Enlace estático a "ver todo" */}
                         <ListItemButton sx={{ pl: 4 }} component={RouterLink} to="/productos" onClick={onItemClick}>
                             <ListItemText primary="Ver Todo el Catálogo" />
                         </ListItemButton>

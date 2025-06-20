@@ -131,47 +131,72 @@ export async function obtenerUsuarioPorId(usuario_id) {
 
 /**
  * Actualiza los datos del perfil de un usuario
+ * Esta versión está corregida para aceptar todos los campos del perfil
  * @param {number} userId 
- * @param {object} profileData - Este es el objeto con los datos a actualizar, por ej dni, telefono, dirección
- * @returns {Promise<object>} El objeto del usuario actualizado.
+ * @param {object} profileData - Datos a actualizar (nombre, apellido, dni, etc.)
+ * @returns {Promise<object>} El objeto del usuario actualizado
  */
 export async function updateUserProfile(userId, profileData) {
-  const { dni, telefono, direccion, provincia, localidad, codigo_postal } = profileData;
+    // Obtenemos todos los posibles campos del objeto que llega del frontend
+    const { 
+        nombre, 
+        apellido, 
+        dni, 
+        telefono, 
+        direccion, 
+        provincia, 
+        localidad, 
+        codigo_postal 
+    } = profileData;
 
-  // Consulta para enviar solamente los campos que se van a actualizar
-  const fieldsToUpdate = [];
-  const values = [];
+    const fieldsToUpdate = [];
+    const values = [];
+    
+    if (nombre != null) { 
+        fieldsToUpdate.push('nombre = ?');
+        values.push(nombre);
+    }
+    if (apellido != null) {
+        fieldsToUpdate.push('apellido = ?');
+        values.push(apellido);
+    }
+    if (dni != null) {
+        fieldsToUpdate.push('dni = ?');
+        values.push(dni);
+    }
+    if (telefono != null) {
+        fieldsToUpdate.push('telefono = ?');
+        values.push(telefono);
+    }
+    if (direccion != null) {
+        fieldsToUpdate.push('direccion = ?');
+        values.push(direccion);
+    }
+    if (provincia != null) {
+        fieldsToUpdate.push('provincia = ?');
+        values.push(provincia);
+    }
+    if (localidad != null) {
+        fieldsToUpdate.push('localidad = ?');
+        values.push(localidad);
+    }
+    if (codigo_postal != null) {
+        fieldsToUpdate.push('codigo_postal = ?');
+        values.push(codigo_postal);
+    }
 
-  if (dni !== undefined) {fieldsToUpdate.push('dni = ?');
-    values.push(dni);
-  } if (telefono !== undefined) {fieldsToUpdate.push('telefono = ?');
-    values.push(telefono);
-  } if (direccion !== undefined) { fieldsToUpdate.push('direccion = ?');
-    values.push(direccion);
-  } if (dni !== undefined) { fieldsToUpdate.push('dni = ?'); 
-    values.push(dni); 
-  } if (telefono !== undefined) { fieldsToUpdate.push('telefono = ?'); 
-    values.push(telefono);
-   } if (direccion !== undefined) { fieldsToUpdate.push('direccion = ?');
-     values.push(direccion);
-     } if (provincia !== undefined) { fieldsToUpdate.push('provincia = ?');
-     values.push(provincia);
-     } if (localidad !== undefined) { fieldsToUpdate.push('localidad = ?'); 
-    values.push(localidad); 
-  } if (codigo_postal !== undefined)
-     { fieldsToUpdate.push('codigo_postal = ?');
-     values.push(codigo_postal);
-     } if (fieldsToUpdate.length === 0) {
-    throw { statusCode: 400, message: 'No se proporcionaron campos para actualizar' };
-  }
+    // Si no llegó ningún campo para actualizar, lanzamos un error.
+    if (fieldsToUpdate.length === 0) {
+        throw { statusCode: 400, message: 'No se proporcionaron campos para actualizar' };
+    }
 
-  const sql = `UPDATE usuario SET ${fieldsToUpdate.join(', ')} WHERE usuario_id = ?`;
-  values.push(userId);
+    const sql = `UPDATE usuario SET ${fieldsToUpdate.join(', ')} WHERE usuario_id = ?`;
+    values.push(userId); // Añadimos el userId al final para el WHERE
 
-  await pool.execute(sql, values);
+    await pool.execute(sql, values);
 
-  // Devolvemos el perfil actualizado
-  return obtenerUsuarioPorId(userId);
+    // Devolvemos el perfil actualizado para confirmar los cambios
+    return obtenerUsuarioPorId(userId);
 }
 
 /**

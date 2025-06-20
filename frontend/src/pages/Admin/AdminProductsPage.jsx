@@ -36,15 +36,15 @@ const VisuallyHiddenInput = styled('input')({
 
 export default function AdminProductsPage() {
   // --- ESTADOS DEL COMPONENTE ---
-  const [products, setProducts] = useState([]); // Lista de productos
-  const [loading, setLoading] = useState(true); // Estado de carga
-  const [error, setError] = useState(null); // Estado de error
-  const [open, setOpen] = useState(false); // Controla apertura/cierre del modal
-  const [newProduct, setNewProduct] = useState(initialProductState); // Producto a crear o editar
-  const [categories, setCategories] = useState([]); // Categorías disponibles para asignar
-  const [editingProduct, setEditingProduct] = useState(null); // Producto que se está editando
-  const [mainImageFile, setMainImageFile] = useState(null); // Archivo imagen principal seleccionado
-  const [secondaryImageFiles, setSecondaryImageFiles] = useState([]); // Archivos de imágenes secundarias
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null); 
+  const [open, setOpen] = useState(false); 
+  const [newProduct, setNewProduct] = useState(initialProductState);
+  const [categories, setCategories] = useState([]); 
+  const [editingProduct, setEditingProduct] = useState(null); 
+  const [mainImageFile, setMainImageFile] = useState(null); 
+  const [secondaryImageFiles, setSecondaryImageFiles] = useState([]); 
 
   // --- FETCH DE PRODUCTOS DESDE LA API ---
   const fetchProducts = async () => {
@@ -103,17 +103,17 @@ export default function AdminProductsPage() {
     setNewProduct({ ...newProduct, [name]: value });
   };
 
-  // Selección de imagen principal (archivo único)
+  // Selección de imagen principal
   const handleFileChange = (e) => {
     if (e.target.files[0]) setMainImageFile(e.target.files[0]);
   };
 
-  // Selección de imágenes secundarias (varios archivos)
+  // Selección de imágenes secundarias 
   const handleMultipleFileChange = (e) => {
     if (e.target.files) setSecondaryImageFiles(Array.from(e.target.files));
   };
 
-  // Cambia el estado activo/inactivo de un producto (toggle)
+  // Cambia el estado activo/inactivo de un producto 
   const handleToggleActivo = async (id, estadoActual) => {
     const confirmacion = window.confirm(`¿Estás seguro de que querés ${estadoActual ? 'DESACTIVAR' : 'ACTIVAR'} este producto?`);
     if (!confirmacion) return;
@@ -309,7 +309,7 @@ export default function AdminProductsPage() {
             <Grid item xs={12} sm={6}>
               <TextField 
                 name="stock_actual" 
-                label="Stock Inicial" 
+                label="Stock Actual" 
                 type="number" 
                 fullWidth 
                 variant="outlined" 

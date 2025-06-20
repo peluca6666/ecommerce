@@ -3,10 +3,11 @@ import { Link as RouterLink } from "react-router-dom";
 import { 
     IconButton, Badge, Popover, Box, Typography, 
     Divider, Button, List, ListItem, ListItemAvatar, 
-    Avatar, ListItemText 
+    ListItemText,
+    useTheme 
 } from "@mui/material";
 import { ShoppingCart, DeleteOutline } from "@mui/icons-material";
-import { useAuth } from "../../context/AuthContext";
+import { useAuth } from '../../context/AuthContext';
 
 const CartDropdown = () => {
   const { 
@@ -15,10 +16,12 @@ const CartDropdown = () => {
     showNotification,
     removeFromCart
   } = useAuth() || {};
+  const theme = useTheme(); 
 
   const [anchorEl, setAnchorEl] = useState(null);
 
-  // Abre el popover si el usuario está logueado, sino muestra aviso
+  const BASE_URL = 'http://localhost:3000'; 
+
   const handleClick = (event) => {
     if (!isAuthenticated) {
       showNotification('Debes estar logueado para acceder al carrito', 'warning');
@@ -34,9 +37,8 @@ const CartDropdown = () => {
   const open = Boolean(anchorEl);
   const id = open ? 'cart-popover' : undefined;
 
-  // Elimina un producto del carrito sin que se active el link
   const handleRemove = (e, productoId) => {
-    e.stopPropagation();
+    e.stopPropagation(); 
     e.preventDefault(); 
     removeFromCart(productoId);
   };
@@ -56,7 +58,7 @@ const CartDropdown = () => {
         onClose={handleClose}
         anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
         transformOrigin={{ vertical: 'top', horizontal: 'right' }}
-        slotProps={{ paper: { sx: { width: 360, borderRadius: 2 } } }}
+        slotProps={{ paper: { sx: { width: 360, borderRadius: 2 } } }} 
       >
         <Box sx={{ p: 2 }}>
           <Typography variant="h6" component="div">Tu Carrito</Typography>
@@ -64,48 +66,97 @@ const CartDropdown = () => {
         <Divider />
 
         {cart.productos.length === 0 ? (
-          <Typography sx={{ p: 2, color: 'text.secondary' }}>Tu carrito está vacío</Typography>
+          <Typography sx={{ p: 2, color: 'text.secondary', textAlign: 'center' }}>Tu carrito está vacío</Typography>
         ) : (
-          <List dense>
-            {cart.productos.map((producto) => (
-              <ListItem
-                key={producto.producto_id}
-                secondaryAction={
-                  <IconButton edge="end" aria-label="delete" onClick={(e) => handleRemove(e, producto.producto_id)}>
-                    <DeleteOutline />
-                  </IconButton>
-                }
-                component={RouterLink}
-                to={`/producto/${producto.producto_id}`}
-                sx={{ color: 'inherit', textDecoration: 'none', '&:hover': { bgcolor: 'action.hover' } }}
-              >
-                <ListItemAvatar>
-                  <Avatar variant="rounded" src={producto.imagen} />
-                </ListItemAvatar>
-                <ListItemText
-                  primary={producto.nombre_producto}
-                  secondary={`Cantidad: ${producto.cantidad} - $${(producto.subtotal).toFixed(2)}`}
-                />
-              </ListItem>
-            ))}
+          <List dense> 
+            {cart.productos.map((producto) => {
+              const imageUrl = producto.imagen 
+                ? `${BASE_URL}${producto.imagen}` 
+                : 'https://via.placeholder.com/40x40?text=Prod'; 
+
+              const itemPrice = typeof producto.precio_actual === 'number' && !isNaN(producto.precio_actual) ? producto.precio_actual : 0;
+              const itemQuantity = typeof producto.cantidad === 'number' && !isNaN(producto.cantidad) ? producto.cantidad : 0;
+              const itemSubtotal = itemPrice * itemQuantity;
+
+              return (
+                <ListItem
+                  key={producto.producto_id}
+                  secondaryAction={
+                    <IconButton edge="end" aria-label="delete" onClick={(e) => handleRemove(e, producto.producto_id)}>
+                      <DeleteOutline fontSize="small" color="error" /> 
+                    </IconButton>
+                  }
+                  component={RouterLink}
+                  to={`/producto/${producto.producto_id}`}
+                  onClick={handleClose} 
+                  sx={{ 
+                    color: 'inherit', 
+                    textDecoration: 'none', 
+                    '&:hover': { bgcolor: 'action.hover' },
+                    py: 1 
+                  }}
+                >
+                  <ListItemAvatar sx={{ minWidth: 0, mr: 1.5 }}> 
+                    <Box
+                        sx={{
+                            width: 50, 
+                            height: 50,
+                            borderRadius: '4px', 
+                            overflow: 'hidden', 
+                            display: 'flex', 
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            border: `1px solid ${theme.palette.grey[200]}`, 
+                            bgcolor: theme.palette.grey[50], 
+                        }}
+                    >
+                        <img 
+                            src={imageUrl} 
+                            alt={producto.nombre_producto} 
+                            style={{ 
+                                width: '100%', 
+                                height: '100%', 
+                                objectFit: 'contain', 
+                                borderRadius: 'inherit' 
+                            }} 
+                        />
+                    </Box>
+                  </ListItemAvatar>
+                  <ListItemText
+                    primary={
+                      <Typography variant="body2" sx={{ fontWeight: 'medium', lineHeight: 1.2 }}>
+                        {producto.nombre_producto}
+                      </Typography>
+                    }
+                    secondary={
+                      <Typography variant="caption" color="text.secondary">
+                        {itemQuantity} × ${itemPrice.toLocaleString('es-AR', { minimumFractionDigits: 2 })} = $
+                        {itemSubtotal.toLocaleString('es-AR', { minimumFractionDigits: 2 })}
+                      </Typography>
+                    }
+                  />
+                </ListItem>
+              );
+            })}
           </List>
         )}
 
         <Divider />
         <Box sx={{ p: 2 }}>
-          <Typography variant="h6" sx={{ display: 'flex', justifyContent: 'space-between' }}>
+          <Typography variant="h6" sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
             <span>Total:</span>
-            <span>${(cart.total || 0).toFixed(2)}</span>
+            <span>${(cart.total || 0).toLocaleString('es-AR', { minimumFractionDigits: 2 })}</span>
           </Typography>
           <Button
             component={RouterLink}
             to="/carrito"
             variant="contained"
             fullWidth
-            sx={{ mt: 2 }}
-            onClick={handleClose}
+            sx={{ py: 1, fontWeight: 'bold', borderRadius: '8px' }} 
+            onClick={handleClose} 
+            disabled={cart.productos.length === 0} 
           >
-            Ir al Carrito
+            Ver Carrito Completo
           </Button>
         </Box>
       </Popover>
