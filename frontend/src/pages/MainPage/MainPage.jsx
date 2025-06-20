@@ -18,7 +18,7 @@ const MainPage = () => {
 
   const { cart = { count: 0 }, loading: authLoading = true } = useAuth() || {};
 
-  // Trae todos los productos
+  // trae todos los productos
   const fetchProducto = async () => {
     try {
       const response = await fetch('http://localhost:3000/api/producto');
@@ -26,7 +26,7 @@ const MainPage = () => {
         throw new Error(`Error HTTP: ${response.status}`);
       }
       const data = await response.json();
-      // Si la respuesta está bien, devolvemos productos, sino un arreglo vacío
+
       return data.exito && Array.isArray(data.datos) ? data.datos : [];
     } catch (error) {
       console.error('Error al obtener productos:', error);
@@ -34,7 +34,7 @@ const MainPage = () => {
     }
   };
 
-  // Trae las categorías disponibles
+  // trae las categorías disponibles
   const fetchCategoria = async () => {
     try {
       const response = await fetch('http://localhost:3000/api/categoria');
@@ -43,20 +43,14 @@ const MainPage = () => {
       }
       const data = await response.json();
 
-      // Validamos el formato esperado
-      if (data.exito && Array.isArray(data.datos)) {
-        return data.datos;
-      } else {
-        console.warn("Respuesta inesperada de categorías:", data);
-        return [];
-      }
+      return data.exito && Array.isArray(data.datos) ? data.datos : [];
     } catch (error) {
       console.error('Error al obtener categorías:', error);
       throw error;
     }
   };
 
-  // Trae productos que están en oferta
+  // trae productos en oferta
   const fetchOfertas = async () => {
     try {
       const response = await fetch('http://localhost:3000/api/producto/ofertas');
@@ -72,12 +66,13 @@ const MainPage = () => {
     }
   };
 
-  // Carga datos al montar el componente
+  // carga los datos cuando se monta el componente
   useEffect(() => {
     const loadData = async () => {
       try {
         setState(prev => ({ ...prev, loading: true, error: null }));
-        // Cargamos todo en paralelo para mejorar tiempos
+
+        // carga todo en paralelo para que sea más rápido
         const [productoData, categoriaData, ofertasData] = await Promise.all([
           fetchProducto(),
           fetchCategoria(),
@@ -103,10 +98,8 @@ const MainPage = () => {
     loadData();
   }, []);
 
-  // Mientras carga, mostramos un spinner
   if (state.loading || authLoading) return <LoadingSpinner />;
 
-  // Si hay error, mostramos mensaje
   if (state.error) {
     return (
       <Container maxWidth="lg">
@@ -146,6 +139,6 @@ const MainPage = () => {
       </Container>
     </Box>
   );
-}
+};
 
 export default MainPage;

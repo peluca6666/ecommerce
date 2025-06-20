@@ -1,6 +1,6 @@
-import { useState } from 'react';
+import { useState } from 'react'; 
 import { useNavigate } from 'react-router-dom';
-import RegistroForm from '../../components/RegistroForm/RegistroForm.jsx'
+import RegistroForm from '../../components/RegistroForm/RegistroForm.jsx';
 import axios from 'axios';
 
 const initialState = {
@@ -15,17 +15,17 @@ export default function Register() {
   const [formulario, setFormulario] = useState(initialState);
   const [errores, setErrores] = useState({});
   const [isLoading, setIsLoading] = useState(false);
-  const [mensajeExito, setMensajeExito] = useState('');
+  const [estadoRegistro, setEstadoRegistro] = useState('formulario'); // puede ser 'formulario', 'exito' o 'error'
+  const [emailRegistrado, setEmailRegistrado] = useState('');
   const navigate = useNavigate();
 
-  // Función para actualizar los campos del formulario
+  // actualiza los campos del formulario y limpia error si existía
   const handleChange = (e) => {
     setFormulario({
       ...formulario,
       [e.target.name]: e.target.value,
     });
     
-    // Limpiar error del campo cuando el usuario empiece a escribir
     if (errores[e.target.name]) {
       setErrores({
         ...errores,
@@ -34,59 +34,80 @@ export default function Register() {
     }
   };
 
-  // Función que maneja el submit del formulario
+  // reenvía el email de verificación
+  const reenviarEmail = async () => {
+    try {
+      setIsLoading(true);
+      await axios.post('http://localhost:3000/api/resend-verification', {
+        email: emailRegistrado
+      });
+      
+      setErrores({ reenvio: 'email de verificación reenviado con éxito' });
+      setTimeout(() => {
+        setErrores({});
+      }, 5000);
+      
+    } catch (error) {
+      console.error('error al reenviar email:', error);
+      setErrores({ 
+        reenvio: error.response?.data?.error || 'error al reenviar el email de verificación' 
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // envía el formulario, valida y llama al backend
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Validaciones 
     const nuevosErrores = {};
     
-    // Validación de nombre
+    // validación nombre
     if (!formulario.nombre.trim()) {
-      nuevosErrores.nombre = 'El nombre es obligatorio';
+      nuevosErrores.nombre = 'el nombre es obligatorio';
     } else if (formulario.nombre.trim().length < 3) {
-      nuevosErrores.nombre = 'El nombre debe tener al menos 3 caracteres';
+      nuevosErrores.nombre = 'el nombre debe tener al menos 3 caracteres';
     } else if (!/^[A-Za-zÁÉÍÓÚáéíóúñÑ\s]+$/.test(formulario.nombre.trim())) {
-      nuevosErrores.nombre = 'El nombre no puede contener números ni caracteres especiales';
+      nuevosErrores.nombre = 'el nombre no puede contener números ni caracteres especiales';
     }
     
-    // Validación de apellido 
+    // validación apellido
     if (!formulario.apellido.trim()) {
-      nuevosErrores.apellido = 'El apellido es obligatorio';
+      nuevosErrores.apellido = 'el apellido es obligatorio';
     } else if (formulario.apellido.trim().length < 3) {
-      nuevosErrores.apellido = 'El apellido debe tener al menos 3 caracteres';
+      nuevosErrores.apellido = 'el apellido debe tener al menos 3 caracteres';
     } else if (!/^[A-Za-zÁÉÍÓÚáéíóúñÑ\s]+$/.test(formulario.apellido.trim())) {
-      nuevosErrores.apellido = 'El apellido no puede contener números ni caracteres especiales';
+      nuevosErrores.apellido = 'el apellido no puede contener números ni caracteres especiales';
     }
     
-    // Validación de email
+    // validación email
     if (!formulario.email.trim()) {
-      nuevosErrores.email = 'El email es obligatorio';
+      nuevosErrores.email = 'el email es obligatorio';
     } else if (!/\S+@\S+\.\S+/.test(formulario.email)) {
-      nuevosErrores.email = 'El email no es válido';
+      nuevosErrores.email = 'el email no es válido';
     }
     
-    // Validación de contraseña
+    // validación contraseña
     if (!formulario.contrasenia) {
-      nuevosErrores.contrasenia = 'La contraseña es obligatoria';
+      nuevosErrores.contrasenia = 'la contraseña es obligatoria';
     } else if (formulario.contrasenia.length < 8) {
-      nuevosErrores.contrasenia = 'La contraseña debe tener al menos 8 caracteres';
+      nuevosErrores.contrasenia = 'la contraseña debe tener al menos 8 caracteres';
     }
     
-    // Validación de confirmación de contraseña
+    // validación confirmación contraseña
     if (formulario.contrasenia !== formulario.confirmarContrasenia) {
-      nuevosErrores.confirmarContrasenia = 'Las contraseñas no coinciden';
+      nuevosErrores.confirmarContrasenia = 'las contraseñas no coinciden';
     }
 
     setErrores(nuevosErrores);
 
     if (Object.keys(nuevosErrores).length === 0) {
-      // Si no hay errores, enviar al backend
       setIsLoading(true);
-      setMensajeExito('');
+      setEstadoRegistro('formulario');
       
-      // Debug para ver qué datos se están enviando
-      console.log('Enviando datos:', {
+      // debug para ver datos enviados
+      console.log('enviando datos:', {
         nombre: formulario.nombre,
         apellido: formulario.apellido,
         email: formulario.email,
@@ -101,34 +122,174 @@ export default function Register() {
           contrasenia: formulario.contrasenia
         });
 
+        console.log('respuesta del registro:', response.data);
+        
         setIsLoading(false);
-        setMensajeExito('Usuario registrado con éxito! Redirigiendo...');
+        setEmailRegistrado(formulario.email);
+        setEstadoRegistro('exito');
         setFormulario(initialState);
         setErrores({});
 
-        setTimeout(() => navigate('/login'), 2000);
       } catch (error) {
-        console.error('Error completo:', error);
-        console.error('Respuesta del servidor:', error.response?.data);
+        console.error('error completo:', error);
+        console.error('respuesta del servidor:', error.response?.data);
         
         setIsLoading(false);
+        setEstadoRegistro('formulario');
         
-        // Manejar errores del backend 
+        // manejo de errores desde backend
         if (error.response?.data?.errores) {
-          // Si el backend devuelve un array de errores de validación
+          // backend devuelve array de errores
           const errorMessage = error.response.data.errores.join('. ');
           setErrores({ general: errorMessage });
         } else if (error.response?.data?.error) {
-          // Si el backend devuelve un error específico, como email ya registrado por ejemplo
+          // backend devuelve error específico (ej: email ya registrado)
           setErrores({ general: error.response.data.error });
         } else {
-          // Si no hay un error específico, mostramos un mensaje genérico
-          setErrores({ general: 'Error de conexión con el servidor' });
+          // error genérico de conexión
+          setErrores({ general: 'error de conexión con el servidor' });
         }
       }
     }
   };
 
+  // si el registro fue exitoso, muestra pantalla de verificación
+  if (estadoRegistro === 'exito') {
+    return (
+      <div style={{
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        minHeight: '100vh',
+        backgroundColor: '#f5f5f5',
+        padding: '20px'
+      }}>
+        <div style={{
+          backgroundColor: 'white',
+          padding: '40px',
+          borderRadius: '12px',
+          boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
+          maxWidth: '500px',
+          width: '100%',
+          textAlign: 'center'
+        }}>
+          {/* icono de email */}
+          <div style={{
+            width: '80px',
+            height: '80px',
+            backgroundColor: '#e3f2fd',
+            borderRadius: '50%',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            margin: '0 auto 24px',
+            fontSize: '40px'
+          }}>
+            📧
+          </div>
+          
+          <h2 style={{
+            color: '#1976d2',
+            marginBottom: '16px',
+            fontSize: '24px',
+            fontWeight: 'bold'
+          }}>
+            ¡registro exitoso!
+          </h2>
+          
+          <p style={{
+            color: '#666',
+            marginBottom: '24px',
+            fontSize: '16px',
+            lineHeight: '1.5'
+          }}>
+            te hemos enviado un correo de verificación a:
+          </p>
+          
+          <div style={{
+            backgroundColor: '#f8f9fa',
+            padding: '12px',
+            borderRadius: '8px',
+            marginBottom: '24px',
+            fontWeight: 'bold',
+            color: '#1976d2',
+            fontSize: '16px'
+          }}>
+            {emailRegistrado}
+          </div>
+          
+          <div style={{
+            backgroundColor: '#fff3cd',
+            border: '1px solid #ffeaa7',
+            borderRadius: '8px',
+            padding: '16px',
+            marginBottom: '24px',
+            textAlign: 'left'
+          }}>
+            <h4 style={{ 
+              margin: '0 0 12px 0', 
+              color: '#856404',
+              fontSize: '16px'
+            }}>
+              📋 pasos siguientes:
+            </h4>
+            <ol style={{ 
+              margin: 0, 
+              paddingLeft: '20px',
+              color: '#856404',
+              fontSize: '14px'
+            }}>
+              <li>revisa tu bandeja de entrada</li>
+              <li>busca el correo de SaloMarket</li>
+              <li>haz clic en el enlace de verificación</li>
+              <li>¡inicia sesión y disfruta!</li>
+            </ol>
+          </div>
+          
+          <div style={{
+            backgroundColor: '#f0f8ff',
+            border: '1px solid #b3d9ff',
+            borderRadius: '8px',
+            padding: '12px',
+            marginBottom: '24px',
+            fontSize: '14px',
+            color: '#0066cc'
+          }}>
+            💡 <strong>tip:</strong> si no encontrás el correo, revisá tu carpeta de spam o correo no deseado
+          </div>
+          
+          {/* botones de acción */}
+          <div style={{
+            display: 'flex',
+            gap: '12px',
+            flexDirection: 'window.innerWidth < 480 ? column : row'
+          }}>
+            <button
+              onClick={() => navigate('/login')}
+              style={{
+                flex: 1,
+                padding: '12px 24px',
+                backgroundColor: '#1976d2',
+                color: 'white',
+                border: 'none',
+                borderRadius: '8px',
+                fontSize: '14px',
+                fontWeight: 'bold',
+                cursor: 'pointer',
+                transition: 'background-color 0.2s'
+              }}
+              onMouseOver={(e) => e.target.style.backgroundColor = '#1565c0'}
+              onMouseOut={(e) => e.target.style.backgroundColor = '#1976d2'}
+            >
+              ir a iniciar sesión
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // muestra el formulario de registro
   return (
     <RegistroForm
       formulario={formulario}
@@ -136,7 +297,7 @@ export default function Register() {
       isLoading={isLoading}
       onChange={handleChange}
       onSubmit={handleSubmit}
-      mensajeExito={mensajeExito}
+      mensajeExito={''} // ya no usamos este mensaje
     />
   );
 }

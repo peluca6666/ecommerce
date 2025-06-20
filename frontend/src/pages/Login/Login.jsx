@@ -1,9 +1,8 @@
-import { useState } from 'react';
+import { useState, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { validarLogin } from '../../validations/loginFrontend.js';
 import LoginForm from '../../components/LoginForm/LoginForm.jsx';
-import { useContext } from 'react';
 import { AuthContext } from '../../context/AuthContext'; 
 
 const Login = () => {
@@ -17,7 +16,7 @@ const Login = () => {
   const navigate = useNavigate();
   const { login } = useContext(AuthContext);
 
-  // Actualiza el estado del formulario y limpia errores parciales si existían
+  // maneja los cambios en los inputs y limpia el error si ya había
   const handleChange = (e) => {
     setFormulario({
       ...formulario,
@@ -32,13 +31,14 @@ const Login = () => {
     }
   };
 
-  // Valida y envía el formulario para iniciar sesión
+  // valida los datos y si todo está ok, manda la solicitud de login
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
     setErrores({});
 
     const erroresValidados = validarLogin(formulario);
+
     if (Object.keys(erroresValidados).length > 0) {
       setErrores(erroresValidados);
       setIsLoading(false);
@@ -48,17 +48,10 @@ const Login = () => {
     try {
       const response = await axios.post('http://localhost:3000/api/login', formulario);
 
-      const fueValido = login(response.data.token); // Actualiza contexto con token
+      const fueValido = login(response.data.token); // guarda el token en el contexto
 
       if (fueValido) {
-        // Decodificamos el token para obtener el rol y redirigir según corresponda
-        const rol = JSON.parse(atob(response.data.token.split('.')[1])).rol;
-
-        if (rol === 'admin') {
-          navigate('/admin');
-        } else {
-          navigate('/main');
-        }
+        navigate('/main');
       } else {
         setErrores({ general: 'Debes verificar tu cuenta para poder iniciar' });
       }

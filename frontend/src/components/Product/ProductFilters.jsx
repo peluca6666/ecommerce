@@ -8,7 +8,7 @@ import axios from 'axios';
 const ProductFilters = ({ filtros, onFilterChange, onCheckboxChange }) => {
     const [categorias, setCategorias] = useState([]);
 
-    // Carga las categorías activas al montar el componente para el filtro
+    // cargo categorías activas al montar para el filtro
     useEffect(() => {
         const fetchCategorias = async () => {
             try {
@@ -17,7 +17,7 @@ const ProductFilters = ({ filtros, onFilterChange, onCheckboxChange }) => {
                     setCategorias(response.data.datos);
                 }
             } catch (error) {
-                console.error("Error al cargar categorías para filtros:", error);
+                console.error("error al cargar categorías para filtros:", error);
             }
         };
         fetchCategorias();
@@ -82,7 +82,7 @@ const ProductFilters = ({ filtros, onFilterChange, onCheckboxChange }) => {
                     control={
                         <Checkbox
                             name="es_oferta"
-                            // Checkeamos si el filtro de ofertas está activo
+                            // checkeamos si el filtro de ofertas está activo
                             checked={filtros.es_oferta === 'true'}
                             onChange={onCheckboxChange}
                         />

@@ -7,9 +7,9 @@ import { enviarMailBienvenida } from '../utils/emailService.js';
 const { sign, verify } = pkg;
 
 /**
- * Crea un nuevo usuario en la base de datos
- * @param {object} datosUsuario - Datos del usuario
- * @returns {Promise<object>} - El objeto del nuevo usuario creado
+ * Crea un usuario nuevo en la BD
+ * @param {Object} datosUsuario Datos del usuario
+ * @returns {Object} Usuario creado (id, nombre, email, rol)
  */
 export async function crearUsuario(datosUsuario) {
   try {
@@ -26,8 +26,8 @@ export async function crearUsuario(datosUsuario) {
       datosUsuario.apellido,
       datosUsuario.email,
       hash,
-      'cliente', // rol por defecto, si queremos que sea admin lo establecemos en la BD
-      false,     // verificado es false al crear
+      'cliente', // rol por defecto
+      false,     // aún no verificado
       datosUsuario.dni || null,
       datosUsuario.telefono || null,
       datosUsuario.direccion || null
@@ -54,24 +54,19 @@ export async function crearUsuario(datosUsuario) {
 }
 
 /**
- * Procesa el login de un usuario, validando sus credenciales y estado de verificación
- * @param {string} email - Email del usuario
- * @param {string} contrasenia - Contraseña del usuario
- * @returns {Promise<string|null>} - Devuelve el token JWT, 'no-verificado', o null si las credenciales son incorrectas
+ * Loguea usuario y devuelve token si está ok
+ * @param {string} email Email usuario
+ * @param {string} contrasenia Contraseña para validar
+ * @returns {string|null|'no-verificado'} Token JWT o null o string según resultado
  */
 export async function loginUsuario(email, contrasenia) {
   const usuario = await obtenerUsuarioPorEmail(email);
-  if (!usuario) {
-    return null; // Usuario no encontrado
-  }
-  if (!usuario.verificado) {
-    return 'no-verificado';
-  }
+
+  if (!usuario) return null;
+  if (!usuario.verificado) return 'no-verificado';
 
   const contraseniaValida = await compararContrasenia(contrasenia, usuario.contrasenia);
-  if (!contraseniaValida) {
-    return null; // Contraseña incorrecta
-  }
+  if (!contraseniaValida) return null;
 
   const payload = {
     usuario_id: usuario.usuario_id,
@@ -82,9 +77,9 @@ export async function loginUsuario(email, contrasenia) {
 }
 
 /**
- * Verifica una cuenta de usuario usando un token JWT
- * @param {string} token - El token de verificación
- * @returns {Promise<string>} Devuelve 'exitoso', 'no-encontrado' o 'token-invalido'.
+ * Verifica cuenta con token
+ * @param {string} token Token JWT para verificar
+ * @returns {string} 'exitoso', 'no-encontrado' o 'token-invalido'
  */
 export async function verificarCuentaPorToken(token) {
   try {
@@ -94,17 +89,21 @@ export async function verificarCuentaPorToken(token) {
 
     return resultado.affectedRows > 0 ? 'exitoso' : 'no-encontrado';
   } catch (err) {
-    console.error('Error en servicio al verificar cuenta:', err);
+    console.error('Error al verificar cuenta:', err);
     return 'token-invalido';
   }
 }
 
-//Funciones de ayuda del servicio de usuario
-
+/**
+ * Busca un usuario activo por email
+ * @param {string} email Email para buscar
+ * @returns {Usuario|null} Instancia Usuario o null si no existe
+ */
 export async function obtenerUsuarioPorEmail(email) {
   try {
-    const sql = 'SELECT * FROM usuario WHERE email = ? LIMIT 1';
+    const sql = 'SELECT * FROM usuario WHERE email = ? AND activo = TRUE LIMIT 1';
     const [rows] = await pool.execute(sql, [email]);
+
     if (rows.length === 0) return null;
 
     const u = rows[0];
@@ -113,98 +112,76 @@ export async function obtenerUsuarioPorEmail(email) {
       u.rol, Boolean(u.verificado), u.dni, u.telefono, u.direccion
     );
   } catch (error) {
-    console.error('Error obteniendo usuario por mail:', error);
+    console.error('Error buscando usuario por email:', error);
     throw error;
   }
 }
 
+/**
+ * Devuelve datos de usuario por ID
+ * @param {number} usuario_id ID del usuario
+ * @returns {Object|null} Datos del usuario o null si no existe
+ */
 export async function obtenerUsuarioPorId(usuario_id) {
   try {
-    const sql = 'SELECT usuario_id, nombre, apellido, email, rol, dni, telefono, direccion FROM usuario WHERE usuario_id = ? LIMIT 1';
+    const sql = `
+      SELECT 
+        usuario_id, nombre, apellido, email, rol, dni, telefono, direccion, 
+        provincia, localidad, codigo_postal 
+      FROM usuario 
+      WHERE usuario_id = ? 
+      LIMIT 1
+    `;
+
     const [rows] = await pool.execute(sql, [usuario_id]);
     return rows.length > 0 ? rows[0] : null;
   } catch (error) {
-    console.error('Error obteniendo usuario por ID:', error);
+    console.error('Error buscando usuario por ID:', error);
     throw error;
   }
 }
 
 /**
- * Actualiza los datos del perfil de un usuario
- * Esta versión está corregida para aceptar todos los campos del perfil
- * @param {number} userId 
- * @param {object} profileData - Datos a actualizar (nombre, apellido, dni, etc.)
- * @returns {Promise<object>} El objeto del usuario actualizado
+ * Actualiza perfil del usuario
+ * @param {number} userId ID usuario
+ * @param {Object} profileData Datos para actualizar
+ * @returns {Object} Datos actualizados del usuario
  */
 export async function updateUserProfile(userId, profileData) {
-    // Obtenemos todos los posibles campos del objeto que llega del frontend
-    const { 
-        nombre, 
-        apellido, 
-        dni, 
-        telefono, 
-        direccion, 
-        provincia, 
-        localidad, 
-        codigo_postal 
-    } = profileData;
+  const { 
+    nombre, apellido, dni, telefono, direccion, 
+    provincia, localidad, codigo_postal 
+  } = profileData;
 
-    const fieldsToUpdate = [];
-    const values = [];
-    
-    if (nombre != null) { 
-        fieldsToUpdate.push('nombre = ?');
-        values.push(nombre);
-    }
-    if (apellido != null) {
-        fieldsToUpdate.push('apellido = ?');
-        values.push(apellido);
-    }
-    if (dni != null) {
-        fieldsToUpdate.push('dni = ?');
-        values.push(dni);
-    }
-    if (telefono != null) {
-        fieldsToUpdate.push('telefono = ?');
-        values.push(telefono);
-    }
-    if (direccion != null) {
-        fieldsToUpdate.push('direccion = ?');
-        values.push(direccion);
-    }
-    if (provincia != null) {
-        fieldsToUpdate.push('provincia = ?');
-        values.push(provincia);
-    }
-    if (localidad != null) {
-        fieldsToUpdate.push('localidad = ?');
-        values.push(localidad);
-    }
-    if (codigo_postal != null) {
-        fieldsToUpdate.push('codigo_postal = ?');
-        values.push(codigo_postal);
-    }
+  const fieldsToUpdate = [];
+  const values = [];
 
-    // Si no llegó ningún campo para actualizar, lanzamos un error.
-    if (fieldsToUpdate.length === 0) {
-        throw { statusCode: 400, message: 'No se proporcionaron campos para actualizar' };
-    }
+  if (nombre != null) { fieldsToUpdate.push('nombre = ?'); values.push(nombre); }
+  if (apellido != null) { fieldsToUpdate.push('apellido = ?'); values.push(apellido); }
+  if (dni != null) { fieldsToUpdate.push('dni = ?'); values.push(dni); }
+  if (telefono != null) { fieldsToUpdate.push('telefono = ?'); values.push(telefono); }
+  if (direccion != null) { fieldsToUpdate.push('direccion = ?'); values.push(direccion); }
+  if (provincia != null) { fieldsToUpdate.push('provincia = ?'); values.push(provincia); }
+  if (localidad != null) { fieldsToUpdate.push('localidad = ?'); values.push(localidad); }
+  if (codigo_postal != null) { fieldsToUpdate.push('codigo_postal = ?'); values.push(codigo_postal); }
 
-    const sql = `UPDATE usuario SET ${fieldsToUpdate.join(', ')} WHERE usuario_id = ?`;
-    values.push(userId); // Añadimos el userId al final para el WHERE
+  if (fieldsToUpdate.length === 0) {
+    throw { statusCode: 400, message: 'No se enviaron datos para actualizar' };
+  }
 
-    await pool.execute(sql, values);
+  const sql = `UPDATE usuario SET ${fieldsToUpdate.join(', ')} WHERE usuario_id = ?`;
+  values.push(userId);
 
-    // Devolvemos el perfil actualizado para confirmar los cambios
-    return obtenerUsuarioPorId(userId);
+  await pool.execute(sql, values);
+  return obtenerUsuarioPorId(userId);
 }
 
 /**
- * Cambia la contraseña de un usuario después de verificar la contraseña actual
- * @param {number} userId 
- * @param {string} contraseniaActual 
- * @param {string} nuevaContrasenia 
- * @returns {Promise<boolean>} True si la contraseña se cambió correctamente
+ * Cambia la contraseña de un usuario
+ * @param {number} userId ID usuario
+ * @param {string} contraseniaActual Contraseña vieja para validar
+ * @param {string} nuevaContrasenia Nueva contraseña
+ * @returns {boolean} true si se cambió ok
  */
 export async function changeUserPassword(userId, contraseniaActual, nuevaContrasenia) {
   const usuario = await obtenerUsuarioPorEmail((await obtenerUsuarioPorId(userId)).email);
@@ -224,26 +201,31 @@ export async function changeUserPassword(userId, contraseniaActual, nuevaContras
 }
 
 /**
- * Obtiene todos los usuarios para el panel de admin
- * No devuelve la contraseña por seguridad
- * @returns {Promise<Array>}
+ * Trae todos los usuarios activos (sin contraseña)
+ * @returns {Array} Lista de usuarios
  */
 export async function obtenerTodosLosUsuarios() {
   try {
-    const sql = 'SELECT usuario_id, nombre, apellido, email, dni, direccion, telefono, provincia, localidad, codigo_postal, rol, activo FROM usuario ORDER BY usuario_id DESC';
+    const sql = `
+      SELECT usuario_id, nombre, apellido, email, dni, direccion, telefono, 
+      provincia, localidad, codigo_postal, rol, activo 
+      FROM usuario 
+      WHERE activo = TRUE 
+      ORDER BY usuario_id DESC
+    `;
     const [rows] = await pool.query(sql);
     return rows;
   } catch (error) {
-    console.error("ERROR EN EL SERVICIO AL BUSCAR TODOS LOS USUARIOS:", error);
+    console.error("Error al buscar usuarios:", error);
     throw error;
   }
 }
 
 /**
- * Podemos cambiar el rol de un usuario
- * @param {number} usuarioId
- * @param {string} nuevoRol cliente o admin
- * @returns {Promise<boolean>}
+ * Cambia el rol de un usuario
+ * @param {number} usuarioId ID usuario
+ * @param {string} nuevoRol Nuevo rol a asignar
+ * @returns {boolean} true si cambió el rol
  */
 export async function updateUserRole(usuarioId, nuevoRol) {
   const query = 'UPDATE usuario SET rol = ? WHERE usuario_id = ?';
@@ -252,9 +234,9 @@ export async function updateUserRole(usuarioId, nuevoRol) {
 }
 
 /**
- * Activa o desactiva la cuenta de un usuario
- * @param {number} usuarioId
- * @returns {Promise<boolean>}
+ * Activa o desactiva usuario
+ * @param {number} usuarioId ID usuario
+ * @returns {boolean} true si se cambió el estado
  */
 export async function toggleUserStatus(usuarioId) {
   const query = 'UPDATE usuario SET activo = NOT activo WHERE usuario_id = ?';

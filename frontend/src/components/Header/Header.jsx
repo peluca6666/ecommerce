@@ -1,5 +1,5 @@
 import { AppBar, Toolbar, Box, Typography, useMediaQuery, useTheme, IconButton, Drawer, List, ListItem } from "@mui/material";
-import { Menu as MenuIcon, } from "@mui/icons-material";
+import { Menu as MenuIcon } from "@mui/icons-material";
 import { useState } from "react";
 import SearchBar from "./SearchBar";
 import NavMenu from "./NavMenu";
@@ -12,21 +12,25 @@ const Header = ({ categoria }) => {
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const [drawerOpen, setDrawerOpen] = useState(false);
 
-  const handleDrawerToggle = () => {
-    setDrawerOpen(!drawerOpen);
-  };
+  const handleDrawerToggle = () => setDrawerOpen(!drawerOpen);
 
   return (
     <AppBar position="sticky" color="default" elevation={1}>
-      <Toolbar sx={{ 
-        display: 'flex', 
-        alignItems: 'center',
-        px: { xs: 1, sm: 2, md: 3 },
-        minHeight: { xs: 56, sm: 64 }
-      }}>
-        
+      <Toolbar
+        sx={{
+          display: 'flex',
+          alignItems: 'center',
+          px: { xs: 1, sm: 2, md: 3 },
+          minHeight: { xs: 56, sm: 64 }
+        }}
+      >
         {isMobile && (
-          <IconButton color="inherit" edge="start" onClick={handleDrawerToggle} sx={{ mr: 1 }}>
+          <IconButton
+            color="inherit"
+            edge="start"
+            onClick={handleDrawerToggle}
+            sx={{ mr: 1 }}
+          >
             <MenuIcon />
           </IconButton>
         )}
@@ -43,10 +47,10 @@ const Header = ({ categoria }) => {
             cursor: 'pointer',
           }}
         >
-          SaloMarket
+          Salomarket
         </Typography>
 
-        {!isMobile && <SearchBar onSearch={(term) => console.log('Buscar:', term)} />}
+        {!isMobile && <SearchBar onSearch={(term) => console.log('buscar:', term)} />}
 
         {!isMobile && (
           <Box sx={{ display: 'flex', ml: 'auto', gap: 2 }}>
@@ -54,57 +58,60 @@ const Header = ({ categoria }) => {
           </Box>
         )}
 
-        <Box sx={{ 
-          marginLeft: isMobile ? 0 : 'auto', 
-          display: 'flex', 
-          alignItems: 'center', 
-          gap: { xs: 1, sm: 2 } 
-        }}>
+        <Box
+          sx={{
+            marginLeft: isMobile ? 0 : 'auto',
+            display: 'flex',
+            alignItems: 'center',
+            gap: { xs: 1, sm: 2 },
+          }}
+        >
           <CartDropdown />
           <UserButton />
         </Box>
 
-        <Drawer 
-          variant="temporary" 
-          anchor="left" 
-          open={drawerOpen} 
-          onClose={handleDrawerToggle}  
-          ModalProps={{ keepMounted: true }} // Evita desmontar en móviles para mejor rendimiento
+        <Drawer
+          variant="temporary"
+          anchor="left"
+          open={drawerOpen}
+          onClose={handleDrawerToggle}
+          ModalProps={{ keepMounted: true }}
           sx={{
             display: { xs: 'block', md: 'none' },
-            '& .MuiDrawer-paper': { 
-              boxSizing: 'border-box', 
+            '& .MuiDrawer-paper': {
+              boxSizing: 'border-box',
               width: 240,
-              pt: 2
+              pt: 2,
             },
           }}
         >
           <List>
             <ListItem sx={{ px: 2, pb: 2 }}>
-              {/* Buscador en el menú lateral */}
-              <SearchBar 
+              <SearchBar
                 onSearch={(term) => {
-                  console.log('Buscar:', term);
+                  console.log('buscar:', term);
                   setDrawerOpen(false);
-                }} 
+                }}
                 initialValue=""
               />
             </ListItem>
-            <ListItem sx={{ 
-              px: 2,
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'stretch',
-              gap: 1
-            }}>
-              <NavMenu 
-                mobile 
+            <ListItem
+              sx={{
+                px: 2,
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'stretch',
+                gap: 1,
+              }}
+            >
+              <NavMenu
+                mobile
                 onItemClick={() => setDrawerOpen(false)}
                 sx={{
                   display: 'flex',
                   flexDirection: 'column',
                   gap: 1,
-                  width: '100%'
+                  width: '100%',
                 }}
               />
             </ListItem>

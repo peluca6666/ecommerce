@@ -116,7 +116,7 @@ const ProductDetailPage = () => {
 
     return (
         <Container maxWidth="lg" sx={{ my: { xs: 2, md: 4 } }}> 
-            {/* Botón volver */}
+            {/* botón volver */}
             <Box sx={{ mb: { xs: 2, md: 3 }, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 <Button 
                     startIcon={<ArrowBack />} 
@@ -137,7 +137,7 @@ const ProductDetailPage = () => {
                 }}>
                 <Grid container spacing={{ xs: 4, md: 8 }}> 
                     
-                    {/* Imagen principal y thumbnails*/}
+                    {/* imagen principal y thumbnails*/}
                     <Grid item xs={12} md={6} 
                           sx={{ 
                             display: 'flex', 
@@ -149,7 +149,7 @@ const ProductDetailPage = () => {
                               maxWidth: '50%', 
                             }),
                           }}>
-                        {/* Contenedor de la imagen principal */}
+                        {/* contenedor de la imagen principal */}
                         <Box 
                             sx={{ 
                                 mb: { xs: 2, md: 3 }, 
@@ -177,7 +177,7 @@ const ProductDetailPage = () => {
                             />
                         </Box>
                         
-                        {/* Galería de thumbnails */}
+                        {/* galería de thumbnails */}
                         {allImages.length > 1 && ( 
                             <Box sx={{ 
                                 display: 'flex', 
@@ -226,7 +226,7 @@ const ProductDetailPage = () => {
                         )}
                     </Grid>
 
-                    {/* Detalles del producto */}
+                    {/* detalles del producto */}
                     <Grid item xs={12} md={6}> 
                         <Stack spacing={{ xs: 2.5, md: 4 }}>                  
                             <Typography variant="h4" component="h1" fontWeight="bold" 
@@ -234,7 +234,7 @@ const ProductDetailPage = () => {
                                 {producto.nombre_producto}
                             </Typography>
 
-                            {/* Precios y Descuento */}
+                            {/* precios y descuento */}
                             <Box>
                                 {hasDiscount && (
                                     <Typography 
@@ -261,9 +261,9 @@ const ProductDetailPage = () => {
                                 </Box>                               
                             </Box>
                             
-                            <Divider sx={{ my: 0 }} /> {/* Divider con margen manejado por Stack */}
+                            <Divider sx={{ my: 0 }} /> {/* divider con margen manejado por Stack */}
 
-                            {/* Descripción */}
+                            {/* descripción */}
                             <Typography variant="body1" component="p"
                                         sx={{ 
                                             whiteSpace: 'pre-wrap', 
@@ -273,7 +273,7 @@ const ProductDetailPage = () => {
                                 {producto.descripcion}
                             </Typography>
                             
-                            {/* Stock y envío */}
+                            {/* stock y envío */}
                             <Box>
                                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
                                     <Typography variant="body2" color="text.primary" fontWeight="medium">
@@ -290,7 +290,7 @@ const ProductDetailPage = () => {
                             
                             <Divider sx={{ my: 0 }} />
 
-                            {/* Selector de Cantidad */}
+                            {/* selector de cantidad */}
                             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}> 
                                 <Typography variant="subtitle1" fontWeight="medium" color="text.primary">Cantidad:</Typography>
                                 <IconButton 
@@ -332,7 +332,7 @@ const ProductDetailPage = () => {
                                 </IconButton>
                             </Box>
 
-                            {/* Botones de Acción */}
+                            {/* botones de acción */}
                             <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, gap: { xs: 1.5, sm: 2 } }}>
                                 <Button 
                                     variant="contained" 
@@ -383,7 +383,7 @@ const ProductDetailPage = () => {
                 </Grid>
             </Paper>
 
-            {/* Descripcion producto */}
+            {/* descripcion producto */}
             {producto.descripcion_larga && ( 
                 <Paper elevation={3} sx={{ mt: { xs: 4, md: 6 }, p: { xs: 2, sm: 3, md: 4 }, borderRadius: theme.shape.borderRadius * 2, boxShadow: theme.shadows[3] }}>
                     <Typography variant="h6" component="h3" gutterBottom fontWeight="bold" color="text.primary" sx={{ mb: 2 }}>
@@ -395,7 +395,7 @@ const ProductDetailPage = () => {
                 </Paper>
             )}
 
-            {/* Productos relacionados solo si existen */}
+            {/* productos relacionados solo si existen */}
             {productosRelacionados.length > 0 && (
                 <Box sx={{ mt: { xs: 4, md: 8 } }}> 
                     <Typography variant="h5" component="h2" gutterBottom fontWeight="bold" sx={{ textAlign: 'center', mb: 3 }}>

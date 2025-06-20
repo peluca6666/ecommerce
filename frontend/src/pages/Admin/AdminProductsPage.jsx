@@ -1,17 +1,18 @@
 import * as React from 'react';
 import { useState, useEffect } from 'react';
 import { DataGrid } from '@mui/x-data-grid';
-import { 
-  Box, Button, Typography, Dialog, DialogActions, DialogContent, 
-  DialogTitle, TextField, Select, MenuItem, InputLabel, FormControl, 
-  styled, Grid, IconButton 
+import {
+  Box, Button, Typography, Dialog, DialogActions, DialogContent,
+  DialogTitle, TextField, Select, MenuItem, InputLabel, FormControl,
+  styled, Grid, IconButton,
+  Snackbar, Alert
 } from '@mui/material';
 import Title from './Title';
 import EditIcon from '@mui/icons-material/Edit';
 import ToggleOnIcon from '@mui/icons-material/ToggleOn';
 import ToggleOffIcon from '@mui/icons-material/ToggleOff';
 
-// Estado inicial para crear/editar producto con campos vacíos
+// estado inicial para crear o editar producto
 const initialProductState = {
   nombre_producto: '',
   descripcion: '',
@@ -21,7 +22,7 @@ const initialProductState = {
   categoria_id: '',
 };
 
-// Input invisible para estilizar botones de subir archivo
+// input invisible para estilizar botones de subir archivos
 const VisuallyHiddenInput = styled('input')({
   clip: 'rect(0 0 0 0)',
   clipPath: 'inset(50%)',
@@ -35,53 +36,98 @@ const VisuallyHiddenInput = styled('input')({
 });
 
 export default function AdminProductsPage() {
-  // --- ESTADOS DEL COMPONENTE ---
+  // --- estados del componente ---
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null); 
-  const [open, setOpen] = useState(false); 
+  const [error, setError] = useState(null);
+  const [open, setOpen] = useState(false);
   const [newProduct, setNewProduct] = useState(initialProductState);
-  const [categories, setCategories] = useState([]); 
-  const [editingProduct, setEditingProduct] = useState(null); 
-  const [mainImageFile, setMainImageFile] = useState(null); 
-  const [secondaryImageFiles, setSecondaryImageFiles] = useState([]); 
+  const [categories, setCategories] = useState([]);
+  const [editingProduct, setEditingProduct] = useState(null);
+  const [mainImageFile, setMainImageFile] = useState(null);
+  const [secondaryImageFiles, setSecondaryImageFiles] = useState([]);
 
-  // --- FETCH DE PRODUCTOS DESDE LA API ---
+  // estados para snackbar (alertas)
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState('');
+  const [snackbarSeverity, setSnackbarSeverity] = useState('success');
+
+  // estados para diálogo de confirmación
+  const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
+  const [confirmDialogMessage, setConfirmDialogMessage] = useState('');
+  const [confirmAction, setConfirmAction] = useState(null);
+
+  // muestra snackbar con mensaje y severidad
+  const showSnackbar = (message, severity) => {
+    setSnackbarMessage(message);
+    setSnackbarSeverity(severity);
+    setSnackbarOpen(true);
+  };
+
+  // cierra snackbar
+  const handleCloseSnackbar = (event, reason) => {
+    if (reason === 'clickaway') return;
+    setSnackbarOpen(false);
+  };
+
+  // abre diálogo de confirmación con mensaje y acción a ejecutar
+  const handleOpenConfirmDialog = (message, action) => {
+    setConfirmDialogMessage(message);
+    setConfirmAction(() => action);
+    setConfirmDialogOpen(true);
+  };
+
+  // confirma acción del diálogo
+  const handleConfirmAction = () => {
+    if (confirmAction) confirmAction();
+    setConfirmDialogOpen(false);
+    setConfirmAction(null);
+  };
+
+  // cancela diálogo
+  const handleCancelConfirmDialog = () => {
+    setConfirmDialogOpen(false);
+    setConfirmAction(null);
+  };
+
+  // --- fetch de productos desde API ---
   const fetchProducts = async () => {
     try {
-      const token = localStorage.getItem('token'); // Token para autenticación
+      const token = localStorage.getItem('token');
       const response = await fetch('http://localhost:3000/api/producto', {
-        headers: { 'Authorization': `Bearer ${token}` }
+        headers: { Authorization: `Bearer ${token}` },
       });
-      if (!response.ok) throw new Error('No se pudo conectar con la API de productos');
+      if (!response.ok) throw new Error('no se pudo conectar con la API de productos');
       const data = await response.json();
-      setProducts(data.datos || []); // Actualiza estado con productos recibidos
+      setProducts(data.datos || []);
     } catch (err) {
-      setError(err.message); // Manejo simple de error
+      setError(err.message);
+      showSnackbar(`Error al cargar productos: ${err.message}`, 'error');
     } finally {
-      setLoading(false); // Finaliza estado de carga
+      setLoading(false);
     }
   };
 
-  // --- USEEFFECT PARA CARGAR CATEGORÍAS Y PRODUCTOS AL MONTAR ---
+  // --- useEffect para cargar categorías y productos al montar ---
   useEffect(() => {
     const fetchCategories = async () => {
       try {
         const response = await fetch('http://localhost:3000/api/categoria');
-        if (!response.ok) throw new Error('No se pudieron cargar las categorías');
+        if (!response.ok) throw new Error('no se pudieron cargar las categorías');
         const data = await response.json();
-        setCategories(data.datos || []); // Actualiza estado con categorías
+        setCategories(data.datos || []);
       } catch (catError) {
         console.error("Error fetching categories:", catError);
+        showSnackbar(`Error al cargar categorías: ${catError.message}`, 'error');
       }
     };
     fetchCategories();
     fetchProducts();
   }, []);
 
-  // --- MANEJADORES DE EVENTOS ---
+  // --- manejadores de eventos ---
 
-  // Cierra el modal y resetea estados de producto e imágenes
+  // cierra modal y resetea estados
   const handleClose = () => {
     setOpen(false);
     setNewProduct(initialProductState);
@@ -90,80 +136,79 @@ export default function AdminProductsPage() {
     setSecondaryImageFiles([]);
   };
 
-  // Abre modal con datos para editar un producto
+  // abre modal para editar producto
   const handleEditClick = (product) => {
     setEditingProduct(product);
-    setNewProduct({ ...product }); // Clona producto para editar sin mutar original
+    setNewProduct({ ...product });
     setOpen(true);
   };
 
-  // Actualiza los campos del formulario de producto conforme se escriben
+  // actualiza campos del formulario
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setNewProduct({ ...newProduct, [name]: value });
   };
 
-  // Selección de imagen principal
+  // selecciona imagen principal
   const handleFileChange = (e) => {
     if (e.target.files[0]) setMainImageFile(e.target.files[0]);
   };
 
-  // Selección de imágenes secundarias 
+  // selecciona imágenes secundarias
   const handleMultipleFileChange = (e) => {
     if (e.target.files) setSecondaryImageFiles(Array.from(e.target.files));
   };
 
-  // Cambia el estado activo/inactivo de un producto 
+  // cambia estado activo/inactivo con confirmación
   const handleToggleActivo = async (id, estadoActual) => {
-    const confirmacion = window.confirm(`¿Estás seguro de que querés ${estadoActual ? 'DESACTIVAR' : 'ACTIVAR'} este producto?`);
-    if (!confirmacion) return;
-
-    try {
-      const token = localStorage.getItem('token');
-      const response = await fetch(`http://localhost:3000/api/producto/${id}/toggle-activo`, {
-        method: 'PUT',
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
-      if (!response.ok) throw new Error('Falló al cambiar el estado del producto');
-      alert('Estado del producto actualizado con éxito');
-      fetchProducts(); // Refresca lista después de cambiar estado
-    } catch (err) {
-      alert(`Error: ${err.message}`);
-    }
+    handleOpenConfirmDialog(
+      `¿Estás seguro de que querés ${estadoActual ? 'desactivar' : 'activar'} este producto?`,
+      async () => {
+        try {
+          const token = localStorage.getItem('token');
+          const response = await fetch(`http://localhost:3000/api/producto/${id}/toggle-activo`, {
+            method: 'PUT',
+            headers: { Authorization: `Bearer ${token}` },
+          });
+          if (!response.ok) throw new Error('falló al cambiar el estado del producto');
+          showSnackbar('Estado del producto actualizado con éxito', 'success');
+          fetchProducts();
+        } catch (err) {
+          showSnackbar(`Error: ${err.message}`, 'error');
+        }
+      }
+    );
   };
 
-  // --- FUNCIONES PARA CREAR Y ACTUALIZAR PRODUCTOS ---
-
-  // Crear un nuevo producto enviando formulario con archivos
+  // crea un producto enviando formulario con archivos
   const handleCreateProduct = async () => {
     const formData = new FormData();
     Object.keys(newProduct).forEach(key => formData.append(key, newProduct[key]));
     if (mainImageFile) formData.append('imagen', mainImageFile);
-    if (secondaryImageFiles.length > 0) {
+    if (secondaryImageFiles.length > 0)
       secondaryImageFiles.forEach(file => formData.append('imagenes', file));
-    }
-    
+
     try {
       const token = localStorage.getItem('token');
       const response = await fetch('http://localhost:3000/api/producto', {
         method: 'POST',
-        headers: { 'Authorization': `Bearer ${token}` },
-        body: formData, 
+        headers: { Authorization: `Bearer ${token}` },
+        body: formData,
       });
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.mensaje || 'Falló la creación del producto');
+        throw new Error(errorData.mensaje || 'falló la creación del producto');
       }
-      alert('¡Producto creado con éxito!'); 
+      showSnackbar('¡Producto creado con éxito!', 'success');
       handleClose();
-      fetchProducts(); // Refresca la lista para mostrar nuevo producto
+      fetchProducts();
     } catch (err) {
       setError(err.message);
-      alert(`Error: ${err.message}`);
+      showSnackbar(`Error: ${err.message}`, 'error');
     }
   };
 
-  // Actualizar un producto existente con datos y archivos nuevos
+  // actualiza producto existente
   const handleUpdateProduct = async () => {
     const formData = new FormData();
     Object.keys(newProduct).forEach(key => {
@@ -171,43 +216,39 @@ export default function AdminProductsPage() {
         formData.append(key, newProduct[key]);
       }
     });
-
     if (mainImageFile) formData.append('imagen', mainImageFile);
-    if (secondaryImageFiles.length > 0) {
+    if (secondaryImageFiles.length > 0)
       secondaryImageFiles.forEach(file => formData.append('imagenes', file));
-    }
 
     try {
       const token = localStorage.getItem('token');
       const response = await fetch(`http://localhost:3000/api/producto/${editingProduct.producto_id}`, {
         method: 'PUT',
-        headers: { 'Authorization': `Bearer ${token}` },
-        body: formData, // FormData maneja Content-Type automáticamente
+        headers: { Authorization: `Bearer ${token}` },
+        body: formData,
       });
-
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.mensaje || 'Falló la actualización del producto');
+        throw new Error(errorData.mensaje || 'falló la actualización del producto');
       }
-      alert('¡Producto actualizado con éxito!');
+      showSnackbar('¡Producto actualizado con éxito!', 'success');
       handleClose();
       fetchProducts();
     } catch (err) {
-      alert(`Error: ${err.message}`);
+      showSnackbar(`Error: ${err.message}`, 'error');
     }
   };
 
-  // --- DEFINICIÓN DE LAS COLUMNAS DE LA TABLA ---
-
+  // --- definición de columnas para la tabla ---
   const columns = [
     { field: 'producto_id', headerName: 'ID', width: 70 },
     { field: 'nombre_producto', headerName: 'Nombre', width: 250 },
     { field: 'nombre_categoria', headerName: 'Categoría', width: 150 },
     { field: 'precio', headerName: 'Precio', type: 'number', width: 100 },
     { field: 'stock_actual', headerName: 'Stock', type: 'number', width: 90 },
-    { 
-      field: 'activo', 
-      headerName: 'Estado', 
+    {
+      field: 'activo',
+      headerName: 'Estado',
       width: 110,
       renderCell: (params) => (
         <Typography color={params.row.activo ? 'green' : 'red'}>
@@ -233,7 +274,7 @@ export default function AdminProductsPage() {
     },
   ];
 
-  // --- RENDERIZADO ---
+  // --- renderizado ---
 
   if (loading) return <Typography>Cargando productos...</Typography>;
   if (error) return <Typography color="error">Error: {error}</Typography>;
@@ -242,89 +283,88 @@ export default function AdminProductsPage() {
     <Box sx={{ height: '80vh', width: '100%' }}>
       <Title>Gestión de Productos</Title>
 
-      {/* Botón para abrir modal de creación */}
+      {/* botón para abrir modal de creación */}
       <Box sx={{ mb: 2 }}>
         <Button variant="contained" onClick={() => { setEditingProduct(null); setOpen(true); }}>
           Crear Nuevo Producto
         </Button>
       </Box>
 
-      {/* Tabla de productos */}
+      {/* tabla de productos */}
       <DataGrid
         rows={products}
         columns={columns}
         getRowId={(row) => row.producto_id}
       />
 
-      {/* Modal para creación/edición */}
+      {/* modal para creación/edición */}
       <Dialog open={open} onClose={handleClose}>
         <DialogTitle>{editingProduct ? 'Editar Producto' : 'Crear Nuevo Producto'}</DialogTitle>
         <DialogContent>
           <Grid container spacing={2} sx={{ mt: 1 }}>
-            {/* Campos de texto y select para datos */}
+            {/* campos de texto y select para datos */}
             <Grid item xs={12}>
-              <TextField 
-                name="nombre_producto" 
-                label="Nombre del Producto" 
-                fullWidth 
-                variant="outlined" 
-                value={newProduct.nombre_producto} 
-                onChange={handleInputChange} 
+              <TextField
+                name="nombre_producto"
+                label="Nombre del Producto"
+                fullWidth
+                variant="outlined"
+                value={newProduct.nombre_producto}
+                onChange={handleInputChange}
               />
             </Grid>
             <Grid item xs={12}>
-              <TextField 
-                name="descripcion" 
-                label="Descripción" 
-                fullWidth 
-                multiline 
-                rows={4} 
-                variant="outlined" 
-                value={newProduct.descripcion} 
-                onChange={handleInputChange} 
+              <TextField
+                name="descripcion"
+                label="Descripción"
+                fullWidth
+                multiline
+                rows={4}
+                variant="outlined"
+                value={newProduct.descripcion}
+                onChange={handleInputChange}
               />
             </Grid>
             <Grid item xs={12} sm={6}>
-              <TextField 
-                name="precio" 
-                label="Precio" 
-                type="number" 
-                fullWidth 
-                variant="outlined" 
-                value={newProduct.precio} 
-                onChange={handleInputChange} 
+              <TextField
+                name="precio"
+                label="Precio"
+                type="number"
+                fullWidth
+                variant="outlined"
+                value={newProduct.precio}
+                onChange={handleInputChange}
               />
             </Grid>
             <Grid item xs={12} sm={6}>
-              <TextField 
-                name="precio_anterior" 
-                label="Precio anterior (Oferta)" 
-                type="number" 
-                fullWidth 
-                variant="outlined" 
-                value={newProduct.precio_anterior} 
-                onChange={handleInputChange} 
+              <TextField
+                name="precio_anterior"
+                label="Precio anterior (Oferta)"
+                type="number"
+                fullWidth
+                variant="outlined"
+                value={newProduct.precio_anterior}
+                onChange={handleInputChange}
               />
             </Grid>
             <Grid item xs={12} sm={6}>
-              <TextField 
-                name="stock_actual" 
-                label="Stock Actual" 
-                type="number" 
-                fullWidth 
-                variant="outlined" 
-                value={newProduct.stock_actual} 
-                onChange={handleInputChange} 
+              <TextField
+                name="stock_actual"
+                label="Stock Actual"
+                type="number"
+                fullWidth
+                variant="outlined"
+                value={newProduct.stock_actual}
+                onChange={handleInputChange}
               />
             </Grid>
             <Grid item xs={12} sm={6}>
-              {/* Select para elegir categoría */}
               <FormControl fullWidth>
                 <InputLabel>Categoría</InputLabel>
-                <Select 
-                  name="categoria_id" 
-                  value={newProduct.categoria_id} 
-                  label="Categoría" 
+                <Select
+                  name="categoria_id"
+                  value={newProduct.categoria_id}
+                  label="Categoría"
                   onChange={handleInputChange}
                 >
                   {categories.map((cat) => (
@@ -336,30 +376,73 @@ export default function AdminProductsPage() {
               </FormControl>
             </Grid>
 
-            {/* Botón para seleccionar imagen principal */}
+            {/* botón para seleccionar imagen principal */}
             <Grid item xs={12}>
               <Button component="label" variant="contained" onChange={handleFileChange}>
-                Seleccionar Imagen Principal
+                seleccionar imagen principal
                 <VisuallyHiddenInput type="file" />
               </Button>
-              {mainImageFile && <Typography sx={{ display: 'inline', ml: 2 }}>{mainImageFile.name}</Typography>}
+              {mainImageFile && (
+                <Typography sx={{ display: 'inline', ml: 2 }}>
+                  {mainImageFile.name}
+                </Typography>
+              )}
             </Grid>
 
-            {/* Botón para seleccionar imágenes secundarias */}
+            {/* botón para seleccionar imágenes secundarias */}
             <Grid item xs={12}>
               <Button component="label" variant="outlined" onChange={handleMultipleFileChange}>
-                Seleccionar Imágenes Secundarias
+                seleccionar imágenes secundarias
                 <VisuallyHiddenInput type="file" multiple />
               </Button>
-              {secondaryImageFiles.length > 0 && <Typography sx={{ display: 'inline', ml: 2 }}>{secondaryImageFiles.length} archivos seleccionados</Typography>}
+              {secondaryImageFiles.length > 0 && (
+                <Typography sx={{ display: 'inline', ml: 2 }}>
+                  {secondaryImageFiles.length} archivos seleccionados
+                </Typography>
+              )}
             </Grid>
           </Grid>
         </DialogContent>
 
-        {/* Botones para cancelar o guardar */}
+        {/* botones cancelar y guardar */}
         <DialogActions>
           <Button onClick={handleClose}>Cancelar</Button>
-          <Button onClick={editingProduct ? handleUpdateProduct : handleCreateProduct}>Guardar</Button>
+          <Button onClick={editingProduct ? handleUpdateProduct : handleCreateProduct}>
+            Guardar
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* snackbar para mensajes */}
+      <Snackbar
+        open={snackbarOpen}
+        autoHideDuration={6000}
+        onClose={handleCloseSnackbar}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+      >
+        <Alert onClose={handleCloseSnackbar} severity={snackbarSeverity} sx={{ width: '100%' }}>
+          {snackbarMessage}
+        </Alert>
+      </Snackbar>
+
+      {/* diálogo de confirmación */}
+      <Dialog
+        open={confirmDialogOpen}
+        onClose={handleCancelConfirmDialog}
+        aria-labelledby="confirm-dialog-title"
+        aria-describedby="confirm-dialog-description"
+      >
+        <DialogTitle id="confirm-dialog-title">Confirmación</DialogTitle>
+        <DialogContent>
+          <Typography id="confirm-dialog-description">{confirmDialogMessage}</Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCancelConfirmDialog} color="primary">
+            Cancelar
+          </Button>
+          <Button onClick={handleConfirmAction} color="primary" autoFocus>
+            Confirmar
+          </Button>
         </DialogActions>
       </Dialog>
     </Box>

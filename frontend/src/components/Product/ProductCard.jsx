@@ -5,26 +5,28 @@ import { useAuth } from '../../context/AuthContext';
 const ProductCard = ({ producto }) => {
     const { addToCart } = useAuth();
 
-    // URL base para las imágenes (ideal usar .env)
+    // url base para imágenes (mejor usar .env)
     const BASE_URL = 'http://localhost:3000';
     
-    // Armo la URL completa de la imagen o uso placeholder si no tiene
+    // armo url completa o uso placeholder si no tiene imagen
     const imageUrl = producto.imagen 
         ? `${BASE_URL}${producto.imagen}` 
         : 'https://via.placeholder.com/200';
 
     return (
-        <Card sx={{ 
-            height: '100%', 
-            display: 'flex', 
-            flexDirection: 'column',
-            transition: 'transform 0.2s, box-shadow 0.2s',
-            '&:hover': {
-                transform: 'translateY(-5px)',
-                boxShadow: 6,
-            }
-        }}>
-             <CardMedia
+        <Card 
+            sx={{ 
+                height: '100%', 
+                display: 'flex', 
+                flexDirection: 'column',
+                transition: 'transform 0.2s, box-shadow 0.2s',
+                '&:hover': {
+                    transform: 'translateY(-5px)',
+                    boxShadow: 6,
+                }
+            }}
+        >
+            <CardMedia
                 component="img"
                 height="200"
                 image={imageUrl}
@@ -35,15 +37,19 @@ const ProductCard = ({ producto }) => {
                 <Typography gutterBottom variant="h6" component="div" noWrap title={producto.nombre_producto}>
                     {producto.nombre_producto}
                 </Typography>
-                <Typography variant="body2" color="text.secondary" sx={{
-                    height: 60,
-                    overflow: 'hidden',
-                    textOverflow: 'ellipsis',
-                }}>
+                <Typography 
+                    variant="body2" 
+                    color="text.secondary" 
+                    sx={{
+                        height: 60,
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                    }}
+                >
                     {producto.descripcion}
                 </Typography>
 
-                {/* Precio con posible descuento */}
+                {/* precio con posible descuento */}
                 {producto.precio_anterior && producto.precio_anterior > producto.precio ? (
                     <Box>
                         <Typography 
@@ -69,7 +75,6 @@ const ProductCard = ({ producto }) => {
                         ${producto.precio}
                     </Typography>
                 )}
-
             </CardContent>
             <CardActions sx={{ display: 'flex', flexDirection: 'column', p: 2, gap: 1 }}>
                 <Button 

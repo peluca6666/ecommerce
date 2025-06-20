@@ -1,20 +1,20 @@
 import { useState, useEffect } from 'react';
 
-//Este hook sirve para incorporar en el buscador, espera a que el usuario deje de escribir por un tiempo determinado antes de realizar la busqueda
+// hook para usar en buscadores, espera a que el usuario deje de tipear antes de hacer la búsqueda
 export function useDebounce(value, delay) {
   const [debouncedValue, setDebouncedValue] = useState(value);
 
   useEffect(() => {
-    // Temporizador que se ejecuta después del delay especificado
+    // setea el valor después del delay
     const handler = setTimeout(() => {
       setDebouncedValue(value);
     }, delay);
 
-    // Limpia el temporizador si el valor cambia antes de que se cumpla el delay
+    // limpia el timer si cambia el valor antes del delay
     return () => {
       clearTimeout(handler);
     };
-  }, [value, delay]); // Se ejecuta solo si el valor o el delay cambian
+  }, [value, delay]); // solo corre si cambia value o delay
 
   return debouncedValue;
 }

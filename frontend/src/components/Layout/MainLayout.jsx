@@ -3,11 +3,8 @@ import { Outlet } from 'react-router-dom';
 import Header from '../Header/Header'; 
 import Footer from '../Footer/Footer'; 
 
-/**
- * Este componente es una plantilla. Dibuja el Header y el Footer,
- * y en el medio renderiza la página que corresponda
- * a través del componente <Outlet />.
- */
+// componente plantilla que muestra header y footer
+// y en medio carga la página correspondiente con <Outlet />
 const MainLayout = () => {
   return (
     <>

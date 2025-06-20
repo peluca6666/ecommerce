@@ -9,6 +9,7 @@ const CategorySlider = ({ categoria }) => {
   const [showLeftArrow, setShowLeftArrow] = useState(false);
   const [showRightArrow, setShowRightArrow] = useState(true);
 
+  // chequea si mostrar flechas según scroll actual
   const checkArrows = () => {
     const container = sliderRef.current;
     if (!container) return;
@@ -28,6 +29,7 @@ const CategorySlider = ({ categoria }) => {
     };
   }, [categoria]);
 
+  // mueve el scroll horizontalmente con animación smooth
   const handleScroll = (scrollOffset) => {
     if (sliderRef.current) {
       sliderRef.current.scrollBy({ left: scrollOffset, behavior: 'smooth' });
@@ -39,12 +41,7 @@ const CategorySlider = ({ categoria }) => {
   return (
     <Box
       sx={{
-        mt: {
-          xs: 4,
-          sm: 2,
-          md: -8,
-          lg: -15
-        },
+        mt: { xs: 4, sm: 2, md: -8, lg: -15 },
         position: 'relative',
         zIndex: 2,
         maxWidth: 'lg',
@@ -53,7 +50,7 @@ const CategorySlider = ({ categoria }) => {
       }}
     >
       <Typography variant="h5" gutterBottom sx={{ mb: 2, fontWeight: 'bold', textAlign: 'left' }}>
-        Explora Nuestras Categorías
+        explora nuestras categorías
       </Typography>
 
       <Box sx={{ position: 'relative', width: '100%' }}>
@@ -77,7 +74,7 @@ const CategorySlider = ({ categoria }) => {
           ))}
         </Box>
 
-        {/* Flechas */}
+        {/* flechas para scroll */}
         <IconButton
           onClick={() => handleScroll(-100)}
           sx={{

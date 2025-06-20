@@ -9,21 +9,11 @@ import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import CategoryIcon from '@mui/icons-material/Category';
 import PeopleIcon from '@mui/icons-material/People';
 
-// Fragmento que exporta los ítems principales del menú lateral del admin
+// ítems del menú lateral para el panel de admin
 export const mainListItems = (
   <React.Fragment>
-    
-    {/* Enlace al dashboard principal */}
-    <Link to="/admin" style={{ textDecoration: 'none', color: 'inherit' }}>
-      <ListItemButton>
-        <ListItemIcon>
-          <DashboardIcon />
-        </ListItemIcon>
-        <ListItemText primary="Dashboard" />
-      </ListItemButton>
-    </Link>
-    
-    {/* Enlace a la sección de productos */}
+
+    {/* productos */}
     <Link to="/admin/productos" style={{ textDecoration: 'none', color: 'inherit' }}>
       <ListItemButton>
         <ListItemIcon>
@@ -33,7 +23,7 @@ export const mainListItems = (
       </ListItemButton>
     </Link>
 
-    {/* Enlace a la sección de ventas */}
+    {/* ventas */}
     <Link to="/admin/ventas" style={{ textDecoration: 'none', color: 'inherit' }}>
       <ListItemButton>
         <ListItemIcon>
@@ -43,7 +33,7 @@ export const mainListItems = (
       </ListItemButton>
     </Link>
 
-    {/* Enlace a la sección de usuarios */}
+    {/* usuarios */}
     <Link to="/admin/usuarios" style={{ textDecoration: 'none', color: 'inherit' }}>
       <ListItemButton>
         <ListItemIcon>
@@ -53,7 +43,7 @@ export const mainListItems = (
       </ListItemButton>
     </Link>
 
-    {/* Enlace a la sección de categorías */}
+    {/* categorías */}
     <Link to="/admin/categorias" style={{ textDecoration: 'none', color: 'inherit' }}>
       <ListItemButton>
         <ListItemIcon>

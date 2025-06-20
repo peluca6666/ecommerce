@@ -2,7 +2,7 @@ import { Paper, Typography, Box, Button, Chip } from '@mui/material';
 import { Link as RouterLink } from 'react-router-dom';
 
 const OrderItem = ({ orden }) => {
-    // Devuelve un color para el chip según el estado de la orden
+    // devuelve un color para el chip según el estado de la orden
     const getStatusChipColor = (estado) => {
         if (estado === 'Completado') return 'success';
         if (estado === 'Pendiente') return 'warning';

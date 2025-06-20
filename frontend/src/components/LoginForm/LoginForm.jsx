@@ -1,29 +1,14 @@
-import React from 'react'; // Asegúrate de importar React
-import { 
-    Button, 
-    TextField, 
-    Typography, 
-    Box, 
-    Link, 
-    Paper, 
-    Divider,
-    CircularProgress,
-    useTheme,
-    Alert, 
-    InputAdornment 
-} from '@mui/material';
-import { 
-    Link as RouterLink,
-    useLocation 
-} from 'react-router-dom';
+import React from 'react'; // asegurate de importar react
+import { Button, TextField, Typography, Box, Paper, Divider,CircularProgress,useTheme, Alert, InputAdornment } from '@mui/material';
+import { Link as RouterLink,useLocation } from 'react-router-dom';
 import PersonOutlineIcon from '@mui/icons-material/PersonOutline'; 
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined'; 
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline'; 
 
 export default function LoginForm({ formulario, errores, isLoading, handleChange, handleSubmit }) {
     const theme = useTheme(); 
-    const location = useLocation(); // Hook para obtener el estado de la ruta
-    const { registrationSuccess } = location.state || {}; // Lee el estado si existe
+    const location = useLocation(); // hook para obtener estado de la ruta
+    const { registrationSuccess } = location.state || {}; // lee estado si existe
 
     return (
         <Box
@@ -32,7 +17,7 @@ export default function LoginForm({ formulario, errores, isLoading, handleChange
                 justifyContent: 'center',
                 alignItems: 'center',
                 minHeight: '100vh',
-                // Fondo atractivo: Gradiente suave o color del tema
+                // fondo atractivo con gradiente suave o color del tema
                 background: `linear-gradient(135deg, ${theme.palette.primary.light} 30%, ${theme.palette.background.default} 90%)`,
                 [theme.breakpoints.down('sm')]: { 
                     alignItems: 'flex-start', 
@@ -75,7 +60,7 @@ export default function LoginForm({ formulario, errores, isLoading, handleChange
                     Bienvenido de nuevo
                 </Typography>
 
-                {/* Mensaje de registro exitoso */}
+                {/* mensaje de registro exitoso */}
                 {registrationSuccess && (
                     <Alert 
                         severity="success" 
@@ -86,7 +71,7 @@ export default function LoginForm({ formulario, errores, isLoading, handleChange
                     </Alert>
                 )}
 
-                {/* Mensaje de error general */}
+                {/* mensaje de error general */}
                 {errores.general && (
                     <Alert 
                         severity="error" 
@@ -108,12 +93,14 @@ export default function LoginForm({ formulario, errores, isLoading, handleChange
                     variant="outlined"
                     size="medium" 
                     sx={{ '& .MuiOutlinedInput-root': { borderRadius: '10px' } }} 
-                    InputProps={{ 
-                        startAdornment: (
-                            <InputAdornment position="start">
-                                <PersonOutlineIcon color="action" />
-                            </InputAdornment>
-                        ),
+                    slotProps={{
+                        input: {
+                            startAdornment: (
+                                <InputAdornment position="start">
+                                    <PersonOutlineIcon color="action" />
+                                </InputAdornment>
+                            ),
+                        },
                     }}
                 />
 
@@ -127,31 +114,19 @@ export default function LoginForm({ formulario, errores, isLoading, handleChange
                     helperText={errores.contrasenia}
                     fullWidth
                     variant="outlined"
-                    size="medium" // Tamaño un poco más grande
-                    sx={{ '& .MuiOutlinedInput-root': { borderRadius: '10px' } }} // Bordes del input
-                    InputProps={{ // Icono dentro del TextField
-                        startAdornment: (
-                            <InputAdornment position="start">
-                                <LockOutlinedIcon color="action" />
-                            </InputAdornment>
-                        ),
+                    size="medium"
+                    sx={{ '& .MuiOutlinedInput-root': { borderRadius: '10px' } }}
+                    slotProps={{
+                        input: {
+                            startAdornment: (
+                                <InputAdornment position="start">
+                                    <LockOutlinedIcon color="action" />
+                                </InputAdornment>
+                            ),
+                        },
                     }}
                 />
-                        {/*Falta implementar /*}
-                {/* Enlace a "Olvidé mi contraseña" */}
-                <Typography variant="body2" align="right" sx={{ mt: -1.5 }}>
-                    <Link 
-                        component={RouterLink} 
-                        to="/recuperarContraseña" 
-                        color="primary"
-                        underline="hover"
-                        fontWeight="medium"
-                    >
-                        ¿Olvidaste tu contraseña?
-                    </Link>
-                </Typography>
-
-                {/* Botón de enviar con spinner mientras carga */}
+                {/* botón enviar con spinner mientras carga */}
                 <Button 
                     type="submit" 
                     variant="contained" 

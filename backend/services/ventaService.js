@@ -16,18 +16,21 @@ export const crearNuevaVenta = async (usuarioId, productos, metodoPago, direccio
 
     let totalVenta = 0;
     for (const producto of productos) {
-      // Bloquea el producto para evitar conflictos con stock concurrente
-      const [rows] = await connection.execute('SELECT stock_actual, precio FROM producto WHERE producto_id = ? FOR UPDATE', [producto.producto_id]);
-      
+      // Bloqueo para evitar conflictos de stock concurrente
+      const [rows] = await connection.execute(
+        'SELECT stock_actual, precio FROM producto WHERE producto_id = ? FOR UPDATE',
+        [producto.producto_id]
+      );
+
       if (rows.length === 0) {
         throw { statusCode: 404, message: `Producto con ID ${producto.producto_id} no encontrado.` };
       }
-      
+
       const stockActual = rows[0].stock_actual;
       if (stockActual < producto.cantidad) {
-        throw { statusCode: 400, message: `No hay stock suficiente para el producto ${producto.producto_id}. Disponible: ${stockActual}` };
+        throw { statusCode: 400, message: `Stock insuficiente para producto ${producto.producto_id}. Disponible: ${stockActual}` };
       }
-      
+
       totalVenta += rows[0].precio * producto.cantidad;
     }
 
@@ -42,13 +45,13 @@ export const crearNuevaVenta = async (usuarioId, productos, metodoPago, direccio
       const detalleSql = 'INSERT INTO detalle_venta (venta_id, producto_id, cantidad, precio_unitario, subtotal) VALUES (?, ?, ?, ?, ?)';
       await connection.execute(detalleSql, [nuevaVentaId, producto.producto_id, producto.cantidad, precioUnitario, producto.cantidad * precioUnitario]);
 
-      // Descuenta el stock
+      // Descuenta stock
       const updateStockSql = 'UPDATE producto SET stock_actual = stock_actual - ? WHERE producto_id = ?';
       await connection.execute(updateStockSql, [producto.cantidad, producto.producto_id]);
     }
-    
+
     await connection.commit();
-    
+
     return { venta_id: nuevaVentaId, total: totalVenta, estado: 'Completado' };
 
   } catch (error) {
@@ -69,7 +72,7 @@ export async function obtenerHistorialDeVentas(usuarioId) {
   const sql = 'SELECT venta_id, fecha_venta, total, estado FROM venta WHERE usuario_id = ? ORDER BY fecha_venta DESC';
   const [rows] = await pool.execute(sql, [usuarioId]);
   return rows;
-};
+}
 
 /**
  * Trae todas las ventas para el panel admin
@@ -83,10 +86,10 @@ export async function obtenerTodasLasVentas() {
     ORDER BY v.fecha_venta DESC`;
   const [rows] = await pool.execute(sql);
   return rows;
-};
+}
 
 /**
- * Detalle de venta para el panel admin (no filtra por usuario)
+ * Detalle de venta para el panel admin (sin filtro de usuario)
  * @param {number} ventaId 
  * @returns {Promise<object|null>} - Detalle o null si no existe
  */
@@ -105,16 +108,15 @@ export async function obtenerDetalleDeVentaParaCliente(ventaId, usuarioId) {
 }
 
 /**
- * Cancela una venta y devuelve el stock de los productos
+ * Cancela una venta y devuelve el stock
  * @param {number} ventaId
- * @returns {Promise<boolean>} - True si se canceló bien
+ * @returns {Promise<boolean>} - True si se canceló
  */
 export async function cancelarVenta(ventaId) {
   const connection = await pool.getConnection();
   await connection.beginTransaction();
 
   try {
-    // Traigo productos para devolver stock
     const [detalles] = await connection.execute(
       'SELECT producto_id, cantidad FROM detalle_venta WHERE venta_id = ?',
       [ventaId]
@@ -131,7 +133,6 @@ export async function cancelarVenta(ventaId) {
       );
     }
 
-    // Cambio el estado a cancelado
     const [updateResult] = await connection.execute(
       "UPDATE venta SET estado = 'Cancelado' WHERE venta_id = ?",
       [ventaId]
@@ -154,10 +155,11 @@ export async function cancelarVenta(ventaId) {
 }
 
 /**
- * Función interna que trae el detalle de una venta, opcionalmente verifica dueño
+ * Función privada que obtiene el detalle de una venta, opcionalmente valida dueño
  * @param {number} ventaId 
  * @param {number|null} [usuarioId=null] - Si se pasa, verifica que sea dueño
  * @private
+ * @returns {Promise<object|null>}
  */
 async function _obtenerDetalleVenta(ventaId, usuarioId = null) {
   let ventaSql = `
@@ -173,15 +175,12 @@ async function _obtenerDetalleVenta(ventaId, usuarioId = null) {
   const params = [ventaId];
 
   if (usuarioId) {
-    ventaSql += ' AND venta.usuario_id = ?'; 
+    ventaSql += ' AND venta.usuario_id = ?';
     params.push(usuarioId);
   }
 
   const [ventaRows] = await pool.execute(ventaSql, params);
-
-  if (ventaRows.length === 0) {
-    return null;
-  }
+  if (ventaRows.length === 0) return null;
 
   const detalleSql = `
     SELECT dv.cantidad, dv.precio_unitario, dv.subtotal, p.nombre_producto, p.producto_id, p.imagen
@@ -200,17 +199,16 @@ async function _obtenerDetalleVenta(ventaId, usuarioId = null) {
  * Cambia el estado de una venta
  * @param {number} ventaId
  * @param {string} nuevoEstado
- * @returns {Promise<boolean>} - True si se actualizó
+ * @returns {Promise<boolean>} - True si actualizó
  */
 export async function updateSaleStatus(ventaId, nuevoEstado) {
   const query = 'UPDATE venta SET estado = ? WHERE venta_id = ?';
   const [result] = await pool.query(query, [nuevoEstado, ventaId]);
-  
   return result.affectedRows > 0;
 }
 
 /**
- * Ventas de un usuario para el admin (mismo que historial de usuario pero para admin)
+ * Ventas de un usuario (para admin)
  * @param {number} usuarioId
  * @returns {Promise<Array>}
  */

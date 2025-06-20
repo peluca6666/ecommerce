@@ -1,11 +1,7 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
-
-// 1. IMPORTAMOS NUESTRA NUEVA PLANTILLA
 import MainLayout from './components/Layout/MainLayout'; 
-
-// Importamos todas tus páginas...
 import Login from './pages/Login/Login.jsx';
 import Register from './pages/Register/Register.jsx';
 import MainPage from './pages/MainPage/MainPage.jsx';
@@ -33,10 +29,7 @@ function App() {
     <AuthProvider>
       <Router>
         <Routes>
-          {/* --- 2. RUTA "CONTENEDORA" QUE USA LA PLANTILLA --- */}
-          {/* Todas las páginas que pongamos aquí adentro tendrán Header y Footer */}
           <Route element={<MainLayout />}>
-            
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
             <Route path="/main" element={<MainPage />} />
@@ -46,7 +39,7 @@ function App() {
             <Route path="/sobre-nosotros" element={<SobreNosotrosPage />} />
             <Route path="/contacto" element={<ContactoPage />} />
 
-            {/* Rutas protegidas que también usan el Layout */}
+            {/* Rutas protegidas*/}
             <Route element={<ProtectedRoute requireAuth={true} />}>
               <Route path="/carrito" element={<CartPage />} />
               <Route path="/checkout" element={<CheckoutPage />} />
@@ -55,10 +48,9 @@ function App() {
             </Route>
 
           </Route>
-          {/* --- FIN DEL GRUPO QUE USA LA PLANTILLA --- */}
 
 
-          {/* Estas rutas quedan afuera porque no queremos que usen ese layout (o tienen el suyo propio) */}
+          {/* Estas rutas quedan afuera porque no usan el layout*/}
           <Route path="/" element={<Navigate to="/main" replace />} />
           <Route path="/cuenta-verificada" element={<CuentaVerificada />} />
           

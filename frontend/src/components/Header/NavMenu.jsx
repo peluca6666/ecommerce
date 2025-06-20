@@ -1,9 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { Button, Box, Menu, MenuItem, CircularProgress, Divider, Collapse, List, ListItem, ListItemButton, ListItemText } from "@mui/material";
+import { Button, Box, Menu, MenuItem, CircularProgress, Divider, Collapse, List, ListItemButton, ListItemText } from "@mui/material";
 import { Link as RouterLink } from 'react-router-dom';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import ExpandLess from '@mui/icons-material/ExpandLess';
 import ExpandMore from '@mui/icons-material/ExpandMore';
+import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
+
+// importamos el hook useAuth para acceder al contexto
+import { useAuth } from '../../context/AuthContext';
 
 const navLinks = [
     { texto: 'OFERTAS', ruta: "/productos?es_oferta=true" },
@@ -12,26 +16,25 @@ const navLinks = [
 ];
 
 const NavMenu = ({ mobile = false, onItemClick }) => {
-    // Estados para el menú de escritorio
+    // sacamos el usuario del contexto para saber si es admin
+    const { user } = useAuth();
+
     const [categories, setCategories] = useState([]);
     const [anchorEl, setAnchorEl] = useState(null);
     const [loading, setLoading] = useState(true);
     const [openDelay, setOpenDelay] = useState(null);
-
-    // Para controlar si el submenú de categorías está abierto o cerrado en móvil
     const [openMobileCategories, setOpenMobileCategories] = useState(false);
-
     const isMenuOpen = Boolean(anchorEl);
 
     useEffect(() => {
         const fetchCategories = async () => {
             try {
                 const response = await fetch('http://localhost:3000/api/categoria');
-                if (!response.ok) throw new Error('Error al cargar categorías');
+                if (!response.ok) throw new Error('error al cargar categorías');
                 const data = await response.json();
                 setCategories(data.datos.filter(cat => cat.activo));
             } catch (error) {
-                console.error("Error fetching categories:", error);
+                console.error("error fetching categories:", error);
                 setCategories([]);
             } finally {
                 setLoading(false);
@@ -40,9 +43,7 @@ const NavMenu = ({ mobile = false, onItemClick }) => {
         fetchCategories();
     }, []);
 
-    // Manejadores para el menu de escritorio con hover
     const handleMenuOpen = (event) => {
-        // Cancelar cualquier cierre pendiente
         if (openDelay) {
             clearTimeout(openDelay);
             setOpenDelay(null);
@@ -51,16 +52,14 @@ const NavMenu = ({ mobile = false, onItemClick }) => {
     };
 
     const handleMenuClose = () => {
-        // Retrasar el cierre para permitir el hover
         const delay = setTimeout(() => {
             setAnchorEl(null);
             if (onItemClick) onItemClick();
-        }, 300); // 300ms de retraso
+        }, 20);
         setOpenDelay(delay);
     };
 
     const handleMenuEnter = () => {
-        // Si el usuario entra al menú, cancelar el cierre
         if (openDelay) {
             clearTimeout(openDelay);
             setOpenDelay(null);
@@ -71,34 +70,41 @@ const NavMenu = ({ mobile = false, onItemClick }) => {
         setOpenMobileCategories(!openMobileCategories);
     };
 
-    // Renderizado para movil
     if (mobile) {
-        // Estilo común para todos los botones del menú lateral
-        const mobileButtonStyle = { 
-            justifyContent: 'flex-start', 
-            width: '100%', 
-            py: 1.5, 
+        const mobileButtonStyle = {
+            justifyContent: 'flex-start',
+            width: '100%',
+            py: 1.5,
             px: 2,
             textAlign: 'left'
         };
 
         return (
             <Box sx={{ width: '100%' }}>
-                {/* Botón para abrir/cerrar el dropdown de catregorias */}
+                {/* mostrar botón admin en vista móvil si es admin */}
+                {user && user.rol === 'admin' && (
+                    <Button
+                        color="inherit"
+                        component={RouterLink}
+                        to="/admin"
+                        onClick={onItemClick}
+                        sx={{ ...mobileButtonStyle, color: 'secondary.main', fontWeight: 'bold' }}
+                        startIcon={<AdminPanelSettingsIcon />}
+                    >
+                        Panel de Admin
+                    </Button>
+                )}
+
                 <Button sx={mobileButtonStyle} onClick={handleToggleMobileCategories}>
                     <ListItemText primary="Categorías" />
                     {openMobileCategories ? <ExpandLess /> : <ExpandMore />}
                 </Button>
 
-                {/* Contenedor colapsable con la lista de categorías */}
                 <Collapse in={openMobileCategories} timeout="auto" unmountOnExit>
                     <List component="div" disablePadding>
-                        {/* Enlace estático a "ver todo" */}
                         <ListItemButton sx={{ pl: 4 }} component={RouterLink} to="/productos" onClick={onItemClick}>
                             <ListItemText primary="Ver Todo el Catálogo" />
                         </ListItemButton>
-
-                        {/* Mapeo de las categorías con sangría */}
                         {categories.map(category => (
                             <ListItemButton
                                 key={category.categoria_id}
@@ -128,11 +134,30 @@ const NavMenu = ({ mobile = false, onItemClick }) => {
             </Box>
         );
     }
-    
-    // Renderizado para escritorio
+
     return (
-        <Box sx={{ display: 'flex', gap: 2 }}>
-            <Box 
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+            {/* mostrar botón admin en vista escritorio si es admin */}
+            {user && user.rol === 'admin' && (
+                <Button
+                    color="inherit"
+                    component={RouterLink}
+                    to="/admin"
+                    variant="outlined"
+                    startIcon={<AdminPanelSettingsIcon />}
+                    sx={{
+                        borderColor: 'rgba(255, 255, 255, 0.5)',
+                        '&:hover': {
+                            borderColor: 'white',
+                            bgcolor: 'rgba(255, 255, 255, 0.1)'
+                        }
+                    }}
+                >
+                    Admin
+                </Button>
+            )}
+
+            <Box
                 onMouseEnter={handleMenuOpen}
                 onMouseLeave={handleMenuClose}
             >
@@ -155,14 +180,13 @@ const NavMenu = ({ mobile = false, onItemClick }) => {
                         },
                         paper: {
                             style: {
-                                marginTop: '8px', 
+                                marginTop: '8px',
                                 pointerEvents: 'auto',
                             },
                             onMouseEnter: handleMenuEnter,
                             onMouseLeave: handleMenuClose,
                         }
                     }}
-                    // Estilos para que el menú aparezca justo debajo del botón sin espacio
                     anchorOrigin={{
                         vertical: 'bottom',
                         horizontal: 'left',
@@ -171,15 +195,14 @@ const NavMenu = ({ mobile = false, onItemClick }) => {
                         vertical: 'top',
                         horizontal: 'left',
                     }}
-                    // Deshabilitar el cierre al hacer click fuera
                     disableAutoFocusItem
                     disableEnforceFocus
                     disableAutoFocus
                     keepMounted
                 >
-                    <MenuItem 
-                        component={RouterLink} 
-                        to="/productos" 
+                    <MenuItem
+                        component={RouterLink}
+                        to="/productos"
                         onClick={handleMenuClose}
                         dense
                     >
@@ -191,9 +214,9 @@ const NavMenu = ({ mobile = false, onItemClick }) => {
                     ) : (
                         categories.map((category, index) => (
                             <div key={category.categoria_id}>
-                                <MenuItem 
-                                    component={RouterLink} 
-                                    to={`/categoria/${category.categoria_id}/productos`} 
+                                <MenuItem
+                                    component={RouterLink}
+                                    to={`/categoria/${category.categoria_id}/productos`}
                                     onClick={handleMenuClose}
                                     dense
                                 >
@@ -205,6 +228,7 @@ const NavMenu = ({ mobile = false, onItemClick }) => {
                     )}
                 </Menu>
             </Box>
+
             {navLinks.map((link) => (
                 <Button key={link.texto} color="inherit" component={RouterLink} to={link.ruta}>
                     {link.texto}

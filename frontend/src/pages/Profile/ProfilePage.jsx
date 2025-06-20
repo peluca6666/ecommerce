@@ -5,22 +5,20 @@ import { useAuth } from '../../context/AuthContext';
 import axios from 'axios';
 import LoadingSpinner from '../../components/common/LoadingSpinner';
 import PurchaseHistoryTab from '../../components/Profile/PurchaseHistoryTab';
+import { useLocation } from 'react-router-dom';
 
-// Componente para mostrar un dato en modo visualización, ahora con un ícono opcional
+// muestra un dato con label, valor y opcional icono
 const ProfileDataItem = ({ label, value, icon }) => (
     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 1 }}>
         {icon && <Box sx={{ color: 'text.secondary' }}>{icon}</Box>}
         <Box>
-            <Typography variant="caption" color="text.secondary" display="block">
-                {label}
-            </Typography>
-            <Typography variant="body1">
-                {value || 'No especificado'}
-            </Typography>
+            <Typography variant="caption" color="text.secondary" display="block">{label}</Typography>
+            <Typography variant="body1">{value || 'No especificado'}</Typography>
         </Box>
     </Box>
 );
 
+// muestra contenido solo si la pestaña está activa
 const TabPanel = (props) => {
     const { children, value, index, ...other } = props;
     return (
@@ -31,29 +29,28 @@ const TabPanel = (props) => {
             aria-labelledby={`profile-tab-${index}`}
             {...other}
         >
-            {value === index && (
-                <Box sx={{ p: { xs: 2, md: 4 } }}>
-                    {children}
-                </Box>
-            )}
+            {value === index && <Box sx={{ p: { xs: 2, md: 4 } }}>{children}</Box>}
         </div>
     );
 };
 
-
 const ProfilePage = () => {
     const { user, getToken, showNotification } = useAuth();
+    const location = useLocation();
 
     const [loading, setLoading] = useState(true);
-    const [tabIndex, setTabIndex] = useState(0);
+    // inicia con el tab que venga en location.state o 0 por defecto
+    const [tabIndex, setTabIndex] = useState(location.state?.activeTab || 0);
+
     const [isSubmittingProfile, setIsSubmittingProfile] = useState(false);
     const [isSubmittingPassword, setIsSubmittingPassword] = useState(false);
     const [isEditing, setIsEditing] = useState(false);
 
-
+    // estado para todos los campos del perfil
     const [profileData, setProfileData] = useState({
         nombre: '',
         apellido: '',
+        email: '',
         dni: '',
         telefono: '',
         direccion: '',
@@ -68,9 +65,19 @@ const ProfilePage = () => {
         confirmarContrasenia: ''
     });
 
-    // 2. FETCH ACTUALIZADO para obtener todos los datos
+    // actualiza el tabIndex si cambia location.state
+    useEffect(() => {
+        if (location.state?.activeTab !== undefined) {
+            setTabIndex(location.state.activeTab);
+        }
+    }, [location.state?.activeTab]);
+
+    // obtiene datos del perfil desde backend
     const fetchProfile = useCallback(async () => {
-        if (!user) { setLoading(false); return; }
+        if (!user) {
+            setLoading(false);
+            return;
+        }
         try {
             setLoading(true);
             const token = getToken();
@@ -81,6 +88,7 @@ const ProfilePage = () => {
                 setProfileData({
                     nombre: response.data.nombre || '',
                     apellido: response.data.apellido || '',
+                    email: response.data.email || '',
                     dni: response.data.dni || '',
                     telefono: response.data.telefono || '',
                     direccion: response.data.direccion || '',
@@ -107,8 +115,8 @@ const ProfilePage = () => {
         setIsEditing(false);
         fetchProfile();
     };
-    
-    // El submit ya envía el objeto completo, por lo que no necesita cambios
+
+    // guarda cambios en perfil
     const handleProfileSubmit = async (e) => {
         e.preventDefault();
         setIsSubmittingProfile(true);
@@ -126,18 +134,24 @@ const ProfilePage = () => {
         }
     };
 
+    // cambia la contraseña
     const handlePasswordSubmit = async (e) => {
         e.preventDefault();
         if (passwordData.nuevaContrasenia !== passwordData.confirmarContrasenia) {
-            showNotification('Las contraseñas no coinciden.', 'error'); return;
+            showNotification('Las contraseñas no coinciden.', 'error');
+            return;
         }
         setIsSubmittingPassword(true);
         try {
             const token = getToken();
-            const response = await axios.post('http://localhost:3000/api/profile/change-password', {
-                contraseniaActual: passwordData.contraseniaActual,
-                nuevaContrasenia: passwordData.nuevaContrasenia
-            }, { headers: { Authorization: `Bearer ${token}` } });
+            const response = await axios.post(
+                'http://localhost:3000/api/profile/change-password',
+                {
+                    contraseniaActual: passwordData.contraseniaActual,
+                    nuevaContrasenia: passwordData.nuevaContrasenia
+                },
+                { headers: { Authorization: `Bearer ${token}` } }
+            );
             showNotification(response.data.mensaje, 'success');
             setPasswordData({ contraseniaActual: '', nuevaContrasenia: '', confirmarContrasenia: '' });
         } catch (error) {
@@ -159,7 +173,7 @@ const ProfilePage = () => {
                         <Tab icon={<LockOutlined />} iconPosition="start" label="Seguridad" />
                         <Tab icon={<ReceiptOutlined />} iconPosition="start" label="Mis compras" />
                     </Tabs>
-                    
+
                     <TabPanel value={tabIndex} index={0}>
                         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
                             <Typography variant="h6">Información Personal y de Envío</Typography>
@@ -169,18 +183,36 @@ const ProfilePage = () => {
                         </Box>
 
                         {isEditing ? (
-                            
                             <form onSubmit={handleProfileSubmit}>
-                                <Grid container spacing={3}>
-                                    <Grid item xs={12} sm={6}><TextField fullWidth label="Nombre" name="nombre" value={profileData.nombre} onChange={handleProfileChange} /></Grid>
-                                    <Grid item xs={12} sm={6}><TextField fullWidth label="Apellido" name="apellido" value={profileData.apellido} onChange={handleProfileChange} /></Grid>
-                                    <Grid item xs={12} sm={6}><TextField fullWidth label="DNI" name="dni" value={profileData.dni} onChange={handleProfileChange} /></Grid>
-                                    <Grid item xs={12} sm={6}><TextField fullWidth label="Teléfono" name="telefono" value={profileData.telefono} onChange={handleProfileChange} /></Grid>
-                                    <Grid item xs={12}><TextField fullWidth label="Dirección" name="direccion" value={profileData.direccion} onChange={handleProfileChange} /></Grid>
-                                    <Grid item xs={12} sm={6}><TextField fullWidth label="Localidad" name="localidad" value={profileData.localidad} onChange={handleProfileChange} /></Grid>
-                                    <Grid item xs={12} sm={6}><TextField fullWidth label="Código Postal" name="codigo_postal" value={profileData.codigo_postal} onChange={handleProfileChange} /></Grid>
-                                    <Grid item xs={12}><TextField fullWidth label="Provincia" name="provincia" value={profileData.provincia} onChange={handleProfileChange} /></Grid>
-                                    <Grid item xs={12} sx={{ display: 'flex', gap: 2 }}>
+                                <Grid container spacing={2}>
+                                    <Grid item xs={12} sm={6}>
+                                        <TextField fullWidth label="Nombre" name="nombre" value={profileData.nombre} onChange={handleProfileChange} />
+                                    </Grid>
+                                    <Grid item xs={12} sm={6}>
+                                        <TextField fullWidth label="Apellido" name="apellido" value={profileData.apellido} onChange={handleProfileChange} />
+                                    </Grid>
+                                    <Grid item xs={12}>
+                                        <TextField fullWidth label="Email" name="email" value={profileData.email} disabled />
+                                    </Grid>
+                                    <Grid item xs={12} sm={6}>
+                                        <TextField fullWidth label="DNI" name="dni" value={profileData.dni} onChange={handleProfileChange} />
+                                    </Grid>
+                                    <Grid item xs={12} sm={6}>
+                                        <TextField fullWidth label="Teléfono" name="telefono" value={profileData.telefono} onChange={handleProfileChange} />
+                                    </Grid>
+                                    <Grid item xs={12}>
+                                        <TextField fullWidth label="Dirección" name="direccion" value={profileData.direccion} onChange={handleProfileChange} />
+                                    </Grid>
+                                    <Grid item xs={12} sm={6}>
+                                        <TextField fullWidth label="Localidad" name="localidad" value={profileData.localidad} onChange={handleProfileChange} />
+                                    </Grid>
+                                    <Grid item xs={12} sm={6}>
+                                        <TextField fullWidth label="Código Postal" name="codigo_postal" value={profileData.codigo_postal} onChange={handleProfileChange} />
+                                    </Grid>
+                                    <Grid item xs={12}>
+                                        <TextField fullWidth label="Provincia" name="provincia" value={profileData.provincia} onChange={handleProfileChange} />
+                                    </Grid>
+                                    <Grid item xs={12} sx={{ display: 'flex', gap: 2, mt: 2 }}>
                                         <Button type="submit" variant="contained" disabled={isSubmittingProfile}>
                                             {isSubmittingProfile ? <CircularProgress size={24} /> : 'Guardar Cambios'}
                                         </Button>
@@ -189,35 +221,76 @@ const ProfilePage = () => {
                                 </Grid>
                             </form>
                         ) : (
-                            
                             <Grid container spacing={3}>
-                                <Grid item xs={12} sm={6}><ProfileDataItem label="Nombre y Apellido" value={`${profileData.nombre} ${profileData.apellido}`} icon={<PersonOutline />} /></Grid>
-                                <Grid item xs={12} sm={6}><ProfileDataItem label="Email" value={user?.email} icon={<EmailIcon />} /></Grid>
-                                <Grid item xs={12}><Divider sx={{ my: 1 }} /></Grid>
-                                <Grid item xs={12} sm={6}><ProfileDataItem label="DNI" value={profileData.dni} /></Grid>
-                                <Grid item xs={12} sm={6}><ProfileDataItem label="Teléfono" value={profileData.telefono} /></Grid>
-                                <Grid item xs={12}><ProfileDataItem label="Dirección" value={profileData.direccion} /></Grid>
-                                <Grid item xs={12} sm={5}><ProfileDataItem label="Localidad" value={profileData.localidad} /></Grid>
-                                <Grid item xs={12} sm={3}><ProfileDataItem label="Código Postal" value={profileData.codigo_postal} /></Grid>
-                                <Grid item xs={12} sm={4}><ProfileDataItem label="Provincia" value={profileData.provincia} /></Grid>
+                                <Grid item xs={12} sm={6}>
+                                    <ProfileDataItem label="Nombre y Apellido" value={`${profileData.nombre} ${profileData.apellido}`} icon={<PersonOutline />} />
+                                </Grid>
+                                <Grid item xs={12} sm={6}>
+                                    <ProfileDataItem label="Email" value={profileData.email} icon={<EmailIcon />} />
+                                </Grid>
+                                <Grid item xs={12}>
+                                    <Divider sx={{ my: 1 }} />
+                                </Grid>
+                                <Grid item xs={12} sm={6}>
+                                    <ProfileDataItem label="DNI" value={profileData.dni} />
+                                </Grid>
+                                <Grid item xs={12} sm={6}>
+                                    <ProfileDataItem label="Teléfono" value={profileData.telefono} />
+                                </Grid>
+                                <Grid item xs={12}>
+                                    <ProfileDataItem label="Dirección" value={profileData.direccion} />
+                                </Grid>
+                                <Grid item xs={12} sm={5}>
+                                    <ProfileDataItem label="Localidad" value={profileData.localidad} />
+                                </Grid>
+                                <Grid item xs={12} sm={3}>
+                                    <ProfileDataItem label="Código Postal" value={profileData.codigo_postal} />
+                                </Grid>
+                                <Grid item xs={12} sm={4}>
+                                    <ProfileDataItem label="Provincia" value={profileData.provincia} />
+                                </Grid>
                             </Grid>
                         )}
                     </TabPanel>
-                    
+
                     <TabPanel value={tabIndex} index={1}>
                         <Typography variant="h6" sx={{ mb: 3 }}>Actualizar Contraseña</Typography>
                         <form onSubmit={handlePasswordSubmit}>
                             <Stack spacing={3}>
-                                <TextField fullWidth type="password" label="Contraseña Actual" name="contraseniaActual" value={passwordData.contraseniaActual} onChange={handlePasswordChange} required />
-                                <TextField fullWidth type="password" label="Nueva Contraseña" name="nuevaContrasenia" value={passwordData.nuevaContrasenia} onChange={handlePasswordChange} required />
-                                <TextField fullWidth type="password" label="Confirmar Nueva Contraseña" name="confirmarContrasenia" value={passwordData.confirmarContrasenia} onChange={handlePasswordChange} required />
-                                <Button type="submit" variant="contained" disabled={isSubmittingPassword} sx={{ alignSelf: 'flex-start' }}>
-                                    {isSubmittingPassword ? 'Actualizando...' : 'Cambiar Contraseña'}
+                                <TextField
+                                    fullWidth
+                                    type="password"
+                                    label="Contraseña Actual"
+                                    name="contraseniaActual"
+                                    value={passwordData.contraseniaActual}
+                                    onChange={handlePasswordChange}
+                                    required
+                                />
+                                <TextField
+                                    fullWidth
+                                    type="password"
+                                    label="Nueva Contraseña"
+                                    name="nuevaContrasenia"
+                                    value={passwordData.nuevaContrasenia}
+                                    onChange={handlePasswordChange}
+                                    required
+                                />
+                                <TextField
+                                    fullWidth
+                                    type="password"
+                                    label="Confirmar Nueva Contraseña"
+                                    name="confirmarContrasenia"
+                                    value={passwordData.confirmarContrasenia}
+                                    onChange={handlePasswordChange}
+                                    required
+                                />
+                                <Button variant="contained" type="submit" disabled={isSubmittingPassword}>
+                                    {isSubmittingPassword ? <CircularProgress size={24} /> : 'Actualizar Contraseña'}
                                 </Button>
                             </Stack>
                         </form>
                     </TabPanel>
-                    
+
                     <TabPanel value={tabIndex} index={2}>
                         <PurchaseHistoryTab />
                     </TabPanel>

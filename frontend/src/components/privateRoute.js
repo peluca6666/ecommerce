@@ -3,21 +3,22 @@ import jwt_decode from 'jwt-decode';
 
 const PrivateRoute = ({ rolRequerido }) => {
   const token = localStorage.getItem('token');
+
   if (!token) {
-    // No hay token, redirigir al login
+    // si no hay token, vamos al login
     return <Navigate to="/login" />;
   }
 
   try {
     const decoded = jwt_decode(token);
-    // Si el rol no coincide, redirigir a la página principal
+    // si el rol no es el que pide, vamos a la página principal
     if (decoded.rol !== rolRequerido) {
       return <Navigate to="/" />;
     }
-    // Rol autorizado, mostrar rutas hijas
+    // rol correcto, mostramos las rutas hijas
     return <Outlet />;
   } catch (error) {
-    // Token inválido o corrupto, redirigir al login
+    // si el token está mal o corrupto, vamos al login
     return <Navigate to="/login" />;
   }
 };

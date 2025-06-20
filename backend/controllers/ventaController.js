@@ -1,4 +1,5 @@
 import * as ventaService from '../services/ventaService.js';
+import * as carritoService from '../services/carritoService.js';
 
 // Crea una nueva venta a partir del carrito del usuario
 export const crearVenta = async (req, res) => {
@@ -11,7 +12,7 @@ export const crearVenta = async (req, res) => {
     }
 
     const nuevaVenta = await ventaService.crearNuevaVenta(usuarioId, productos, metodo_pago, direccion_envio);
-
+    await carritoService.clearCartByUserId(usuarioId);
     res.status(201).json({ exito: true, mensaje: 'Venta creada exitosamente', venta: nuevaVenta });
   } catch (error) {
     console.error('Error en el controlador al crear la venta:', error);
@@ -47,11 +48,11 @@ export const obtenerDetalleVenta = async (req, res) => {
   try {
     const { id } = req.params;
     const detalle = await ventaService.obtenerDetalleDeVentaParaAdmin(parseInt(id));
-    
+
     if (!detalle) {
       return res.status(404).json({ exito: false, mensaje: 'Venta no encontrada' });
     }
-    
+
     res.status(200).json({ exito: true, datos: detalle });
   } catch (error) {
     console.error('Error en el controlador al obtener detalle de venta (admin):', error);

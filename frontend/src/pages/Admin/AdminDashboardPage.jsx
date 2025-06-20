@@ -1,5 +1,6 @@
 import * as React from 'react';
-import { Outlet } from 'react-router-dom';
+import { Outlet, Link as RouterLink } from 'react-router-dom'; // Link renombrado para evitar conflictos
+import Link from '@mui/material/Link';
 import { styled, createTheme, ThemeProvider } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import MuiDrawer from '@mui/material/Drawer';
@@ -11,15 +12,15 @@ import Typography from '@mui/material/Typography';
 import Divider from '@mui/material/Divider';
 import IconButton from '@mui/material/IconButton';
 import Container from '@mui/material/Container';
-import Grid from '@mui/material/Grid';
-import Paper from '@mui/material/Paper';
-import Link from '@mui/material/Link';
+import ListItemButton from '@mui/material/ListItemButton';
+import ListItemIcon from '@mui/material/ListItemIcon';
+import ListItemText from '@mui/material/ListItemText';
+import HomeIcon from '@mui/icons-material/Home';
 import MenuIcon from '@mui/icons-material/Menu';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
-import { mainListItems } from './listItems'; // <-- Importamos nuestra navegación
-import Title from './Title'; // <-- Importamos nuestro título
+import { mainListItems } from './listItems';
 
-// Una función de Copyright de ejemplo para el pie de página
+// componente para el copyright en el footer
 function Copyright(props) {
   return (
     <Typography variant="body2" color="text.secondary" align="center" {...props}>
@@ -35,7 +36,7 @@ function Copyright(props) {
 
 const drawerWidth = 240;
 
-// Creamos un componente AppBar personalizado para la barra superior
+// appbar personalizado que se ajusta según estado del drawer
 const AppBar = styled(MuiAppBar, {
   shouldForwardProp: (prop) => prop !== 'open',
 })(({ theme, open }) => ({
@@ -54,7 +55,7 @@ const AppBar = styled(MuiAppBar, {
   }),
 }));
 
-// Creamos un componente Drawer personalizado para el menú lateral
+// drawer personalizado para el menú lateral
 const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' })(
   ({ theme, open }) => ({
     '& .MuiDrawer-paper': {
@@ -84,8 +85,10 @@ const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' 
 const defaultTheme = createTheme();
 
 export default function AdminDashboardPage() {
-  // Estado para controlar si el menú lateral está abierto o cerrado
+  // estado para controlar si el drawer está abierto
   const [open, setOpen] = React.useState(true);
+
+  // cambia el estado del drawer (abre/cierra)
   const toggleDrawer = () => {
     setOpen(!open);
   };
@@ -96,6 +99,7 @@ export default function AdminDashboardPage() {
         <CssBaseline />
         <AppBar position="absolute" open={open}>
           <Toolbar sx={{ pr: '24px' }}>
+            {/* botón para abrir drawer, oculto si drawer está abierto */}
             <IconButton
               edge="start"
               color="inherit"
@@ -111,7 +115,7 @@ export default function AdminDashboardPage() {
           </Toolbar>
         </AppBar>
 
-        {/* Menu lateral*/}
+        {/* menú lateral */}
         <Drawer variant="permanent" open={open}>
           <Toolbar
             sx={{
@@ -121,15 +125,22 @@ export default function AdminDashboardPage() {
               px: [1],
             }}
           >
+            {/* botón para cerrar drawer */}
             <IconButton onClick={toggleDrawer}>
               <ChevronLeftIcon />
             </IconButton>
           </Toolbar>
           <Divider />
           <List component="nav">
-            {mainListItems} 
+            {mainListItems}
             <Divider sx={{ my: 1 }} />
-           
+            {/* link para volver a la página main */}
+            <ListItemButton component={RouterLink} to="/main">
+              <ListItemIcon>
+                <HomeIcon />
+              </ListItemIcon>
+              <ListItemText primary="Volver a Main" />
+            </ListItemButton>
           </List>
         </Drawer>
 
@@ -147,7 +158,7 @@ export default function AdminDashboardPage() {
         >
           <Toolbar />
           <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
-             <Outlet /> 
+            <Outlet />
             <Copyright sx={{ pt: 4 }} />
           </Container>
         </Box>
@@ -155,4 +166,3 @@ export default function AdminDashboardPage() {
     </ThemeProvider>
   );
 }
-

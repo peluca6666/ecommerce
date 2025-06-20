@@ -14,24 +14,24 @@ export const AuthProvider = ({ children }) => {
   const [notification, setNotification] = useState({ open: false, message: '', severity: 'info' });
   const [cart, setCart] = useState({ productos: [], count: 0, total: 0 });
 
-  // Decodifica el payload del JWT
+  // decodifica el payload del token jwt
   const decodeToken = (token) => {
     try {
       const payload = JSON.parse(atob(token.split('.')[1]));
       return payload;
     } catch (error) {
-      console.error('Error al decodificar token:', error);
+      console.error('error al decodificar token:', error);
       return null;
     }
   };
 
-  // Verifica si el token expiró
+  // chequea si el token expiró
   const isTokenExpired = (payload) => {
     if (!payload.exp) return false;
     return Date.now() >= payload.exp * 1000;
   };
 
-  // Actualiza el carrito desde la API
+  // actualiza el carrito llamando la API
   const refreshCart = async () => {
     const token = localStorage.getItem('token');
     if (!token) {
@@ -51,7 +51,7 @@ export const AuthProvider = ({ children }) => {
         });
       }
     } catch (error) {
-      console.error("Error al obtener el carrito:", error);
+      console.error("error al obtener el carrito:", error);
       setCart({ productos: [], count: 0, total: 0 });
     }
   };
@@ -71,10 +71,10 @@ export const AuthProvider = ({ children }) => {
     setLoading(false);
   }, []);
 
-  // Loguea guardando el token si es válido y actualiza usuario y carrito
+  // loguea guardando el token y actualizando usuario y carrito
   const login = (token) => {
     if (!token || typeof token !== 'string' || !token.includes('.')) {
-      console.error('Token inválido recibido');
+      console.error('token inválido recibido');
       return false;
     }
     const payload = decodeToken(token);
@@ -84,12 +84,12 @@ export const AuthProvider = ({ children }) => {
       refreshCart();
       return true;
     } else {
-      console.error('Token inválido o expirado');
+      console.error('token inválido o expirado');
       return false;
     }
   };
 
-  // Limpia el usuario y carrito al desloguear
+  // desloguea limpiando usuario y carrito
   const logout = () => {
     localStorage.removeItem('token');
     setUser(null);
@@ -98,7 +98,7 @@ export const AuthProvider = ({ children }) => {
 
   const getToken = () => localStorage.getItem('token');
 
-  // Muestra notificaciones en pantalla
+  // muestra notificaciones en pantalla
   const showNotification = (message, severity = 'success') => {
     setNotification({ open: true, message, severity });
   };
@@ -108,11 +108,11 @@ export const AuthProvider = ({ children }) => {
     setNotification({ ...notification, open: false });
   };
 
-  // Agrega un producto al carrito
+  // agrega producto al carrito
   const addToCart = async (productoId, cantidad = 1) => {
     const token = getToken();
     if (!token) {
-      showNotification('Debes estar logueado para agregar productos', 'warning');
+      showNotification('debes estar logueado para agregar productos', 'warning');
       return;
     }
     try {
@@ -121,18 +121,18 @@ export const AuthProvider = ({ children }) => {
         { headers: { Authorization: `Bearer ${token}` } }
       );
       await refreshCart();
-      showNotification('Producto agregado al carrito', 'success');
+      showNotification('producto agregado al carrito', 'success');
     } catch (error) {
-      console.error("Error al agregar al carrito:", error);
-      showNotification(error.response?.data?.mensaje || 'Error al agregar producto', 'error');
+      console.error("error al agregar al carrito:", error);
+      showNotification(error.response?.data?.mensaje || 'error al agregar producto', 'error');
     }
   };
 
-  // Elimina un producto del carrito
+  // elimina producto del carrito
   const removeFromCart = async (productoId) => {
     const token = getToken();
     if (!token) {
-      showNotification('Se requiere autenticación', 'error');
+      showNotification('se requiere autenticación', 'error');
       return;
     }
     try {
@@ -140,22 +140,22 @@ export const AuthProvider = ({ children }) => {
         headers: { Authorization: `Bearer ${token}` }
       });
       await refreshCart();
-      showNotification('Producto eliminado del carrito', 'info');
+      showNotification('producto eliminado del carrito', 'info');
     } catch (error) {
-      console.error("Error al eliminar del carrito:", error);
-      showNotification(error.response?.data?.mensaje || 'Error al eliminar producto', 'error');
+      console.error("error al eliminar del carrito:", error);
+      showNotification(error.response?.data?.mensaje || 'error al eliminar producto', 'error');
     }
   };
 
-  // Actualiza la cantidad de un producto en el carrito
+  // actualiza cantidad de producto en carrito
   const updateCartItemQuantity = async (productoId, cantidad) => {
     const token = getToken();
     if (!token) {
-      showNotification('Se requiere autenticación', 'error');
+      showNotification('se requiere autenticación', 'error');
       return;
     }
     if (isNaN(cantidad) || cantidad <= 0) {
-      // Si la cantidad es 0 o inválida, elimina el producto
+      // si cantidad es 0 o inválida, elimina el producto
       return removeFromCart(productoId);
     }
     try {
@@ -164,10 +164,10 @@ export const AuthProvider = ({ children }) => {
         { headers: { Authorization: `Bearer ${token}` } }
       );
       await refreshCart();
-      showNotification('Cantidad actualizada', 'success');
+      showNotification('cantidad actualizada', 'success');
     } catch (error) {
-      console.error("Error al actualizar la cantidad:", error);
-      showNotification(error.response?.data?.mensaje || 'Error al actualizar producto', 'error');
+      console.error("error al actualizar la cantidad:", error);
+      showNotification(error.response?.data?.mensaje || 'error al actualizar producto', 'error');
     }
   };
 

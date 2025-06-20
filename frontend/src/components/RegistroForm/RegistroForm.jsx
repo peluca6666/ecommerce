@@ -1,24 +1,12 @@
 import React from 'react';
-import { 
-    Button, 
-    TextField, 
-    Typography, 
-    Box, 
-    Link, 
-    Paper, 
-    Divider,
-    CircularProgress,
-    useTheme, // Importamos useTheme para acceder a los colores del tema
-    Alert, // Para mensajes de éxito/error más estilizados
-    InputAdornment // Para iconos dentro de TextField
-} from '@mui/material';
+import { Button, TextField, Typography, Box, Link, Paper, Divider,CircularProgress, useTheme, Alert, InputAdornment } from '@mui/material';
 import { Link as RouterLink } from 'react-router-dom';
-import PersonOutlineIcon from '@mui/icons-material/PersonOutline'; // Icono para nombre/apellido
-import MailOutlineIcon from '@mui/icons-material/MailOutline'; // Icono para email
-import LockOutlinedIcon from '@mui/icons-material/LockOutlined'; // Icono para contraseña
+import PersonOutlineIcon from '@mui/icons-material/PersonOutline';
+import MailOutlineIcon from '@mui/icons-material/MailOutline';
+import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 
 const RegistroForm = ({ formulario, errores, isLoading, onChange, onSubmit, mensajeExito }) => {
-    const theme = useTheme(); // Inicializamos useTheme
+    const theme = useTheme();
 
     return (
         <Box
@@ -27,49 +15,48 @@ const RegistroForm = ({ formulario, errores, isLoading, onChange, onSubmit, mens
                 justifyContent: 'center',
                 alignItems: 'center',
                 minHeight: '100vh',
-                // Fondo atractivo: Gradiente suave o color del tema, consistente con Login
                 background: `linear-gradient(135deg, ${theme.palette.primary.light} 30%, ${theme.palette.background.default} 90%)`,
-                [theme.breakpoints.down('sm')]: { // Ajuste para pantallas muy pequeñas
-                    alignItems: 'flex-start', // Empieza el formulario más arriba
-                    pt: 4, // Padding top para no pegar al borde
-                    background: theme.palette.background.default, // Fondo simple en móvil
+                [theme.breakpoints.down('sm')]: {
+                    alignItems: 'flex-start',
+                    pt: 4,
+                    background: theme.palette.background.default,
                 },
             }}
         >
             <Paper
                 component="form"
                 onSubmit={onSubmit}
-                elevation={6} 
+                elevation={6}
                 sx={{
                     width: '100%',
                     maxWidth: 440,
-                    p: { xs: 3, md: 5 }, 
+                    p: { xs: 3, md: 5 },
                     display: 'flex',
                     flexDirection: 'column',
-                    gap: { xs: 2, md: 2.5 }, 
+                    gap: { xs: 2, md: 2.5 },
                     borderRadius: theme.shape.borderRadius * 3,
                     boxShadow: theme.shadows[10],
-                    bgcolor: 'background.paper', 
+                    bgcolor: 'background.paper',
                     transition: 'transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out',
                     '&:hover': {
                         transform: 'translateY(-5px)',
                         boxShadow: theme.shadows[15],
                     },
-                    position: 'relative', 
+                    position: 'relative',
                 }}
             >
                 <Typography 
                     variant="h4" 
                     align="center" 
-                    color="primary" // Color primario para el título
+                    color="primary" 
                     fontWeight="bold"
                     gutterBottom
-                    sx={{ mb: 3 }} // Mayor margen inferior
+                    sx={{ mb: 3 }}
                 >
                     Crear cuenta
                 </Typography>
 
-                {/* Mensajes de error general y éxito */}
+                {/* mostrar error general */}
                 {errores.general && (
                     <Alert 
                         severity="error" 
@@ -79,6 +66,7 @@ const RegistroForm = ({ formulario, errores, isLoading, onChange, onSubmit, mens
                     </Alert>
                 )}
 
+                {/* mostrar mensaje de éxito */}
                 {mensajeExito && (
                     <Alert 
                         severity="success" 
@@ -88,8 +76,8 @@ const RegistroForm = ({ formulario, errores, isLoading, onChange, onSubmit, mens
                     </Alert>
                 )}
 
-                {/* Campos de nombre y apellido juntos */}
-                <Box sx={{ display: 'flex', gap: 2 }}> 
+                {/* campos nombre y apellido lado a lado */}
+                <Box sx={{ display: 'flex', gap: 2 }}>
                     <TextField
                         fullWidth
                         label="Nombre"
@@ -99,7 +87,7 @@ const RegistroForm = ({ formulario, errores, isLoading, onChange, onSubmit, mens
                         error={!!errores.nombre}
                         helperText={errores.nombre}
                         variant="outlined"
-                        size="medium" // Tamaño un poco más grande
+                        size="medium"
                         sx={{ '& .MuiOutlinedInput-root': { borderRadius: '10px' } }}
                         InputProps={{
                             startAdornment: (
@@ -119,7 +107,7 @@ const RegistroForm = ({ formulario, errores, isLoading, onChange, onSubmit, mens
                         error={!!errores.apellido}
                         helperText={errores.apellido}
                         variant="outlined"
-                        size="medium" // Tamaño un poco más grande
+                        size="medium"
                         sx={{ '& .MuiOutlinedInput-root': { borderRadius: '10px' } }}
                         InputProps={{
                             startAdornment: (
@@ -131,7 +119,7 @@ const RegistroForm = ({ formulario, errores, isLoading, onChange, onSubmit, mens
                     />
                 </Box>
 
-                {/* Email */}
+                {/* email */}
                 <TextField
                     fullWidth
                     label="Email"
@@ -153,7 +141,7 @@ const RegistroForm = ({ formulario, errores, isLoading, onChange, onSubmit, mens
                     }}
                 />
 
-                {/* Contraseña */}
+                {/* contraseña */}
                 <TextField
                     fullWidth
                     label="Contraseña"
@@ -175,7 +163,7 @@ const RegistroForm = ({ formulario, errores, isLoading, onChange, onSubmit, mens
                     }}
                 />
 
-                {/* Confirmar contraseña */}
+                {/* confirmar contraseña */}
                 <TextField
                     fullWidth
                     label="Confirmar contraseña"
@@ -197,7 +185,7 @@ const RegistroForm = ({ formulario, errores, isLoading, onChange, onSubmit, mens
                     }}
                 />
 
-                {/* Botón de envío */}
+                {/* botón enviar */}
                 <Button
                     fullWidth
                     variant="contained"
@@ -219,11 +207,11 @@ const RegistroForm = ({ formulario, errores, isLoading, onChange, onSubmit, mens
                     {isLoading ? <CircularProgress size={24} color="inherit" /> : 'Crear cuenta'}
                 </Button>
 
-                <Divider sx={{ my: 3 }}> 
+                <Divider sx={{ my: 3 }}>
                     <Typography variant="body2" color="text.secondary">o</Typography>
                 </Divider>
 
-                {/* Link para ir al login */}
+                {/* link para ir al login */}
                 <Typography variant="body2" align="center">
                     ¿Ya tenés una cuenta?{' '}
                     <Link 

@@ -1,13 +1,13 @@
 import * as React from 'react';
 import { useState, useEffect } from 'react';
 import { DataGrid } from '@mui/x-data-grid';
-import { Box, Button, Typography, Dialog, DialogActions, DialogContent, DialogTitle, TextField, styled, IconButton } from '@mui/material';
+import { Box, Button, Typography, Dialog, DialogActions, DialogContent, DialogTitle, TextField, styled, IconButton, Snackbar, Alert} from '@mui/material';
 import Title from './Title';
 import EditIcon from '@mui/icons-material/Edit';
 import ToggleOnIcon from '@mui/icons-material/ToggleOn';
 import ToggleOffIcon from '@mui/icons-material/ToggleOff';
 
-// Input oculto para carga de archivo con accesibilidad visual oculta
+// input oculto para subir archivo, queda escondido visualmente
 const VisuallyHiddenInput = styled('input')({
   clip: 'rect(0 0 0 0)',
   clipPath: 'inset(50%)',
@@ -20,52 +20,87 @@ const VisuallyHiddenInput = styled('input')({
   width: 1,
 });
 
-// Estado inicial de la categoría para creación/edición
+// estado inicial para crear o editar categoría
 const initialCategoryState = { nombre: '', imagen: '', activo: true };
 
 export default function AdminCategoriesPage() {
-  // Estado para lista de categorías
+  // estados para las categorías, carga, modales y formularios
   const [categories, setCategories] = useState([]);
-  // Estado para loading durante fetch
   const [loading, setLoading] = useState(true);
-  // Estado para controlar si modal de edición/creación está abierto
   const [open, setOpen] = useState(false);
-  // Estado para categoría que se está editando (null si es creación)
   const [editingCategory, setEditingCategory] = useState(null);
-  // Estado para datos del formulario (nombre, imagen, activo)
   const [newCategory, setNewCategory] = useState(initialCategoryState);
-  // Archivo seleccionado para imagen (si hay)
   const [imageFile, setImageFile] = useState(null);
-  // Estado para guardar errores al cargar categorías
   const [error, setError] = useState(null);
 
-  // Función para obtener las categorías desde backend
+  // estados para snackbar (alertas)
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState('');
+  const [snackbarSeverity, setSnackbarSeverity] = useState('success');
+
+  // estados para diálogo de confirmación
+  const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
+  const [confirmDialogMessage, setConfirmDialogMessage] = useState('');
+  const [confirmAction, setConfirmAction] = useState(null); // guarda función a ejecutar
+
+  // muestra snackbar con mensaje y tipo
+  const showSnackbar = (message, severity) => {
+    setSnackbarMessage(message);
+    setSnackbarSeverity(severity);
+    setSnackbarOpen(true);
+  };
+
+  // cierra snackbar salvo que se haga click fuera
+  const handleCloseSnackbar = (event, reason) => {
+    if (reason === 'clickaway') return;
+    setSnackbarOpen(false);
+  };
+
+  // abre confirm dialog con mensaje y acción
+  const handleOpenConfirmDialog = (message, action) => {
+    setConfirmDialogMessage(message);
+    setConfirmAction(() => action);
+    setConfirmDialogOpen(true);
+  };
+
+  // confirma la acción guardada y cierra diálogo
+  const handleConfirmAction = () => {
+    if (confirmAction) confirmAction();
+    setConfirmDialogOpen(false);
+    setConfirmAction(null);
+  };
+
+  // cancela confirm dialog
+  const handleCancelConfirmDialog = () => {
+    setConfirmDialogOpen(false);
+    setConfirmAction(null);
+  };
+
+  // trae categorías desde el backend
   const fetchCategories = async () => {
     setLoading(true);
     setError(null);
     try {
-      // Obtener token para autenticación
       const token = localStorage.getItem('token');
-      // Petición GET a la API de categorías admin
       const response = await fetch('http://localhost:3000/api/admin/categorias', {
-        headers: { 'Authorization': `Bearer ${token}` }
+        headers: { Authorization: `Bearer ${token}` }
       });
       if (!response.ok) throw new Error('No se pudieron cargar las categorías');
       const data = await response.json();
-      // Guardar categorías recibidas o arreglo vacío
       setCategories(data.datos || []);
     } catch (err) {
       console.error("Error al buscar categorías:", err);
       setError(err.message);
+      showSnackbar(`Error al cargar categorías: ${err.message}`, 'error');
     } finally {
       setLoading(false);
     }
   };
 
-  // Ejecutar fetch al montar componente
+  // fetch al montar el componente
   useEffect(() => { fetchCategories(); }, []);
 
-  // Cerrar modal y resetear estados relacionados a edición/creación
+  // cierra modal y limpia estados de formulario y edición
   const handleClose = () => {
     setOpen(false);
     setNewCategory(initialCategoryState);
@@ -73,73 +108,73 @@ export default function AdminCategoriesPage() {
     setImageFile(null);
   };
 
-  // Abrir modal para edición y cargar categoría seleccionada
+  // abre modal para editar categoría cargando datos
   const handleEditClick = (category) => {
     setEditingCategory(category);
     setNewCategory(category);
     setOpen(true);
   };
 
-  // Manejar cambios en inputs de texto del formulario
+  // actualiza formulario al cambiar input
   const handleInputChange = (e) => setNewCategory({ ...newCategory, [e.target.name]: e.target.value });
 
-  // Manejar selección de archivo para imagen
-  const handleFileChange = (e) => { if (e.target.files[0]) setImageFile(e.target.files[0]); };
-
-  // Cambiar estado "activo" de categoría (activar/desactivar)
-  const handleToggleStatus = async (id, estadoActual) => {
-    const confirmacion = window.confirm(`¿Estás seguro de que querés ${estadoActual ? 'DESACTIVAR' : 'ACTIVAR'} esta categoría?`);
-    if (!confirmacion) return;
-
-    try {
-      const token = localStorage.getItem('token');
-      // PUT para cambiar estado activo/inactivo
-      const response = await fetch(`http://localhost:3000/api/admin/categorias/${id}/toggle-activo`, {
-        method: 'PUT',
-        headers: { 'Authorization': `Bearer ${token}` },
-      });
-      if (!response.ok) throw new Error('Falló al cambiar el estado de la categoría');
-      alert('Estado actualizado con éxito');
-      // Refrescar lista tras cambio
-      fetchCategories();
-    } catch (error) {
-      alert(`Error: ${error.message}`);
-    }
+  // actualiza archivo imagen al seleccionar
+  const handleFileChange = (e) => {
+    if (e.target.files[0]) setImageFile(e.target.files[0]);
   };
 
-  // Enviar formulario para crear o editar categoría
+  // activa o desactiva categoría con confirmación
+  const handleToggleStatus = async (id, estadoActual) => {
+    handleOpenConfirmDialog(
+      `¿Estás seguro de que querés ${estadoActual ? 'DESACTIVAR' : 'ACTIVAR'} esta categoría?`,
+      async () => {
+        try {
+          const token = localStorage.getItem('token');
+          const response = await fetch(`http://localhost:3000/api/admin/categorias/${id}/toggle-activo`, {
+            method: 'PUT',
+            headers: { Authorization: `Bearer ${token}` },
+          });
+          if (!response.ok) throw new Error('Falló al cambiar el estado de la categoría');
+          showSnackbar('Estado actualizado con éxito', 'success');
+          fetchCategories();
+        } catch (error) {
+          showSnackbar(`Error: ${error.message}`, 'error');
+        }
+      }
+    );
+  };
+
+  // envía formulario para crear o editar categoría
   const handleSubmit = async () => {
     const formData = new FormData();
     formData.append('nombre', newCategory.nombre);
-    // Si se seleccionó una imagen nueva, incluirla en FormData
-    if (imageFile) {
-      formData.append('imagen', imageFile);
-    }
+    if (imageFile) formData.append('imagen', imageFile);
 
     const token = localStorage.getItem('token');
-    // Definir URL y método según si es edición o creación
-    const url = editingCategory 
-      ? `http://localhost:3000/api/admin/categorias/${editingCategory.categoria_id}` 
+    const url = editingCategory
+      ? `http://localhost:3000/api/admin/categorias/${editingCategory.categoria_id}`
       : 'http://localhost:3000/api/admin/categorias';
     const method = editingCategory ? 'PUT' : 'POST';
 
     try {
-      // Enviar formulario al backend
       const response = await fetch(url, {
         method,
-        headers: { 'Authorization': `Bearer ${token}` },
+        headers: { Authorization: `Bearer ${token}` },
         body: formData,
       });
-      if (!response.ok) throw new Error('La operación falló');
-      alert(`Categoría ${editingCategory ? 'actualizada' : 'creada'} con éxito`);
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.mensaje || 'La operación falló');
+      }
+      showSnackbar(`Categoría ${editingCategory ? 'actualizada' : 'creada'} con éxito`, 'success');
       handleClose();
       fetchCategories();
     } catch (error) {
-      alert(`Error: ${error.message}`);
+      showSnackbar(`Error: ${error.message}`, 'error');
     }
   };
 
-  // Definición de columnas para DataGrid
+  // columnas para DataGrid
   const columns = [
     { field: 'categoria_id', headerName: 'ID', width: 90 },
     {
@@ -149,17 +184,15 @@ export default function AdminCategoriesPage() {
       renderCell: (params) => {
         const BASE_URL = 'http://localhost:3000';
         const imageUrl = params.value ? `${BASE_URL}${params.value}` : null;
-        return (
-          imageUrl
-            ? <img src={imageUrl} alt={params.row.nombre} style={{ width: 50, height: 50, objectFit: 'cover' }} />
-            : 'Sin imagen'
-        );
+        return imageUrl
+          ? <img src={imageUrl} alt={params.row.nombre} style={{ width: 50, height: 50, objectFit: 'cover' }} />
+          : <Typography variant="caption">Sin imagen</Typography>;
       }
     },
     { field: 'nombre', headerName: 'Nombre', width: 300 },
-    { 
-      field: 'activo', 
-      headerName: 'Estado', 
+    {
+      field: 'activo',
+      headerName: 'Estado',
       width: 130,
       renderCell: (params) => (
         <Typography color={params.row.activo ? 'green' : 'red'}>
@@ -174,9 +207,7 @@ export default function AdminCategoriesPage() {
       sortable: false,
       renderCell: (params) => (
         <Box>
-          {/* Botón para editar categoría */}
           <IconButton onClick={() => handleEditClick(params.row)}><EditIcon /></IconButton>
-          {/* Botón para activar o desactivar */}
           <IconButton onClick={() => handleToggleStatus(params.row.categoria_id, params.row.activo)}>
             {params.row.activo ? <ToggleOnIcon color="success" /> : <ToggleOffIcon color="error" />}
           </IconButton>
@@ -185,7 +216,6 @@ export default function AdminCategoriesPage() {
     }
   ];
 
-  // Renderizado condicional según loading o error
   if (loading) return <Typography>Cargando...</Typography>;
   if (error) return <Typography color="error">Error: {error}</Typography>;
 
@@ -193,49 +223,91 @@ export default function AdminCategoriesPage() {
     <Box sx={{ height: '80vh', width: '100%' }}>
       <Title>Gestión de Categorías</Title>
 
-      {/* Botón para abrir modal de creación */}
-      <Button 
-        variant="contained" 
-        sx={{ mb: 2 }} 
+      <Button
+        variant="contained"
+        sx={{ mb: 2 }}
         onClick={() => { setEditingCategory(null); setNewCategory(initialCategoryState); setOpen(true); }}
       >
         Crear Nueva Categoría
       </Button>
 
-      {/* Tabla con categorías */}
-      <DataGrid 
-        rows={categories} 
-        columns={columns} 
-        getRowId={(row) => row.categoria_id} 
-        loading={loading} 
+      <DataGrid
+        rows={categories}
+        columns={columns}
+        getRowId={(row) => row.categoria_id}
+        loading={loading}
       />
 
-      {/* Modal para crear o editar categoría */}
       <Dialog open={open} onClose={handleClose}>
         <DialogTitle>{editingCategory ? 'Editar Categoría' : 'Crear Nueva Categoría'}</DialogTitle>
         <DialogContent>
-          {/* Input nombre */}
-          <TextField 
-            autoFocus 
-            margin="dense" 
-            name="nombre" 
-            label="Nombre de la Categoría" 
-            type="text" 
-            fullWidth 
-            value={newCategory.nombre} 
-            onChange={handleInputChange} 
-            sx={{ mt: 1 }} 
+          <TextField
+            autoFocus
+            margin="dense"
+            name="nombre"
+            label="Nombre de la Categoría"
+            type="text"
+            fullWidth
+            value={newCategory.nombre}
+            onChange={handleInputChange}
+            sx={{ mt: 1 }}
           />
-          {/* Botón para cargar imagen */}
           <Button component="label" variant="outlined" sx={{ mt: 2 }}>
             {imageFile ? imageFile.name : (editingCategory?.imagen ? 'Cambiar Imagen' : 'Seleccionar Imagen')}
             <VisuallyHiddenInput type="file" onChange={handleFileChange} />
           </Button>
+          {imageFile && (
+            <Typography variant="body2" sx={{ ml: 2, display: 'inline-block' }}>
+              archivo: {imageFile.name}
+            </Typography>
+          )}
+          {editingCategory && !imageFile && editingCategory.imagen && (
+            <Box sx={{ mt: 2 }}>
+              <Typography variant="body2">imagen actual:</Typography>
+              <img
+                src={`http://localhost:3000${editingCategory.imagen}`}
+                alt="imagen actual de categoría"
+                style={{ maxWidth: '100px', maxHeight: '100px', objectFit: 'contain', border: '1px solid #ccc' }}
+              />
+            </Box>
+          )}
         </DialogContent>
         <DialogActions>
-          {/* Botones cancelar y guardar */}
-          <Button onClick={handleClose}>Cancelar</Button>
-          <Button onClick={handleSubmit}>Guardar</Button>
+          <Button onClick={handleClose}>cancelar</Button>
+          <Button onClick={handleSubmit}>guardar</Button>
+        </DialogActions>
+      </Dialog>
+
+      <Snackbar
+        open={snackbarOpen}
+        autoHideDuration={6000}
+        onClose={handleCloseSnackbar}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+      >
+        <Alert onClose={handleCloseSnackbar} severity={snackbarSeverity} sx={{ width: '100%' }}>
+          {snackbarMessage}
+        </Alert>
+      </Snackbar>
+
+      <Dialog
+        open={confirmDialogOpen}
+        onClose={handleCancelConfirmDialog}
+        aria-labelledby="confirm-dialog-title"
+        aria-describedby="confirm-dialog-description"
+      >
+        <DialogTitle id="confirm-dialog-title">confirmación</DialogTitle>
+        <DialogContent>
+          <Typography id="confirm-dialog-description">
+            {confirmDialogMessage}
+          </Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCancelConfirmDialog} color="primary">
+            cancelar
+          </Button>
+          <Button onClick={handleConfirmAction} color="primary" autoFocus>
+            confirmar
+          </Button>
         </DialogActions>
       </Dialog>
     </Box>

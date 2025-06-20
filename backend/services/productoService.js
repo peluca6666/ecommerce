@@ -3,46 +3,54 @@ import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
-// Para obtener la ruta del directorio actual en ES Modules
+// Para saber dónde estamos en ES Modules
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Convierte ruta absoluta a relativa para que se pueda usar en la app web
+/**
+ * Convierte una ruta de imagen para que el front la pueda usar
+ * @param {string} fullPath Ruta completa del archivo
+ * @returns {string|null} Ruta relativa o null si no hay ruta
+ */
 function convertToRelativePath(fullPath) {
     if (!fullPath) return null;
     if (fullPath.startsWith('/images/')) return fullPath;
+
     const publicIndex = fullPath.indexOf('public');
+
     if (publicIndex !== -1) {
         return '/' + fullPath.substring(publicIndex + 7).replace(/\\/g, '/');
     }
+
     if (fullPath.includes('images/productos')) {
-        const imagePath = fullPath.substring(fullPath.indexOf('images/productos')).replace(/\\/g, '/');
+        const imagePath = fullPath
+            .substring(fullPath.indexOf('images/productos'))
+            .replace(/\\/g, '/');
         return '/' + imagePath;
     }
+
     return fullPath.replace(/\\/g, '/');
 }
 
 /**
- * Lista productos con filtros y paginación para el panel de admin
- * @param {object} options - Opciones de filtrado y paginación
- * @returns {Promise<object>}
+ * Trae todos los productos con filtros y paginación para admin
+ * @param {Object} options Opciones de filtro y paginación
+ * @returns {Object} Productos y datos de paginación
  */
 export async function getAllProducts(options = {}) {
     const { categoria, busqueda, minPrice, maxPrice, es_oferta, sortBy, pagina = 1, limite = 10 } = options;
+
     const offset = (parseInt(pagina) - 1) * parseInt(limite);
 
     let query = `
-      SELECT 
-        p.*, 
-        c.nombre AS nombre_categoria 
-      FROM 
-        producto p 
-      LEFT JOIN 
-        categoria c ON p.categoria_id = c.categoria_id
-      WHERE 1=1 
+        SELECT p.*, c.nombre AS nombre_categoria
+        FROM producto p
+        LEFT JOIN categoria c ON p.categoria_id = c.categoria_id
+        WHERE 1=1
     `;
+
     let countQuery = `SELECT COUNT(*) as total FROM producto WHERE 1=1`;
-    
+
     const params = [];
     const countParams = [];
 
@@ -52,24 +60,28 @@ export async function getAllProducts(options = {}) {
         params.push(categoria);
         countParams.push(categoria);
     }
+
     if (busqueda) {
         query += ` AND p.nombre_producto LIKE ?`;
         countQuery += ` AND nombre_producto LIKE ?`;
         params.push(`%${busqueda}%`);
         countParams.push(`%${busqueda}%`);
     }
+
     if (minPrice && !isNaN(minPrice)) {
         query += ` AND p.precio >= ?`;
         countQuery += ` AND precio >= ?`;
         params.push(parseFloat(minPrice));
         countParams.push(parseFloat(minPrice));
     }
+
     if (maxPrice && !isNaN(maxPrice)) {
         query += ` AND p.precio <= ?`;
         countQuery += ` AND precio <= ?`;
         params.push(parseFloat(maxPrice));
         countParams.push(parseFloat(maxPrice));
     }
+
     if (es_oferta === 'true') {
         query += ` AND p.es_oferta = true AND p.activo = true`;
         countQuery += ` AND es_oferta = true AND activo = true`;
@@ -81,8 +93,8 @@ export async function getAllProducts(options = {}) {
         nombre_asc: 'ORDER BY p.nombre_producto ASC',
         nombre_desc: 'ORDER BY p.nombre_producto DESC'
     };
+
     query += ` ${validSorts[sortBy] || 'ORDER BY p.producto_id DESC'}`;
-    
     query += ` LIMIT ? OFFSET ?`;
     params.push(parseInt(limite), offset);
 
@@ -91,9 +103,9 @@ export async function getAllProducts(options = {}) {
 
     return {
         productos,
-        paginacion: { 
-            total, 
-            limite: parseInt(limite), 
+        paginacion: {
+            total,
+            limite: parseInt(limite),
             pagina: parseInt(pagina),
             total_paginas: Math.ceil(total / parseInt(limite))
         }
@@ -101,19 +113,19 @@ export async function getAllProducts(options = {}) {
 }
 
 /**
- * Crea un producto, validando campos mínimos y convirtiendo rutas de imagen a relativas
- * @param {object} productData - Datos del producto
- * @param {object} files - Archivos subidos
- * @returns {Promise<object>}
+ * Crea un producto nuevo en la base
+ * @param {Object} productData Datos del producto
+ * @param {Object} files Archivos subidos (imagenes)
+ * @returns {Object} Producto creado
  */
-export async function createProduct(productData, files) { 
-    const { 
-        nombre_producto, 
-        descripcion, 
-        precio, 
-        precio_anterior, 
-        categoria_id, 
-        stock_actual,
+export async function createProduct(productData, files) {
+    const {
+        nombre_producto,
+        descripcion,
+        precio,
+        precio_anterior,
+        categoria_id,
+        stock_actual
     } = productData;
 
     if (!nombre_producto || !precio || stock_actual == null || stock_actual === '') {
@@ -122,9 +134,12 @@ export async function createProduct(productData, files) {
         throw err;
     }
 
-    const imagenPath = files && files.imagen ? convertToRelativePath(files.imagen[0].path) : null;
-    const imagenesPaths = files && files.imagenes ? 
-        files.imagenes.map(file => convertToRelativePath(file.path)) : [];
+    const imagenPath = files?.imagen ? convertToRelativePath(files.imagen[0].path) : null;
+
+    const imagenesPaths = files?.imagenes
+        ? files.imagenes.map(file => convertToRelativePath(file.path))
+        : [];
+
     const imagenesJson = JSON.stringify(imagenesPaths);
 
     const precioFinal = parseFloat(precio);
@@ -133,11 +148,11 @@ export async function createProduct(productData, files) {
 
     const query = `
         INSERT INTO producto (
-            nombre_producto, descripcion, precio, precio_anterior, categoria_id, 
+            nombre_producto, descripcion, precio, precio_anterior, categoria_id,
             imagen, imagenes, stock_actual, activo, es_oferta
         ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `;
-    
+
     const params = [
         nombre_producto,
         descripcion || null,
@@ -148,7 +163,7 @@ export async function createProduct(productData, files) {
         imagenesJson,
         parseInt(stock_actual),
         true,
-        esOfertaFinal, 
+        esOfertaFinal
     ];
 
     try {
@@ -162,57 +177,72 @@ export async function createProduct(productData, files) {
 }
 
 /**
- * Actualiza un producto, con manejo de imagen principal y secundarias, y cálculo de oferta
- * @param {number} id - ID del producto a actualizar
- * @param {object} productData - Datos del producto
- * @param {object} files - Archivos subidos
- * @returns {Promise<object|null>}
+ * Actualiza un producto con nuevos datos o imágenes
+ * @param {number} id ID del producto a actualizar
+ * @param {Object} productData Datos para actualizar
+ * @param {Object} files Archivos nuevos (opcional)
+ * @returns {Object|null} Producto actualizado o null si no existe
  */
 export async function updateProduct(id, productData, files) {
-    const { 
-        nombre_producto, 
-        descripcion, 
-        precio, 
-        precio_anterior, 
-        categoria_id, 
-        stock_actual 
+    const {
+        nombre_producto,
+        descripcion,
+        precio,
+        precio_anterior,
+        categoria_id,
+        stock_actual
     } = productData;
 
     const setClauses = [];
     const params = [];
 
-    if (nombre_producto) { setClauses.push('nombre_producto = ?'); params.push(nombre_producto); }
-    if (descripcion) { setClauses.push('descripcion = ?'); params.push(descripcion); }
-    if (precio != null && precio !== '') { setClauses.push('precio = ?'); params.push(parseFloat(precio)); }
-    if (precio_anterior != null && precio_anterior !== '') { setClauses.push('precio_anterior = ?'); params.push(parseFloat(precio_anterior)); }
-    if (categoria_id) { setClauses.push('categoria_id = ?'); params.push(parseInt(categoria_id)); }
-    
-    // Se valida que el stock no sea nulo/indefinido ni una cadena vacía
-    // Esto permite que el valor 0 se guarde correctamente
+    if (nombre_producto) {
+        setClauses.push('nombre_producto = ?');
+        params.push(nombre_producto);
+    }
+
+    if (descripcion) {
+        setClauses.push('descripcion = ?');
+        params.push(descripcion);
+    }
+
+    if (precio != null && precio !== '') {
+        setClauses.push('precio = ?');
+        params.push(parseFloat(precio));
+    }
+
+    if (precio_anterior != null && precio_anterior !== '') {
+        setClauses.push('precio_anterior = ?');
+        params.push(parseFloat(precio_anterior));
+    }
+
+    if (categoria_id) {
+        setClauses.push('categoria_id = ?');
+        params.push(parseInt(categoria_id));
+    }
+
     if (stock_actual != null && stock_actual !== '') {
         setClauses.push('stock_actual = ?');
         params.push(parseInt(stock_actual));
     }
 
-    if (files && files.imagen && files.imagen[0]) {
+    if (files?.imagen?.[0]) {
         const productoExistente = await obtenerProductoPorId(id);
-        if (productoExistente && productoExistente.imagen) {
+        if (productoExistente?.imagen) {
             const rutaImagenAntigua = path.join(__dirname, '..', 'public', productoExistente.imagen);
-            if (fs.existsSync(rutaImagenAntigua)) {
-                fs.unlinkSync(rutaImagenAntigua);
-            }
+            if (fs.existsSync(rutaImagenAntigua)) fs.unlinkSync(rutaImagenAntigua);
         }
         const imagenPath = convertToRelativePath(files.imagen[0].path);
         setClauses.push('imagen = ?');
         params.push(imagenPath);
     }
 
-    if (files && files.imagenes && files.imagenes.length > 0) {
+    if (files?.imagenes?.length > 0) {
         const imagenesPaths = files.imagenes.map(file => convertToRelativePath(file.path));
         setClauses.push('imagenes = ?');
         params.push(JSON.stringify(imagenesPaths));
     }
-    
+
     if (precio || precio_anterior) {
         const productoActual = await obtenerProductoPorId(id);
         const precioFinal = precio ? parseFloat(precio) : productoActual.precio;
@@ -223,35 +253,38 @@ export async function updateProduct(id, productData, files) {
     }
 
     if (setClauses.length === 0) {
-        throw new Error('No se proporcionaron campos para actualizar');
+        throw new Error('No se pasaron datos para actualizar');
     }
-    
+
     const query = `UPDATE producto SET ${setClauses.join(', ')} WHERE producto_id = ?`;
     params.push(id);
-  
+
     const [result] = await pool.query(query, params);
     if (result.affectedRows === 0) return null;
 
     const [[productoActualizado]] = await pool.query(
-        'SELECT p.*, c.nombre AS nombre_categoria FROM producto p LEFT JOIN categoria c ON p.categoria_id = c.categoria_id WHERE p.producto_id = ?', 
+        'SELECT p.*, c.nombre AS nombre_categoria FROM producto p LEFT JOIN categoria c ON p.categoria_id = c.categoria_id WHERE p.producto_id = ?',
         [id]
     );
+
     return productoActualizado;
 }
 
 /**
- * Desactiva el producto 
- * @param {number} productoId - ID del producto a desactivar
- * @returns {Promise<boolean>}
+ * Marca un producto como inactivo (borrado lógico)
+ * @param {number} productoId ID del producto a borrar
+ * @returns {boolean} true si se desactivó, lanza error si no existe
  */
 export async function deleteProduct(productoId) {
     try {
         const [result] = await pool.query('UPDATE producto SET activo = false WHERE producto_id = ?', [productoId]);
+
         if (result.affectedRows === 0) {
             const err = new Error('Producto no encontrado');
             err.statusCode = 404;
             throw err;
         }
+
         return true;
     } catch (error) {
         throw error;
@@ -259,15 +292,15 @@ export async function deleteProduct(productoId) {
 }
 
 /**
- * Trae productos en oferta, limitado por parámetro.
- * @param {number} limite - Cantidad máxima de ofertas a traer.
- * @returns {Promise<Array>}
+ * Obtiene productos en oferta (ejemplo para home)
+ * @param {number} limite Cantidad máxima de productos
+ * @returns {Array} Productos en oferta
  */
 export async function getOfferProducts(limite = 8) {
     const query = `
-        SELECT * FROM producto 
-        WHERE activo = true AND es_oferta = true 
-        ORDER BY producto_id DESC 
+        SELECT * FROM producto
+        WHERE activo = true AND es_oferta = true
+        ORDER BY producto_id DESC
         LIMIT ?
     `;
     const [productos] = await pool.query(query, [limite]);
@@ -275,23 +308,23 @@ export async function getOfferProducts(limite = 8) {
 }
 
 /**
- * Busca un producto activo por su id.
- * @param {number} productoId - ID del producto.
- * @returns {Promise<object|null>}
+ * Busca un producto por su ID
+ * @param {number} productoId ID del producto
+ * @returns {Object|null} Producto o null si no existe
  */
 export async function obtenerProductoPorId(productoId) {
     const query = 'SELECT * FROM producto WHERE producto_id = ?';
     const [productos] = await pool.query(query, [productoId]);
-    if (productos.length === 0) {
-        return null;
-    }
+
+    if (productos.length === 0) return null;
+
     return productos[0];
 }
 
 /**
- * Activa o desactiva un producto.
- * @param {number} productoId - ID del producto.
- * @returns {Promise<boolean>}
+ * Cambia estado activo/inactivo de un producto
+ * @param {number} productoId ID del producto
+ * @returns {boolean} true si se actualizó
  */
 export async function toggleProductStatus(productoId) {
     const query = 'UPDATE producto SET activo = NOT activo WHERE producto_id = ?';

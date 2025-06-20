@@ -1,10 +1,8 @@
 import * as React from 'react';
 import { useState, useEffect } from 'react';
 import { DataGrid } from '@mui/x-data-grid';
-import {
-  Box, Typography, IconButton, Select, MenuItem, Dialog, DialogTitle,
-  DialogContent, List, ListItem, ListItemText, Divider, CircularProgress, Link as MuiLink
-} from '@mui/material';
+import {Box, Typography, IconButton, Select, MenuItem, Dialog, DialogTitle,DialogContent, List, ListItem, ListItemText, Divider, 
+CircularProgress, Link as MuiLink, Button, DialogActions,Snackbar,Alert} from '@mui/material';
 import { Link as RouterLink } from 'react-router-dom';
 import Title from './Title';
 import ToggleOnIcon from '@mui/icons-material/ToggleOn';
@@ -12,16 +10,55 @@ import ToggleOffIcon from '@mui/icons-material/ToggleOff';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 
 export default function AdminUsersPage() {
-  // Estados: lista de usuarios, carga, error, modal, usuario seleccionado, ventas e indicador de carga de ventas
+  // estados de usuarios y carga
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+
+  // estados del modal y usuario seleccionado
   const [isDetailModalOpen, setDetailModalOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
   const [userSales, setUserSales] = useState([]);
   const [salesLoading, setSalesLoading] = useState(false);
 
-  // Obtener lista de usuarios con autorización
+  // estado para mostrar alertas tipo snackbar
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState('');
+  const [snackbarSeverity, setSnackbarSeverity] = useState('success');
+
+  // estado para manejar el diálogo de confirmación
+  const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
+  const [confirmDialogMessage, setConfirmDialogMessage] = useState('');
+  const [confirmAction, setConfirmAction] = useState(null);
+
+  const showSnackbar = (message, severity) => {
+    setSnackbarMessage(message);
+    setSnackbarSeverity(severity);
+    setSnackbarOpen(true);
+  };
+
+  const handleCloseSnackbar = (event, reason) => {
+    if (reason === 'clickaway') return;
+    setSnackbarOpen(false);
+  };
+
+  const handleOpenConfirmDialog = (message, action) => {
+    setConfirmDialogMessage(message);
+    setConfirmAction(() => action);
+    setConfirmDialogOpen(true);
+  };
+
+  const handleConfirmAction = () => {
+    if (confirmAction) confirmAction();
+    setConfirmDialogOpen(false);
+    setConfirmAction(null);
+  };
+
+  const handleCancelConfirmDialog = () => {
+    setConfirmDialogOpen(false);
+    setConfirmAction(null);
+  };
+
   const fetchUsers = async () => {
     try {
       const token = localStorage.getItem('token');
@@ -33,53 +70,61 @@ export default function AdminUsersPage() {
       setUsers(data.datos || []);
     } catch (err) {
       setError(err.message);
+      showSnackbar(`Error al cargar usuarios: ${err.message}`, 'error');
     } finally {
       setLoading(false);
     }
   };
 
-  // Obtener usuarios al montar el componente
+  // carga inicial de usuarios
   useEffect(() => {
     fetchUsers();
   }, []);
 
-  // Cambiar el rol de un usuario con confirmación
   const handleRoleChange = async (id, nuevoRol) => {
-    const confirmacion = window.confirm(`¿Estás seguro de que querés cambiar el rol a "${nuevoRol}"?`);
-    if (!confirmacion) return;
-    try {
-      const token = localStorage.getItem('token');
-      await fetch(`http://localhost:3000/api/admin/usuarios/${id}/rol`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({ rol: nuevoRol })
-      });
-      fetchUsers();
-    } catch (err) {
-      alert(`Error al cambiar el rol: ${err.message}`);
-    }
+    handleOpenConfirmDialog(
+      `¿Estás seguro de que querés cambiar el rol a "${nuevoRol}"?`,
+      async () => {
+        try {
+          const token = localStorage.getItem('token');
+          const response = await fetch(`http://localhost:3000/api/admin/usuarios/${id}/rol`, {
+            method: 'PUT',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({ rol: nuevoRol })
+          });
+          if (!response.ok) throw new Error('Error al cambiar el rol');
+          showSnackbar('Rol cambiado exitosamente.', 'success');
+          fetchUsers();
+        } catch (err) {
+          showSnackbar(`Error al cambiar el rol: ${err.message}`, 'error');
+        }
+      }
+    );
   };
 
-  // Activar o desactivar un usuario con confirmación
   const handleToggleStatus = async (id, estadoActual) => {
-    const confirmacion = window.confirm(`¿Seguro que querés ${estadoActual ? 'desactivar' : 'activar'} este usuario?`);
-    if (!confirmacion) return;
-    try {
-      const token = localStorage.getItem('token');
-      await fetch(`http://localhost:3000/api/admin/usuarios/${id}/toggle-activo`, {
-        method: 'PUT',
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
-      fetchUsers();
-    } catch (err) {
-      alert(`Error al cambiar el estado: ${err.message}`);
-    }
+    handleOpenConfirmDialog(
+      `¿Seguro que querés ${estadoActual ? 'desactivar' : 'activar'} este usuario?`,
+      async () => {
+        try {
+          const token = localStorage.getItem('token');
+          const response = await fetch(`http://localhost:3000/api/admin/usuarios/${id}/toggle-activo`, {
+            method: 'PUT',
+            headers: { 'Authorization': `Bearer ${token}` }
+          });
+          if (!response.ok) throw new Error('Error al cambiar el estado');
+          showSnackbar('Estado de usuario cambiado exitosamente.', 'success');
+          fetchUsers();
+        } catch (err) {
+          showSnackbar(`Error al cambiar el estado: ${err.message}`, 'error');
+        }
+      }
+    );
   };
 
-  // Mostrar detalles y cargar historial de compras de un usuario
   const handleViewDetails = async (user) => {
     setSelectedUser(user);
     setDetailModalOpen(true);
@@ -95,19 +140,19 @@ export default function AdminUsersPage() {
     } catch (err) {
       console.error(err);
       setUserSales([]);
+      showSnackbar(`Error al cargar compras: ${err.message}`, 'error');
     } finally {
       setSalesLoading(false);
     }
   };
 
-  // Cerrar modal de detalle
   const handleCloseDetailModal = () => {
     setDetailModalOpen(false);
     setSelectedUser(null);
     setUserSales([]);
   };
 
-  // Columnas de la tabla: incluye ID, nombre, email, rol editable, estado con toggle, y acción para ver detalle
+  // definición de columnas de la tabla
   const columns = [
     { field: 'usuario_id', headerName: 'ID', width: 70 },
     { field: 'nombre', headerName: 'Nombre', width: 150 },
@@ -123,7 +168,7 @@ export default function AdminUsersPage() {
           onChange={(e) => handleRoleChange(params.row.usuario_id, e.target.value)}
           size="small"
           sx={{ width: '100%' }}
-          onClick={(e) => e.stopPropagation()} // Evita que se seleccione la fila al hacer clic
+          onClick={(e) => e.stopPropagation()}
         >
           <MenuItem value="cliente">Cliente</MenuItem>
           <MenuItem value="admin">Admin</MenuItem>
@@ -158,11 +203,9 @@ export default function AdminUsersPage() {
     }
   ];
 
-  // Muestra mensaje mientras carga o si hay error
   if (loading) return <Typography>Cargando usuarios...</Typography>;
   if (error) return <Typography color="error">Error: {error}</Typography>;
 
-  // Render principal con tabla y modal
   return (
     <Box sx={{ height: '80vh', width: '100%' }}>
       <Title>Gestión de Usuarios</Title>
@@ -176,7 +219,7 @@ export default function AdminUsersPage() {
           <>
             <DialogTitle>Detalle de Usuario: {selectedUser.nombre} {selectedUser.apellido}</DialogTitle>
             <DialogContent>
-              {/* Info personal del usuario */}
+              {/* info personal del usuario */}
               <Typography variant="h6">Información Personal</Typography>
               <Typography><strong>ID:</strong> {selectedUser.usuario_id}</Typography>
               <Typography><strong>Email:</strong> {selectedUser.email}</Typography>
@@ -189,7 +232,7 @@ export default function AdminUsersPage() {
               <Typography><strong>Rol:</strong> {selectedUser.rol}</Typography>
               <Typography><strong>Estado:</strong> {selectedUser.activo ? 'Activo' : 'Inactivo'}</Typography>
 
-              {/* Historial de compras del usuario */}
+              {/* historial de compras */}
               <Divider sx={{ my: 2 }} />
               <Typography variant="h6">Historial de Compras</Typography>
               {salesLoading ? (
@@ -214,6 +257,37 @@ export default function AdminUsersPage() {
             </DialogContent>
           </>
         )}
+      </Dialog>
+
+      {/* snackbar para mensajes */}
+      <Snackbar open={snackbarOpen} autoHideDuration={6000} onClose={handleCloseSnackbar}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}>
+        <Alert onClose={handleCloseSnackbar} severity={snackbarSeverity} sx={{ width: '100%' }}>
+          {snackbarMessage}
+        </Alert>
+      </Snackbar>
+
+      {/* diálogo de confirmación */}
+      <Dialog
+        open={confirmDialogOpen}
+        onClose={handleCancelConfirmDialog}
+        aria-labelledby="confirm-dialog-title"
+        aria-describedby="confirm-dialog-description"
+      >
+        <DialogTitle id="confirm-dialog-title">Confirmación</DialogTitle>
+        <DialogContent>
+          <Typography id="confirm-dialog-description">
+            {confirmDialogMessage}
+          </Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCancelConfirmDialog} color="primary">
+            Cancelar
+          </Button>
+          <Button onClick={handleConfirmAction} color="primary" autoFocus>
+            Confirmar
+          </Button>
+        </DialogActions>
       </Dialog>
     </Box>
   );

@@ -24,7 +24,7 @@ const SearchBar = () => {
                         setResults(response.data.datos);
                     }
                 } catch (error) {
-                    console.error("Error en la búsqueda:", error);
+                    console.error("error en la búsqueda:", error);
                     setResults([]);
                 } finally {
                     setLoading(false);
@@ -45,11 +45,14 @@ const SearchBar = () => {
     };
 
     return (
-        <Box ref={searchRef} sx={{ 
-            position: 'relative', 
-            width: { xs: '100%', md: '600px' }, 
-            mx: 2 
-        }}>
+        <Box
+            ref={searchRef}
+            sx={{ 
+                position: 'relative', 
+                width: { xs: '100%', md: '600px' }, 
+                mx: 2 
+            }}
+        >
             <TextField
                 fullWidth
                 variant="outlined"
@@ -66,16 +69,19 @@ const SearchBar = () => {
             />
 
             {isDropdownOpen && inputValue.length > 1 && (
-                <Paper sx={{
-                    position: 'absolute',
-                    top: '110%',
-                    left: 0,
-                    right: 0,
-                    zIndex: 1200,
-                    maxHeight: '400px',
-                    overflowY: 'auto',
-                    width: '100%',
-                }} elevation={6}>
+                <Paper
+                    sx={{
+                        position: 'absolute',
+                        top: '110%',
+                        left: 0,
+                        right: 0,
+                        zIndex: 1200,
+                        maxHeight: '400px',
+                        overflowY: 'auto',
+                        width: '100%',
+                    }}
+                    elevation={6}
+                >
                     {loading ? (
                         <Box sx={{ display: 'flex', justifyContent: 'center', p: 2 }}>
                             <CircularProgress size={24} />
@@ -103,17 +109,19 @@ const SearchBar = () => {
                                                 gap: 2
                                             }}
                                         >
-                                            <Box sx={{
-                                                width: 60,
-                                                height: 60,
-                                                minWidth: 60,
-                                                borderRadius: 1,
-                                                overflow: 'hidden',
-                                                bgcolor: 'background.default',
-                                                display: 'flex',
-                                                alignItems: 'center',
-                                                justifyContent: 'center'
-                                            }}>
+                                            <Box
+                                                sx={{
+                                                    width: 60,
+                                                    height: 60,
+                                                    minWidth: 60,
+                                                    borderRadius: 1,
+                                                    overflow: 'hidden',
+                                                    bgcolor: 'background.default',
+                                                    display: 'flex',
+                                                    alignItems: 'center',
+                                                    justifyContent: 'center'
+                                                }}
+                                            >
                                                 <img 
                                                     src={imageUrl}
                                                     alt={producto.nombre_producto}
@@ -142,7 +150,7 @@ const SearchBar = () => {
                                 })
                             ) : (
                                 <ListItem>
-                                    <ListItemText primary="No se encontraron resultados." />
+                                    <ListItemText primary="no se encontraron resultados." />
                                 </ListItem>
                             )}
                         </List>
