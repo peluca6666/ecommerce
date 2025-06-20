@@ -6,17 +6,13 @@ import CategoryCard from "./CategoryCard";
 const CategorySlider = ({ categoria }) => {
   const theme = useTheme();
   const sliderRef = useRef(null);
-
-  // Estados para mostrar/ocultar flechas según posición scroll
   const [showLeftArrow, setShowLeftArrow] = useState(false);
   const [showRightArrow, setShowRightArrow] = useState(true);
 
   const checkArrows = () => {
     const container = sliderRef.current;
     if (!container) return;
-
     setShowLeftArrow(container.scrollLeft > 0);
-
     const maxScrollLeft = container.scrollWidth - container.clientWidth;
     setShowRightArrow(container.scrollLeft < maxScrollLeft - 1);
   };
@@ -41,7 +37,21 @@ const CategorySlider = ({ categoria }) => {
   if (!categoria || categoria.length === 0) return null;
 
   return (
-    <Box sx={{ py: 4 }}>
+    <Box
+      sx={{
+        mt: {
+          xs: 4,
+          sm: 2,
+          md: -8,
+          lg: -15
+        },
+        position: 'relative',
+        zIndex: 2,
+        maxWidth: 'lg',
+        mx: 'auto',
+        px: { xs: 2, md: 0 },
+      }}
+    >
       <Typography variant="h5" gutterBottom sx={{ mb: 2, fontWeight: 'bold', textAlign: 'left' }}>
         Explora Nuestras Categorías
       </Typography>
@@ -56,19 +66,20 @@ const CategorySlider = ({ categoria }) => {
             scrollSnapType: 'x mandatory',
             py: 2,
             '&::-webkit-scrollbar': { display: 'none' },
-            maskImage: 'linear-gradient(to right, transparent, black 5%, black 95%, transparent)',
+            maskImage: 'linear-gradient(to right, transparent, black 2%, black 98%, transparent)',
+            WebkitMaskImage: 'linear-gradient(to right, transparent, black 2%, black 98%, transparent)',
           }}
         >
           {categoria.map((cat) => (
-            <Box key={cat.categoria_id} sx={{ scrollSnapAlign: 'start' }}>
+            <Box key={cat.categoria_id} sx={{ scrollSnapAlign: 'start', flexShrink: 0 }}>
               <CategoryCard categoria={cat} />
             </Box>
           ))}
         </Box>
 
-        {/* Flecha izquierda */}
+        {/* Flechas */}
         <IconButton
-          onClick={() => handleScroll(-300)}
+          onClick={() => handleScroll(-100)}
           sx={{
             position: 'absolute',
             left: -16,
@@ -86,7 +97,6 @@ const CategorySlider = ({ categoria }) => {
           <ChevronLeft />
         </IconButton>
 
-        {/* Flecha derecha */}
         <IconButton
           onClick={() => handleScroll(300)}
           sx={{

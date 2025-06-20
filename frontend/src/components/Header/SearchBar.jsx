@@ -1,27 +1,25 @@
 import { useState, useEffect } from 'react';
-import { TextField, Box, List, ListItem, ListItemAvatar, Avatar, ListItemText, CircularProgress, Paper } from '@mui/material';
+import { TextField, Box, List, ListItem, ListItemText, CircularProgress, Paper, Typography } from '@mui/material';
 import { Link as RouterLink } from 'react-router-dom';
 import axios from 'axios';
 import { useDebounce } from '../../hooks/useDebounce'; 
 import { useClickOutside } from '../../hooks/useClickOutside'; 
 
+const BASE_URL = 'http://localhost:3000';
+
 const SearchBar = () => {
-    // Estado del input, resultados, loading y si dropdown está abierto
     const [inputValue, setInputValue] = useState('');
     const [results, setResults] = useState([]);
     const [loading, setLoading] = useState(false);
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-
-    // Evitar llamar a la API en cada tecla con debounce
     const debouncedSearchTerm = useDebounce(inputValue, 300);
 
     useEffect(() => {
-        // Buscar solo si hay al menos 2 caracteres
         if (debouncedSearchTerm.length > 1) {
             setLoading(true);
             const fetchResults = async () => {
                 try {
-                    const response = await axios.get(`http://localhost:3000/api/producto?busqueda=${debouncedSearchTerm}&limite=5`);
+                    const response = await axios.get(`${BASE_URL}/api/producto?busqueda=${debouncedSearchTerm}&limite=5`);
                     if (response.data.exito) {
                         setResults(response.data.datos);
                     }
@@ -34,11 +32,10 @@ const SearchBar = () => {
             };
             fetchResults();
         } else {
-            setResults([]); // Limpiar resultados si input queda vacío
+            setResults([]);
         }
     }, [debouncedSearchTerm]);
 
-    // Hook para cerrar dropdown si se clickea afuera del buscador
     const closeDropdown = () => setIsDropdownOpen(false);
     const searchRef = useClickOutside(closeDropdown);
 
@@ -48,8 +45,11 @@ const SearchBar = () => {
     };
 
     return (
-        // Ref para detectar clicks fuera
-        <Box ref={searchRef} sx={{ position: 'relative', width: { xs: '100%', md: 300 } }}>
+        <Box ref={searchRef} sx={{ 
+            position: 'relative', 
+            width: { xs: '100%', md: '600px' }, 
+            mx: 2 
+        }}>
             <TextField
                 fullWidth
                 variant="outlined"
@@ -57,10 +57,14 @@ const SearchBar = () => {
                 placeholder="Buscar productos..."
                 value={inputValue}
                 onChange={handleInputChange}
-                onFocus={() => setIsDropdownOpen(true)} 
+                onFocus={() => setIsDropdownOpen(true)}
+                sx={{
+                    '& .MuiOutlinedInput-root': {
+                        borderRadius: '4px',
+                    }
+                }}
             />
 
-            {/* Dropdown con resultados */}
             {isDropdownOpen && inputValue.length > 1 && (
                 <Paper sx={{
                     position: 'absolute',
@@ -70,6 +74,7 @@ const SearchBar = () => {
                     zIndex: 1200,
                     maxHeight: '400px',
                     overflowY: 'auto',
+                    width: '100%',
                 }} elevation={6}>
                     {loading ? (
                         <Box sx={{ display: 'flex', justifyContent: 'center', p: 2 }}>
@@ -78,23 +83,63 @@ const SearchBar = () => {
                     ) : (
                         <List>
                             {results.length > 0 ? (
-                                results.map(producto => (
-                                    <ListItem 
-                                        key={producto.producto_id}
-                                        component={RouterLink}
-                                        to={`/producto/${producto.producto_id}`}
-                                        onClick={closeDropdown} 
-                                        sx={{ textDecoration: 'none', color: 'inherit', '&:hover': { bgcolor: 'action.hover' } }}
-                                    >
-                                        <ListItemAvatar>
-                                            <Avatar variant="rounded" src={producto.imagen} />
-                                        </ListItemAvatar>
-                                        <ListItemText
-                                            primary={producto.nombre_producto}
-                                            secondary={`$${producto.precio}`}
-                                        />
-                                    </ListItem>
-                                ))
+                                results.map(producto => {
+                                    const imageUrl = producto.imagen 
+                                        ? `${BASE_URL}${producto.imagen}`
+                                        : 'https://via.placeholder.com/60';
+
+                                    return (
+                                        <ListItem 
+                                            key={producto.producto_id}
+                                            component={RouterLink}
+                                            to={`/producto/${producto.producto_id}`}
+                                            onClick={closeDropdown} 
+                                            sx={{ 
+                                                textDecoration: 'none', 
+                                                color: 'inherit', 
+                                                '&:hover': { bgcolor: 'action.hover' },
+                                                py: 2,
+                                                px: 3,
+                                                gap: 2
+                                            }}
+                                        >
+                                            <Box sx={{
+                                                width: 60,
+                                                height: 60,
+                                                minWidth: 60,
+                                                borderRadius: 1,
+                                                overflow: 'hidden',
+                                                bgcolor: 'background.default',
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                justifyContent: 'center'
+                                            }}>
+                                                <img 
+                                                    src={imageUrl}
+                                                    alt={producto.nombre_producto}
+                                                    style={{
+                                                        width: '100%',
+                                                        height: '100%',
+                                                        objectFit: 'cover'
+                                                    }}
+                                                    onError={(e) => {
+                                                        e.target.onerror = null;
+                                                        e.target.src = 'https://via.placeholder.com/60';
+                                                    }}
+                                                />
+                                            </Box>
+                                            
+                                            <Box sx={{ flex: 1 }}>
+                                                <Typography variant="body1" fontWeight={500}>
+                                                    {producto.nombre_producto}
+                                                </Typography>
+                                                <Typography variant="body2" color="text.secondary">
+                                                    ${producto.precio}
+                                                </Typography>
+                                            </Box>
+                                        </ListItem>
+                                    );
+                                })
                             ) : (
                                 <ListItem>
                                     <ListItemText primary="No se encontraron resultados." />

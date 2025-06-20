@@ -16,6 +16,7 @@ const NavMenu = ({ mobile = false, onItemClick }) => {
     const [categories, setCategories] = useState([]);
     const [anchorEl, setAnchorEl] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [openDelay, setOpenDelay] = useState(null);
 
     // Para controlar si el submenú de categorías está abierto o cerrado en móvil
     const [openMobileCategories, setOpenMobileCategories] = useState(false);
@@ -39,11 +40,29 @@ const NavMenu = ({ mobile = false, onItemClick }) => {
         fetchCategories();
     }, []);
 
-    //Manejadores para el menu de escritorio
-    const handleMenuOpen = (event) => setAnchorEl(event.currentTarget);
+    // Manejadores para el menu de escritorio con hover
+    const handleMenuOpen = (event) => {
+        if (openDelay) {
+            clearTimeout(openDelay);
+            setOpenDelay(null);
+        }
+        setAnchorEl(event.currentTarget);
+    };
+
     const handleMenuClose = () => {
-        setAnchorEl(null);
-        if (onItemClick) onItemClick();
+        const delay = setTimeout(() => {
+            setAnchorEl(null);
+            if (onItemClick) onItemClick();
+        }, 300); // 300ms de retraso
+        setOpenDelay(delay);
+    };
+
+    const handleMenuEnter = () => {
+        // Si el usuario entra al menú, cancelar el cierre
+        if (openDelay) {
+            clearTimeout(openDelay);
+            setOpenDelay(null);
+        }
     };
 
     const handleToggleMobileCategories = () => {
@@ -63,7 +82,7 @@ const NavMenu = ({ mobile = false, onItemClick }) => {
 
         return (
             <Box sx={{ width: '100%' }}>
-                {/* Botón para abrir/cerrar el acordeón de categorías */}
+                {/* Botón para abrir/cerrar el dropdown de categorias */}
                 <Button sx={mobileButtonStyle} onClick={handleToggleMobileCategories}>
                     <ListItemText primary="Categorías" />
                     {openMobileCategories ? <ExpandLess /> : <ExpandMore />}
@@ -72,7 +91,7 @@ const NavMenu = ({ mobile = false, onItemClick }) => {
                 {/* Contenedor colapsable con la lista de categorías */}
                 <Collapse in={openMobileCategories} timeout="auto" unmountOnExit>
                     <List component="div" disablePadding>
-                        {/* Enlace estático a "Ver todo" con sangría */}
+                        {/* Enlace estático a "Ver todo" */}
                         <ListItemButton sx={{ pl: 4 }} component={RouterLink} to="/productos" onClick={onItemClick}>
                             <ListItemText primary="Ver Todo el Catálogo" />
                         </ListItemButton>
@@ -92,7 +111,6 @@ const NavMenu = ({ mobile = false, onItemClick }) => {
                     </List>
                 </Collapse>
 
-                {/* Renderizamos el resto de los enlaces principales */}
                 {navLinks.map((link) => (
                     <Button
                         key={link.texto}
@@ -112,41 +130,84 @@ const NavMenu = ({ mobile = false, onItemClick }) => {
     // Renderizado para escritorio
     return (
         <Box sx={{ display: 'flex', gap: 2 }}>
-            <Button
-                color="inherit"
-                onClick={handleMenuOpen}
-                endIcon={<ArrowDropDownIcon />}
+            <Box 
+                onMouseEnter={handleMenuOpen}
+                onMouseLeave={handleMenuClose}
             >
-                Categorías
-            </Button>
+                <Button
+                    color="inherit"
+                    endIcon={<ArrowDropDownIcon />}
+                >
+                    Categorías
+                </Button>
+                <Menu
+                    id="categories-menu"
+                    anchorEl={anchorEl}
+                    open={isMenuOpen}
+                    onClose={handleMenuClose}
+                    slotProps={{
+                        list: {
+                            onMouseEnter: handleMenuEnter,
+                            onMouseLeave: handleMenuClose,
+                            style: { pointerEvents: 'auto' }
+                        },
+                        paper: {
+                            style: {
+                                marginTop: '8px', 
+                                pointerEvents: 'auto',
+                            },
+                            onMouseEnter: handleMenuEnter,
+                            onMouseLeave: handleMenuClose,
+                        }
+                    }}
+                    // Estilos para que el menú aparezca justo debajo del botón sin espacio
+                    anchorOrigin={{
+                        vertical: 'bottom',
+                        horizontal: 'left',
+                    }}
+                    transformOrigin={{
+                        vertical: 'top',
+                        horizontal: 'left',
+                    }}
+                    // Deshabilitar el cierre al hacer click fuera
+                    disableAutoFocusItem
+                    disableEnforceFocus
+                    disableAutoFocus
+                    keepMounted
+                >
+                    <MenuItem 
+                        component={RouterLink} 
+                        to="/productos" 
+                        onClick={handleMenuClose}
+                        dense
+                    >
+                        Ver Todo el Catálogo
+                    </MenuItem>
+                    <Divider sx={{ my: 0.5 }} />
+                    {loading ? (
+                        <Box sx={{ p: 2 }}><CircularProgress size={24} /></Box>
+                    ) : (
+                        categories.map((category, index) => (
+                            <div key={category.categoria_id}>
+                                <MenuItem 
+                                    component={RouterLink} 
+                                    to={`/categoria/${category.categoria_id}/productos`} 
+                                    onClick={handleMenuClose}
+                                    dense
+                                >
+                                    {category.nombre}
+                                </MenuItem>
+                                {index < categories.length - 1 && <Divider />}
+                            </div>
+                        ))
+                    )}
+                </Menu>
+            </Box>
             {navLinks.map((link) => (
                 <Button key={link.texto} color="inherit" component={RouterLink} to={link.ruta}>
                     {link.texto}
                 </Button>
             ))}
-            <Menu
-                id="categories-menu"
-                anchorEl={anchorEl}
-                open={isMenuOpen}
-                onClose={handleMenuClose}
-            >
-                <MenuItem component={RouterLink} to="/productos" onClick={handleMenuClose}>
-                    Ver Todo el Catálogo
-                </MenuItem>
-                <Divider sx={{ my: 0.5 }} />
-                {loading ? (
-                    <Box sx={{ p: 2 }}><CircularProgress size={24} /></Box>
-                ) : (
-                    categories.map((category, index) => (
-                        <div key={category.categoria_id}>
-                            <MenuItem component={RouterLink} to={`/categoria/${category.categoria_id}/productos`} onClick={handleMenuClose}>
-                                {category.nombre}
-                            </MenuItem>
-                            {index < categories.length - 1 && <Divider />}
-                        </div>
-                    ))
-                )}
-            </Menu>
         </Box>
     );
 };

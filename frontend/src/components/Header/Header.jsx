@@ -1,5 +1,5 @@
 import { AppBar, Toolbar, Box, Typography, useMediaQuery, useTheme, IconButton, Drawer, List, ListItem } from "@mui/material";
-import { Menu as MenuIcon } from "@mui/icons-material";
+import { Menu as MenuIcon, } from "@mui/icons-material";
 import { useState } from "react";
 import SearchBar from "./SearchBar";
 import NavMenu from "./NavMenu";
@@ -39,7 +39,7 @@ const Header = ({ categoria }) => {
             flexGrow: { xs: 1, md: 0 },
             mr: { md: 4 },
             textDecoration: 'none',
-            color: 'inherit',
+            color: '#FF8C00',
             cursor: 'pointer',
           }}
         >
