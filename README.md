@@ -104,6 +104,9 @@ La aplicación se verá en: [http://localhost:5173](http://localhost:5173)
 ---
 
 ## 📝 Notas Adicionales
+CUENTA DE ADMINISTRADOR!!!
+EMAIL: gercab666@gmail.com
+CONTRASEÑA: 12345678!A
 
 - Verificá que MySQL esté corriendo y accesible con los datos del archivo `.env`.
 - El script `init.sql` incluye tanto la estructura como los datos iniciales para que el sitio funcione correctamente.
