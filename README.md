@@ -49,10 +49,10 @@ npm install
 
 #### b. Configurar variables de entorno
 
-Creá un archivo `.env` en la carpeta `/backend` basado en `.env.example` y completá los valores necesarios.
+Creá un archivo `.env` en la carpeta raíz del proyecto basado en `.env.example` y completá los valores necesarios.
 
 ```env
-JWT_SECRET=tu_clave_secreta_muy_segura
+JWT_SECRET=tu_clave_secreta_muy_segura 
 JWT_EXPIRATION=1h
 MAIL_USER=tu_email_para_enviar_correos
 MAIL_PASS=tu_contraseña_del_email
@@ -62,7 +62,7 @@ FRONTEND_URL=http://localhost:5173
 #### c. Preparar la base de datos
 
 1. Iniciá tu servidor de MySQL.
-2. Creá una base de datos llamada `Ecommerce`.
+2. Creá una base de datos llamada `Ecommerce`. la contraseña debe ser "Miprimerproyecto2025!"
 3. Importá el script `/backend/db/init.sql` en esa base para crear las tablas y datos iniciales.
 
 ---
