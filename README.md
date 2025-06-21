@@ -11,6 +11,7 @@ Antes de comenzar, asegurate de tener instalado lo siguiente:
 - [Node.js](https://nodejs.org/) (versión recomendada: >=16)
 - npm (o yarn)
 - Servidor MySQL activo y en funcionamiento
+- git
 
 ---
 
