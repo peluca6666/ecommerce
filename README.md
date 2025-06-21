@@ -62,7 +62,7 @@ FRONTEND_URL=http://localhost:5173
 #### c. Preparar la base de datos
 
 1. Iniciá tu servidor de MySQL.
-2. Creá una base de datos llamada `Ecommerce`.
+2. Creá una base de datos llamada `Ecommerce`. la contraseña debe ser "Miprimerproyecto2025!"
 3. Importá el script `/backend/db/init.sql` en esa base para crear las tablas y datos iniciales.
 
 ---
