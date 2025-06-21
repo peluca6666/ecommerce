@@ -147,7 +147,7 @@ export async function obtenerUsuarioPorId(usuario_id) {
  * @param {Object} profileData Datos para actualizar
  * @returns {Object} Datos actualizados del usuario
  */
-export async function updateUserProfile(userId, profileData) {
+export async function actualizarPerfilUsuario(userId, profileData) {
   const { 
     nombre, apellido, dni, telefono, direccion, 
     provincia, localidad, codigo_postal 
@@ -183,7 +183,7 @@ export async function updateUserProfile(userId, profileData) {
  * @param {string} nuevaContrasenia Nueva contraseña
  * @returns {boolean} true si se cambió ok
  */
-export async function changeUserPassword(userId, contraseniaActual, nuevaContrasenia) {
+export async function cambiarContraseñaUsuario(userId, contraseniaActual, nuevaContrasenia) {
   const usuario = await obtenerUsuarioPorEmail((await obtenerUsuarioPorId(userId)).email);
   if (!usuario) {
     throw { statusCode: 404, message: 'Usuario no encontrado' };
@@ -227,7 +227,7 @@ export async function obtenerTodosLosUsuarios() {
  * @param {string} nuevoRol Nuevo rol a asignar
  * @returns {boolean} true si cambió el rol
  */
-export async function updateUserRole(usuarioId, nuevoRol) {
+export async function cambiarRolUsuario(usuarioId, nuevoRol) {
   const query = 'UPDATE usuario SET rol = ? WHERE usuario_id = ?';
   const [result] = await pool.query(query, [nuevoRol, usuarioId]);
   return result.affectedRows > 0;
@@ -238,7 +238,7 @@ export async function updateUserRole(usuarioId, nuevoRol) {
  * @param {number} usuarioId ID usuario
  * @returns {boolean} true si se cambió el estado
  */
-export async function toggleUserStatus(usuarioId) {
+export async function cambiarEstadoUsuario(usuarioId) {
   const query = 'UPDATE usuario SET activo = NOT activo WHERE usuario_id = ?';
   const [result] = await pool.query(query, [usuarioId]);
   return result.affectedRows > 0;

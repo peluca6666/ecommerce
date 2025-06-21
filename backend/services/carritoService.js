@@ -5,7 +5,7 @@ import { pool } from '../database/connectionMySQL.js';
  * @param {number} usuarioId - ID del usuario
  * @returns {Promise<{carrito_id: number|null, productos: Array, total: number}>} - Datos del carrito y total
  */
-export async function getCartByUserId(usuarioId) {
+export async function obtenerCarrito(usuarioId) {
   const [rows] = await pool.query(`
     SELECT 
       c.carrito_id, pec.producto_id, p.nombre_producto, p.imagen,
@@ -41,7 +41,7 @@ export async function getCartByUserId(usuarioId) {
  * @returns {Promise<{producto_id: number, cantidad_agregada: number}>}
  * @throws {Error} Si no hay stock suficiente o producto no existe
  */
-export async function addProductToCart(usuarioId, productoId, cantidad) {
+export async function agregarProductoAlCarrito(usuarioId, productoId, cantidad) {
   const connection = await pool.getConnection();
   await connection.beginTransaction();
 
@@ -104,7 +104,7 @@ export async function addProductToCart(usuarioId, productoId, cantidad) {
 
   } catch (error) {
     await connection.rollback();
-    console.error('Error en servicio addProductToCart:', error);
+    console.error('Error en servicio agregarProductoAlCarrito:', error);
     throw error;
   } finally {
     connection.release();
@@ -119,7 +119,7 @@ export async function addProductToCart(usuarioId, productoId, cantidad) {
  * @returns {Promise<{operacion: string, afectado?: boolean, cantidad_nueva?: number}>}
  * @throws {Error} Si no hay stock suficiente o carrito/producto no existe
  */
-export async function updateProductInCart(usuarioId, productoId, cantidad) {
+export async function actualizarProductoEnCarrito(usuarioId, productoId, cantidad) {
   const connection = await pool.getConnection();
   await connection.beginTransaction();
 
@@ -197,7 +197,7 @@ export async function updateProductInCart(usuarioId, productoId, cantidad) {
  * @param {number} productoId
  * @returns {Promise<boolean>} True si se eliminó correctamente, false si no existía carrito
  */
-export async function removeProductFromCart(usuarioId, productoId) {
+export async function vaciarCarrito(usuarioId, productoId) {
   const connection = await pool.getConnection();
 
   try {
@@ -231,7 +231,7 @@ export async function removeProductFromCart(usuarioId, productoId) {
  * @param {number} usuarioId
  * @returns {Promise<boolean>} True si se borraron productos, false si no había carrito
  */
-export async function clearCartByUserId(usuarioId) {
+export async function eliminarCarritoPorUsuarioId(usuarioId) {
   const connection = await pool.getConnection();
 
   try {

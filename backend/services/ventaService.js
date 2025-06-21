@@ -201,7 +201,7 @@ async function _obtenerDetalleVenta(ventaId, usuarioId = null) {
  * @param {string} nuevoEstado
  * @returns {Promise<boolean>} - True si actualizó
  */
-export async function updateSaleStatus(ventaId, nuevoEstado) {
+export async function actualizarEstadoVenta(ventaId, nuevoEstado) {
   const query = 'UPDATE venta SET estado = ? WHERE venta_id = ?';
   const [result] = await pool.query(query, [nuevoEstado, ventaId]);
   return result.affectedRows > 0;

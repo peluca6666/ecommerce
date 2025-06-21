@@ -3,7 +3,7 @@ import * as productoService from '../services/productoService.js';
 export async function obtenerProductos(req, res) {
   try {
     // Le pasamos directamente los filtros de la query al servicio
-    const resultado = await productoService.getAllProducts(req.query);
+    const resultado = await productoService.obtenerProductos(req.query);
     const { productos, paginacion } = resultado;
 
     return res.status(200).json({
@@ -26,7 +26,7 @@ export async function obtenerProductos(req, res) {
 export async function agregarProducto(req, res) {
   try {
     // Enviamos los datos del form + archivos al servicio
-    const nuevoProducto = await productoService.createProduct(req.body, req.files);
+    const nuevoProducto = await productoService.agregarProducto(req.body, req.files);
 
     return res.status(201).json({
       exito: true,
@@ -43,17 +43,12 @@ export async function agregarProducto(req, res) {
 }
 
 export async function actualizarProducto(req, res) {
-  console.log('--- CONTROLLER: INICIO DE actualizarProducto ---');
-  console.log('ID del producto a actualizar:', req.params.id);
-  console.log('Datos de texto recibidos (req.body):', req.body);
-  console.log('Archivos recibidos (req.files):', req.files);
-  console.log('-------------------------------------------');
-
+ 
   try {
     const { id } = req.params;
 
     // Pasamos ID, body y archivos al servicio para actualizar
-    const productoActualizado = await productoService.updateProduct(id, req.body, req.files);
+    const productoActualizado = await productoService.actualizarProducto(id, req.body, req.files);
 
     if (!productoActualizado) {
       console.error('[CONTROLLER] El servicio no devolvió un producto actualizado (posible 404).');
@@ -80,7 +75,7 @@ export async function eliminarProducto(req, res) {
       return res.status(400).json({ exito: false, mensaje: 'ID de producto inválido' });
     }
 
-    await productoService.deleteProduct(parseInt(id));
+    await productoService.eliminarProducto(parseInt(id));
     return res.status(200).json({ exito: true, mensaje: 'Producto eliminado correctamente' });
   } catch (error) {
     console.error("Error en eliminarProducto Controller:", error);
@@ -93,7 +88,7 @@ export async function eliminarProducto(req, res) {
 
 export async function obtenerProductosEnOferta(req, res) {
   try {
-    const productos = await productoService.getOfferProducts();
+    const productos = await productoService.obtenerProductosEnOferta();
     return res.status(200).json({
       exito: true,
       mensaje: 'Productos en oferta obtenidos exitosamente',
@@ -130,7 +125,7 @@ export async function obtenerProductoPorId(req, res) {
 export async function toggleActivoProducto(req, res) {
   try {
     const { id } = req.params;
-    const resultado = await productoService.toggleProductStatus(id);
+    const resultado = await productoService.toggleActivoProducto(id);
 
     if (!resultado) {
       return res.status(404).json({ exito: false, mensaje: 'Producto no encontrado' });

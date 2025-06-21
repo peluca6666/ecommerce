@@ -70,7 +70,7 @@ export const actualizarPerfilUsuario = async (req, res) => {
     const usuarioId = req.usuario.id;
     const datosPerfil = req.body;
 
-    const usuarioActualizado = await usuarioService.updateUserProfile(usuarioId, datosPerfil);
+    const usuarioActualizado = await usuarioService.actualizarPerfilUsuario(usuarioId, datosPerfil);
 
     res.status(200).json({
       exito: true,
@@ -97,7 +97,7 @@ export const cambiarContraseñaUsuario = async (req, res) => {
     const usuarioId = req.usuario.id;
     const { contraseniaActual, nuevaContrasenia } = value;
 
-    await usuarioService.changeUserPassword(usuarioId, contraseniaActual, nuevaContrasenia);
+    await usuarioService.cambiarContraseñaUsuario(usuarioId, contraseniaActual, nuevaContrasenia);
 
     res.status(200).json({ exito: true, mensaje: 'Contraseña actualizada exitosamente' });
   } catch (error) {
@@ -153,7 +153,7 @@ export async function cambiarRolUsuario(req, res) {
       return res.status(400).json({ exito: false, mensaje: 'Rol no válido' });
     }
 
-    const resultado = await usuarioService.updateUserRole(id, rol);
+    const resultado = await usuarioService.cambiarRolUsuario(id, rol);
     if (!resultado) {
       return res.status(404).json({ exito: false, mensaje: 'Usuario no encontrado' });
     }
@@ -167,7 +167,7 @@ export async function cambiarRolUsuario(req, res) {
 export async function cambiarEstadoUsuario(req, res) {
   try {
     const { id } = req.params;
-    const resultado = await usuarioService.toggleUserStatus(id);
+    const resultado = await usuarioService.cambiarEstadoUsuario(id);
     if (!resultado) {
       return res.status(404).json({ exito: false, mensaje: 'Usuario no encontrado' });
     }

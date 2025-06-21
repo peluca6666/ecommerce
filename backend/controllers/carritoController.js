@@ -3,7 +3,7 @@ import * as carritoService from '../services/carritoService.js';
 export async function obtenerCarrito(req, res) {
   try {
     const usuarioId = req.usuario.id;
-    const carrito = await carritoService.getCartByUserId(usuarioId);
+    const carrito = await carritoService.obtenerCarrito(usuarioId);
     return res.status(200).json({ exito: true, ...carrito });
   } catch (error) {
     console.error('Error en controlador obtenerCarrito:', error);
@@ -21,7 +21,7 @@ export async function agregarProductoAlCarrito(req, res) {
       return res.status(400).json({ exito: false, mensaje: 'Datos de producto inválidos' });
     }
 
-    const resultado = await carritoService.addProductToCart(
+    const resultado = await carritoService.agregarProductoAlCarrito(
       usuarioId,
       parseInt(producto_id),
       parseInt(cantidad)
@@ -54,7 +54,7 @@ export async function actualizarProductoEnCarrito(req, res) {
       });
     }
 
-    const resultado = await carritoService.updateProductInCart(
+    const resultado = await carritoService.actualizarProductoEnCarrito(
       usuarioId,
       parseInt(productoId),
       cantidadNum
@@ -85,7 +85,7 @@ export async function eliminarProductoDelCarrito(req, res) {
     }
 
     // Llamamos al servicio para que lo elimine
-    const fueEliminado = await carritoService.removeProductFromCart(usuarioId, parseInt(id));
+    const fueEliminado = await carritoService.eliminarProductoDelCarrito(usuarioId, parseInt(id));
 
     if (fueEliminado) {
       return res.status(200).json({ exito: true, mensaje: 'Producto eliminado del carrito' });
@@ -95,6 +95,23 @@ export async function eliminarProductoDelCarrito(req, res) {
 
   } catch (error) {
     console.error('Error en controlador eliminarProductoDelCarrito:', error);
+    return res.status(500).json({ exito: false, mensaje: 'Error interno del servidor' });
+  }
+}
+
+export async function vaciarCarrito(req, res) {
+  try {
+    const usuarioId = req.usuario.id;
+    const fueVaciado = await carritoService.eliminarCarritoPorUsuarioId(usuarioId);
+
+    if (fueVaciado) {
+      return res.status(200).json({ exito: true, mensaje: 'Carrito vaciado exitosamente' });
+    } else {
+      return res.status(404).json({ exito: false, mensaje: 'No se encontró un carrito para este usuario o ya estaba vacío' });
+    }
+
+  } catch (error) {
+    console.error('Error en controlador vaciarCarrito:', error);
     return res.status(500).json({ exito: false, mensaje: 'Error interno del servidor' });
   }
 }

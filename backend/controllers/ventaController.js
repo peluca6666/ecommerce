@@ -89,7 +89,7 @@ export async function actualizarEstadoVenta(req, res) {
       return res.status(400).json({ exito: false, mensaje: 'El nuevo estado es requerido' });
     }
 
-    const resultado = await ventaService.updateSaleStatus(id, estado);
+    const resultado = await ventaService.actualizarEstadoVenta(id, estado);
     if (!resultado) {
       return res.status(404).json({ exito: false, mensaje: 'Venta no encontrada' });
     }

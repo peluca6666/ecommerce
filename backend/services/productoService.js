@@ -37,7 +37,7 @@ function convertToRelativePath(fullPath) {
  * @param {Object} options Opciones de filtro y paginación
  * @returns {Object} Productos y datos de paginación
  */
-export async function getAllProducts(options = {}) {
+export async function obtenerProductos(options = {}) {
     const { categoria, busqueda, minPrice, maxPrice, es_oferta, sortBy, pagina = 1, limite = 10 } = options;
 
     const offset = (parseInt(pagina) - 1) * parseInt(limite);
@@ -118,7 +118,7 @@ export async function getAllProducts(options = {}) {
  * @param {Object} files Archivos subidos (imagenes)
  * @returns {Object} Producto creado
  */
-export async function createProduct(productData, files) {
+export async function agregarProducto(productData, files) {
     const {
         nombre_producto,
         descripcion,
@@ -183,7 +183,7 @@ export async function createProduct(productData, files) {
  * @param {Object} files Archivos nuevos (opcional)
  * @returns {Object|null} Producto actualizado o null si no existe
  */
-export async function updateProduct(id, productData, files) {
+export async function actualizarProducto(id, productData, files) {
     const {
         nombre_producto,
         descripcion,
@@ -275,7 +275,7 @@ export async function updateProduct(id, productData, files) {
  * @param {number} productoId ID del producto a borrar
  * @returns {boolean} true si se desactivó, lanza error si no existe
  */
-export async function deleteProduct(productoId) {
+export async function eliminarProducto(productoId) {
     try {
         const [result] = await pool.query('UPDATE producto SET activo = false WHERE producto_id = ?', [productoId]);
 
@@ -296,7 +296,7 @@ export async function deleteProduct(productoId) {
  * @param {number} limite Cantidad máxima de productos
  * @returns {Array} Productos en oferta
  */
-export async function getOfferProducts(limite = 8) {
+export async function obtenerProductosEnOferta(limite = 8) {
     const query = `
         SELECT * FROM producto
         WHERE activo = true AND es_oferta = true
@@ -326,7 +326,7 @@ export async function obtenerProductoPorId(productoId) {
  * @param {number} productoId ID del producto
  * @returns {boolean} true si se actualizó
  */
-export async function toggleProductStatus(productoId) {
+export async function toggleActivoProducto(productoId) {
     const query = 'UPDATE producto SET activo = NOT activo WHERE producto_id = ?';
     const [result] = await pool.query(query, [productoId]);
     return result.affectedRows > 0;
