@@ -1,84 +1,116 @@
-﻿ Proyecto E-commerce
-Este proyecto consiste en una aplicación de comercio electrónico, con un backend desarrollado en Node.js y un frontend en React.
+﻿# 🛒 Proyecto E-commerce
 
- Requisitos Previos
-Para poder ejecutar este proyecto, necesitarás tener instalado lo siguiente:
+Este proyecto es una aplicación completa de comercio electrónico. Cuenta con un **backend en Node.js (Express)** y un **frontend en React (Vite)**. Permite a los usuarios explorar productos, registrarse, iniciar sesión, agregar al carrito y realizar compras.
 
-Node.js: Versión recomendada >=16.
-npm (o yarn).
-Un servidor de MySQL instalado y en ejecución.
+---
 
-📂 Estructura del Proyecto
-El repositorio está organizado en dos carpetas principales:
+## ⚙️ Requisitos Previos
 
-backend/: Contiene todo el código del servidor (Node.js, Express).
-frontend/: Contiene todo el código del cliente (React, Vite).
+Antes de comenzar, asegurate de tener instalado lo siguiente:
 
- Instalación y Puesta en Marcha
-Sigue estos pasos para configurar y ejecutar el proyecto en tu entorno local.
+- [Node.js](https://nodejs.org/) (versión recomendada: >=16)
+- npm (o yarn)
+- Servidor MySQL activo y en funcionamiento
 
-1. Clonar el Repositorio
-Bash
+---
 
+## 📁 Estructura del Proyecto
+
+El repositorio está organizado así:
+
+```
+ecommerce/
+├── backend/    → Código del servidor (Node.js + Express)
+├── frontend/   → Código del cliente (React + Vite)
+```
+
+---
+
+## 🚀 Instalación y Puesta en Marcha
+
+### 1. Clonar el repositorio
+
+```bash
 git clone https://github.com/peluca6666/ecommerce.git
 cd ecommerce
+```
 
-2. Configuración del Backend
-Navega al directorio del backend e instala las dependencias.
+---
 
-Bash
+### 2. Configuración del Backend
 
+#### a. Instalar dependencias
+
+```bash
 cd backend
 npm install
-a. Configurar Variables de Entorno
+```
 
-Crea un archivo .env en la raíz de la carpeta /backend utilizando .env.example como plantilla. Luego, completa los valores requeridos.
+#### b. Configurar variables de entorno
 
-Ini, TOML
+Creá un archivo `.env` en la carpeta `/backend` basado en `.env.example` y completá los valores necesarios.
 
-# Ejemplo de contenido para el archivo .env
+```env
 JWT_SECRET=tu_clave_secreta_muy_segura
 JWT_EXPIRATION=1h
 MAIL_USER=tu_email_para_enviar_correos
 MAIL_PASS=tu_contraseña_del_email
 FRONTEND_URL=http://localhost:5173
+```
 
-b. Preparar la Base de Datos
+#### c. Preparar la base de datos
 
-Abre tu cliente de MySQL y crea una nueva base de datos llamada ecommerce.
-Importa el script SQL ubicado en /backend/db/init.sql para crear las tablas y cargar los datos iniciales.
+1. Iniciá tu servidor de MySQL.
+2. Creá una base de datos llamada `Ecommerce`.
+3. Importá el script `/backend/db/init.sql` en esa base para crear las tablas y datos iniciales.
 
-3. Configuración del Frontend
+---
 
-Regresa a la raíz del proyecto y navega al directorio del frontend para instalar sus dependencias.
+### 3. Configuración del Frontend
 
-Bash
+Desde la raíz del proyecto, entrá a la carpeta `frontend` e instalá dependencias:
 
+```bash
 cd ../frontend
 npm install
+```
 
- Ejecución
-Para iniciar la aplicación, deberás ejecutar el backend y el frontend en terminales separadas.
+---
 
-Iniciar el Backend
-Desde la carpeta /backend:
+## ▶️ Ejecución del Proyecto
 
-Bash
+### Iniciar Backend
 
+Desde `/backend`:
+
+```bash
 npm run dev
-El servidor se ejecutará en http://localhost:3000.
+```
 
-Iniciar el Frontend
-Desde la carpeta /frontend:
+El servidor corre en: [http://localhost:3000](http://localhost:3000)
 
-Bash
+---
 
+### Iniciar Frontend
+
+Desde `/frontend`:
+
+```bash
 npm run dev
-La aplicación cliente se ejecutará en http://localhost:5173.
+```
 
- Notas Adicionales
-Asegurarse de que el servidor MySQL esté corriendo y sea accesible con las credenciales que se proporcionaron en el archivo .env del backend.
+La aplicación se verá en: [http://localhost:5173](http://localhost:5173)
 
-El script init.sql es fundamental, ya que contiene tanto la estructura de la base de datos como los datos iniciales necesarios para el correcto funcionamiento del sitio.
+---
 
-Consultar siempre el archivo .env.example para verificar todas las variables de entorno que el proyecto necesita.
+## 📝 Notas Adicionales
+
+- Verificá que MySQL esté corriendo y accesible con los datos del archivo `.env`.
+- El script `init.sql` incluye tanto la estructura como los datos iniciales para que el sitio funcione correctamente.
+- Consultá el archivo `.env.example` ante cualquier duda sobre las variables necesarias.
+
+---
+
+## 📫 Autor
+
+Proyecto desarrollado por [peluca6666](https://github.com/peluca6666).
