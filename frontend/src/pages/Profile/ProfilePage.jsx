@@ -81,7 +81,7 @@ const ProfilePage = () => {
         try {
             setLoading(true);
             const token = getToken();
-            const response = await axios.get('http://localhost:3000/api/profile', {
+            const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/api/profile`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             if (response.data) {
@@ -122,7 +122,7 @@ const ProfilePage = () => {
         setIsSubmittingProfile(true);
         try {
             const token = getToken();
-            const response = await axios.put('http://localhost:3000/api/profile', profileData, {
+            const response = await axios.put(`${import.meta.env.VITE_API_BASE_URL}/api/profile`, profileData, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             showNotification(response.data.mensaje, 'success');
@@ -145,7 +145,7 @@ const ProfilePage = () => {
         try {
             const token = getToken();
             const response = await axios.post(
-                'http://localhost:3000/api/profile/change-password',
+                `${import.meta.env.VITE_API_BASE_URL}/api/profile/change-password`,
                 {
                     contraseniaActual: passwordData.contraseniaActual,
                     nuevaContrasenia: passwordData.nuevaContrasenia

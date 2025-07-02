@@ -1,8 +1,6 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState} from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
-import { 
-    Box, Typography, Button, CircularProgress, Alert, Paper, Container, useTheme 
-} from '@mui/material'; 
+import { Box, Typography, Button, CircularProgress, Alert, Paper, Container, useTheme } from '@mui/material'; 
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline'; 
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline'; 
 import HourglassEmptyIcon from '@mui/icons-material/HourglassEmpty'; 
@@ -35,7 +33,7 @@ const CuentaVerificada = () => {
     // Debugging: Log para ver qué está pasando
     console.log('Iniciando verificación con token:', token);
 
-    axios.get(`${import.meta.env.VITE_API_URL || 'http://localhost:3000'}/api/verify?token=${token}`)
+    axios.get(`${import.meta.env.VITE_API_BASE_URL}/api/verify?token=${token}`)
       .then(response => {
         console.log('Respuesta de la API:', response.data);
         console.log('Status de la respuesta:', response.status);

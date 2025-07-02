@@ -20,8 +20,6 @@ const CartDropdown = () => {
 
   const [anchorEl, setAnchorEl] = useState(null);
 
-  const BASE_URL = 'http://localhost:3000'; 
-
   // abre el popover solo si está logueado, sino muestra aviso
   const handleClick = (event) => {
     if (!isAuthenticated) {
@@ -75,9 +73,10 @@ const CartDropdown = () => {
         ) : (
           <List dense>
             {cart.productos.map((producto) => {
-              const imageUrl = producto.imagen 
-                ? `${BASE_URL}${producto.imagen}` 
+               const imageUrl = producto.imagen 
+                ? `${import.meta.env.VITE_API_BASE_URL}${producto.imagen}` 
                 : 'https://via.placeholder.com/40x40?text=prod';
+
 
               const itemPrice = typeof producto.precio_actual === 'number' && !isNaN(producto.precio_actual) ? producto.precio_actual : 0;
               const itemQuantity = typeof producto.cantidad === 'number' && !isNaN(producto.cantidad) ? producto.cantidad : 0;

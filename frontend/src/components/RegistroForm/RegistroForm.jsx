@@ -1,5 +1,4 @@
-import React from 'react';
-import { Button, TextField, Typography, Box, Link, Paper, Divider,CircularProgress, useTheme, Alert, InputAdornment } from '@mui/material';
+import { Button, TextField, Typography, Box, Link, Paper, Divider, CircularProgress, useTheme, Alert, InputAdornment } from '@mui/material';
 import { Link as RouterLink } from 'react-router-dom';
 import PersonOutlineIcon from '@mui/icons-material/PersonOutline';
 import MailOutlineIcon from '@mui/icons-material/MailOutline';
@@ -45,10 +44,10 @@ const RegistroForm = ({ formulario, errores, isLoading, onChange, onSubmit, mens
                     position: 'relative',
                 }}
             >
-                <Typography 
-                    variant="h4" 
-                    align="center" 
-                    color="primary" 
+                <Typography
+                    variant="h4"
+                    align="center"
+                    color="primary"
                     fontWeight="bold"
                     gutterBottom
                     sx={{ mb: 3 }}
@@ -58,8 +57,8 @@ const RegistroForm = ({ formulario, errores, isLoading, onChange, onSubmit, mens
 
                 {/* mostrar error general */}
                 {errores.general && (
-                    <Alert 
-                        severity="error" 
+                    <Alert
+                        severity="error"
                         sx={{ mb: 1, borderRadius: theme.shape.borderRadius * 1.5 }}
                     >
                         {errores.general}
@@ -68,8 +67,8 @@ const RegistroForm = ({ formulario, errores, isLoading, onChange, onSubmit, mens
 
                 {/* mostrar mensaje de éxito */}
                 {mensajeExito && (
-                    <Alert 
-                        severity="success" 
+                    <Alert
+                        severity="success"
                         sx={{ mb: 1, borderRadius: theme.shape.borderRadius * 1.5 }}
                     >
                         {mensajeExito}
@@ -89,12 +88,14 @@ const RegistroForm = ({ formulario, errores, isLoading, onChange, onSubmit, mens
                         variant="outlined"
                         size="medium"
                         sx={{ '& .MuiOutlinedInput-root': { borderRadius: '10px' } }}
-                        InputProps={{
-                            startAdornment: (
-                                <InputAdornment position="start">
-                                    <PersonOutlineIcon color="action" />
-                                </InputAdornment>
-                            ),
+                        slotProps={{
+                            input: {
+                                startAdornment: (
+                                    <InputAdornment position="start">
+                                        <PersonOutlineIcon color="action" />
+                                    </InputAdornment>
+                                ),
+                            }
                         }}
                     />
 
@@ -109,12 +110,14 @@ const RegistroForm = ({ formulario, errores, isLoading, onChange, onSubmit, mens
                         variant="outlined"
                         size="medium"
                         sx={{ '& .MuiOutlinedInput-root': { borderRadius: '10px' } }}
-                        InputProps={{
-                            startAdornment: (
-                                <InputAdornment position="start">
-                                    <PersonOutlineIcon color="action" />
-                                </InputAdornment>
-                            ),
+                        slotProps={{
+                            input: {
+                                startAdornment: (
+                                    <InputAdornment position="start">
+                                        <PersonOutlineIcon color="action" />
+                                    </InputAdornment>
+                                ),
+                            }
                         }}
                     />
                 </Box>
@@ -132,12 +135,14 @@ const RegistroForm = ({ formulario, errores, isLoading, onChange, onSubmit, mens
                     variant="outlined"
                     size="medium"
                     sx={{ '& .MuiOutlinedInput-root': { borderRadius: '10px' } }}
-                    InputProps={{
-                        startAdornment: (
-                            <InputAdornment position="start">
-                                <MailOutlineIcon color="action" />
-                            </InputAdornment>
-                        ),
+                    slotProps={{
+                        input: {
+                            startAdornment: (
+                                <InputAdornment position="start">
+                                    <MailOutlineIcon color="action" />
+                                </InputAdornment>
+                            ),
+                        }
                     }}
                 />
 
@@ -154,12 +159,14 @@ const RegistroForm = ({ formulario, errores, isLoading, onChange, onSubmit, mens
                     variant="outlined"
                     size="medium"
                     sx={{ '& .MuiOutlinedInput-root': { borderRadius: '10px' } }}
-                    InputProps={{
-                        startAdornment: (
-                            <InputAdornment position="start">
-                                <LockOutlinedIcon color="action" />
-                            </InputAdornment>
-                        ),
+                    slotProps={{
+                        input: {
+                            startAdornment: (
+                                <InputAdornment position="start">
+                                    <LockOutlinedIcon color="action" />
+                                </InputAdornment>
+                            ),
+                        }
                     }}
                 />
 
@@ -176,12 +183,14 @@ const RegistroForm = ({ formulario, errores, isLoading, onChange, onSubmit, mens
                     variant="outlined"
                     size="medium"
                     sx={{ '& .MuiOutlinedInput-root': { borderRadius: '10px' } }}
-                    InputProps={{
-                        startAdornment: (
-                            <InputAdornment position="start">
-                                <LockOutlinedIcon color="action" />
-                            </InputAdornment>
-                        ),
+                    slotProps={{
+                        input: {
+                            startAdornment: (
+                                <InputAdornment position="start">
+                                    <LockOutlinedIcon color="action" />
+                                </InputAdornment>
+                            ),
+                        }
                     }}
                 />
 
@@ -192,10 +201,10 @@ const RegistroForm = ({ formulario, errores, isLoading, onChange, onSubmit, mens
                     type="submit"
                     disabled={isLoading}
                     size="large"
-                    sx={{ 
-                        mt: 1.5, 
-                        py: 1.5, 
-                        borderRadius: '10px', 
+                    sx={{
+                        mt: 1.5,
+                        py: 1.5,
+                        borderRadius: '10px',
                         fontWeight: 'bold',
                         transition: 'background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease',
                         '&:hover': {
@@ -214,9 +223,9 @@ const RegistroForm = ({ formulario, errores, isLoading, onChange, onSubmit, mens
                 {/* link para ir al login */}
                 <Typography variant="body2" align="center">
                     ¿Ya tenés una cuenta?{' '}
-                    <Link 
-                        component={RouterLink} 
-                        to="/login" 
+                    <Link
+                        component={RouterLink}
+                        to="/login"
                         color="primary"
                         underline="hover"
                         fontWeight="medium"

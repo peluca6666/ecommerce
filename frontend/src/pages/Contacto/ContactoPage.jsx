@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Container, Box, Typography, Paper, TextField, Button, Grid, List, ListItem, ListItemIcon, ListItemText, Divider, useTheme, CircularProgress, InputAdornment } from '@mui/material';
 import { Send as SendIcon, EmailOutlined as EmailIcon, PhoneOutlined as PhoneIcon, LocationOnOutlined as LocationIcon, PersonOutline as PersonOutlineIcon, AlternateEmail as AlternateEmailIcon } from '@mui/icons-material';
 import { useAuth } from '../../context/AuthContext';
@@ -24,7 +24,7 @@ const ContactoPage = () => {
         event.preventDefault();
         setIsSending(true);
         try {
-            const response = await axios.post('http://localhost:3000/api/contacto', formData);
+            const response = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/api/contacto`, formData);
             showNotification(response.data.mensaje, 'success');
             setFormData({ nombre: '', email: '', mensaje: '' });
         } catch (error) {
@@ -36,35 +36,35 @@ const ContactoPage = () => {
     };
 
     return (
-        <Box 
-            sx={{ 
-                display: 'flex', 
-                flexDirection: 'column', 
-                minHeight: '100vh', 
+        <Box
+            sx={{
+                display: 'flex',
+                flexDirection: 'column',
+                minHeight: '100vh',
                 background: `linear-gradient(135deg, ${theme.palette.primary.light} 30%, ${theme.palette.background.default} 90%)`,
-                [theme.breakpoints.down('sm')]: { 
-                    background: theme.palette.background.default, 
+                [theme.breakpoints.down('sm')]: {
+                    background: theme.palette.background.default,
                 },
                 py: { xs: 2, md: 4 }
             }}
         >
             <Container component="main" maxWidth="lg" sx={{ my: { xs: 2, md: 6 } }}>
-                <Paper 
-                    elevation={6} 
-                    sx={{ 
-                        p: { xs: 3, md: 6 }, 
-                        borderRadius: theme.shape.borderRadius * 3, 
-                        boxShadow: theme.shadows[10], 
-                        bgcolor: 'background.paper', 
+                <Paper
+                    elevation={6}
+                    sx={{
+                        p: { xs: 3, md: 6 },
+                        borderRadius: theme.shape.borderRadius * 3,
+                        boxShadow: theme.shadows[10],
+                        bgcolor: 'background.paper',
                     }}
                 >
                     <Box sx={{ mb: { xs: 3, md: 5 }, textAlign: 'center' }}>
-                        <Typography 
-                            variant="h3" 
-                            component="h1" 
-                            fontWeight="bold" 
+                        <Typography
+                            variant="h3"
+                            component="h1"
+                            fontWeight="bold"
                             gutterBottom
-                            color="primary.main" 
+                            color="primary.main"
                         >
                             Contactanos
                         </Typography>
@@ -83,39 +83,39 @@ const ContactoPage = () => {
                                     <ListItemIcon sx={{ minWidth: 40, color: 'primary.main' }}>
                                         <EmailIcon fontSize="medium" />
                                     </ListItemIcon>
-                                    <ListItemText 
+                                    <ListItemText
                                         primary={
                                             <Typography variant="subtitle1" fontWeight="medium" color="text.primary">Email</Typography>
-                                        } 
+                                        }
                                         secondary={
                                             <Typography variant="body2" color="text.secondary">contacto@salomarket.com</Typography>
-                                        } 
+                                        }
                                     />
                                 </ListItem>
                                 <ListItem disablePadding>
                                     <ListItemIcon sx={{ minWidth: 40, color: 'primary.main' }}>
                                         <PhoneIcon fontSize="medium" />
                                     </ListItemIcon>
-                                    <ListItemText 
+                                    <ListItemText
                                         primary={
                                             <Typography variant="subtitle1" fontWeight="medium" color="text.primary">Teléfono</Typography>
-                                        } 
+                                        }
                                         secondary={
-                                            <Typography variant="body2" color="text.secondary">+54 123 456 789</Typography>
-                                        } 
+                                            <Typography variant="body2" color="text.secondary">+54 358 518-2894</Typography>
+                                        }
                                     />
                                 </ListItem>
                                 <ListItem disablePadding>
                                     <ListItemIcon sx={{ minWidth: 40, color: 'primary.main' }}>
                                         <LocationIcon fontSize="medium" />
                                     </ListItemIcon>
-                                    <ListItemText 
+                                    <ListItemText
                                         primary={
                                             <Typography variant="subtitle1" fontWeight="medium" color="text.primary">Nuestra Oficina</Typography>
-                                        } 
+                                        }
                                         secondary={
-                                            <Typography variant="body2" color="text.secondary">Av. Siempre Viva 742, Córdoba, Argentina</Typography>
-                                        } 
+                                            <Typography variant="body2" color="text.secondary">Santa Rosa de Calamuchita, Córdoba, Argentina</Typography>
+                                        }
                                     />
                                 </ListItem>
                             </List>
@@ -142,12 +142,14 @@ const ContactoPage = () => {
                                             variant="outlined"
                                             size="medium"
                                             sx={{ '& .MuiOutlinedInput-root': { borderRadius: '10px' } }}
-                                            InputProps={{ 
-                                                startAdornment: (
-                                                    <InputAdornment position="start">
-                                                        <PersonOutlineIcon color="action" />
-                                                    </InputAdornment>
-                                                ),
+                                            slotProps={{
+                                                input: {
+                                                    startAdornment: (
+                                                        <InputAdornment position="start">
+                                                            <PersonOutlineIcon color="action" />
+                                                        </InputAdornment>
+                                                    ),
+                                                }
                                             }}
                                         />
                                     </Grid>
@@ -163,12 +165,14 @@ const ContactoPage = () => {
                                             variant="outlined"
                                             size="medium"
                                             sx={{ '& .MuiOutlinedInput-root': { borderRadius: '10px' } }}
-                                            InputProps={{ 
-                                                startAdornment: (
-                                                    <InputAdornment position="start">
-                                                        <AlternateEmailIcon color="action" />
-                                                    </InputAdornment>
-                                                ),
+                                            slotProps={{
+                                                input: {
+                                                    startAdornment: (
+                                                        <InputAdornment position="start">
+                                                            <PersonOutlineIcon color="action" />
+                                                        </InputAdornment>
+                                                    ),
+                                                }
                                             }}
                                         />
                                     </Grid>
@@ -192,14 +196,14 @@ const ContactoPage = () => {
                                             type="submit"
                                             fullWidth
                                             variant="contained"
-                                            size="large"                                     
-                                            endIcon={isSending ? null : <SendIcon />} 
+                                            size="large"
+                                            endIcon={isSending ? null : <SendIcon />}
                                             disabled={isSending}
-                                            sx={{ 
-                                                py: 1.5, 
+                                            sx={{
+                                                py: 1.5,
                                                 fontWeight: 'bold',
-                                                borderRadius: '10px', 
-                                                boxShadow: theme.shadows[4], 
+                                                borderRadius: '10px',
+                                                boxShadow: theme.shadows[4],
                                                 '&:hover': {
                                                     transform: 'translateY(-2px)',
                                                     boxShadow: theme.shadows[7],

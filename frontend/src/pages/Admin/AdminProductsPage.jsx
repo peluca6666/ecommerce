@@ -1,4 +1,3 @@
-import * as React from 'react';
 import { useState, useEffect } from 'react';
 import { DataGrid } from '@mui/x-data-grid';
 import {
@@ -94,7 +93,7 @@ export default function AdminProductsPage() {
   const fetchProducts = async () => {
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch('http://localhost:3000/api/producto', {
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/producto`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (!response.ok) throw new Error('no se pudo conectar con la API de productos');
@@ -112,7 +111,7 @@ export default function AdminProductsPage() {
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const response = await fetch('http://localhost:3000/api/categoria');
+        const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/categoria`);
         if (!response.ok) throw new Error('no se pudieron cargar las categorías');
         const data = await response.json();
         setCategories(data.datos || []);
@@ -166,11 +165,11 @@ export default function AdminProductsPage() {
       async () => {
         try {
           const token = localStorage.getItem('token');
-          const response = await fetch(`http://localhost:3000/api/producto/${id}/toggle-activo`, {
+          const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/producto/${id}/toggle-activo`, {
             method: 'PUT',
             headers: { Authorization: `Bearer ${token}` },
           });
-          if (!response.ok) throw new Error('falló al cambiar el estado del producto');
+          if (!response.ok) throw new Error('Falló al cambiar el estado del producto');
           showSnackbar('Estado del producto actualizado con éxito', 'success');
           fetchProducts();
         } catch (err) {
@@ -190,7 +189,7 @@ export default function AdminProductsPage() {
 
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch('http://localhost:3000/api/producto', {
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/producto`, {
         method: 'POST',
         headers: { Authorization: `Bearer ${token}` },
         body: formData,
@@ -222,7 +221,7 @@ export default function AdminProductsPage() {
 
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`http://localhost:3000/api/producto/${editingProduct.producto_id}`, {
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/producto/${editingProduct.producto_id}`, {
         method: 'PUT',
         headers: { Authorization: `Bearer ${token}` },
         body: formData,
@@ -379,7 +378,7 @@ export default function AdminProductsPage() {
             {/* botón para seleccionar imagen principal */}
             <Grid item xs={12}>
               <Button component="label" variant="contained" onChange={handleFileChange}>
-                seleccionar imagen principal
+                Seleccionar imagen principal
                 <VisuallyHiddenInput type="file" />
               </Button>
               {mainImageFile && (
@@ -392,7 +391,7 @@ export default function AdminProductsPage() {
             {/* botón para seleccionar imágenes secundarias */}
             <Grid item xs={12}>
               <Button component="label" variant="outlined" onChange={handleMultipleFileChange}>
-                seleccionar imágenes secundarias
+                Seleccionar imágenes secundarias
                 <VisuallyHiddenInput type="file" multiple />
               </Button>
               {secondaryImageFiles.length > 0 && (

@@ -5,12 +5,9 @@ import { useAuth } from '../../context/AuthContext';
 const ProductCard = ({ producto }) => {
     const { addToCart } = useAuth();
 
-    // url base para imágenes (mejor usar .env)
-    const BASE_URL = 'http://localhost:3000';
-    
     // armo url completa o uso placeholder si no tiene imagen
     const imageUrl = producto.imagen 
-        ? `${BASE_URL}${producto.imagen}` 
+        ? `${import.meta.env.VITE_API_BASE_URL}${producto.imagen}` 
         : 'https://via.placeholder.com/200';
 
     return (

@@ -1,4 +1,4 @@
-import React, { createContext, useState, useEffect, useContext } from 'react';
+import { createContext, useState, useEffect, useContext } from 'react';
 import { Snackbar, Alert } from '@mui/material';
 import axios from 'axios';
 
@@ -39,7 +39,7 @@ export const AuthProvider = ({ children }) => {
       return;
     }
     try {
-      const response = await axios.get('http://localhost:3000/api/carrito', {
+       const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/api/carrito`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       if (response.data.exito) {
@@ -116,7 +116,7 @@ export const AuthProvider = ({ children }) => {
       return;
     }
     try {
-      await axios.post('http://localhost:3000/api/carrito',
+      await axios.get(`${import.meta.env.VITE_API_BASE_URL}/api/carrito`,
         { producto_id: productoId, cantidad },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -136,7 +136,7 @@ export const AuthProvider = ({ children }) => {
       return;
     }
     try {
-      await axios.delete(`http://localhost:3000/api/carrito/${productoId}`, {
+      await axios.delete(`${import.meta.env.VITE_API_BASE_URL}/api/carrito/${productoId}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       await refreshCart();
@@ -159,7 +159,7 @@ export const AuthProvider = ({ children }) => {
       return removeFromCart(productoId);
     }
     try {
-      await axios.put(`http://localhost:3000/api/carrito/${productoId}`,
+      await axios.put(`${import.meta.env.VITE_API_BASE_URL}/api/carrito/${productoId}`,
         { cantidad },
         { headers: { Authorization: `Bearer ${token}` } }
       );

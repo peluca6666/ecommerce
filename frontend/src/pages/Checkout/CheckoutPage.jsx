@@ -34,7 +34,7 @@ const CheckoutPage = () => {
             }
             try {
                 const token = getToken();
-                const response = await axios.get('http://localhost:3000/api/profile', {
+                const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/api/profile`, {
                     headers: { Authorization: `Bearer ${token}` }
                 });
                 const profile = response.data;
@@ -92,7 +92,8 @@ const CheckoutPage = () => {
                 direccion_envio: formattedAddress
             };
 
-            const response = await axios.post('http://localhost:3000/api/ventas', orderData, {
+            const response = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/api/ventas`,
+                 orderData, {
                 headers: { Authorization: `Bearer ${token}` }
             });
 

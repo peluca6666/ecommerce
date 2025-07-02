@@ -46,7 +46,7 @@ const Login = () => {
     }
 
     try {
-      const response = await axios.post('http://localhost:3000/api/login', formulario);
+      const response = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/api/login`, formulario);
 
       const fueValido = login(response.data.token); // guarda el token en el contexto
 

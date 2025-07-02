@@ -1,4 +1,3 @@
-import * as React from 'react';
 import { useState, useEffect } from 'react';
 import { DataGrid } from '@mui/x-data-grid';
 import { Box, Button, Typography, Dialog, DialogActions, DialogContent, DialogTitle, TextField, styled, IconButton, Snackbar, Alert} from '@mui/material';
@@ -82,7 +81,7 @@ export default function AdminCategoriesPage() {
     setError(null);
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch('http://localhost:3000/api/admin/categorias', {
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/admin/categorias`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       if (!response.ok) throw new Error('No se pudieron cargar las categorías');
@@ -130,7 +129,7 @@ export default function AdminCategoriesPage() {
       async () => {
         try {
           const token = localStorage.getItem('token');
-          const response = await fetch(`http://localhost:3000/api/admin/categorias/${id}/toggle-activo`, {
+          const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/admin/categorias/${id}/toggle-activo`, {
             method: 'PUT',
             headers: { Authorization: `Bearer ${token}` },
           });
@@ -152,8 +151,8 @@ export default function AdminCategoriesPage() {
 
     const token = localStorage.getItem('token');
     const url = editingCategory
-      ? `http://localhost:3000/api/admin/categorias/${editingCategory.categoria_id}`
-      : 'http://localhost:3000/api/admin/categorias';
+      ? `${import.meta.env.VITE_API_BASE_URL}/api/admin/categorias/${editingCategory.categoria_id}`
+      : `${import.meta.env.VITE_API_BASE_URL}/api/admin/categorias`;
     const method = editingCategory ? 'PUT' : 'POST';
 
     try {
@@ -182,8 +181,7 @@ export default function AdminCategoriesPage() {
       headerName: 'Imagen',
       width: 100,
       renderCell: (params) => {
-        const BASE_URL = 'http://localhost:3000';
-        const imageUrl = params.value ? `${BASE_URL}${params.value}` : null;
+        const imageUrl = params.value ? `${import.meta.env.VITE_API_BASE_URL}${params.value}` : null;
         return imageUrl
           ? <img src={imageUrl} alt={params.row.nombre} style={{ width: 50, height: 50, objectFit: 'cover' }} />
           : <Typography variant="caption">Sin imagen</Typography>;
@@ -258,14 +256,14 @@ export default function AdminCategoriesPage() {
           </Button>
           {imageFile && (
             <Typography variant="body2" sx={{ ml: 2, display: 'inline-block' }}>
-              archivo: {imageFile.name}
+              Archivo: {imageFile.name}
             </Typography>
           )}
           {editingCategory && !imageFile && editingCategory.imagen && (
             <Box sx={{ mt: 2 }}>
-              <Typography variant="body2">imagen actual:</Typography>
+              <Typography variant="body2">Imagen actual:</Typography>
               <img
-                src={`http://localhost:3000${editingCategory.imagen}`}
+                src={`${import.meta.env.VITE_API_BASE_URL}${editingCategory.imagen}`}
                 alt="imagen actual de categoría"
                 style={{ maxWidth: '100px', maxHeight: '100px', objectFit: 'contain', border: '1px solid #ccc' }}
               />
@@ -273,8 +271,8 @@ export default function AdminCategoriesPage() {
           )}
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleClose}>cancelar</Button>
-          <Button onClick={handleSubmit}>guardar</Button>
+          <Button onClick={handleClose}>Cancelar</Button>
+          <Button onClick={handleSubmit}>Guardar</Button>
         </DialogActions>
       </Dialog>
 
@@ -295,7 +293,7 @@ export default function AdminCategoriesPage() {
         aria-labelledby="confirm-dialog-title"
         aria-describedby="confirm-dialog-description"
       >
-        <DialogTitle id="confirm-dialog-title">confirmación</DialogTitle>
+        <DialogTitle id="confirm-dialog-title">Confirmación</DialogTitle>
         <DialogContent>
           <Typography id="confirm-dialog-description">
             {confirmDialogMessage}
@@ -303,10 +301,10 @@ export default function AdminCategoriesPage() {
         </DialogContent>
         <DialogActions>
           <Button onClick={handleCancelConfirmDialog} color="primary">
-            cancelar
+            Cancelar
           </Button>
           <Button onClick={handleConfirmAction} color="primary" autoFocus>
-            confirmar
+            Confirmar
           </Button>
         </DialogActions>
       </Dialog>

@@ -1,6 +1,6 @@
 import { Container, Grid, Paper, Typography, Box, Button, Divider, Alert, Chip } from '@mui/material';
 import { Link as RouterLink } from 'react-router-dom';
-import { ShoppingCart, LocalShipping, ArrowBack } from '@mui/icons-material';
+import { ShoppingCart, ArrowBack } from '@mui/icons-material';
 import { useAuth } from '../../context/AuthContext';
 import CartItem from '../../components/Cart/CartItem';
 

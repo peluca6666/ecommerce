@@ -1,4 +1,3 @@
-import React from 'react'; // asegurate de importar react
 import { Button, TextField, Typography, Box, Paper, Divider,CircularProgress,useTheme, Alert, InputAdornment } from '@mui/material';
 import { Link as RouterLink,useLocation } from 'react-router-dom';
 import PersonOutlineIcon from '@mui/icons-material/PersonOutline'; 

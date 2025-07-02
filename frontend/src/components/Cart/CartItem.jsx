@@ -6,10 +6,8 @@ import { useAuth } from '../../context/AuthContext';
 const CartItem = ({ item }) => {
   const { updateCartItemQuantity, removeFromCart } = useAuth();
 
-  // base url para imagenes locales
-  const BASE_URL = 'http://localhost:3000';
   // construyo url de la imagen o uso placeholder si no tiene
-  const imageUrl = item.imagen ? `${BASE_URL}${item.imagen}` : 'https://via.placeholder.com/200';
+ const imageUrl = item.imagen ? `${import.meta.env.VITE_API_BASE_URL}${item.imagen}` : 'https://via.placeholder.com/200';
 
   return (
     <Grid

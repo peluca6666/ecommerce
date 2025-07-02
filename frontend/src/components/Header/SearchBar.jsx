@@ -5,8 +5,6 @@ import axios from 'axios';
 import { useDebounce } from '../../hooks/useDebounce'; 
 import { useClickOutside } from '../../hooks/useClickOutside'; 
 
-const BASE_URL = 'http://localhost:3000';
-
 const SearchBar = () => {
     const [inputValue, setInputValue] = useState('');
     const [results, setResults] = useState([]);
@@ -19,7 +17,7 @@ const SearchBar = () => {
             setLoading(true);
             const fetchResults = async () => {
                 try {
-                    const response = await axios.get(`${BASE_URL}/api/producto?busqueda=${debouncedSearchTerm}&limite=5`);
+                     const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/api/categoria?activo=true`);
                     if (response.data.exito) {
                         setResults(response.data.datos);
                     }
@@ -91,7 +89,7 @@ const SearchBar = () => {
                             {results.length > 0 ? (
                                 results.map(producto => {
                                     const imageUrl = producto.imagen 
-                                        ? `${BASE_URL}${producto.imagen}`
+                                        ? `${import.meta.env.VITE_API_BASE_URL}${producto.imagen}`
                                         : 'https://via.placeholder.com/60';
 
                                     return (

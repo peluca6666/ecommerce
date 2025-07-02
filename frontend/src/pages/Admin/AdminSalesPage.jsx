@@ -1,4 +1,3 @@
-import * as React from 'react';
 import { useState, useEffect } from 'react';
 import { DataGrid } from '@mui/x-data-grid';
 import {
@@ -71,7 +70,7 @@ export default function AdminSalesPage() {
     try {
       setLoading(true);
       const token = localStorage.getItem('token');
-      const response = await fetch('http://localhost:3000/api/admin/ventas', {
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/admin/ventas`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       if (!response.ok) throw new Error('No se pudieron cargar las ventas');
@@ -96,7 +95,7 @@ export default function AdminSalesPage() {
     setDetailLoading(true);
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`http://localhost:3000/api/admin/ventas/${sale.venta_id}`, {
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/admin/ventas/${sale.venta_id}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       if (!response.ok) throw new Error('No se pudo cargar el detalle de la venta');
@@ -124,7 +123,7 @@ export default function AdminSalesPage() {
       async () => {
         try {
           const token = localStorage.getItem('token');
-          const response = await fetch(`http://localhost:3000/api/admin/ventas/${selectedSale.venta_id}/status`, {
+          const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/admin/ventas/${selectedSale.venta_id}/status`, {
             method: 'PUT',
             headers: {
               'Content-Type': 'application/json',

@@ -34,29 +34,6 @@ export default function Register() {
     }
   };
 
-  // reenvía el email de verificación
-  const reenviarEmail = async () => {
-    try {
-      setIsLoading(true);
-      await axios.post('http://localhost:3000/api/resend-verification', {
-        email: emailRegistrado
-      });
-      
-      setErrores({ reenvio: 'email de verificación reenviado con éxito' });
-      setTimeout(() => {
-        setErrores({});
-      }, 5000);
-      
-    } catch (error) {
-      console.error('error al reenviar email:', error);
-      setErrores({ 
-        reenvio: error.response?.data?.error || 'error al reenviar el email de verificación' 
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
   // envía el formulario, valida y llama al backend
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -115,7 +92,7 @@ export default function Register() {
       });
         
       try {
-        const response = await axios.post('http://localhost:3000/api/register', {
+        const response = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/api/register`, {
           nombre: formulario.nombre,
           apellido: formulario.apellido,
           email: formulario.email,
@@ -194,7 +171,7 @@ export default function Register() {
             fontSize: '24px',
             fontWeight: 'bold'
           }}>
-            ¡registro exitoso!
+            ¡Registro exitoso!
           </h2>
           
           <p style={{
@@ -203,7 +180,7 @@ export default function Register() {
             fontSize: '16px',
             lineHeight: '1.5'
           }}>
-            te hemos enviado un correo de verificación a:
+            Te hemos enviado un correo de verificación a:
           </p>
           
           <div style={{
@@ -231,7 +208,7 @@ export default function Register() {
               color: '#856404',
               fontSize: '16px'
             }}>
-              📋 pasos siguientes:
+              📋 Pasos siguientes:
             </h4>
             <ol style={{ 
               margin: 0, 
@@ -239,10 +216,10 @@ export default function Register() {
               color: '#856404',
               fontSize: '14px'
             }}>
-              <li>revisa tu bandeja de entrada</li>
-              <li>busca el correo de SaloMarket</li>
-              <li>haz clic en el enlace de verificación</li>
-              <li>¡inicia sesión y disfruta!</li>
+              <li>Revisa tu bandeja de entrada</li>
+              <li>Busca el correo de SaloMarket</li>
+              <li>Cliqueá el enlace de verificación</li>
+              <li>¡Inicia sesión y disfruta!</li>
             </ol>
           </div>
           
@@ -255,7 +232,7 @@ export default function Register() {
             fontSize: '14px',
             color: '#0066cc'
           }}>
-            💡 <strong>tip:</strong> si no encontrás el correo, revisá tu carpeta de spam o correo no deseado
+            💡 <strong>tip:</strong> Si no encontrás el correo, revisá tu carpeta de spam o correo no deseado
           </div>
           
           {/* botones de acción */}
@@ -281,7 +258,7 @@ export default function Register() {
               onMouseOver={(e) => e.target.style.backgroundColor = '#1565c0'}
               onMouseOut={(e) => e.target.style.backgroundColor = '#1976d2'}
             >
-              ir a iniciar sesión
+              Ir a iniciar sesión
             </button>
           </div>
         </div>
@@ -297,7 +274,7 @@ export default function Register() {
       isLoading={isLoading}
       onChange={handleChange}
       onSubmit={handleSubmit}
-      mensajeExito={''} // ya no usamos este mensaje
+      mensajeExito={''} 
     />
   );
 }

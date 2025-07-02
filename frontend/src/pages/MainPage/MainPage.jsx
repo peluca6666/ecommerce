@@ -21,7 +21,7 @@ const MainPage = () => {
   // trae todos los productos
   const fetchProducto = async () => {
     try {
-      const response = await fetch('http://localhost:3000/api/producto');
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/producto`);
       if (!response.ok) {
         throw new Error(`Error HTTP: ${response.status}`);
       }
@@ -37,7 +37,7 @@ const MainPage = () => {
   // trae las categorías disponibles
   const fetchCategoria = async () => {
     try {
-      const response = await fetch('http://localhost:3000/api/categoria');
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/categoria`);
       if (!response.ok) {
         throw new Error(`Error HTTP: ${response.status}`);
       }
@@ -53,7 +53,7 @@ const MainPage = () => {
   // trae productos en oferta
   const fetchOfertas = async () => {
     try {
-      const response = await fetch('http://localhost:3000/api/producto/ofertas');
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/producto/ofertas`);
       if (!response.ok) {
         throw new Error(`Error HTTP: ${response.status}`);
       }

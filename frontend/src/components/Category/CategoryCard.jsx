@@ -5,10 +5,8 @@ const CategoryCard = ({ categoria }) => {
   const theme = useTheme();
 
   // construyo url de imagen o uso placeholder si no tiene
-  const BASE_URL = 'http://localhost:3000';
   const imageUrl = categoria.imagen
-    ? `${BASE_URL}${categoria.imagen}`
-    : 'https://via.placeholder.com/240x160';
+    ? `${import.meta.env.VITE_API_BASE_URL}${categoria.imagen}`: 'https://via.placeholder.com/240x160';
 
   return (
     <Link to={`/categoria/${categoria.categoria_id}/productos`} style={{ textDecoration: 'none' }}>

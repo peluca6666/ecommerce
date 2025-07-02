@@ -47,7 +47,7 @@ const Footer = () => (
             color="text.secondary"
             sx={{ mb: 1, '&:hover': { color: 'primary.main' } }}
           >
-            ofertas
+            Ofertas
           </Link>
           <Link
             component={RouterLink}
@@ -74,7 +74,7 @@ const Footer = () => (
           <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
             <Phone sx={{ mr: 1, color: 'text.secondary' }} />
             <Typography variant="body2" color="text.secondary">
-              +54 123 456 789
+              +54 358 518-2894
             </Typography>
           </Box>
           <Box>

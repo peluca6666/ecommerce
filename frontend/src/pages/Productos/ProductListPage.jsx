@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { Container, Grid, Paper, Typography, Box, Pagination } from '@mui/material';
+import { Container, Grid, Typography, Box, Pagination } from '@mui/material';
 import axios from 'axios';
 
 import ProductGrid from '../../components/Product/ProductGrid';
@@ -46,7 +46,7 @@ const ProductListPage = () => {
             if (filtros.es_oferta) params.append('es_oferta', filtros.es_oferta);
 
             try {
-                const apiUrl = `http://localhost:3000/api/producto?${params.toString()}`;
+                const apiUrl = `${import.meta.env.VITE_API_BASE_URL}/api/producto?${params.toString()}`;
                 console.log("Enviando petición a la API:", apiUrl); 
 
                 const response = await axios.get(apiUrl);

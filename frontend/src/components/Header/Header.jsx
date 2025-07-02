@@ -7,7 +7,7 @@ import CartDropdown from "../Cart/CartDropdown.jsx";
 import UserButton from "../common/UserButton.jsx";
 import { Link as RouterLink } from 'react-router-dom';
 
-const Header = ({ categoria }) => {
+const Header = () => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const [drawerOpen, setDrawerOpen] = useState(false);

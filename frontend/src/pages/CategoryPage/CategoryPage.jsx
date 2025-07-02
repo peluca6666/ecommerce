@@ -1,6 +1,6 @@
 import { useParams } from 'react-router-dom';
 import { useState, useEffect } from 'react';
-import { Container, Typography, Paper, Box } from '@mui/material';
+import { Container, Typography, Paper} from '@mui/material';
 import ProductGrid from '../../components/Product/ProductGrid';
 import LoadingSpinner from '../../components/common/LoadingSpinner';
 
@@ -17,7 +17,7 @@ const CategoryPage = () => {
         setLoading(true);
         setError(null);
         
-        const res = await fetch(`http://localhost:3000/api/categoria/${id}/producto`);
+        const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/categoria/${id}/producto`);
         if (!res.ok) throw new Error(`Error HTTP: ${res.status}`);
         
         const data = await res.json();

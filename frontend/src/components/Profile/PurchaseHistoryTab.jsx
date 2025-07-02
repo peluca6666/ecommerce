@@ -17,7 +17,7 @@ const PurchaseHistoryTab = () => {
             setLoading(true);
             try {
                 const token = getToken();
-                const response = await axios.get('http://localhost:3000/api/ventas/historial', {
+                const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/api/ventas/historial`, {
                     headers: { Authorization: `Bearer ${token}` }
                 });
 

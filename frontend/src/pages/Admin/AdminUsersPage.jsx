@@ -1,4 +1,3 @@
-import * as React from 'react';
 import { useState, useEffect } from 'react';
 import { DataGrid } from '@mui/x-data-grid';
 import {Box, Typography, IconButton, Select, MenuItem, Dialog, DialogTitle,DialogContent, List, ListItem, ListItemText, Divider, 
@@ -62,7 +61,7 @@ export default function AdminUsersPage() {
   const fetchUsers = async () => {
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch('http://localhost:3000/api/admin/usuarios', {
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/admin/usuarios`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       if (!response.ok) throw new Error('No se pudieron cargar los usuarios');
@@ -87,7 +86,7 @@ export default function AdminUsersPage() {
       async () => {
         try {
           const token = localStorage.getItem('token');
-          const response = await fetch(`http://localhost:3000/api/admin/usuarios/${id}/rol`, {
+          const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/admin/usuarios/${id}/rol`, {
             method: 'PUT',
             headers: {
               'Content-Type': 'application/json',
@@ -111,7 +110,7 @@ export default function AdminUsersPage() {
       async () => {
         try {
           const token = localStorage.getItem('token');
-          const response = await fetch(`http://localhost:3000/api/admin/usuarios/${id}/toggle-activo`, {
+          const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/admin/usuarios/${id}/toggle-activo`, {
             method: 'PUT',
             headers: { 'Authorization': `Bearer ${token}` }
           });
@@ -131,7 +130,7 @@ export default function AdminUsersPage() {
     setSalesLoading(true);
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`http://localhost:3000/api/admin/usuarios/${user.usuario_id}/ventas`, {
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/admin/usuarios/${user.usuario_id}/ventas`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       if (!response.ok) throw new Error('No se pudieron cargar las compras del usuario');

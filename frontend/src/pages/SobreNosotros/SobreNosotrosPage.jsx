@@ -1,7 +1,5 @@
-import React from 'react';
 import { Container, Box, Typography, Paper, Grid, Avatar, Button, useTheme, Divider } from '@mui/material'; 
 import { Link as RouterLink } from 'react-router-dom';
-
 import VerifiedUserOutlinedIcon from '@mui/icons-material/VerifiedUserOutlined';
 import HighQualityOutlinedIcon from '@mui/icons-material/HighQualityOutlined';
 import LocalShippingOutlinedIcon from '@mui/icons-material/LocalShippingOutlined';
@@ -75,7 +73,9 @@ const SobreNosotrosPage = () => {
           <Typography variant="h5" component="h2" fontWeight="bold" color="text.primary" gutterBottom sx={{ mb: { xs: 2, md: 3 } }}>
             Nuestra Misión
           </Typography>
-          <Typography variant="body1" paragraph 
+          <Typography 
+            variant="body1" 
+            component="p"
             sx={{ 
               fontSize: { xs: '1rem', md: '1.1rem' },
               lineHeight: 1.7, 

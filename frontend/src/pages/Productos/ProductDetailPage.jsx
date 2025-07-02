@@ -1,13 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { 
-    Container, Grid, Box, Typography, Button, Divider, Paper, 
-    IconButton, useTheme, Chip, Stack, Link as MuiLink // Importo Link de MUI para Breadcrumbs
-} from '@mui/material'; 
-import { 
-    AddCircleOutline, RemoveCircleOutline, ShoppingCart, 
-    LocalShippingOutlined, KeyboardBackspace as ArrowBack // Renombrado para usarlo en el botón Volver
-} from '@mui/icons-material'; 
+import { Container, Grid, Box, Typography, Button, Divider, Paper, IconButton, useTheme, Chip, Stack} from '@mui/material'; 
+import { AddCircleOutline, RemoveCircleOutline, ShoppingCart, KeyboardBackspace as ArrowBack} from '@mui/icons-material'; 
 import { useAuth } from '../../context/AuthContext';
 import LoadingSpinner from '../../components/common/LoadingSpinner';
 import axios from 'axios';
@@ -24,8 +18,7 @@ const ProductDetailPage = () => {
     const [error, setError] = useState(null);
     const [selectedImage, setSelectedImage] = useState('');
     const [cantidad, setCantidad] = useState(1);
-    const BASE_URL = 'http://localhost:3000';
-
+   
     const [productosRelacionados, setProductosRelacionados] = useState([]);
 
     useEffect(() => {
@@ -33,7 +26,7 @@ const ProductDetailPage = () => {
             try {
                 setLoading(true);
                 setProductosRelacionados([]); 
-                const response = await axios.get(`${BASE_URL}/api/producto/${id}`);
+                const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/api/producto/${id}`);
 
                 if (response.data.exito) {
                     const productData = response.data.datos;
@@ -47,12 +40,12 @@ const ProductDetailPage = () => {
                     }
                     setProducto(productData);
 
-                    const defaultImageUrl = productData.imagen ? `${BASE_URL}${productData.imagen}` : 'https://via.placeholder.com/500x500?text=Imagen+no+disponible';
+                    const defaultImageUrl = productData.imagen ? `${import.meta.env.VITE_API_BASE_URL}${productData.imagen}` : 'https://via.placeholder.com/500x500?text=Imagen+no+disponible';
                     setSelectedImage(defaultImageUrl); 
 
                     if (productData.categoria_id) {
                         try {
-                            const relatedResponse = await axios.get(`${BASE_URL}/api/categoria/${productData.categoria_id}/producto`);
+                            const relatedResponse = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/api/categoria/${productData.categoria_id}/producto`);
                             if (relatedResponse.data.exito) {
                                 const related = relatedResponse.data.datos.filter(p => p.producto_id !== productData.producto_id);
                                 setProductosRelacionados(related);
@@ -104,7 +97,7 @@ const ProductDetailPage = () => {
 
     const allImages = [producto.imagen, ...(Array.isArray(producto.imagenes) ? producto.imagenes : [])] 
         .filter(Boolean)
-        .map(imgRelativa => `${BASE_URL}${imgRelativa}`);
+        .map(imgRelativa =>`${import.meta.env.VITE_API_BASE_URL}${imgRelativa}`);
 
     
     const hasDiscount = producto.precio_original && producto.precio_original > producto.precio;
@@ -112,7 +105,7 @@ const ProductDetailPage = () => {
         ? Math.round(((producto.precio_original - producto.precio) / producto.precio_original) * 100) 
         : 0;
     
-    const garantiaInfo = producto.garantia || "Garantía de fábrica"; 
+    //const garantiaInfo = producto.garantia || "Garantía de fábrica"; (para agregar garantia en el futuro)
 
     return (
         <Container maxWidth="lg" sx={{ my: { xs: 2, md: 4 } }}> 
