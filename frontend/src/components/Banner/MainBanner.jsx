@@ -14,21 +14,21 @@ export const PAGE_BACKGROUND_COLOR = '#ffffff';
 // Datos para cada banner: imagen, texto y botón
 const bannerData = [
   {
-    imagen: "/images/imagenesBanner/auricularesv2.jpg",
+    imagen: "/assets_staticos/auricularesv2.jpg",
     titulo: "Sonido Premium",
     descripcion: "Descubre auriculares de alta calidad",
     boton: "Ver Ofertas",
     link: ""
   },
   {
-    imagen: "/images/imagenesBanner/hornov2.jpg",
+    imagen: "/assets_staticos/hornov2.jpg",
     titulo: "Cocina Inteligente",
     descripcion: "Electrodomésticos que facilitan tu día",
     boton: "Explorar",
     link: ""
   },
   {
-    imagen: "/images/imagenesBanner/utilesv2.jpg",
+    imagen: "/assets_staticos/utilesv2.jpg",
     titulo: "Vuelta a Clases",
     descripcion: "Todo lo esencial para el nuevo período",
     boton: "Comprar",
