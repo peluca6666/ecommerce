@@ -50,7 +50,7 @@ const CategorySlider = ({ categoria }) => {
       }}
     >
       <Typography variant="h5" gutterBottom sx={{ mb: 2, fontWeight: 'bold', textAlign: 'left' }}>
-        explora nuestras categorías
+        Explora nuestras categorías
       </Typography>
 
       <Box sx={{ position: 'relative', width: '100%' }}>
