@@ -46,10 +46,10 @@ export async function obtenerProductos(options = {}) {
         SELECT p.*, c.nombre AS nombre_categoria
         FROM producto p
         LEFT JOIN categoria c ON p.categoria_id = c.categoria_id
-        WHERE 1=1
+        WHERE p.activo = TRUE
     `;
 
-    let countQuery = `SELECT COUNT(*) as total FROM producto WHERE 1=1`;
+  let countQuery = `SELECT COUNT(*) as total FROM producto WHERE activo = TRUE`;
 
     const params = [];
     const countParams = [];
@@ -83,8 +83,8 @@ export async function obtenerProductos(options = {}) {
     }
 
     if (es_oferta === 'true') {
-        query += ` AND p.es_oferta = true AND p.activo = true`;
-        countQuery += ` AND es_oferta = true AND activo = true`;
+        query += ` AND p.es_oferta = true`;
+        countQuery += ` AND es_oferta = true`;
     }
 
     const validSorts = {
