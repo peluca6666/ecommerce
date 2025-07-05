@@ -38,8 +38,7 @@ function convertToRelativePath(fullPath) {
  * @returns {Object} Productos y datos de paginación
  */
 export async function obtenerProductos(options = {}) {
-
-    const { categoria, busqueda, minPrice, maxPrice, es_oferta, sortBy, pagina = 1, limite = 10, incluirInactivos } = options;
+    const { categoria, busqueda, minPrice, maxPrice, es_oferta, sortBy, pagina = 1, limite = 10 } = options;
 
     const offset = (parseInt(pagina) - 1) * parseInt(limite);
 
@@ -47,21 +46,15 @@ export async function obtenerProductos(options = {}) {
         SELECT p.*, c.nombre AS nombre_categoria
         FROM producto p
         LEFT JOIN categoria c ON p.categoria_id = c.categoria_id
+        WHERE p.activo = TRUE
     `;
 
-    let countQuery = `SELECT COUNT(*) as total FROM producto`;
-    
-    if (incluirInactivos === 'true') {
-        query += ' WHERE 1=1';
-        countQuery += ' WHERE 1=1';
-    } else {
-        query += ' WHERE p.activo = TRUE';
-        countQuery += ' WHERE activo = TRUE';
-    }
+  let countQuery = `SELECT COUNT(*) as total FROM producto WHERE activo = TRUE`;
 
     const params = [];
     const countParams = [];
 
+    
     if (categoria) {
         query += ` AND p.categoria_id = ?`;
         countQuery += ` AND categoria_id = ?`;

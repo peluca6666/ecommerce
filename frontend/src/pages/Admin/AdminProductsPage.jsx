@@ -93,12 +93,12 @@ export default function AdminProductsPage() {
   const fetchProducts = async () => {
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/producto?incluirInactivos=true`, {
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/producto`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (!response.ok) throw new Error('no se pudo conectar con la API de productos');
       const data = await response.json();
-        setProducts(data.productos || []);
+      setProducts(data.datos || []);
     } catch (err) {
       setError(err.message);
       showSnackbar(`Error al cargar productos: ${err.message}`, 'error');
