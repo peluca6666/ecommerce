@@ -54,13 +54,7 @@ export async function obtenerProductos(options = {}) {
     const params = [];
     const countParams = [];
 
-    if (incluirInactivos !== 'true') {
-        query += ' WHERE p.activo = TRUE';
-        countQuery += ' WHERE activo = TRUE';
-    } else {
-        query += ' WHERE 1=1'; 
-        countQuery += ' WHERE 1=1';
-    }
+    
     if (categoria) {
         query += ` AND p.categoria_id = ?`;
         countQuery += ` AND categoria_id = ?`;
