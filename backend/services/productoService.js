@@ -38,54 +38,67 @@ function convertToRelativePath(fullPath) {
  * @returns {Object} Productos y datos de paginación
  */
 export async function obtenerProductos(options = {}) {
-    const { categoria, busqueda, minPrice, maxPrice, es_oferta, sortBy, pagina = 1, limite = 10 } = options;
+    const { categoria, busqueda, minPrice, maxPrice, es_oferta, sortBy, pagina = 1, limite = 10, incluirInactivos = false } = options;
 
-    const offset = (parseInt(pagina) - 1) * parseInt(limite);
+      const incluirInactivosBool = incluirInactivos === 'true' || incluirInactivos === true;
+
+     const offset = (parseInt(pagina) - 1) * parseInt(limite);
 
     let query = `
         SELECT p.*, c.nombre AS nombre_categoria
         FROM producto p
         LEFT JOIN categoria c ON p.categoria_id = c.categoria_id
-        WHERE p.activo = TRUE
     `;
 
-  let countQuery = `SELECT COUNT(*) as total FROM producto WHERE activo = TRUE`;
+    let countQuery = `SELECT COUNT(*) as total FROM producto`;
 
     const params = [];
     const countParams = [];
+    const conditions = [];
 
-    
+    // Solo filtrar por activo si NO queremos incluir inactivos
+    if (!incluirInactivosBool) {
+        conditions.push('p.activo = TRUE');
+    }
+
     if (categoria) {
-        query += ` AND p.categoria_id = ?`;
-        countQuery += ` AND categoria_id = ?`;
+        conditions.push('p.categoria_id = ?');
         params.push(categoria);
         countParams.push(categoria);
     }
 
     if (busqueda) {
-        query += ` AND p.nombre_producto LIKE ?`;
-        countQuery += ` AND nombre_producto LIKE ?`;
+        conditions.push('p.nombre_producto LIKE ?');
         params.push(`%${busqueda}%`);
         countParams.push(`%${busqueda}%`);
     }
 
     if (minPrice && !isNaN(minPrice)) {
-        query += ` AND p.precio >= ?`;
-        countQuery += ` AND precio >= ?`;
+        conditions.push('p.precio >= ?');
         params.push(parseFloat(minPrice));
         countParams.push(parseFloat(minPrice));
     }
 
     if (maxPrice && !isNaN(maxPrice)) {
-        query += ` AND p.precio <= ?`;
-        countQuery += ` AND precio <= ?`;
+        conditions.push('p.precio <= ?');
         params.push(parseFloat(maxPrice));
         countParams.push(parseFloat(maxPrice));
     }
 
     if (es_oferta === 'true') {
-        query += ` AND p.es_oferta = true`;
-        countQuery += ` AND es_oferta = true`;
+        conditions.push('p.es_oferta = true');
+    }
+
+    // Aplicar condiciones si las hay
+    if (conditions.length > 0) {
+        const whereClause = ' WHERE ' + conditions.join(' AND ');
+        query += whereClause;
+        
+        // Para countQuery, adaptar las condiciones (sin el alias p.)
+        const countConditions = conditions.map(condition => 
+            condition.replace('p.', '')
+        );
+        countQuery += ' WHERE ' + countConditions.join(' AND ');
     }
 
     const validSorts = {
