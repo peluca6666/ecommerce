@@ -116,7 +116,7 @@ export const AuthProvider = ({ children }) => {
       return;
     }
     try {
-      await axios.get(`${import.meta.env.VITE_API_BASE_URL}/api/carrito`,
+      await axios.post(`${import.meta.env.VITE_API_BASE_URL}/api/carrito`,
         { producto_id: productoId, cantidad },
         { headers: { Authorization: `Bearer ${token}` } }
       );
