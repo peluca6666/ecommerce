@@ -1,3 +1,5 @@
+import { useNavigate } from 'react-router-dom';
+
 // componente reutilizable para mostrar cada paso del checkout
 const CheckoutStep = ({ title, icon, children }) => (
     <Paper elevation={0} sx={{ border: '1px solid #e0e0e0', p: 3, borderRadius: '16px' }}>
