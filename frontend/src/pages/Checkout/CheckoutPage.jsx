@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import axios from 'axios';
-import { Paper, Box, Avatar, Typography, Divider, Grid, Stack, TextField,RadioGroup, FormControlLabel, Radio, Button, Container, CircularProgress } from '@mui/material';
+import { Paper, Box, Avatar, Typography, Divider, Grid, Stack, TextField,RadioGroup, FormControlLabel, Radio, Button, Container, CircularProgress, ListItem, ListItemText } from '@mui/material';
 import {  LocalShippingOutlined as LocalShippingOutlinedIcon, CreditCardOutlined as CreditCardOutlinedIcon } from '@mui/icons-material';
 
 // componente reutilizable para mostrar cada paso del checkout
