@@ -1,4 +1,5 @@
-import { useNavigate, useAuth } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
 
 // componente reutilizable para mostrar cada paso del checkout
 const CheckoutStep = ({ title, icon, children }) => (
