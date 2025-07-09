@@ -12,7 +12,7 @@ export const crearVenta = async (req, res) => {
     }
 
     const nuevaVenta = await ventaService.crearNuevaVenta(usuarioId, productos, metodo_pago, direccion_envio);
-    await carritoService.clearCartByUserId(usuarioId);
+    await carritoService.eliminarCarritoPorUsuarioId(usuarioId);
     res.status(201).json({ exito: true, mensaje: 'Venta creada exitosamente', venta: nuevaVenta });
   } catch (error) {
     console.error('Error en el controlador al crear la venta:', error);
