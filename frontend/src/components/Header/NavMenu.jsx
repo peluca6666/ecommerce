@@ -29,7 +29,7 @@ const NavMenu = ({ mobile = false, onItemClick }) => {
     useEffect(() => {
         const fetchCategories = async () => {
             try {
-               const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}api/categoria`);
+               const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/categoria`);
                 if (!response.ok) throw new Error('error al cargar categorías');
                 const data = await response.json();
                 setCategories(data.datos.filter(cat => cat.activo));
