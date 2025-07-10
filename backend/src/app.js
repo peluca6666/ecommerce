@@ -1,17 +1,15 @@
+import './config.js';
 import express from 'express';
 import cors from 'cors';
 import { pool } from '../database/connectionMySQL.js';
-import dotenv from 'dotenv';
 import routes from '../routes/routes.js';
-import { fileURLToPath } from 'url';
-import { dirname, join } from 'path';
 import path from 'path';
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
+
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
-
-// Cargo variables de entorno desde .env
-dotenv.config({ path: join(__dirname, '../.env') });
 
 const app = express();
 
