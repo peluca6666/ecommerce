@@ -156,7 +156,7 @@ const CheckoutPage = () => {
 
                             <CheckoutStep title="2. Método de Pago" icon={<CreditCardOutlinedIcon />}>
                                 <RadioGroup value={paymentMethod} onChange={(e) => setPaymentMethod(e.target.value)}>
-                                    <FormControlLabel value="tarjeta_simulado" control={<Radio />} label="Tarjeta de Crédito / Débito (Simulado)" />
+                               <FormControlLabel value="mercadopago" control={<Radio />} label="Tarjeta de Crédito / Débito (Mercado Pago)" />
                                     <FormControlLabel value="transferencia" control={<Radio />} label="Transferencia Bancaria" />
                                 </RadioGroup>
                             </CheckoutStep>
