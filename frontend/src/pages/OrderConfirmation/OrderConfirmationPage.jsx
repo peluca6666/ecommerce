@@ -28,8 +28,7 @@ const OrderConfirmationPage = () => {
 
       try {
         const token = getToken();
-        const response = await axios.get(
-          `${import.meta.env.VITE_API_BASE_URL}/api/ventas/${orderId}`,
+        const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/api/ventas/${orderId}`,
           {
             headers: { Authorization: `Bearer ${token}` }
           }

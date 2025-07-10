@@ -58,6 +58,8 @@ import { manejarFormularioContacto } from '../controllers/contactoController.js'
 import { upload } from '../middleware/upload.js';
 import { uploadCategoria } from '../middleware/uploadCategoria.js';
 
+import { createOrder, receiveWebhook } from '../controllers/paymentController.js';
+
 const router = express.Router();
 
 // --- Rutas públicas ---
@@ -94,6 +96,13 @@ router.delete('/carrito/:id', verifyToken, eliminarProductoDelCarrito);
 router.post('/ventas', verifyToken, crearVenta);
 router.get('/ventas/historial', verifyToken, obtenerHistorialCompras);
 router.get('/ventas/:id', verifyToken, obtenerDetalleVentaUsuario);
+
+// Pago
+router.post('/create-order', verifyToken, createOrder);
+router.get('/success', (req, res) => {
+  res.redirect('https://salomarket.shop/OrderConfirmationPage'); 
+});
+router.post ('/webhook', receiveWebhook);
 
 // --- Rutas solo para admin ---
 

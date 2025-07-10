@@ -64,6 +64,87 @@ export const crearNuevaVenta = async (usuarioId, productos, metodoPago, direccio
 };
 
 /**
+ * Crea la venta y sus detalles en estado 'pendiente de pago'.
+ * no verifica ni descuenta stock
+ */
+export const crearVentaPendiente = async (usuarioId, productos, metodoPago, direccionEnvio) => {
+  const connection = await pool.getConnection();
+  try {
+    await connection.beginTransaction();
+
+    // calcular el total a partir de los productos del carrito
+    const totalVenta = productos.reduce((acc, p) => acc + (p.precio_actual * p.cantidad), 0);
+
+    // insertar la venta con estado 'pendiente de pago'
+    const ventaSql = 'INSERT INTO venta (usuario_id, fecha_venta, total, estado, metodo_pago, direccion_envio) VALUES (?, NOW(), ?, ?, ?, ?)';
+    const [ventaResult] = await connection.execute(ventaSql, [usuarioId, totalVenta, 'Pendiente de Pago', metodoPago, direccionEnvio]);
+    const nuevaVentaId = ventaResult.insertId;
+
+    // insertar los detalles de la venta
+    for (const producto of productos) {
+      const detalleSql = 'INSERT INTO detalle_venta (venta_id, producto_id, cantidad, precio_unitario, subtotal) VALUES (?, ?, ?, ?, ?)';
+      await connection.execute(detalleSql, [nuevaVentaId, producto.producto_id, producto.cantidad, producto.precio_actual, producto.subtotal]);
+    }
+
+    await connection.commit();
+    return { venta_id: nuevaVentaId };
+
+  } catch (error) {
+    await connection.rollback();
+    console.error("Error al crear la venta pendiente:", error);
+    throw error;
+  } finally {
+    if (connection) connection.release();
+  }
+};
+
+/**
+ * confirma la venta, descuenta el stock y actualiza el estado a 'pagada'
+ * Esta función es llamada por el webhook
+ */
+export const confirmarVentaExitosa = async (ventaId) => {
+  const connection = await pool.getConnection();
+  try {
+    await connection.beginTransaction();
+
+    // obtiene los detalles de la venta para saber qué productos descontar
+    const [detalles] = await connection.execute('SELECT producto_id, cantidad FROM detalle_venta WHERE venta_id = ?', [ventaId]);
+
+    if (detalles.length === 0) {
+      throw new Error('No se encontraron detalles para la venta.');
+    }
+
+    // verificar stock y descontarlo
+    for (const detalle of detalles) {
+      // bloqueo para evitar conflictos de stock concurrente
+      const [rows] = await connection.execute('SELECT stock_actual FROM producto WHERE producto_id = ? FOR UPDATE', [detalle.producto_id]);
+      const stockActual = rows[0].stock_actual;
+
+      if (stockActual < detalle.cantidad) {
+        throw new Error(`Stock insuficiente para producto ${detalle.producto_id}. Venta no puede ser completada.`);
+      }
+
+      const updateStockSql = 'UPDATE producto SET stock_actual = stock_actual - ? WHERE producto_id = ?';
+      await connection.execute(updateStockSql, [detalle.cantidad, detalle.producto_id]);
+    }
+
+    // actualiza el estado de la venta a Pagada
+    await connection.execute("UPDATE venta SET estado = 'Pagada' WHERE venta_id = ?", [ventaId]);
+
+    await connection.commit();
+    console.log(`Venta ${ventaId} confirmada y stock descontado.`);
+    return { exito: true };
+
+  } catch (error) {
+    await connection.rollback();
+    console.error(`Error al confirmar la venta ${ventaId}:`, error);
+    throw error; // Lanza el error para que el webhook lo capture
+  } finally {
+    if (connection) connection.release();
+  }
+};
+
+/**
  * Trae todas las ventas de un usuario para mostrar en su perfil
  * @param {number} usuarioId
  * @returns {Promise<Array>} - Ventas ordenadas por fecha
