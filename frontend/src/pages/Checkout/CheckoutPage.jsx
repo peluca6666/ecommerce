@@ -77,21 +77,34 @@ const CheckoutPage = () => {
 
     // cuando el usuario confirma la compra
     const handlePlaceOrder = async () => {
-        // se valida que los campos obligatorios estén completos
-        const requiredFields = ['nombre', 'apellido', 'direccion', 'localidad', 'provincia', 'codigo_postal'];
-        for (const field of requiredFields) {
-            if (!shippingData[field]) {
-                showNotification(`El campo "${field.replace('_', ' ')}" es obligatorio.`, 'error');
-                return;
-            }
+    const requiredFields = ['nombre', 'apellido', 'direccion', 'localidad', 'provincia', 'codigo_postal'];
+    for (const field of requiredFields) {
+        if (!shippingData[field]) {
+            showNotification(`El campo "${field.replace('_', ' ')}" es obligatorio.`, 'error');
+            return;
         }
+    }
 
-        setIsProcessing(true);
-        try {
-            const token = getToken();
+    setIsProcessing(true);
+    const token = getToken();
+    const formattedAddress = `${shippingData.direccion}, ${shippingData.localidad}, ${shippingData.provincia} (${shippingData.codigo_postal})`;
 
-            // se arma un string con la dirección para enviar al backend
-            const formattedAddress = `${shippingData.direccion}, ${shippingData.localidad}, ${shippingData.provincia} (${shippingData.codigo_postal})`;
+    try {
+        if (paymentMethod === 'mercadopago') {
+            // si el método es Mercado Pago, llamamos a la ruta de creación de orden
+            
+            const response = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/api/create-order`,
+                { direccion_envio: formattedAddress }, // Solo enviamos la dirección
+                { headers: { Authorization: `Bearer ${token}` } }
+            );
+
+            // obtenemos el init_point de la respuesta del backend
+            const { init_point } = response.data;
+
+            // redirigimos al usuario a la pasarela de pago de Mercado Pago
+            window.location.href = init_point;
+
+        } else {
             
             const orderData = {
                 productos: cart.productos.map(p => ({ producto_id: p.producto_id, cantidad: p.cantidad })),
@@ -100,22 +113,21 @@ const CheckoutPage = () => {
             };
 
             const response = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/api/ventas`,
-                 orderData, {
-                headers: { Authorization: `Bearer ${token}` }
-            });
+                orderData,
+                { headers: { Authorization: `Bearer ${token}` } }
+            );
 
-            showNotification('¡Compra realizada con éxito!', 'success');
+            showNotification('¡Pedido realizado con éxito!', 'success');
             await refreshCart();
-            
             navigate(`/orden-confirmada/${response.data.venta.venta_id}`);
-
-        } catch (error) {
-            showNotification(error.response?.data?.mensaje || 'Error al procesar la compra.', 'error');
-        } finally {
-            setIsProcessing(false);
         }
-    };
 
+    } catch (error) {
+        showNotification(error.response?.data?.mensaje || 'Error al procesar el pedido.', 'error');
+    } finally {
+        setIsProcessing(false);
+    }
+};
     if (loading) {
         return <Container sx={{py: 5, textAlign: 'center'}}><CircularProgress /></Container>;
     }
