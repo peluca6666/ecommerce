@@ -28,7 +28,7 @@ const CheckoutPage = () => {
     const [shippingData, setShippingData] = useState({
         nombre: '', apellido: '', direccion: '', localidad: '', provincia: '', codigo_postal: '', telefono: ''
     });
-    const [paymentMethod, setPaymentMethod] = useState('tarjeta_simulado');
+    const [paymentMethod, setPaymentMethod] = useState('mercadopago');
     const [isProcessing, setIsProcessing] = useState(false);
     const [loading, setLoading] = useState(true);
 
