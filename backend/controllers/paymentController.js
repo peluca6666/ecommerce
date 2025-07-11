@@ -51,7 +51,7 @@ export const createOrder = async (req, res) => {
                failure: 'https://salomarket.shop/carrito?error=payment_failed',
                 pending: 'https://salomarket.shop/orden-confirmada'
             },
-             notification_url: 'https://salomarket.shop/webhook', // Asegúrate que tu VPS tenga HTTPS
+             notification_url: 'https://salomarket.shop/api/webhook', // Asegúrate que tu VPS tenga HTTPS
             auto_return: 'approved',
             external_reference: ventaPendiente.venta_id.toString(),
         };
