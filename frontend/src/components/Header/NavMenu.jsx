@@ -167,81 +167,90 @@ const NavMenu = ({ mobile = false, onItemClick }) => {
             </Button>
 
             <Box
-                onMouseEnter={handleMenuOpen}
-                onMouseLeave={handleMenuClose}
-            >
-                <Button
-                    color="inherit"
-                    endIcon={
-                        <ArrowDropDownIcon sx={{
-                            transform: isMenuOpen ? 'rotate(180deg)' : 'rotate(0deg)',
-                            transition: 'transform 0.2s linear'
-                        }} />
+    onMouseEnter={handleMenuOpen}
+    onMouseLeave={(e) => {
+        // Verificar si el mouse NO está yendo hacia el menú
+        const menu = document.getElementById('categories-menu');
+        if (!menu?.contains(e.relatedTarget)) {
+            handleMenuClose();
+        }
+    }}
+>
+    <Button
+        color="inherit"
+        onMouseLeave={(e) => {
+            // Si el mouse sale del botón y no entra al menú, cerrar
+            const menu = document.getElementById('categories-menu');
+            if (!menu?.contains(e.relatedTarget)) {
+                handleMenuClose();
+            }
+        }}
+        endIcon={
+            <ArrowDropDownIcon sx={{
+                transform: isMenuOpen ? 'rotate(180deg)' : 'rotate(0deg)',
+                transition: 'transform 0.2s linear'
+            }} />
+        }
+    >
+        Categorías
+    </Button>
+    <Menu
+        id="categories-menu"
+        anchorEl={anchorEl}
+        open={isMenuOpen}
+        onClose={handleMenuClose}
+        slotProps={{
+            paper: {
+                onMouseLeave: (e) => {
+                    // Si el mouse sale del menú y no va hacia el botón, cerrar
+                    const button = e.currentTarget.closest('div').previousSibling;
+                    if (e.relatedTarget !== button && !button?.contains(e.relatedTarget)) {
+                        handleMenuClose();
                     }
-                >
-                    Categorías
-                </Button>
-                <Menu
-                    id="categories-menu"
-                    anchorEl={anchorEl}
-                    open={isMenuOpen}
-                    onClose={handleMenuClose}
-                    slotProps={{
-                        list: {
-                            onMouseEnter: handleMenuEnter,
-                            onMouseLeave: handleMenuClose,
-                            style: { pointerEvents: 'auto' }
-                        },
-                        paper: {
-                            style: {
-                                marginTop: '8px',
-                                pointerEvents: 'auto',
-                            },
-                            onMouseEnter: handleMenuEnter,
-                            onMouseLeave: handleMenuClose,
-                        }
-                    }}
-                    anchorOrigin={{
-                        vertical: 'bottom',
-                        horizontal: 'left',
-                    }}
-                    transformOrigin={{
-                        vertical: 'top',
-                        horizontal: 'left',
-                    }}
-                    disableAutoFocusItem
-                    disableEnforceFocus
-                    disableAutoFocus
-                    keepMounted
-                >
+                },
+                style: {
+                    marginTop: '8px',
+                    pointerEvents: 'auto',
+                }
+            }
+        }}
+        anchorOrigin={{
+            vertical: 'bottom',
+            horizontal: 'left',
+        }}
+        transformOrigin={{
+            vertical: 'top',
+            horizontal: 'left',
+        }}
+    >
+        <MenuItem
+            component={RouterLink}
+            to="/productos"
+            onClick={handleMenuClose}
+            dense
+        >
+            Ver Todo el Catálogo
+        </MenuItem>
+        <Divider sx={{ my: 0.5 }} />
+        {loading ? (
+            <Box sx={{ p: 2 }}><CircularProgress size={24} /></Box>
+        ) : (
+            categories.map((category, index) => (
+                <div key={category.categoria_id}>
                     <MenuItem
                         component={RouterLink}
-                        to="/productos"
+                        to={`/categoria/${category.categoria_id}/productos`}
                         onClick={handleMenuClose}
                         dense
                     >
-                        Ver Todo el Catálogo
+                        {category.nombre}
                     </MenuItem>
-                    <Divider sx={{ my: 0.5 }} />
-                    {loading ? (
-                        <Box sx={{ p: 2 }}><CircularProgress size={24} /></Box>
-                    ) : (
-                        categories.map((category, index) => (
-                            <div key={category.categoria_id}>
-                                <MenuItem
-                                    component={RouterLink}
-                                    to={`/categoria/${category.categoria_id}/productos`}
-                                    onClick={handleMenuClose}
-                                    dense
-                                >
-                                    {category.nombre}
-                                </MenuItem>
-                                {index < categories.length - 1 && <Divider />}
-                            </div>
-                        ))
-                    )}
-                </Menu>
-            </Box>
+                    {index < categories.length - 1 && <Divider />}
+                </div>
+            ))
+        )}
+    </Menu>
+</Box>
                         
             {navLinks.map((navLink) => (
                 <Button 
