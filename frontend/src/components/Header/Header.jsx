@@ -47,7 +47,7 @@ const Header = () => {
                             <MenuIcon />
                         </IconButton>
                     )}
-                    <Typography
+               <Typography
     variant="h5"
     component={RouterLink}
     to="/main"
@@ -55,18 +55,26 @@ const Header = () => {
         textDecoration: 'none', 
         cursor: 'pointer',
         color: '#FF8C00',
-        fontFamily: '"Roboto", "Arial Black", sans-serif',
-        fontWeight: 900,
-        letterSpacing: '2px',
-        textTransform: 'uppercase',
-        border: '2px solid #FF8C00',
-        borderRadius: '8px',
-        padding: '4px 12px',
+        fontWeight: '600',
+        letterSpacing: '0.5px',
+        position: 'relative',
         transition: 'all 0.3s ease',
-        '&:hover': {
+        '&:after': {
+            content: '""',
+            position: 'absolute',
+            bottom: '-4px',
+            left: '50%',
+            width: '0',
+            height: '2px',
             backgroundColor: '#FF8C00',
-            color: 'white',
-            transform: 'scale(1.02)'
+            transition: 'all 0.3s ease',
+            transform: 'translateX(-50%)'
+        },
+        '&:hover': {
+            color: '#FF6B35',
+            '&:after': {
+                width: '100%'
+            }
         }
     }}
 >
