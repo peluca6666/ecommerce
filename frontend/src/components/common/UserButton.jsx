@@ -1,8 +1,7 @@
-import  { useState, useContext } from "react";
+import { useState, useContext } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { Menu, MenuItem, Button, Box, Typography,  useTheme, useMediaQuery, Divider } from "@mui/material";
-import {  AccountCircle, Logout } from "@mui/icons-material";
-
+import { Menu, MenuItem, Button, Box, Typography, useTheme, useMediaQuery, Divider, IconButton } from "@mui/material";
+import { AccountCircle, Logout, Login, PersonAdd } from "@mui/icons-material";
 import { AuthContext } from "../../context/AuthContext";
 
 const UserButton = () => {
@@ -12,65 +11,82 @@ const UserButton = () => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
 
-  // abre el menú desplegable
   const handleOpenMenu = (e) => setAnchorEl(e.currentTarget);
-
-  // cierra el menú desplegable
   const handleCloseMenu = () => setAnchorEl(null);
 
-  // navega a login y cierra menú
   const handleLogin = () => {
     handleCloseMenu();
     navigate("/login");
   };
 
-  // navega a registro y cierra menú
   const handleRegister = () => {
     handleCloseMenu();
     navigate("/register");
   };
 
-  // cierra sesión y redirige a home
   const handleLogout = () => {
     logout();
     handleCloseMenu();
     navigate("/");
   };
 
-  // navega a perfil y cierra menú
   const handleProfile = () => {
     handleCloseMenu();
     navigate("/profile");
   };
 
-  // si no está logueado, muestra botones de login y registro (ocultos en móvil)
- if (!isAuthenticated) {
+  // Versión para móvil no autenticado (iconos)
+  if (!isAuthenticated && isMobile) {
     return (
-        <Box sx={{ display: { xs: 'none', md: 'flex' }, alignItems: 'center', gap: 1 }}>
-            <Button
-                variant="text"
-                color="inherit" // Usa el color del texto del contenedor (ej. negro o blanco)
-                onClick={handleLogin}
-                sx={{ textTransform: 'none', fontWeight: 500 }}
-            >
-                Iniciar sesión  
-            </Button>
-            
-            <Divider orientation="vertical" flexItem />
-            
-            <Button
-                variant="text"
-                color="inherit"
-                onClick={handleRegister}
-                sx={{ textTransform: 'none', fontWeight: 500 }}
-            >
-               Registrarse 
-            </Button>
-        </Box>
+      <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+        <IconButton
+          color="inherit"
+          onClick={handleLogin}
+          aria-label="Iniciar sesión"
+          sx={{ p: 1 }}
+        >
+          <Login />
+        </IconButton>
+        <IconButton
+          color="inherit"
+          onClick={handleRegister}
+          aria-label="Registrarse"
+          sx={{ p: 1 }}
+        >
+          <PersonAdd />
+        </IconButton>
+      </Box>
     );
-}
+  }
 
-  // si está logueado, muestra botón con nombre y menú desplegable
+  // Versión para desktop no autenticado (texto completo)
+  if (!isAuthenticated) {
+    return (
+      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+        <Button
+          variant="text"
+          color="inherit"
+          onClick={handleLogin}
+          sx={{ textTransform: 'none', fontWeight: 500 }}
+        >
+          Iniciar sesión  
+        </Button>
+        
+        <Divider orientation="vertical" flexItem />
+        
+        <Button
+          variant="text"
+          color="inherit"
+          onClick={handleRegister}
+          sx={{ textTransform: 'none', fontWeight: 500 }}
+        >
+          Registrarse 
+        </Button>
+      </Box>
+    );
+  }
+
+  // Usuario autenticado (todas las pantallas)
   return (
     <>
       <Button
@@ -89,10 +105,11 @@ const UserButton = () => {
           },
           transition: 'all 0.3s ease-in-out',
           px: 1.5,
-          py: 0.5
+          py: 0.5,
+          minWidth: 'auto'
         }}
       >
-        <AccountCircle sx={{ mr: 0.5 }} />
+        <AccountCircle sx={{ mr: { xs: 0, sm: 0.5 } }} />
         <Typography variant="body1" sx={{ display: { xs: 'none', sm: 'block' } }}>
           {user?.nombre || 'mi cuenta'}
         </Typography>
@@ -109,6 +126,7 @@ const UserButton = () => {
             sx: {
               borderRadius: '8px',
               boxShadow: theme.shadows[6],
+              minWidth: '180px'
             }
           }
         }}

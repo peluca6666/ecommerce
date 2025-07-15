@@ -33,6 +33,10 @@ const Header = () => {
                 <ListItem sx={{ px: 2, display: 'flex', flexDirection: 'column', alignItems: 'stretch', gap: 1 }}>
                     <NavMenu mobile onItemClick={() => setDrawerOpen(false)} />
                 </ListItem>
+                {/* Agregar UserButton en el drawer móvil si es necesario */}
+                <ListItem sx={{ px: 2, pt: 2 }}>
+                    <UserButton mobile />
+                </ListItem>
             </List>
         </Drawer>
     );
@@ -40,63 +44,71 @@ const Header = () => {
     return (
         <AppBar position="sticky" color="white" elevation={1}>
             <Container maxWidth="xl">
-            <Toolbar sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                    {isMobile && (
-                        <IconButton color="inherit" edge="start" onClick={handleDrawerToggle} sx={{ mr: 1 }}>
-                            <MenuIcon />
-                        </IconButton>
-                    )}
-    <Typography
-    variant="h5"
-    component={RouterLink}
-    to="/main"
-    sx={{ 
-        textDecoration: 'none', 
-        cursor: 'pointer',
-        background: 'linear-gradient(45deg, #FF8C00, #FF6B35, #FF4500)',
-        WebkitBackgroundClip: 'text',
-        WebkitTextFillColor: 'transparent',
-        fontWeight: 'bold',
-        letterSpacing: '0.5px',
-        transition: 'all 0.3s ease',
-        '&:hover': {
-            transform: 'scale(1.05)',
-            filter: 'brightness(1.2)'
-        }
-    }}
->
-    S a l o m a r k e t
-</Typography>
-                </Box>
-                
-                {!isMobile && (
-                    <Box sx={{ flex: 1, display: 'flex', justifyContent: 'center', px: 4 }}>
-                         <SearchBar />
+                <Toolbar sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                        {isMobile && (
+                            <IconButton color="inherit" edge="start" onClick={handleDrawerToggle} sx={{ mr: 1 }}>
+                                <MenuIcon />
+                            </IconButton>
+                        )}
+                        <Typography
+                            variant="h5"
+                            component={RouterLink}
+                            to="/main"
+                            sx={{
+                                textDecoration: 'none',
+                                cursor: 'pointer',
+                                background: 'linear-gradient(45deg, #FF8C00, #FF6B35, #FF4500)',
+                                WebkitBackgroundClip: 'text',
+                                WebkitTextFillColor: 'transparent',
+                                fontWeight: 'bold',
+                                letterSpacing: '0.5px',
+                                transition: 'all 0.3s ease',
+                                '&:hover': {
+                                    transform: 'scale(1.05)',
+                                    filter: 'brightness(1.2)'
+                                }
+                            }}
+                        >
+                            S a l o m a r k e t
+                        </Typography>
                     </Box>
-                )}
+                    
+                    {!isMobile && (
+                        <Box sx={{ flex: 1, display: 'flex', justifyContent: 'center', px: 4 }}>
+                            <SearchBar />
+                        </Box>
+                    )}
 
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 1, sm: 2 } }}>
-                   <UserButton />
-                  <CartDropdown />                   
-                </Box>
-            </Toolbar>
-            </Container>
-  {!isMobile && <Divider />}
-            {!isMobile && (
-              <Container maxWidth="xl">
-                 <Toolbar 
-                    variant="dense" 
-                    sx={{ 
-                        justifyContent: 'center',         
-                        color: 'black' 
-                    }}
-                >
-                    <NavMenu />
+                    <Box sx={{ 
+                        display: 'flex', 
+                        alignItems: 'center', 
+                        gap: { xs: 1, sm: 2 },
+                        // Asegurarse de que siempre sea visible
+                        visibility: { xs: 'visible', md: 'visible' }
+                    }}>
+                        {/* UserButton siempre visible */}
+                        <Box sx={{ display: { xs: 'block', md: 'block' } }}>
+                            <UserButton />
+                        </Box>
+                        <CartDropdown />
+                    </Box>
                 </Toolbar>
-              </Container>
-                
-            )}  
+            </Container>
+            {!isMobile && <Divider />}
+            {!isMobile && (
+                <Container maxWidth="xl">
+                    <Toolbar
+                        variant="dense"
+                        sx={{
+                            justifyContent: 'center',        
+                            color: 'black'
+                        }}
+                    >
+                        <NavMenu />
+                    </Toolbar>
+                </Container>
+            )}
             {mobileDrawer}
         </AppBar>
     );
