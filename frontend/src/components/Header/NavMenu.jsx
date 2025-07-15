@@ -1,14 +1,10 @@
 import { useState, useEffect } from 'react';
-import { Button, Box, Drawer, List, ListItemButton, ListItemText, ListItemIcon, Typography, Divider, IconButton, CircularProgress, Collapse, Badge } from "@mui/material";
+import { Button, Box, Drawer, List, ListItemButton, ListItemText, ListItemIcon, Typography, Divider, IconButton, CircularProgress, Collapse } from "@mui/material";
 import { Link as RouterLink } from 'react-router-dom';
 import { ExpandLess, ExpandMore, AdminPanelSettings, Category, Close, ViewList, LocalOffer, ArrowForwardIos, Menu as MenuIcon } from '@mui/icons-material';
 import { useAuth } from '../../context/AuthContext';
 
 // --- DEFINICIÓN DE DATOS Y ESTILOS ---
-
-const navLinks = [
-    { text: 'OFERTAS', path: "/productos?es_oferta=true", icon: <LocalOffer /> }
-];
 
 const styles = {
     // Estilos del Drawer (Sidebar)
@@ -59,7 +55,7 @@ const styles = {
         offerButton: { background: 'linear-gradient(45deg, #FF6B6B, #FF8E8E)', color: 'white', '& .MuiSvgIcon-root': { color: 'white' } },
         listItem: { pl: 4, mb: 0.5, borderRadius: 2 },
     },
-    // Nuevos estilos para categorías en línea
+    // Estilos para el contenedor principal
     desktopNavContainer: {
         display: 'flex',
         alignItems: 'center',
@@ -70,6 +66,7 @@ const styles = {
         msOverflowStyle: 'none',
         scrollbarWidth: 'none'
     },
+    // Estilos para botones de categoría
     categoryButton: {
         whiteSpace: 'nowrap',
         textTransform: 'none',
@@ -189,11 +186,15 @@ const NavMenu = ({ mobile = false, onItemClick }) => {
                     {loading ? <CircularProgress sx={{ ml: 4, my: 2 }} size={24}/> : <CategoryList categories={categories} onItemClick={onItemClick} mobile />}
                 </Collapse>
 
-                {navLinks.map(link => (
-                    <Button key={link.text} component={RouterLink} to={link.path} onClick={onItemClick} startIcon={link.icon} sx={{ ...styles.navButton, ...styles.mobile.baseButton, ...styles.mobile.offerButton }}>
-                        {link.text}
-                    </Button>
-                ))}
+                <Button 
+                    component={RouterLink} 
+                    to="/productos?es_oferta=true" 
+                    onClick={onItemClick} 
+                    startIcon={<LocalOffer />} 
+                    sx={{ ...styles.navButton, ...styles.mobile.baseButton, ...styles.mobile.offerButton }}
+                >
+                    OFERTAS
+                </Button>
             </Box>
         );
     }
@@ -210,7 +211,16 @@ const NavMenu = ({ mobile = false, onItemClick }) => {
             <Button component={RouterLink} to="/" sx={styles.navButton}>INICIO</Button>
 
             <Button onClick={() => setSidebarOpen(true)} startIcon={<MenuIcon />} sx={styles.navButton}>
-             Categorías
+                Categorías
+            </Button>
+
+            <Button 
+                component={RouterLink} 
+                to="/productos?es_oferta=true" 
+                startIcon={<LocalOffer />} 
+                sx={{ ...styles.navButton, ...styles.desktop.offerButton }}
+            >
+                OFERTAS
             </Button>
 
             {!loading && categories.map((cat) => (
@@ -219,7 +229,6 @@ const NavMenu = ({ mobile = false, onItemClick }) => {
                     component={RouterLink}
                     to={`/categoria/${cat.categoria_id}/productos`}
                     sx={styles.categoryButton}
-                    startIcon={<Category fontSize="small" />}
                 >
                     {cat.nombre}
                 </Button>
@@ -228,12 +237,6 @@ const NavMenu = ({ mobile = false, onItemClick }) => {
             <Drawer anchor="left" open={sidebarOpen} onClose={() => setSidebarOpen(false)} slotProps={{ paper: { sx: styles.drawer.paper } }}>
                 <SidebarContent loading={loading} categories={categories} onItemClick={createAndClose} onClose={() => setSidebarOpen(false)} />
             </Drawer>
-
-            {navLinks.map(link => (
-                <Button key={link.text} component={RouterLink} to={link.path} startIcon={link.icon} sx={{ ...styles.navButton, ...styles.desktop.offerButton }}>
-                    {link.text}
-                </Button>
-            ))}
         </Box>
     );
 };
