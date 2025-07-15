@@ -39,7 +39,7 @@ const styles = {
         loaderBox: { display: 'flex', flexDirection: 'column', alignItems: 'center', py: 5, gap: 2 },
     },
     // Estilos base para botones de navegación
-     navButton: {
+    navButton: {
         color: 'black',
         textTransform: 'none', borderRadius: 2, py: 0.75, px: 1.5,
         transition: 'transform 0.2s, background-color 0.2s',
@@ -58,6 +58,31 @@ const styles = {
         categoryToggle: { bgcolor: 'action.hover' },
         offerButton: { background: 'linear-gradient(45deg, #FF6B6B, #FF8E8E)', color: 'white', '& .MuiSvgIcon-root': { color: 'white' } },
         listItem: { pl: 4, mb: 0.5, borderRadius: 2 },
+    },
+    // Nuevos estilos para categorías en línea
+    desktopNavContainer: {
+        display: 'flex',
+        alignItems: 'center',
+        gap: 1,
+        flexWrap: 'nowrap',
+        overflowX: 'auto',
+        '&::-webkit-scrollbar': { display: 'none' },
+        msOverflowStyle: 'none',
+        scrollbarWidth: 'none'
+    },
+    categoryButton: {
+        whiteSpace: 'nowrap',
+        textTransform: 'none',
+        borderRadius: 2,
+        px: 1.5,
+        py: 0.75,
+        color: 'text.primary',
+        '&:hover': {
+            backgroundColor: 'rgba(0,0,0,0.04)',
+            transform: 'translateY(-1px)'
+        },
+        transition: 'all 0.2s ease',
+        minWidth: 'auto'
     }
 };
 
@@ -67,7 +92,7 @@ const styles = {
 const CategoryList = ({ categories, onItemClick, mobile = false }) => (
     <List disablePadding sx={{ mt: mobile ? 1 : 0 }}>
         {mobile && (
-             <ListItemButton component={RouterLink} to="/productos" onClick={onItemClick} sx={styles.mobile.listItem}>
+            <ListItemButton component={RouterLink} to="/productos" onClick={onItemClick} sx={styles.mobile.listItem}>
                 <ListItemIcon sx={styles.sidebar.listItemIcon}><ViewList fontSize="small" /></ListItemIcon>
                 <ListItemText primary="Ver Todo el Catálogo" />
             </ListItemButton>
@@ -175,7 +200,7 @@ const NavMenu = ({ mobile = false, onItemClick }) => {
 
     // --- RENDERIZADO VISTA DESKTOP ---
     return (
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+        <Box sx={styles.desktopNavContainer}>
             {user?.rol === 'admin' && (
                 <Button component={RouterLink} to="/admin" variant="outlined" sx={{ ...styles.navButton, ...styles.desktop.adminButton }}>
                     Admin
@@ -185,11 +210,22 @@ const NavMenu = ({ mobile = false, onItemClick }) => {
             <Button component={RouterLink} to="/" sx={styles.navButton}>INICIO</Button>
 
             <Button onClick={() => setSidebarOpen(true)} startIcon={<MenuIcon />} sx={styles.navButton}>
-                Categorías
-                {!loading && categories.length > 0 && <Badge badgeContent={categories.length} color="secondary" sx={{ ml: 1.5 }} />}
+             Categorías
             </Button>
-            
-            <Drawer anchor="left" open={sidebarOpen} onClose={() => setSidebarOpen(false)} PaperProps={{ sx: styles.drawer.paper }}>
+
+            {!loading && categories.map((cat) => (
+                <Button
+                    key={cat.categoria_id}
+                    component={RouterLink}
+                    to={`/categoria/${cat.categoria_id}/productos`}
+                    sx={styles.categoryButton}
+                    startIcon={<Category fontSize="small" />}
+                >
+                    {cat.nombre}
+                </Button>
+            ))}
+
+            <Drawer anchor="left" open={sidebarOpen} onClose={() => setSidebarOpen(false)} slotProps={{ paper: { sx: styles.drawer.paper } }}>
                 <SidebarContent loading={loading} categories={categories} onItemClick={createAndClose} onClose={() => setSidebarOpen(false)} />
             </Drawer>
 
