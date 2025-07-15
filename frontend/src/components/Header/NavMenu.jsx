@@ -136,7 +136,7 @@ const NavMenu = ({ mobile = false, onItemClick }) => {
 
     return (
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-            {/* mostrar botón admin en vista escritorio si es admin */}
+            /* mostrar botón admin en vista escritorio si es admin */
             {user && user.rol === 'admin' && (
                 <Button
                     color="inherit"
@@ -155,6 +155,16 @@ const NavMenu = ({ mobile = false, onItemClick }) => {
                     Admin
                 </Button>
             )}
+
+            /* Botón "Inicio" que lleva al main de la página */
+            <Button
+                color="inherit"
+                component={RouterLink}
+                to="/"
+                sx={{ textTransform: 'none' }}
+            >
+                Inicio
+            </Button>
 
             <Box
                 onMouseEnter={handleMenuOpen}
@@ -232,8 +242,8 @@ const NavMenu = ({ mobile = false, onItemClick }) => {
                     )}
                 </Menu>
             </Box>
-            
-            {/* Enlaces de navegación (OFERTAS) en desktop */}
+                        
+            {/* Enlaces de navegación (OFERTAS) en desktop */}}
             {navLinks.map((navLink) => (
                 <Button 
                     key={navLink.texto} 
