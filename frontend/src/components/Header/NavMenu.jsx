@@ -118,16 +118,16 @@ const NavMenu = ({ mobile = false, onItemClick }) => {
                 </Collapse>
 
                 {/* 'OFERTAS' en vista móvil */}
-                {navLinks.map((link) => (
+                {navLinks.map((navLink) => (
                     <Button
-                        key={link.texto}
+                        key={navLink.texto}
                         color="inherit"
                         component={RouterLink}
-                        to={link.ruta}
+                        to={navLink.ruta}
                         onClick={onItemClick}
                         sx={mobileButtonStyle}
                     >
-                        {link.texto}
+                        {navLink.texto}
                     </Button>
                 ))}
             </Box>
@@ -233,12 +233,20 @@ const NavMenu = ({ mobile = false, onItemClick }) => {
                 </Menu>
             </Box>
             
-            {navLinks.map((link) => (
-                <Button key={link.texto} color="inherit" component={RouterLink} to={link.ruta} sx={{ textTransform: 'none' }}>
-                    {link.texto}
+            {/* Enlaces de navegación (OFERTAS) en desktop */}
+            {navLinks.map((navLink) => (
+                <Button 
+                    key={navLink.texto} 
+                    color="inherit" 
+                    component={RouterLink} 
+                    to={navLink.ruta} 
+                    sx={{ textTransform: 'none' }}
+                >
+                    {navLink.texto}
                 </Button>
             ))}
             
+            {/* Botones individuales de categorías en desktop */}
             {categories.map((category) => (
                 <Button
                     key={category.categoria_id}
