@@ -232,7 +232,7 @@ const NavMenu = ({ mobile = false, onItemClick }) => {
                 </Menu>
             </Box>
        
-            {navLinks.map((link) => (
+             {navLinks.map((link) => (
                 <Button key={link.texto} color="inherit" component={RouterLink} to={link.ruta} sx={{ textTransform: 'none' }}>
                     {link.texto}
                 </Button>
