@@ -172,9 +172,12 @@ const NavMenu = ({ mobile = false, onItemClick }) => {
                 Inicio
             </Button>
 
-            <Box
+             <Box
                 onMouseEnter={handleMenuOpen}
                 onMouseLeave={handleMenuClose}
+                // Añadimos 'position: relative' para que el menú se posicione correctamente
+                // si el Box contenedor es el anchor del Menu.
+                sx={{ position: 'relative' }}
             >
                 <Button
                     color="inherit"
@@ -184,6 +187,8 @@ const NavMenu = ({ mobile = false, onItemClick }) => {
                             transition: 'transform 0.2s linear'
                         }} />
                     }
+                    // Quita el onClick para que solo funcione con hover
+                    // onClick={handleMenuOpen} // ¡Elimina o comenta esta línea!
                 >
                     Categorías
                 </Button>
@@ -191,20 +196,20 @@ const NavMenu = ({ mobile = false, onItemClick }) => {
                     id="categories-menu"
                     anchorEl={anchorEl}
                     open={isMenuOpen}
-                    onClose={handleMenuClose}
+                    onClose={handleMenuClose} // Esto seguirá cerrando el menú si haces clic fuera
                     slotProps={{
                         list: {
-                            onMouseEnter: handleMenuEnter,
-                            onMouseLeave: handleMenuClose,
-                            style: { pointerEvents: 'auto' }
+                            // Eliminamos onMouseEnter/onMouseLeave de la lista interna
+                            // para que el Box padre maneje la lógica de entrada/salida.
+                            // style: { pointerEvents: 'auto' } // Esto se mantiene para permitir interacción
                         },
                         paper: {
                             style: {
                                 marginTop: '8px',
                                 pointerEvents: 'auto',
                             },
-                            onMouseEnter: handleMenuEnter,
-                            onMouseLeave: handleMenuClose,
+                            // Eliminamos onMouseEnter/onMouseLeave del Paper interno
+                            // para que el Box padre maneje la lógica de entrada/salida.
                         }
                     }}
                     anchorOrigin={{
@@ -248,6 +253,7 @@ const NavMenu = ({ mobile = false, onItemClick }) => {
                     )}
                 </Menu>
             </Box>
+
                         
             {navLinks.map((navLink) => (
                 <Button 
