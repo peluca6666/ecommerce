@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react';
-import { Button, Box, Drawer, List, ListItemButton, ListItemText, ListItemIcon, Typography, Divider, IconButton, CircularProgress, Collapse } from "@mui/material";
+import { Button, Box, Drawer, List, ListItemButton, ListItemText, Typography, Divider, IconButton, CircularProgress, Collapse } from "@mui/material";
 import { Link as RouterLink } from 'react-router-dom';
-import { ExpandLess, ExpandMore, AdminPanelSettings, Category, Close, ViewList, LocalOffer, ArrowForwardIos, Menu as MenuIcon } from '@mui/icons-material';
+import { ExpandLess, ExpandMore, AdminPanelSettings, Close, ViewList, LocalOffer, Menu as MenuIcon } from '@mui/icons-material';
 import { useAuth } from '../../context/AuthContext';
 
-// --- DEFINICIÓN DE DATOS Y ESTILOS ---
+// --- DEFINICIÓN DE ESTILOS ---
 
 const styles = {
     // Estilos del Drawer (Sidebar)
@@ -27,11 +27,8 @@ const styles = {
             mb: 0.5, borderRadius: 2, transition: 'transform 0.2s, background-color 0.2s',
             '&:hover': {
                 background: 'rgba(0,0,0,0.04)', transform: 'translateX(4px)',
-                '& .category-arrow': { opacity: 1 },
             },
         },
-        listItemIcon: { minWidth: 38, color: 'text.secondary' },
-        arrowIcon: { opacity: 0, transition: 'opacity 0.2s', fontSize: '1rem', color: 'text.secondary' },
         loaderBox: { display: 'flex', flexDirection: 'column', alignItems: 'center', py: 5, gap: 2 },
     },
     // Estilos base para botones de navegación
@@ -80,18 +77,31 @@ const styles = {
         },
         transition: 'all 0.2s ease',
         minWidth: 'auto'
+    },
+    // Estilo para items de categoría simplificados
+    simpleCategoryItem: {
+        pl: 3,
+        mb: 0.5,
+        borderRadius: 2,
+        '&:hover': {
+            backgroundColor: 'rgba(0,0,0,0.04)',
+        }
     }
 };
 
 // --- SUB-COMPONENTES PARA MAYOR CLARIDAD ---
 
-/** Muestra la lista de categorías, adaptable para sidebar o móvil. */
-const CategoryList = ({ categories, onItemClick, mobile = false }) => (
+/** Muestra la lista de categorías simplificada */
+const SimpleCategoryList = ({ categories, onItemClick, mobile = false }) => (
     <List disablePadding sx={{ mt: mobile ? 1 : 0 }}>
         {mobile && (
-            <ListItemButton component={RouterLink} to="/productos" onClick={onItemClick} sx={styles.mobile.listItem}>
-                <ListItemIcon sx={styles.sidebar.listItemIcon}><ViewList fontSize="small" /></ListItemIcon>
-                <ListItemText primary="Ver Todo el Catálogo" />
+            <ListItemButton 
+                component={RouterLink} 
+                to="/productos" 
+                onClick={onItemClick} 
+                sx={styles.mobile.listItem}
+            >
+                <ListItemText primary="- Ver Todo el Catálogo" primaryTypographyProps={{ fontWeight: 500 }} />
             </ListItemButton>
         )}
         {categories.map((cat) => (
@@ -100,11 +110,9 @@ const CategoryList = ({ categories, onItemClick, mobile = false }) => (
                 component={RouterLink}
                 to={`/categoria/${cat.categoria_id}/productos`}
                 onClick={onItemClick}
-                sx={mobile ? styles.mobile.listItem : styles.sidebar.listItem}
+                sx={mobile ? styles.mobile.listItem : styles.simpleCategoryItem}
             >
-                <ListItemIcon sx={!mobile && styles.sidebar.listItemIcon}><Category fontSize="small" /></ListItemIcon>
-                <ListItemText primary={cat.nombre} primaryTypographyProps={{ fontWeight: 500 }} />
-                {!mobile && <ArrowForwardIos sx={styles.sidebar.arrowIcon} className="category-arrow" />}
+                <ListItemText primary={`- ${cat.nombre}`} primaryTypographyProps={{ fontWeight: 500 }} />
             </ListItemButton>
         ))}
     </List>
@@ -122,7 +130,7 @@ const SidebarContent = ({ loading, categories, onItemClick, onClose }) => (
         </Box>
 
         <Box sx={styles.sidebar.content}>
-            <Button fullWidth component={RouterLink} to="/productos" onClick={onItemClick} sx={styles.sidebar.catalogButton} >
+            <Button fullWidth component={RouterLink} to="/productos" onClick={onItemClick} sx={styles.sidebar.catalogButton}>
                 Ver Todo el Catálogo
             </Button>
             <Divider sx={{ my: 2 }} />
@@ -132,7 +140,7 @@ const SidebarContent = ({ loading, categories, onItemClick, onClose }) => (
                     <Typography variant="body2" color="text.secondary">Cargando...</Typography>
                 </Box>
             ) : (
-                <CategoryList categories={categories} onItemClick={onItemClick} />
+                <SimpleCategoryList categories={categories} onItemClick={onItemClick} />
             )}
         </Box>
     </>
@@ -183,7 +191,7 @@ const NavMenu = ({ mobile = false, onItemClick }) => {
                 </Button>
 
                 <Collapse in={openMobileCategories} timeout="auto" unmountOnExit>
-                    {loading ? <CircularProgress sx={{ ml: 4, my: 2 }} size={24}/> : <CategoryList categories={categories} onItemClick={onItemClick} mobile />}
+                    {loading ? <CircularProgress sx={{ ml: 4, my: 2 }} size={24}/> : <SimpleCategoryList categories={categories} onItemClick={onItemClick} mobile />}
                 </Collapse>
 
                 <Button 
