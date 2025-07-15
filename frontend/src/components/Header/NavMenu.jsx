@@ -1,39 +1,103 @@
 import { useState, useEffect } from 'react';
-import { Button, Box, Menu, MenuItem, CircularProgress, Divider, Collapse, List, ListItemButton, ListItemText } from "@mui/material";
+import {  Button, Box, Drawer, List, ListItemButton, ListItemText, ListItemIcon, Typography, Divider, IconButton, CircularProgress, Collapse, Badge, MenuItem} from "@mui/material";
 import { Link as RouterLink } from 'react-router-dom';
-import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
-import ExpandLess from '@mui/icons-material/ExpandLess';
-import ExpandMore from '@mui/icons-material/ExpandMore';
-import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
-
-// importamos el hook useAuth para acceder al contexto
+import { ExpandLess, ExpandMore, AdminPanelSettings, Category, Close, ViewList, LocalOffer, ArrowForwardIos,  Menu as MenuIcon } from '@mui/icons-material';
 import { useAuth } from '../../context/AuthContext';
 
 const navLinks = [
-    { texto: 'OFERTAS', ruta: "/productos?es_oferta=true" }
+    { text: 'OFERTAS', path: "/productos?es_oferta=true", icon: <LocalOffer /> }
 ];
 
+const styles = {
+    // Estilos generales para el drawer del sidebar
+    drawerPaper: { width: 350, border: 'none' },
+    sidebarHeader: { 
+        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', 
+        color: 'white', 
+        p: 3 
+    },
+    // Estilo para el botón "Ver Todo el Catálogo" en el sidebar
+    catalogButton: {
+        background: 'linear-gradient(45deg, #FF6B6B, #FF8E8E)', 
+        color: 'white', 
+        py: 2, 
+        borderRadius: 3,
+        textTransform: 'none', 
+        fontWeight: 600, 
+        boxShadow: '0 4px 20px rgba(255,107,107,0.3)',
+        '&:hover': { 
+            background: 'linear-gradient(45deg, #FF5252, #FF7979)', 
+            transform: 'translateY(-2px)' 
+        }
+    },
+    // Estilo base para los ítems de categoría en el sidebar 
+    sidebarCategoryItem: {
+        mb: 1, 
+        borderRadius: 2, 
+        background: 'rgba(0,0,0,0.02)',
+        color: 'black', 
+        '&:hover': { 
+            background: 'rgba(0,0,0,0.05)', 
+            color: 'black', 
+            transform: 'translateX(8px)',
+            '& .category-arrow': { opacity: 1, transform: 'translateX(0)' }
+        },
+        '& .MuiListItemIcon-root': { 
+            minWidth: 40,
+            '& .MuiSvgIcon-root': {
+                fontSize: 22, 
+                color: 'black' 
+            }
+        },
+        '& .category-arrow': { 
+            fontSize: 14, 
+            opacity: 0, 
+            transform: 'translateX(-10px)'
+        }
+    },
+    // Estilo base para todos los botones de navegación (desktop y móvil)
+    navButtonBase: {
+        textTransform: 'none', 
+        fontWeight: 600, 
+        borderRadius: 2,
+        color: 'black',
+        '&:hover': { 
+            bgcolor: 'rgba(0,0,0,0.05)', 
+            transform: 'translateY(-1px)',
+            color: 'black' 
+        },
+        '& .MuiSvgIcon-root': {
+            color: 'black' 
+        }
+    },
+    mobileButton: {
+        width: '100%', 
+        justifyContent: 'flex-start', 
+        py: 1.5, 
+        px: 2, 
+        mb: 1, 
+        borderRadius: 2
+    }
+};
+
 const NavMenu = ({ mobile = false, onItemClick }) => {
-    // sacamos el usuario del contexto para saber si es admin
     const { user } = useAuth();
-
     const [categories, setCategories] = useState([]);
-    const [anchorEl, setAnchorEl] = useState(null);
     const [loading, setLoading] = useState(true);
-    const [openDelay, setOpenDelay] = useState(null);
     const [openMobileCategories, setOpenMobileCategories] = useState(false);
-    const isMenuOpen = Boolean(anchorEl);
+    const [sidebarOpen, setSidebarOpen] = useState(false);
 
+    // Función para obtener categorías
     useEffect(() => {
         const fetchCategories = async () => {
             try {
-                const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/categoria`);
-                if (!response.ok) throw new Error('error al cargar categorías');
-                const data = await response.json();
+                const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/categoria`);
+                if (!res.ok) throw new Error('Failed to fetch categories');
+                const data = await res.json();
                 setCategories(data.datos.filter(cat => cat.activo));
-            } catch (error) {
-                console.error("error fetching categories:", error);
-                setCategories([]);
+            } catch (err) {
+                console.error("Error fetching categories:", err);
+                setCategories([]); 
             } finally {
                 setLoading(false);
             }
@@ -41,124 +105,166 @@ const NavMenu = ({ mobile = false, onItemClick }) => {
         fetchCategories();
     }, []);
 
-    const [menuHovered, setMenuHovered] = useState(false);
-    const [buttonHovered, setButtonHovered] = useState(false);
-
-    const handleMenuOpen = (event) => {
-        setAnchorEl(event.currentTarget);
-        setButtonHovered(true);
+    // Manejador para cerrar el sidebar y ejecutar el click del ítem
+    const handleSidebarCloseAndClick = () => {
+        setSidebarOpen(false);
+        onItemClick?.(); 
     };
 
-    const handleMenuClose = () => {
-        // Solo cerrar si ni el botón ni el menú están siendo hovered
-        if (!buttonHovered && !menuHovered) {
-            setAnchorEl(null);
-            if (onItemClick) onItemClick();
-        }
-    };
+    // Componente interno para el Sidebar de categorías
+    const CategorySidebar = () => (
+        <Box sx={styles.sidebar}>
+            {/* Header del Sidebar */}
+            <Box sx={styles.sidebarHeader}>
+                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+            {/* Aquí es donde haces el cambio */}
+            <MenuIcon sx={{ fontSize: 28 }} /> 
+            <Typography variant="h5" fontWeight={700}>Categorías</Typography>
+        </Box>
+        <IconButton onClick={() => setSidebarOpen(false)} sx={{ color: 'white' }}>
+            <Close />
+        </IconButton>
+    </Box>
+            </Box>
 
-    const handleButtonMouseLeave = () => {
-        setButtonHovered(false);
-        // Usar setTimeout para permitir la verificación del nuevo hover state
-        setTimeout(handleMenuClose, 50);
-    };
+            {/* Contenido del Sidebar */}
+            <Box sx={{ p: 2, height: 'calc(100% - 80px)', overflow: 'auto' }}>
+                <Button
+                    component={RouterLink} to="/productos" onClick={handleSidebarCloseAndClick}
+                    fullWidth variant="contained" size="large" sx={styles.catalogButton}
+                    startIcon={<ViewList />}
+                >
+                    Ver Todo el Catálogo
+                </Button>
+                
+                <Divider sx={{ my: 3 }} />
 
-    const handleMenuMouseEnter = () => {
-        setMenuHovered(true);
-    };
+                {loading ? (
+                    <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', p: 6, gap: 2 }}>
+                        <CircularProgress size={40} />
+                        <Typography variant="body2" color="text.secondary">Cargando...</Typography>
+                    </Box>
+                ) : (
+                    <List disablePadding> 
+                        {categories.map((category) => (
+                            <ListItemButton
+                                key={category.categoria_id}
+                                component={RouterLink}
+                                to={`/categoria/${category.categoria_id}/productos`}
+                                onClick={handleSidebarCloseAndClick}
+                                sx={styles.sidebarCategoryItem} 
+                            >
+                                <ListItemIcon><Category /></ListItemIcon> 
+                                <ListItemText primary={category.nombre} />
+                                <ArrowForwardIos className="category-arrow" />
+                            </ListItemButton>
+                        ))}
+                    </List>
+                )}
+            </Box>
+        </Box>
+    );
 
-    const handleMenuMouseLeave = () => {
-        setMenuHovered(false);
-        setTimeout(handleMenuClose, 50);
-    };
-
-
-
-    const handleToggleMobileCategories = () => {
-        setOpenMobileCategories(!openMobileCategories);
-    };
-
+    // --- Vista móvil ---
     if (mobile) {
-        const mobileButtonStyle = {
-            justifyContent: 'flex-start',
-            width: '100%',
-            py: 1.5,
-            px: 2,
-            textAlign: 'left'
-        };
-
         return (
-            <Box sx={{ width: '100%' }}>
-                {/* mostrar botón admin en vista móvil si es admin */}
-                {user && user.rol === 'admin' && (
+            <Box sx={{ width: '100%', p: 1 }}>
+                {user?.rol === 'admin' && (
                     <Button
-                        color="inherit"
-                        component={RouterLink}
-                        to="/admin"
-                        onClick={onItemClick}
-                        sx={{ ...mobileButtonStyle, color: 'secondary.main', fontWeight: 'bold' }}
-                        startIcon={<AdminPanelSettingsIcon />}
+                        component={RouterLink} to="/admin" onClick={onItemClick}
+                        sx={{ 
+                            ...styles.navButtonBase, 
+                            ...styles.mobileButton, 
+                            color: 'secondary.main', 
+                            fontWeight: 'bold', 
+                            border: '1px solid', borderColor: 'secondary.main', mb: 2,
+                            '& .MuiSvgIcon-root': { color: 'secondary.main' } 
+                        }}
                     >
                         Panel de Admin
                     </Button>
                 )}
 
-                <Button sx={mobileButtonStyle} onClick={handleToggleMobileCategories}>
-                    <ListItemText primary="Categorías" />
-                    {openMobileCategories ? <ExpandLess /> : <ExpandMore />}
+                <Button 
+                    sx={{ 
+                        ...styles.navButtonBase, 
+                        ...styles.mobileButton, 
+                        bgcolor: 'rgba(0,0,0,0.02)', 
+                        border: '1px solid rgba(0,0,0,0.08)' 
+                    }} 
+                    onClick={() => setOpenMobileCategories(!openMobileCategories)}
+                    startIcon={<MenuItem sx={{ color: 'secondary.main' }} />} 
+                    endIcon={openMobileCategories ? <ExpandLess /> : <ExpandMore />} 
+                >
+                    Categorías
                 </Button>
 
                 <Collapse in={openMobileCategories} timeout="auto" unmountOnExit>
-                    <List component="div" disablePadding>
-                        <ListItemButton sx={{ pl: 4 }} component={RouterLink} to="/productos" onClick={onItemClick}>
+                    <List sx={{ pl: 2, mt: 1 }}>
+                        <ListItemButton 
+                            component={RouterLink} to="/productos" onClick={onItemClick}
+                            sx={{ 
+                                ...styles.navButtonBase, 
+                                borderRadius: 2, mb: 0.5, 
+                                bgcolor: 'rgba(255,107,107,0.1)',
+                                '&:hover': { bgcolor: 'rgba(255,107,107,0.2)' },
+                                '& .MuiSvgIcon-root': { fontSize: 20 } 
+                            }}
+                        >
+                            <ListItemIcon><ViewList /></ListItemIcon> 
                             <ListItemText primary="Ver Todo el Catálogo" />
                         </ListItemButton>
                         {categories.map(category => (
                             <ListItemButton
                                 key={category.categoria_id}
-                                sx={{ pl: 4 }}
                                 component={RouterLink}
                                 to={`/categoria/${category.categoria_id}/productos`}
                                 onClick={onItemClick}
+                                sx={{ 
+                                    ...styles.navButtonBase, 
+                                    borderRadius: 2, mb: 0.5,
+                                    '& .MuiSvgIcon-root': { fontSize: 18 } 
+                                }}
                             >
+                                <ListItemIcon><Category /></ListItemIcon> 
                                 <ListItemText primary={category.nombre} />
                             </ListItemButton>
                         ))}
                     </List>
                 </Collapse>
 
-                {/* 'OFERTAS' en vista móvil */}
                 {navLinks.map((navLink) => (
                     <Button
-                        key={navLink.texto}
-                        color="inherit"
-                        component={RouterLink}
-                        to={navLink.ruta}
-                        onClick={onItemClick}
-                        sx={mobileButtonStyle}
+                        key={navLink.text} component={RouterLink} to={navLink.path} onClick={onItemClick}
+                        sx={{ 
+                            ...styles.mobileButton, 
+                            background: 'linear-gradient(45deg, #FF6B6B, #FF8E8E)', 
+                            color: 'white', 
+                            fontWeight: 600,
+                            '& .MuiSvgIcon-root': { color: 'white' }
+                        }}
+                        startIcon={navLink.icon} 
                     >
-                        {navLink.texto}
+                        {navLink.text}
                     </Button>
                 ))}
             </Box>
         );
     }
 
+    // --- Vista desktop ---
     return (
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-            {/* Mostrar botón de admin si es admin */}
-            {user && user.rol === 'admin' && (
+            {user?.rol === 'admin' && (
                 <Button
-                    color="inherit"
-                    component={RouterLink}
-                    to="/admin"
-                    variant="outlined"
-                    startIcon={<AdminPanelSettingsIcon />}
-                    sx={{
-                        borderColor: 'rgba(255, 255, 255, 0.5)',
+                    component={RouterLink} to="/admin" variant="outlined"
+                    sx={{ 
+                        ...styles.navButtonBase, 
+                        borderColor: 'rgba(0, 0, 0, 0.5)', 
                         '&:hover': {
-                            borderColor: 'white',
-                            bgcolor: 'rgba(255, 255, 255, 0.1)'
+                            borderColor: 'black', 
+                            bgcolor: 'rgba(0, 0, 0, 0.1)' 
                         }
                     }}
                 >
@@ -166,106 +272,33 @@ const NavMenu = ({ mobile = false, onItemClick }) => {
                 </Button>
             )}
 
-            <Button
-                variant="text"
-                 color="inherit"
-                component={RouterLink}
-                to="/"
-                sx={{ textTransform: 'none', fontWeight: 500 }}
-            >
-                INICIO
-            </Button>
+            <Button component={RouterLink} to="/" sx={styles.navButtonBase}>INICIO</Button>
 
-           <Box
-                onMouseEnter={handleMenuOpen}
-                onMouseLeave={handleButtonMouseLeave}
+            <Button onClick={() => setSidebarOpen(true)} startIcon={<MenuIcon />} sx={styles.navButtonBase}>
+    Categorías
+    {categories.length > 0 && <Badge badgeContent={categories.length} color="secondary" sx={{ ml: 1 }} />}
+</Button>
+            <Drawer
+                anchor="left" open={sidebarOpen} onClose={() => setSidebarOpen(false)}
+                sx={{ '& .MuiDrawer-paper': styles.drawerPaper }}
             >
-                <Button
-                    color="inherit"
-                    endIcon={
-                        <ArrowDropDownIcon sx={{
-                            transform: isMenuOpen ? 'rotate(180deg)' : 'rotate(0deg)',
-                            transition: 'transform 0.2s linear'
-                        }} />
-                    }
-                >
-                    Categorías
-                </Button>
-                <Menu
-                    id="categories-menu"
-                    anchorEl={anchorEl}
-                    open={isMenuOpen}
-                    onClose={handleMenuClose}
-                    slotProps={{
-                        paper: {
-                            onMouseEnter: handleMenuMouseEnter,
-                            onMouseLeave: handleMenuMouseLeave,
-                            style: {
-                                marginTop: '8px',
-                                pointerEvents: 'auto',
-                            }
-                        }
-                    }}
-                    anchorOrigin={{
-                        vertical: 'bottom',
-                        horizontal: 'left',
-                    }}
-                    transformOrigin={{
-                        vertical: 'top',
-                        horizontal: 'left',
-                    }}
-                >
-                    <MenuItem
-                        component={RouterLink}
-                        to="/productos"
-                        onClick={handleMenuClose}
-                        dense
-                    >
-                        Ver Todo el Catálogo
-                    </MenuItem>
-                    <Divider sx={{ my: 0.5 }} />
-                    {loading ? (
-                        <Box sx={{ p: 2 }}><CircularProgress size={24} /></Box>
-                    ) : (
-                        categories.map((category, index) => (
-                            <div key={category.categoria_id}>
-                                <MenuItem
-                                    component={RouterLink}
-                                    to={`/categoria/${category.categoria_id}/productos`}
-                                    onClick={handleMenuClose}
-                                    dense
-                                >
-                                    {category.nombre}
-                                </MenuItem>
-                                {index < categories.length - 1 && <Divider />}
-                            </div>
-                        ))
-                    )}
-                </Menu>
-            </Box>
-                        
+                <CategorySidebar />
+            </Drawer>
+                                        
             {navLinks.map((navLink) => (
                 <Button 
-                    key={navLink.texto} 
-                    color="inherit" 
-                    component={RouterLink} 
-                    to={navLink.ruta} 
-                    sx={{ textTransform: 'none' }}
+                    key={navLink.text} component={RouterLink} to={navLink.path} 
+                    startIcon={navLink.icon}
+                    sx={{ 
+                        ...styles.navButtonBase,
+                        background: 'linear-gradient(45deg, rgba(255,107,107,0.1), rgba(255,142,142,0.1))',
+                        color: 'black', 
+                        '&:hover': {
+                            bgcolor: 'rgba(255,107,107,0.2)' 
+                        }
+                    }}
                 >
-                    {navLink.texto}
-                </Button>
-            ))}
-            
-            {/* Botones individuales de categorías en desktop */}
-            {categories.map((category) => (
-                <Button
-                    key={category.categoria_id}
-                    color="inherit"
-                    component={RouterLink}
-                    to={`/categoria/${category.categoria_id}/productos`}
-                    sx={{ textTransform: 'none' }}
-                >
-                    {category.nombre}
+                    {navLink.text}
                 </Button>
             ))}
         </Box>
