@@ -157,19 +157,13 @@ const NavMenu = ({ mobile = false, onItemClick }) => {
             )}
 
             <Button
-                color="inherit"
-                variant="outlined"
+                variant="text"
+                 color="inherit"
                 component={RouterLink}
                 to="/"
-                sx={{
-                        borderColor: 'rgba(255, 255, 255, 0.5)',
-                        '&:hover': {
-                            borderColor: 'white',
-                            bgcolor: 'rgba(255, 255, 255, 0.1)'
-                        }
-                    }}
+                sx={{ textTransform: 'none', fontWeight: 500 }}
             >
-                Inicio
+                INICIO
             </Button>
 
             <Box
