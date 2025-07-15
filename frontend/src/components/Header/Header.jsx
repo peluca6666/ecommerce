@@ -47,22 +47,21 @@ const Header = () => {
                             <MenuIcon />
                         </IconButton>
                     )}
-         <Typography
+      <Typography
     variant="h5"
     component={RouterLink}
     to="/main"
     sx={{ 
         textDecoration: 'none', 
         cursor: 'pointer',
-        background: 'linear-gradient(45deg, #FF8C00, #FF6B35, #FF4500)',
-        WebkitBackgroundClip: 'text',
-        WebkitTextFillColor: 'transparent',
+        color: '#FF8C00',
         fontWeight: 'bold',
-        letterSpacing: '0.5px',
+        letterSpacing: '1px',
+        textShadow: '3px 3px 0px #FF6B35, 6px 6px 0px #FF4500',
         transition: 'all 0.3s ease',
         '&:hover': {
-            transform: 'scale(1.05)',
-            filter: 'brightness(1.2)'
+            transform: 'translate(-2px, -2px)',
+            textShadow: '5px 5px 0px #FF6B35, 8px 8px 0px #FF4500'
         }
     }}
 >
