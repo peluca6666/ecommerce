@@ -77,22 +77,13 @@ const styles = {
         },
         transition: 'all 0.2s ease',
         minWidth: 'auto'
-    },
-    // Estilo para items de categoría simplificados
-    simpleCategoryItem: {
-        pl: 3,
-        mb: 0.5,
-        borderRadius: 2,
-        '&:hover': {
-            backgroundColor: 'rgba(0,0,0,0.04)',
-        }
     }
 };
 
 // --- SUB-COMPONENTES PARA MAYOR CLARIDAD ---
 
-/** Muestra la lista de categorías simplificada */
-const SimpleCategoryList = ({ categories, onItemClick, mobile = false }) => (
+/** Muestra la lista de categorías sin iconos */
+const CategoryList = ({ categories, onItemClick, mobile = false }) => (
     <List disablePadding sx={{ mt: mobile ? 1 : 0 }}>
         {mobile && (
             <ListItemButton 
@@ -101,7 +92,7 @@ const SimpleCategoryList = ({ categories, onItemClick, mobile = false }) => (
                 onClick={onItemClick} 
                 sx={styles.mobile.listItem}
             >
-                <ListItemText primary="- Ver Todo el Catálogo" primaryTypographyProps={{ fontWeight: 500 }} />
+                <ListItemText primary="Ver Todo el Catálogo" primaryTypographyProps={{ fontWeight: 500 }} />
             </ListItemButton>
         )}
         {categories.map((cat) => (
@@ -110,9 +101,9 @@ const SimpleCategoryList = ({ categories, onItemClick, mobile = false }) => (
                 component={RouterLink}
                 to={`/categoria/${cat.categoria_id}/productos`}
                 onClick={onItemClick}
-                sx={mobile ? styles.mobile.listItem : styles.simpleCategoryItem}
+                sx={mobile ? styles.mobile.listItem : styles.sidebar.listItem}
             >
-                <ListItemText primary={`- ${cat.nombre}`} primaryTypographyProps={{ fontWeight: 500 }} />
+                <ListItemText primary={cat.nombre} primaryTypographyProps={{ fontWeight: 500 }} />
             </ListItemButton>
         ))}
     </List>
@@ -123,7 +114,6 @@ const SidebarContent = ({ loading, categories, onItemClick, onClose }) => (
     <>
         <Box sx={styles.sidebar.header}>
             <Box sx={styles.sidebar.headerTitle}>
-                <MenuIcon />
                 <Typography variant="h6" fontWeight={700}>Categorías</Typography>
             </Box>
             <IconButton onClick={onClose} sx={{ color: 'white' }}><Close /></IconButton>
@@ -140,7 +130,7 @@ const SidebarContent = ({ loading, categories, onItemClick, onClose }) => (
                     <Typography variant="body2" color="text.secondary">Cargando...</Typography>
                 </Box>
             ) : (
-                <SimpleCategoryList categories={categories} onItemClick={onItemClick} />
+                <CategoryList categories={categories} onItemClick={onItemClick} />
             )}
         </Box>
     </>
@@ -191,7 +181,7 @@ const NavMenu = ({ mobile = false, onItemClick }) => {
                 </Button>
 
                 <Collapse in={openMobileCategories} timeout="auto" unmountOnExit>
-                    {loading ? <CircularProgress sx={{ ml: 4, my: 2 }} size={24}/> : <SimpleCategoryList categories={categories} onItemClick={onItemClick} mobile />}
+                    {loading ? <CircularProgress sx={{ ml: 4, my: 2 }} size={24}/> : <CategoryList categories={categories} onItemClick={onItemClick} mobile />}
                 </Collapse>
 
                 <Button 
