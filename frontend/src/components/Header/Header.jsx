@@ -1,3 +1,4 @@
+import React from 'react';
 import { AppBar, Toolbar, Box, Typography, useMediaQuery, useTheme, IconButton, Drawer, List, ListItem, Divider, Container} from "@mui/material";
 import { Menu as MenuIcon } from "@mui/icons-material";
 import { useState } from "react";
@@ -6,6 +7,7 @@ import NavMenu from "./NavMenu";
 import CartDropdown from "../Cart/CartDropdown.jsx";
 import UserButton from "../common/UserButton.jsx";
 import { Link as RouterLink } from 'react-router-dom';
+import { ShoppingCart, Sparkles } from 'lucide-react';
 
 
 const Header = () => {
@@ -49,13 +51,30 @@ const Header = () => {
                         </IconButton>
                     )}
                     <Typography
-                        variant="h5"
-                        component={RouterLink}
-                        to="/main"
-                        sx={{ textDecoration: 'none', color: '#FF8C00', cursor: 'pointer' }}
-                    >
-                        Salomarket
-                    </Typography>
+    variant="h5"
+    component={RouterLink}
+    to="/main"
+    sx={{ 
+        textDecoration: 'none', 
+        cursor: 'pointer',
+        color: '#FF8C00',
+        fontFamily: '"Roboto", "Arial Black", sans-serif',
+        fontWeight: 900,
+        letterSpacing: '2px',
+        textTransform: 'uppercase',
+        border: '2px solid #FF8C00',
+        borderRadius: '8px',
+        padding: '4px 12px',
+        transition: 'all 0.3s ease',
+        '&:hover': {
+            backgroundColor: '#FF8C00',
+            color: 'white',
+            transform: 'scale(1.02)'
+        }
+    }}
+>
+    Salomarket
+</Typography>
                 </Box>
                 
                 {!isMobile && (
