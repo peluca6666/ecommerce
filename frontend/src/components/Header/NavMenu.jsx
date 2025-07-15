@@ -157,7 +157,7 @@ const NavMenu = ({ mobile = false, onItemClick }) => {
             )}
 
             <Button
-                color="primary"
+                color="inherit"
                 variant="outlined"
                 component={RouterLink}
                 to="/"
