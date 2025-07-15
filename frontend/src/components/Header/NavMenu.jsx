@@ -156,12 +156,12 @@ const NavMenu = ({ mobile = false, onItemClick }) => {
                 </Button>
             )}
 
-            /* Botón "Inicio" que lleva al main de la página */
             <Button
-                color="inherit"
+                color="primary"
+                variant="contained"
                 component={RouterLink}
                 to="/"
-                sx={{ textTransform: 'none' }}
+                sx={{ textTransform: 'none', ml: 1 }}
             >
                 Inicio
             </Button>
@@ -243,7 +243,6 @@ const NavMenu = ({ mobile = false, onItemClick }) => {
                 </Menu>
             </Box>
                         
-            {/* Enlaces de navegación (OFERTAS) en desktop */}}
             {navLinks.map((navLink) => (
                 <Button 
                     key={navLink.texto} 
