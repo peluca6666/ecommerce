@@ -231,7 +231,12 @@ const NavMenu = ({ mobile = false, onItemClick }) => {
                     )}
                 </Menu>
             </Box>
+
+ <Button key={link.texto} color="inherit" component={RouterLink} to={link.ruta} sx={{ textTransform: 'none' }}>
+                    {link.texto}
+                </Button>
             
+
  {categories.map((category) => (
             <Button
                 key={category.categoria_id}
