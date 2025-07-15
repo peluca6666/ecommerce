@@ -14,13 +14,13 @@ const styles = {
     sidebar: {
         header: {
             display: 'flex', justifyContent: 'space-between', alignItems: 'center', p: 2,
-            background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', color: 'white',
+            background: 'linear-gradient(135deg, #db4f0eff 0%, #f7dbc4e7 100%)', color: 'white',
         },
         headerTitle: { display: 'flex', alignItems: 'center', gap: 1.5 },
         content: { p: 1.5, height: '100%', overflowY: 'auto' },
         catalogButton: {
             background: 'linear-gradient(45deg, #FF6B6B, #FF8E8E)', color: 'white', py: 1.5,
-            borderRadius: 2, fontWeight: 600, boxShadow: '0 4px 20px rgba(255,107,107,0.3)',
+            borderRadius: 2, fontWeight: 600, boxShadow: '0 4px 20px rgba(233, 107, 35, 0.3)',
             '&:hover': { background: 'linear-gradient(45deg, #FF5252, #FF7979)', transform: 'translateY(-2px)' },
         },
         listItem: {
