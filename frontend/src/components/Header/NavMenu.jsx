@@ -157,10 +157,11 @@ const NavMenu = ({ mobile = false, onItemClick }) => {
             )}
 
             <Button
-                color="primary"
+                color="black"
                 component={RouterLink}
                 to="/"
                 sx={{ textTransform: 'none', ml: 1 }}
+                fontWeight="bold"
             >
                 Inicio
             </Button>
