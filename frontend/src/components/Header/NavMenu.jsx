@@ -157,11 +157,17 @@ const NavMenu = ({ mobile = false, onItemClick }) => {
             )}
 
             <Button
-                color="black"
+                color="primary"
+                variant="outlined"
                 component={RouterLink}
                 to="/"
-                sx={{ textTransform: 'none', ml: 1 }}
-                fontWeight="bold"
+                sx={{
+                        borderColor: 'rgba(255, 255, 255, 0.5)',
+                        '&:hover': {
+                            borderColor: 'white',
+                            bgcolor: 'rgba(255, 255, 255, 0.1)'
+                        }
+                    }}
             >
                 Inicio
             </Button>
