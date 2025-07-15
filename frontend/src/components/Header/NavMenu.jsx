@@ -136,7 +136,7 @@ const NavMenu = ({ mobile = false, onItemClick }) => {
 
     return (
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-            /* mostrar botón admin en vista escritorio si es admin */
+            {/* Mostrar botón de admin si es admin */}
             {user && user.rol === 'admin' && (
                 <Button
                     color="inherit"
@@ -158,7 +158,6 @@ const NavMenu = ({ mobile = false, onItemClick }) => {
 
             <Button
                 color="primary"
-                variant="contained"
                 component={RouterLink}
                 to="/"
                 sx={{ textTransform: 'none', ml: 1 }}
