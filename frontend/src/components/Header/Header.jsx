@@ -55,26 +55,13 @@ const Header = () => {
         textDecoration: 'none', 
         cursor: 'pointer',
         color: '#FF8C00',
-        fontWeight: '600',
-        letterSpacing: '0.5px',
-        position: 'relative',
+        fontWeight: 'bold',
+        textShadow: '0 0 10px rgba(255, 140, 0, 0.5), 0 2px 4px rgba(0,0,0,0.1)',
+        letterSpacing: '1px',
         transition: 'all 0.3s ease',
-        '&:after': {
-            content: '""',
-            position: 'absolute',
-            bottom: '-4px',
-            left: '50%',
-            width: '0',
-            height: '2px',
-            backgroundColor: '#FF8C00',
-            transition: 'all 0.3s ease',
-            transform: 'translateX(-50%)'
-        },
         '&:hover': {
-            color: '#FF6B35',
-            '&:after': {
-                width: '100%'
-            }
+            textShadow: '0 0 20px rgba(255, 140, 0, 0.8), 0 4px 8px rgba(0,0,0,0.2)',
+            transform: 'translateY(-1px)'
         }
     }}
 >
