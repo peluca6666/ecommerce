@@ -1,4 +1,3 @@
-import React from 'react';
 import { AppBar, Toolbar, Box, Typography, useMediaQuery, useTheme, IconButton, Drawer, List, ListItem, Divider, Container} from "@mui/material";
 import { Menu as MenuIcon } from "@mui/icons-material";
 import { useState } from "react";
@@ -7,8 +6,6 @@ import NavMenu from "./NavMenu";
 import CartDropdown from "../Cart/CartDropdown.jsx";
 import UserButton from "../common/UserButton.jsx";
 import { Link as RouterLink } from 'react-router-dom';
-import { ShoppingCart, Sparkles } from 'lucide-react';
-
 
 const Header = () => {
     const theme = useTheme();
