@@ -47,7 +47,7 @@ const Header = () => {
                             <MenuIcon />
                         </IconButton>
                     )}
-      <Typography
+     <Typography
     variant="h5"
     component={RouterLink}
     to="/main"
@@ -56,12 +56,12 @@ const Header = () => {
         cursor: 'pointer',
         color: '#FF8C00',
         fontWeight: 'bold',
+        textShadow: '0 0 10px rgba(255, 140, 0, 0.5), 0 2px 4px rgba(0,0,0,0.1)',
         letterSpacing: '1px',
-        textShadow: '3px 3px 0px #FF6B35, 6px 6px 0px #FF4500',
         transition: 'all 0.3s ease',
         '&:hover': {
-            transform: 'translate(-2px, -2px)',
-            textShadow: '5px 5px 0px #FF6B35, 8px 8px 0px #FF4500'
+            textShadow: '0 0 20px rgba(255, 140, 0, 0.8), 0 4px 8px rgba(0,0,0,0.2)',
+            transform: 'translateY(-1px)'
         }
     }}
 >
