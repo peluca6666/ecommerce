@@ -8,10 +8,7 @@ import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 import 'slick-carousel/slick/slick.css';
 import 'slick-carousel/slick/slick-theme.css';
 
-// Color de fondo que se usa en el degradado del banner
-export const PAGE_BACKGROUND_COLOR = '#ffffff';
-
-// Datos para cada banner: imagen, texto y botón
+// Datos para cada banner
 const bannerData = [
   {
     imagen: "/assets_staticos/auricularesv2.jpg",
@@ -37,36 +34,28 @@ const bannerData = [
 ];
 
 const BannerCarousel = () => {
-  // Estado para guardar qué slide está activo ahora
   const [currentSlide, setCurrentSlide] = useState(0);
-
-  // Referencia para controlar el slider (avanzar, retroceder, ir a un slide)
   const sliderRef = useRef(null);
-
-  // Tema para usar colores definidos en Material UI
   const theme = useTheme();
 
-  // Configuración para el slider react-slick
   const settings = {
-    dots: false,             // No mostrar dots por defecto (hacemos personalizados)
-    infinite: true,          // Loop infinito
-    autoplay: true,          // Que avance solo
-    autoplaySpeed: 6000,     // Cada 6 segundos
-    speed: 1000,             // Duración animación 1 segundo
-    slidesToShow: 1,         // Mostrar un slide a la vez
-    slidesToScroll: 1,       // Avanzar un slide por vez
-    arrows: false,           // No mostrar flechas por defecto (las hacemos aparte)
-    beforeChange: (current, next) => setCurrentSlide(next), // Guardar slide activo
-    pauseOnHover: true,      // Pausar autoplay al pasar mouse
-    cssEase: "ease-in-out"   // Suavizar animación
+    dots: false,
+    infinite: true,
+    autoplay: true,
+    autoplaySpeed: 5000,
+    speed: 800,
+    slidesToShow: 1,
+    slidesToScroll: 1,
+    arrows: false,
+    beforeChange: (current, next) => setCurrentSlide(next),
+    pauseOnHover: true,
+    cssEase: "ease-in-out"
   };
 
-  // Función para ir a un slide específico (usada por los dots)
   const goToSlide = (index) => {
     sliderRef.current.slickGoTo(index);
   };
 
-  // Funciones para avanzar y retroceder slide con flechas
   const nextSlide = () => {
     sliderRef.current.slickNext();
   };
@@ -77,26 +66,31 @@ const BannerCarousel = () => {
 
   return (
     <Box sx={{
-      width: '100vw',          // Ancho completo de la ventana
+      maxWidth: '1200px',           // Ancho máximo del banner
+      width: '100%',                // Ancho completo hasta el máximo
+      height: { xs: 280, sm: 320, md: 380 }, // Alto fijo responsivo
+      mx: 'auto',                   // Centrar horizontalmente
       position: 'relative',
-      left: '50%',             // Centrar con transform
-      transform: 'translateX(-50%)',
-      overflow: 'hidden',      // Ocultar scroll horizontal
-      mt: { xs: 0, md: -2 }    // Margen arriba pequeño en desktop
+      borderRadius: '12px',         // Bordes redondeados
+      overflow: 'hidden',
+      boxShadow: '0 4px 20px rgba(0,0,0,0.1)', // Sombra sutil
+      my: 3                         // Margen vertical
     }}>
-      {/* Slider principal */}
+      
       <Slider ref={sliderRef} {...settings}>
         {bannerData.map((banner, index) => (
           <Box
             key={index}
             sx={{
-              position: 'relative',        
-              height: { xs: 320, sm: 380, md: 420 }, // Altura según pantalla
-              overflow: 'hidden',
-              display: 'flex',
+              position: 'relative',
+              height: { xs: 280, sm: 320, md: 380 },
+              display: 'flex !important', // Importante para que funcione con slick
               alignItems: 'center',
-              justifyContent: 'center',
-              // Imagen de fondo con brillo y máscara degradada
+              // Imagen de fondo
+              backgroundImage: `url(${banner.imagen})`,
+              backgroundSize: 'cover',
+              backgroundPosition: 'center',
+              // Overlay oscuro para mejor legibilidad
               '&::before': {
                 content: '""',
                 position: 'absolute',
@@ -104,96 +98,64 @@ const BannerCarousel = () => {
                 left: 0,
                 width: '100%',
                 height: '100%',
-                backgroundImage: `url(${banner.imagen})`,
-                backgroundSize: 'cover',
-                backgroundPosition: 'center 30%',
-                filter: 'brightness(0.75)', // Oscurecer un poco
-                transition: 'filter 0.5s ease',
-                maskImage: 'linear-gradient(to bottom, black 40%, rgba(0,0,0,0.7) 70%, transparent 100%)',
-                WebkitMaskImage: 'linear-gradient(to bottom, black 40%, rgba(0,0,0,0.7) 70%, transparent 100%)',
-              },
-              '&:hover::before': {
-                filter: 'brightness(0.65)', // Más oscuro al hover
-              },
-              // Degradado blanco abajo para suavizar el borde
-              '&::after': {
-                content: '""',
-                position: 'absolute',
-                bottom: 0,
-                left: 0,
-                width: '100%',
-                height: '50%', 
-                background: `linear-gradient(to top, ${PAGE_BACKGROUND_COLOR} 0%, rgba(240,240,240,0.8) 30%, transparent 100%)`,
-                pointerEvents: 'none',
+                backgroundColor: 'rgba(0,0,0,0.35)',
                 zIndex: 1,
               }
             }}
           >
-            {/* Contenedor del texto y botón */}
+            {/* Contenido del banner */}
             <Box
               sx={{
                 position: 'relative',
                 zIndex: 2,
-                display: 'flex',
-                flexDirection: 'column',
-                justifyContent: 'center',
-                alignItems: { xs: 'center', md: 'flex-start' },
-                textAlign: { xs: 'center', md: 'left' },
                 color: 'white',
-                p: { xs: 2, md: 4 },
-                maxWidth: { xs: '85%', md: '45%' },
-                ml: { xs: 0, md: 4 },  // Margen a la izquierda en desktop
-                mb: { xs: '15%', md: '8%' }
+                pl: { xs: 3, md: 5 },
+                pr: { xs: 3, md: 2 },
+                maxWidth: { xs: '85%', md: '50%' },
               }}
             >
-              {/* Título grande */}
               <Typography
                 variant="h4"
                 component="h2"
-                gutterBottom
                 sx={{
-                  fontWeight: '700',
-                  textShadow: '2px 2px 4px rgba(0, 0, 0, 0.7)', // sombra para texto legible
-                  fontSize: { xs: '1.5rem', sm: '2rem', md: '2.5rem' }, 
+                  fontWeight: 'bold',
+                  fontSize: { xs: '1.5rem', sm: '2rem', md: '2.5rem' },
                   lineHeight: 1.2,
                   mb: 1,
+                  textShadow: '2px 2px 4px rgba(0,0,0,0.7)',
                 }}
               >
                 {banner.titulo}
               </Typography>
 
-              {/* Descripción pequeña */}
               <Typography
                 variant="body1"
                 sx={{
-                  mb: { xs: 2, md: 3 },
-                  textShadow: '1px 1px 2px rgba(0, 0, 0, 0.6)', // sombra texto para contraste
-                  fontSize: { xs: '0.9rem', sm: '1rem', md: '1.1rem' },
+                  mb: 3,
+                  fontSize: { xs: '0.95rem', md: '1.1rem' },
                   opacity: 0.95,
-                  maxWidth: '280px' // ancho máximo para que no quede tan ancho
+                  textShadow: '1px 1px 2px rgba(0,0,0,0.7)',
                 }}
               >
                 {banner.descripcion}
               </Typography>
 
-              {/* Botón principal */}
               <Button
                 variant="contained"
                 color="primary"
                 href={banner.link || '#'}
                 component="a"
-                size="medium"
                 sx={{
-                  px: { xs: 3, md: 4 },
-                  py: { xs: 1, md: 1.5 },
-                  borderRadius: '25px',
+                  px: 3,
+                  py: 1.5,
+                  borderRadius: '8px',
                   fontWeight: '600',
-                  textTransform: 'none', 
-                  fontSize: { xs: '0.85rem', md: '0.95rem' },
-                  boxShadow: `0px 4px 8px ${theme.palette.primary.dark}30`,
+                  textTransform: 'none',
+                  fontSize: '0.95rem',
+                  boxShadow: '0 2px 8px rgba(0,0,0,0.2)',
                   '&:hover': {
-                    transform: 'translateY(-2px)',
-                    boxShadow: `0px 6px 12px ${theme.palette.primary.dark}40`,
+                    transform: 'translateY(-1px)',
+                    boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
                   },
                   transition: 'all 0.2s ease',
                 }}
@@ -205,66 +167,65 @@ const BannerCarousel = () => {
         ))}
       </Slider>
 
-      {/* Botón flecha para ir al slide anterior */}
+      {/* Flecha anterior */}
       <IconButton
         onClick={prevSlide}
         sx={{
           position: 'absolute',
-          left: { xs: 10, md: 20 },
+          left: 15,
           top: '50%',
           transform: 'translateY(-50%)',
           zIndex: 3,
-          backgroundColor: 'rgba(255, 255, 255, 0.2)',
+          backgroundColor: 'rgba(255,255,255,0.15)',
           color: 'white',
-          backdropFilter: 'blur(10px)',
+          backdropFilter: 'blur(8px)',
+          width: 44,
+          height: 44,
           '&:hover': {
-            backgroundColor: 'rgba(255, 255, 255, 0.3)',
-            transform: 'translateY(-50%) scale(1.1)',
+            backgroundColor: 'rgba(255,255,255,0.25)',
+            transform: 'translateY(-50%) scale(1.05)',
           },
           transition: 'all 0.2s ease',
-          width: { xs: 40, md: 48 },
-          height: { xs: 40, md: 48 },
         }}
       >
-        <ArrowBackIosIcon sx={{ fontSize: { xs: '1.2rem', md: '1.5rem' } }} />
+        <ArrowBackIosIcon sx={{ fontSize: '1.2rem' }} />
       </IconButton>
 
-      {/* Botón flecha para ir al siguiente slide */}
+      {/* Flecha siguiente */}
       <IconButton
         onClick={nextSlide}
         sx={{
           position: 'absolute',
-          right: { xs: 10, md: 20 },
+          right: 15,
           top: '50%',
           transform: 'translateY(-50%)',
           zIndex: 3,
-          backgroundColor: 'rgba(255, 255, 255, 0.2)',
+          backgroundColor: 'rgba(255,255,255,0.15)',
           color: 'white',
-          backdropFilter: 'blur(10px)',
+          backdropFilter: 'blur(8px)',
+          width: 44,
+          height: 44,
           '&:hover': {
-            backgroundColor: 'rgba(255, 255, 255, 0.3)',
-            transform: 'translateY(-50%) scale(1.1)',
+            backgroundColor: 'rgba(255,255,255,0.25)',
+            transform: 'translateY(-50%) scale(1.05)',
           },
           transition: 'all 0.2s ease',
-          width: { xs: 40, md: 48 },
-          height: { xs: 40, md: 48 },
         }}
       >
-        <ArrowForwardIosIcon sx={{ fontSize: { xs: '1.2rem', md: '1.5rem' } }} />
+        <ArrowForwardIosIcon sx={{ fontSize: '1.2rem' }} />
       </IconButton>
 
-      {/* Contenedor para los dots (indicadores de slide) */}
+      {/* Indicadores (dots) */}
       <Box sx={{
         display: 'flex',
         justifyContent: 'center',
         gap: 1,
         position: 'absolute',
-        bottom: { xs: 15, md: 25 },
+        bottom: 20,
         left: '50%',
         transform: 'translateX(-50%)',
         zIndex: 3
       }}>
-        {/* Mapeo para crear un dot por slide */}
         {bannerData.map((_, index) => (
           <IconButton
             key={index}
@@ -280,10 +241,9 @@ const BannerCarousel = () => {
               }
             }}
           >
-            {/* Icono lleno si está activo, outlined si no */}
             {currentSlide === index ?
-              <FiberManualRecordIcon sx={{ fontSize: '0.8rem' }} /> :
-              <FiberManualRecordOutlinedIcon sx={{ fontSize: '0.8rem' }} />
+              <FiberManualRecordIcon sx={{ fontSize: '0.7rem' }} /> :
+              <FiberManualRecordOutlinedIcon sx={{ fontSize: '0.7rem' }} />
             }
           </IconButton>
         ))}
