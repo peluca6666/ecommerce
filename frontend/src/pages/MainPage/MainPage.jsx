@@ -116,7 +116,7 @@ const MainPage = () => {
   }
 
   return (
-    <Box sx={{ background: 'linear-gradient(to bottom, #ffffff, #f0f0f0)', minHeight: '100vh' }}>
+    <Box >
       <Container maxWidth="lg">
         <MainBanner />
         <CategorySlider categoria={state.categoria} />

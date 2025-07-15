@@ -66,9 +66,9 @@ const BannerCarousel = () => {
 
   return (
     <Box sx={{
-      maxWidth: '1200px',           // Ancho máximo del banner
-      width: '100%',                // Ancho completo hasta el máximo
-      height: { xs: 280, sm: 320, md: 380 }, // Alto fijo responsivo
+      maxWidth: { xs: '100%', md: '900px' }, // Más estrecho en desktop
+      width: '100%',                
+      height: { xs: 280, sm: 320, md: 320 }, // Altura más moderada en desktop
       mx: 'auto',                   // Centrar horizontalmente
       position: 'relative',
       borderRadius: '12px',         // Bordes redondeados
@@ -83,7 +83,7 @@ const BannerCarousel = () => {
             key={index}
             sx={{
               position: 'relative',
-              height: { xs: 280, sm: 320, md: 380 },
+              height: { xs: 280, sm: 320, md: 320 },
               display: 'flex !important', // Importante para que funcione con slick
               alignItems: 'center',
               // Imagen de fondo
@@ -119,7 +119,7 @@ const BannerCarousel = () => {
                 component="h2"
                 sx={{
                   fontWeight: 'bold',
-                  fontSize: { xs: '1.5rem', sm: '2rem', md: '2.5rem' },
+                  fontSize: { xs: '1.5rem', sm: '2rem', md: '2.2rem' },
                   lineHeight: 1.2,
                   mb: 1,
                   textShadow: '2px 2px 4px rgba(0,0,0,0.7)',
