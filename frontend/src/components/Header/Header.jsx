@@ -66,7 +66,7 @@ const Header = () => {
         }
     }}
 >
-    Salomarket
+    S a l o m a r k e t
 </Typography>
                 </Box>
                 
