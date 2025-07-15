@@ -27,7 +27,7 @@ const NavMenu = ({ mobile = false, onItemClick }) => {
     useEffect(() => {
         const fetchCategories = async () => {
             try {
-               const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/categoria`);
+                const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/categoria`);
                 if (!response.ok) throw new Error('error al cargar categorías');
                 const data = await response.json();
                 setCategories(data.datos.filter(cat => cat.activo));
@@ -117,6 +117,7 @@ const NavMenu = ({ mobile = false, onItemClick }) => {
                     </List>
                 </Collapse>
 
+                {/* 'OFERTAS' en vista móvil */}
                 {navLinks.map((link) => (
                     <Button
                         key={link.texto}
@@ -161,13 +162,13 @@ const NavMenu = ({ mobile = false, onItemClick }) => {
             >
                 <Button
                     color="inherit"
-                     endIcon={
-        <ArrowDropDownIcon sx={{
-            transform: isMenuOpen ? 'rotate(180deg)' : 'rotate(0deg)',
-            transition: 'transform 0.2s linear'
-        }} />
-    }
->   
+                    endIcon={
+                        <ArrowDropDownIcon sx={{
+                            transform: isMenuOpen ? 'rotate(180deg)' : 'rotate(0deg)',
+                            transition: 'transform 0.2s linear'
+                        }} />
+                    }
+                >
                     Categorías
                 </Button>
                 <Menu
@@ -231,8 +232,8 @@ const NavMenu = ({ mobile = false, onItemClick }) => {
                     )}
                 </Menu>
             </Box>
-       
-             {navLinks.map((link) => (
+            
+            {navLinks.map((link) => (
                 <Button key={link.texto} color="inherit" component={RouterLink} to={link.ruta} sx={{ textTransform: 'none' }}>
                     {link.texto}
                 </Button>
