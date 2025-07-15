@@ -10,9 +10,7 @@ import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
 import { useAuth } from '../../context/AuthContext';
 
 const navLinks = [
-    { texto: 'OFERTAS', ruta: "/productos?es_oferta=true" },
-    { texto: 'Sobre Nosotros', ruta: '/sobre-nosotros' },
-    { texto: 'Contacto', ruta: '/contacto' },
+    { texto: 'OFERTAS', ruta: "/productos?es_oferta=true" }
 ];
 
 const NavMenu = ({ mobile = false, onItemClick }) => {
@@ -163,8 +161,13 @@ const NavMenu = ({ mobile = false, onItemClick }) => {
             >
                 <Button
                     color="inherit"
-                    endIcon={<ArrowDropDownIcon />}
-                >
+                     endIcon={
+        <ArrowDropDownIcon sx={{
+            transform: isMenuOpen ? 'rotate(180deg)' : 'rotate(0deg)',
+            transition: 'transform 0.2s linear'
+        }} />
+    }
+>   
                     Categorías
                 </Button>
                 <Menu
@@ -230,7 +233,7 @@ const NavMenu = ({ mobile = false, onItemClick }) => {
             </Box>
 
             {navLinks.map((link) => (
-                <Button key={link.texto} color="inherit" component={RouterLink} to={link.ruta}>
+                <Button key={link.texto} color="inherit" component={RouterLink} to={link.ruta}   sx={{ textTransform: 'none' }}>
                     {link.texto}
                 </Button>
             ))}

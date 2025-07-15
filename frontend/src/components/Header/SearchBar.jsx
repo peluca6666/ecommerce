@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import { TextField, Box, List, ListItem, ListItemText, CircularProgress, Paper, Typography } from '@mui/material';
+import { TextField, Box, List, ListItem, ListItemText, CircularProgress, Paper, Typography, InputAdornment } from '@mui/material';
+import SearchIcon from '@mui/icons-material/Search';
 import { Link as RouterLink } from 'react-router-dom';
 import axios from 'axios';
 import { useDebounce } from '../../hooks/useDebounce'; 
@@ -55,16 +56,37 @@ const SearchBar = () => {
                 fullWidth
                 variant="outlined"
                 size="small"
-                placeholder="Buscar productos..."
+                placeholder="Buscar productos..."        
                 value={inputValue}
                 onChange={handleInputChange}
                 onFocus={() => setIsDropdownOpen(true)}
-                sx={{
-                    '& .MuiOutlinedInput-root': {
-                        borderRadius: '4px',
-                    }
-                }}
-            />
+    slotProps={{
+        input: {
+            startAdornment: (
+                <InputAdornment position="start">
+                    <SearchIcon sx={{ color: '#6d6c6cff' }} />
+                </InputAdornment>
+            ),
+        }
+    }}
+    sx={{
+        '& .MuiOutlinedInput-root': {
+            borderRadius: '7px',
+            backgroundColor: '#e6e5e5ff', 
+            '& fieldset': {
+                borderColor: 'transparent', 
+            },           
+            '&.Mui-focused fieldset': {
+                borderColor: 'black',
+                borderWidth: '1.5px',
+            },
+        },
+        '& .MuiInputBase-input::placeholder': {
+            color: '#6e6e6eff',
+            opacity: 1,
+        },
+    }}
+/>
 
             {isDropdownOpen && inputValue.length > 1 && (
                 <Paper
@@ -148,7 +170,7 @@ const SearchBar = () => {
                                 })
                             ) : (
                                 <ListItem>
-                                    <ListItemText primary="no se encontraron resultados." />
+                                    <ListItemText primary="No se encontraron resultados." />
                                 </ListItem>
                             )}
                         </List>

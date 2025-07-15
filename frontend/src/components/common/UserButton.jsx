@@ -1,6 +1,6 @@
 import  { useState, useContext } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { Menu, MenuItem, Button, Box, Typography,  useTheme, useMediaQuery } from "@mui/material";
+import { Menu, MenuItem, Button, Box, Typography,  useTheme, useMediaQuery, Divider } from "@mui/material";
 import {  AccountCircle, Logout } from "@mui/icons-material";
 
 import { AuthContext } from "../../context/AuthContext";
@@ -44,56 +44,31 @@ const UserButton = () => {
   };
 
   // si no está logueado, muestra botones de login y registro (ocultos en móvil)
-  if (!isAuthenticated) {
+ if (!isAuthenticated) {
     return (
-      <Box sx={{ display: { xs: 'none', md: 'flex' }, gap: 1.5 }}>
-        <Button
-          variant="outlined"
-          color="primary"
-          onClick={handleLogin}
-          sx={{
-            textTransform: 'none',
-            fontWeight: 'medium',
-            borderRadius: '8px',
-            borderColor: theme.palette.primary.main,
-            color: theme.palette.primary.main,
-            '&:hover': {
-              bgcolor: theme.palette.primary.light,
-              borderColor: theme.palette.primary.dark,
-              color: theme.palette.primary.dark,
-            },
-            transition: 'all 0.3s ease-in-out',
-            px: 2,
-            py: 0.8
-          }}
-        >
-          Iniciar sesión
-        </Button>
-        <Button
-          variant="contained"
-          color="primary"
-          onClick={handleRegister}
-          disableElevation
-          sx={{
-            textTransform: 'none',
-            fontWeight: 'medium',
-            borderRadius: '8px',
-            boxShadow: theme.shadows[3],
-            '&:hover': {
-              boxShadow: theme.shadows[6],
-              transform: 'translateY(-1px)',
-              bgcolor: theme.palette.primary.dark
-            },
-            transition: 'all 0.3s ease-in-out',
-            px: 2,
-            py: 0.8
-          }}
-        >
-          Registrarse
-        </Button>
-      </Box>
+        <Box sx={{ display: { xs: 'none', md: 'flex' }, alignItems: 'center', gap: 1 }}>
+            <Button
+                variant="text"
+                color="inherit" // Usa el color del texto del contenedor (ej. negro o blanco)
+                onClick={handleLogin}
+                sx={{ textTransform: 'none', fontWeight: 500 }}
+            >
+                Iniciar sesión  
+            </Button>
+            
+            <Divider orientation="vertical" flexItem />
+            
+            <Button
+                variant="text"
+                color="inherit"
+                onClick={handleRegister}
+                sx={{ textTransform: 'none', fontWeight: 500 }}
+            >
+               Registrarse 
+            </Button>
+        </Box>
     );
-  }
+}
 
   // si está logueado, muestra botón con nombre y menú desplegable
   return (
