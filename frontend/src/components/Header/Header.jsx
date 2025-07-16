@@ -44,11 +44,11 @@ const Header = () => {
         <AppBar 
             position="sticky" 
             sx={{ 
-                backgroundColor: 'white', // Fondo blanco sólido
-                color: 'black', // Color de texto negro
-                boxShadow: '0 2px 4px rgba(0,0,0,0.1)', // Sombra sutil
-                backgroundImage: 'none', // Elimina cualquier degradado
-            }}
+  backgroundColor: 'rgba(255, 255, 255, 0.98)', // 98% opaco
+  backdropFilter: 'blur(8px)', // Efecto de desenfoque
+  color: 'black',
+  boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+}}
             elevation={0} // Elimina la sombra por defecto
         >
             <Container maxWidth="xl">
