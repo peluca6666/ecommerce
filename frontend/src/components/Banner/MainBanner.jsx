@@ -66,15 +66,14 @@ const BannerCarousel = () => {
 
   return (
     <Box sx={{
-      maxWidth: { xs: '100%', md: '1500px' }, // Más estrecho en desktop
-      width: '100%',                
-      height: { xs: 260, sm: 300, md: 300 }, // Altura más moderada en desktop
-      mx: 'auto',                   // Centrar horizontalmente
+      width: '100vw',                // Ancho completo del viewport
+      height: { xs: 260, sm: 300, md: 300 },
       position: 'relative',
-      borderRadius: '6px',         // Bordes redondeados
+      ml: 'calc(-50vw + 50%)',      // Centra el elemento que sale del contenedor
+      borderRadius: 0,        
       overflow: 'hidden',
-      boxShadow: '0 4px 20px rgba(0,0,0,0.1)', // Sombra sutil
-      my: 3                         // Margen vertical
+      boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
+      my: 3
     }}>
       
       <Slider ref={sliderRef} {...settings}>
