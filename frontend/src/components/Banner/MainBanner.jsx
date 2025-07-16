@@ -66,7 +66,7 @@ const BannerCarousel = () => {
 
   return (
     <Box sx={{
-      maxWidth: { xs: '100%', md: '900px' }, // Más estrecho en desktop
+      maxWidth: { xs: '100%', md: '1200px' }, // Más estrecho en desktop
       width: '100%',                
       height: { xs: 280, sm: 320, md: 320 }, // Altura más moderada en desktop
       mx: 'auto',                   // Centrar horizontalmente
