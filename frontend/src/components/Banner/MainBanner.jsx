@@ -179,8 +179,8 @@ const BannerCarousel = () => {
           backgroundColor: 'rgba(255,255,255,0.15)',
           color: 'white',
           backdropFilter: 'blur(8px)',
-          width: 44,
-          height: 44,
+          width: 30,
+          height: 30,
           '&:hover': {
             backgroundColor: 'rgba(255,255,255,0.25)',
             transform: 'translateY(-50%) scale(1.05)',
@@ -203,8 +203,8 @@ const BannerCarousel = () => {
           backgroundColor: 'rgba(255,255,255,0.15)',
           color: 'white',
           backdropFilter: 'blur(8px)',
-          width: 44,
-          height: 44,
+          width: 30,
+          height: 30,
           '&:hover': {
             backgroundColor: 'rgba(255,255,255,0.25)',
             transform: 'translateY(-50%) scale(1.05)',
