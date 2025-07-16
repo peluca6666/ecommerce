@@ -128,20 +128,6 @@ const styles = {
         },
     },
 
-    // Estilos para el contenedor principal
-    desktopNavContainer: {
-        display: 'flex',
-        alignItems: 'center',
-        gap: 1,
-        flexWrap: 'nowrap',
-        overflowX: 'auto',
-        '&::-webkit-scrollbar': { display: 'none' },
-        msOverflowStyle: 'none',
-        scrollbarWidth: 'none',
-        background: 'linear-gradient(135deg, #FF6B35 0%, #FF4500 100%)',
-        padding: '8px 16px',
-        borderRadius: '8px'
-    },
 
     // Estilos para botones de categoría
     categoryButton: {
@@ -170,7 +156,14 @@ const CategoryList = ({ categories, onItemClick, mobile = false }) => (
                 onClick={onItemClick} 
                 sx={styles.mobile.listItem}
             >
-                <ListItemText primary="Ver Todo el Catálogo" primaryTypographyProps={{ fontWeight: 500, color: 'white' }} />
+                <ListItemText 
+                    primary="Ver Todo el Catálogo" 
+                    slotProps={{ 
+                        primary: { 
+                            style: { fontWeight: 500, color: 'white' } 
+                        } 
+                    }} 
+                />
             </ListItemButton>
         )}
         {categories.map((cat) => (
