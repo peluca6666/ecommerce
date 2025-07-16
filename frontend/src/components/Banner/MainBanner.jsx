@@ -66,12 +66,12 @@ const BannerCarousel = () => {
 
   return (
     <Box sx={{
-      maxWidth: { xs: '100%', md: '1200px' }, // Más estrecho en desktop
+      maxWidth: { xs: '100%', md: '1500px' }, // Más estrecho en desktop
       width: '100%',                
-      height: { xs: 280, sm: 320, md: 320 }, // Altura más moderada en desktop
+      height: { xs: 260, sm: 300, md: 300 }, // Altura más moderada en desktop
       mx: 'auto',                   // Centrar horizontalmente
       position: 'relative',
-      borderRadius: '12px',         // Bordes redondeados
+      borderRadius: '6px',         // Bordes redondeados
       overflow: 'hidden',
       boxShadow: '0 4px 20px rgba(0,0,0,0.1)', // Sombra sutil
       my: 3                         // Margen vertical
@@ -188,7 +188,7 @@ const BannerCarousel = () => {
           transition: 'all 0.2s ease',
         }}
       >
-        <ArrowBackIosIcon sx={{ fontSize: '1.2rem' }} />
+        <ArrowBackIosIcon sx={{ fontSize: '1 rem' }} />
       </IconButton>
 
       {/* Flecha siguiente */}
@@ -212,7 +212,7 @@ const BannerCarousel = () => {
           transition: 'all 0.2s ease',
         }}
       >
-        <ArrowForwardIosIcon sx={{ fontSize: '1.2rem' }} />
+        <ArrowForwardIosIcon sx={{ fontSize: '1 rem' }} />
       </IconButton>
 
       {/* Indicadores (dots) */}
