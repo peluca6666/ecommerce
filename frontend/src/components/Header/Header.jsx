@@ -1,4 +1,4 @@
-import { AppBar, Toolbar, Box, Typography, useMediaQuery, useTheme, IconButton, Drawer, List, ListItem, Divider, Container} from "@mui/material";
+import { AppBar, Toolbar, Box, Typography, useMediaQuery, useTheme, IconButton, Drawer, List, ListItem, Divider, Container } from "@mui/material";
 import { Menu as MenuIcon } from "@mui/icons-material";
 import { useState } from "react";
 import SearchBar from "./SearchBar";
@@ -41,30 +41,30 @@ const Header = () => {
     );
 
     return (
-        <AppBar 
-            position="sticky" 
-            sx={{ 
-  backgroundColor: 'rgba(255, 255, 255, 0.98)', // 98% opaco
-  backdropFilter: 'blur(8px)', // Efecto de desenfoque
-  color: 'black',
-  boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-}}
+        <AppBar
+            position="sticky"
+            sx={{
+                backgroundColor: 'rgba(255, 255, 255, 0.98)', // 98% opaco
+                backdropFilter: 'blur(8px)', // Efecto de desenfoque
+                color: 'black',
+                boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+            }}
             elevation={0} // Elimina la sombra por defecto
         >
             <Container maxWidth="xl">
-                <Toolbar sx={{ 
-                    display: 'flex', 
-                    justifyContent: 'space-between', 
+                <Toolbar sx={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
                     alignItems: 'center',
                     py: 1 // Ajuste de padding vertical
                 }}>
                     <Box sx={{ display: 'flex', alignItems: 'center' }}>
                         {isMobile && (
-                            <IconButton 
-                                color="inherit" 
-                                edge="start" 
-                                onClick={handleDrawerToggle} 
-                                sx={{ 
+                            <IconButton
+                                color="inherit"
+                                edge="start"
+                                onClick={handleDrawerToggle}
+                                sx={{
                                     mr: 1,
                                     color: 'black' // Color del icono negro
                                 }}
@@ -73,41 +73,49 @@ const Header = () => {
                             </IconButton>
                         )}
                         <Typography
-    variant="h5"
-    component={RouterLink}
-    to="/main"
-    sx={{ 
-        textDecoration: 'none', 
-        cursor: 'pointer',
-        color: '#FF8C00',
-        fontFamily: '"Roboto", "Arial Black", sans-serif',
-        fontWeight: 900,
-        letterSpacing: '2px',
-        textTransform: 'uppercase',
-        border: '2px solid #FF8C00',
-        borderRadius: '8px',
-        padding: '4px 12px',
-        transition: 'all 0.3s ease',
-        '&:hover': {
-            backgroundColor: '#FF8C00',
-            color: 'white',
-            transform: 'scale(1.02)'
-        }
-    }}
->
-    S a l o m a r k e t
-</Typography>
+                            variant="h5"
+                            component={RouterLink}
+                            to="/main"
+                            sx={{
+                                textDecoration: 'none',
+                                cursor: 'pointer',
+                                color: '#FF8C00',
+                                fontWeight: '600',
+                                letterSpacing: '0.5px',
+                                position: 'relative',
+                                transition: 'all 0.3s ease',
+                                '&:after': {
+                                    content: '""',
+                                    position: 'absolute',
+                                    bottom: '-4px',
+                                    left: '50%',
+                                    width: '0',
+                                    height: '2px',
+                                    backgroundColor: '#FF8C00',
+                                    transition: 'all 0.3s ease',
+                                    transform: 'translateX(-50%)'
+                                },
+                                '&:hover': {
+                                    color: '#FF6B35',
+                                    '&:after': {
+                                        width: '100%'
+                                    }
+                                }
+                            }}
+                        >
+                            S a l o m a r k e t
+                        </Typography>
                     </Box>
-                    
+
                     {!isMobile && (
                         <Box sx={{ flex: 1, display: 'flex', justifyContent: 'center', px: 4 }}>
                             <SearchBar />
                         </Box>
                     )}
 
-                    <Box sx={{ 
-                        display: 'flex', 
-                        alignItems: 'center', 
+                    <Box sx={{
+                        display: 'flex',
+                        alignItems: 'center',
                         gap: { xs: 1, sm: 2 },
                     }}>
                         <UserButton />
@@ -116,8 +124,8 @@ const Header = () => {
                 </Toolbar>
             </Container>
             {!isMobile && (
-                <Divider sx={{ 
-                    backgroundColor: 'rgba(0, 0, 0, 0.12)', 
+                <Divider sx={{
+                    backgroundColor: 'rgba(0, 0, 0, 0.12)',
                     my: 0 // Ajuste del margen del divider
                 }} />
             )}
