@@ -73,7 +73,8 @@ const BannerCarousel = () => {
       borderRadius: 0,        
       overflow: 'hidden',
       boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
-      my: 3
+      my: 3,
+      mt: 2
     }}>
       
       <Slider ref={sliderRef} {...settings}>
