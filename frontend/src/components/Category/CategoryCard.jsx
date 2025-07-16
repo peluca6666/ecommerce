@@ -17,6 +17,8 @@ const CategoryCard = ({ categoria }) => {
           flexDirection: 'column',
           alignItems: 'center',
           width: { xs: 100, sm: 120, md: 140 },
+          mx: 'auto',                    // Centrar horizontalmente
+          mt: { xs: 2, md: 3 },          // Margen superior para separar del banner
           cursor: 'pointer',
           transition: 'transform 0.2s ease-in-out',
           '&:hover': {
