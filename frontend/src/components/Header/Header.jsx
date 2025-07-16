@@ -44,25 +44,19 @@ const Header = () => {
         <AppBar 
             position="sticky" 
             sx={{ 
-                backgroundColor: 'rgba(255, 255, 255, 0.92)', // 92% opaco (más translúcido)
-                backdropFilter: 'blur(12px)', // Mayor efecto de desenfoque
-                color: 'black',
-                boxShadow: '0 2px 10px rgba(0,0,0,0.1)',
-                backgroundImage: 'none',
-                transition: 'all 0.3s ease', // Transición suave para cambios
-                '&:hover': {
-                    backgroundColor: 'rgba(255, 255, 255, 0.96)', // Menos translúcido al hacer hover
-                }
-            }}
-            elevation={0}
+  backgroundColor: 'rgba(255, 255, 255, 0.98)', // 98% opaco
+  backdropFilter: 'blur(8px)', // Efecto de desenfoque
+  color: 'black',
+  boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+}}
+            elevation={0} // Elimina la sombra por defecto
         >
             <Container maxWidth="xl">
                 <Toolbar sx={{ 
                     display: 'flex', 
                     justifyContent: 'space-between', 
                     alignItems: 'center',
-                    py: 1,
-                    backgroundColor: 'transparent' // Hace que el Toolbar herede la transparencia
+                    py: 1 // Ajuste de padding vertical
                 }}>
                     <Box sx={{ display: 'flex', alignItems: 'center' }}>
                         {isMobile && (
@@ -72,10 +66,7 @@ const Header = () => {
                                 onClick={handleDrawerToggle} 
                                 sx={{ 
                                     mr: 1,
-                                    color: 'black',
-                                    '&:hover': {
-                                        backgroundColor: 'rgba(0, 0, 0, 0.05)' // Efecto hover translúcido
-                                    }
+                                    color: 'black' // Color del icono negro
                                 }}
                             >
                                 <MenuIcon />
@@ -105,13 +96,7 @@ const Header = () => {
                     </Box>
                     
                     {!isMobile && (
-                        <Box sx={{ 
-                            flex: 1, 
-                            display: 'flex', 
-                            justifyContent: 'center', 
-                            px: 4,
-                            backdropFilter: 'blur(2px)' // Efecto sutil en el área de búsqueda
-                        }}>
+                        <Box sx={{ flex: 1, display: 'flex', justifyContent: 'center', px: 4 }}>
                             <SearchBar />
                         </Box>
                     )}
@@ -128,8 +113,8 @@ const Header = () => {
             </Container>
             {!isMobile && (
                 <Divider sx={{ 
-                    backgroundColor: 'rgba(0, 0, 0, 0.08)', // Divider más translúcido
-                    my: 0
+                    backgroundColor: 'rgba(0, 0, 0, 0.12)', 
+                    my: 0 // Ajuste del margen del divider
                 }} />
             )}
             {!isMobile && (
@@ -138,9 +123,8 @@ const Header = () => {
                         variant="dense"
                         sx={{
                             justifyContent: 'center',
-                            backgroundColor: 'rgba(255, 255, 255, 0.85)', // Segunda línea con diferente opacidad
-                            py: 0,
-                            backdropFilter: 'blur(8px)'
+                            backgroundColor: 'white', // Fondo blanco para la segunda línea
+                            py: 0 // Ajuste de padding
                         }}
                     >
                         <NavMenu />
