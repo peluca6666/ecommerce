@@ -41,7 +41,7 @@ const CategorySlider = ({ categoria }) => {
   return (
     <Box
       sx={{
-        mt: { xs: 4, sm: 2, md: -8, lg: -15 },
+        mt: { xs: 3, sm: 4, md: 5 },        // Margen positivo para separar del banner
         position: 'relative',
         zIndex: 2,
         maxWidth: 'lg',
@@ -49,7 +49,16 @@ const CategorySlider = ({ categoria }) => {
         px: { xs: 2, md: 0 },
       }}
     >
-      <Typography variant="h5" gutterBottom sx={{ mb: 2, fontWeight: 'bold', textAlign: 'left' }}>
+      <Typography 
+        variant="h5" 
+        gutterBottom 
+        sx={{ 
+          mb: 3, 
+          fontWeight: 'bold', 
+          textAlign: 'center',              // Centrar el título
+          color: 'text.primary'
+        }}
+      >
         Explora nuestras categorías
       </Typography>
 
@@ -58,17 +67,27 @@ const CategorySlider = ({ categoria }) => {
           ref={sliderRef}
           sx={{
             display: 'flex',
-            gap: 3,
+            gap: { xs: 2, md: 3 },           // Gap responsivo
             overflowX: 'auto',
             scrollSnapType: 'x mandatory',
             py: 2,
+            px: 1,                           // Padding horizontal para evitar cortes
+            justifyContent: { xs: 'flex-start', md: 'center' }, // Centrar en desktop
             '&::-webkit-scrollbar': { display: 'none' },
             maskImage: 'linear-gradient(to right, transparent, black 2%, black 98%, transparent)',
             WebkitMaskImage: 'linear-gradient(to right, transparent, black 2%, black 98%, transparent)',
           }}
         >
           {categoria.map((cat) => (
-            <Box key={cat.categoria_id} sx={{ scrollSnapAlign: 'start', flexShrink: 0 }}>
+            <Box 
+              key={cat.categoria_id} 
+              sx={{ 
+                scrollSnapAlign: 'start', 
+                flexShrink: 0,
+                display: 'flex',
+                justifyContent: 'center'      // Centrar cada card
+              }}
+            >
               <CategoryCard categoria={cat} />
             </Box>
           ))}
@@ -76,38 +95,44 @@ const CategorySlider = ({ categoria }) => {
 
         {/* flechas para scroll */}
         <IconButton
-          onClick={() => handleScroll(-100)}
+          onClick={() => handleScroll(-200)}
           sx={{
             position: 'absolute',
             left: -16,
             top: '50%',
             transform: 'translateY(-50%)',
             zIndex: 2,
-            bgcolor: 'rgba(255, 255, 255, 0.8)',
+            bgcolor: 'rgba(255, 255, 255, 0.9)',
             border: `1px solid ${theme.palette.divider}`,
             opacity: showLeftArrow ? 1 : 0,
             pointerEvents: showLeftArrow ? 'auto' : 'none',
             transition: 'opacity 0.3s ease',
-            '&:hover': { bgcolor: 'white' }
+            '&:hover': { 
+              bgcolor: 'white',
+              transform: 'translateY(-50%) scale(1.05)'
+            }
           }}
         >
           <ChevronLeft />
         </IconButton>
 
         <IconButton
-          onClick={() => handleScroll(300)}
+          onClick={() => handleScroll(200)}
           sx={{
             position: 'absolute',
             right: -16,
             top: '50%',
             transform: 'translateY(-50%)',
             zIndex: 2,
-            bgcolor: 'rgba(255, 255, 255, 0.8)',
+            bgcolor: 'rgba(255, 255, 255, 0.9)',
             border: `1px solid ${theme.palette.divider}`,
             opacity: showRightArrow ? 1 : 0,
             pointerEvents: showRightArrow ? 'auto' : 'none',
             transition: 'opacity 0.3s ease',
-            '&:hover': { bgcolor: 'white' }
+            '&:hover': { 
+              bgcolor: 'white',
+              transform: 'translateY(-50%) scale(1.05)'
+            }
           }}
         >
           <ChevronRight />
