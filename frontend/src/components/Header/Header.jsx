@@ -1,4 +1,4 @@
-import { AppBar, Toolbar, Box, Typography, useMediaQuery, useTheme, IconButton, Drawer, List, ListItem, Divider, Container } from "@mui/material";
+import { AppBar, Toolbar, Box, Typography, useMediaQuery, useTheme, IconButton, Drawer, List, ListItem, Divider } from "@mui/material";
 import { Menu as MenuIcon } from "@mui/icons-material";
 import { useState } from "react";
 import SearchBar from "./SearchBar";
@@ -23,7 +23,13 @@ const Header = () => {
             ModalProps={{ keepMounted: true }}
             sx={{
                 display: { xs: 'block', md: 'none' },
-                '& .MuiDrawer-paper': { boxSizing: 'border-box', width: 240, pt: 2 },
+                '& .MuiDrawer-paper': { 
+                    boxSizing: 'border-box', 
+                    width: 240, 
+                    pt: 2,
+                    background: 'linear-gradient(135deg, #FF8C00 0%, #FF6B35 100%)',
+                    color: 'white'
+                },
             }}
         >
             <List>
@@ -44,19 +50,32 @@ const Header = () => {
         <AppBar
             position="sticky"
             sx={{
-                backgroundColor: 'rgba(255, 255, 255, 0.98)', // 98% opaco
-                backdropFilter: 'blur(8px)', // Efecto de desenfoque
-                color: 'black',
-                boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+                background: 'linear-gradient(135deg, #FF8C00 0%, #FF6B35 50%, #FF4500 100%)',
+                backdropFilter: 'blur(8px)',
+                color: 'white',
+                boxShadow: '0 4px 12px rgba(255, 140, 0, 0.3)',
+                borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
+                padding: 0,
+                margin: 0
             }}
-            elevation={0} // Elimina la sombra por defecto
+            elevation={0}
         >
-            <Container maxWidth="xl">
+            {/* Eliminamos el Container y usamos Box directamente */}
+            <Box sx={{
+                width: '100%',
+                maxWidth: '100%',
+                margin: 0,
+                padding: 0
+            }}>
                 <Toolbar sx={{
                     display: 'flex',
                     justifyContent: 'space-between',
                     alignItems: 'center',
-                    py: 1 // Ajuste de padding vertical
+                    py: 1,
+                    maxWidth: 'xl',
+                    margin: '0 auto',
+                    width: '100%',
+                    px: { xs: 2, sm: 4, md: 6 }
                 }}>
                     <Box sx={{ display: 'flex', alignItems: 'center' }}>
                         {isMobile && (
@@ -66,7 +85,10 @@ const Header = () => {
                                 onClick={handleDrawerToggle}
                                 sx={{
                                     mr: 1,
-                                    color: 'black' // Color del icono negro
+                                    color: 'white',
+                                    '&:hover': {
+                                        backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                                    }
                                 }}
                             >
                                 <MenuIcon />
@@ -79,11 +101,12 @@ const Header = () => {
                             sx={{
                                 textDecoration: 'none',
                                 cursor: 'pointer',
-                                color: '#FF8C00',
-                                fontWeight: '600',
-                                letterSpacing: '0.5px',
+                                color: 'white',
+                                fontWeight: '700',
+                                letterSpacing: '1px',
                                 position: 'relative',
                                 transition: 'all 0.3s ease',
+                                textShadow: '0 2px 4px rgba(0, 0, 0, 0.2)',
                                 '&:after': {
                                     content: '""',
                                     position: 'absolute',
@@ -91,12 +114,15 @@ const Header = () => {
                                     left: '50%',
                                     width: '0',
                                     height: '2px',
-                                    backgroundColor: '#FF8C00',
+                                    backgroundColor: 'white',
                                     transition: 'all 0.3s ease',
-                                    transform: 'translateX(-50%)'
+                                    transform: 'translateX(-50%)',
+                                    boxShadow: '0 0 8px rgba(255, 255, 255, 0.6)'
                                 },
                                 '&:hover': {
-                                    color: '#FF6B35',
+                                    color: '#FFF8DC',
+                                    transform: 'translateY(-1px)',
+                                    textShadow: '0 4px 8px rgba(0, 0, 0, 0.3)',
                                     '&:after': {
                                         width: '100%'
                                     }
@@ -122,27 +148,30 @@ const Header = () => {
                         <CartDropdown />
                     </Box>
                 </Toolbar>
-            </Container>
-            {!isMobile && (
-                <Divider sx={{
-                    backgroundColor: 'rgba(0, 0, 0, 0.12)',
-                    my: 0 // Ajuste del margen del divider
-                }} />
-            )}
-            {!isMobile && (
-                <Container maxWidth="xl">
-                    <Toolbar
-                        variant="dense"
-                        sx={{
-                            justifyContent: 'center',
-                            backgroundColor: 'white', // Fondo blanco para la segunda línea
-                            py: 0 // Ajuste de padding
-                        }}
-                    >
-                        <NavMenu />
-                    </Toolbar>
-                </Container>
-            )}
+
+                {!isMobile && (
+                    <>
+                        <Divider sx={{
+                            backgroundColor: 'rgba(255, 255, 255, 0.2)',
+                            my: 0
+                        }} />
+                        <Toolbar
+                            variant="dense"
+                            sx={{
+                                justifyContent: 'center',
+                                py: 0.5,
+                                borderTop: '1px solid rgba(255, 255, 255, 0.1)',
+                                maxWidth: 'xl',
+                                margin: '0 auto',
+                                width: '100%',
+                                px: { xs: 2, sm: 4, md: 6 }
+                            }}
+                        >
+                            <NavMenu />
+                        </Toolbar>
+                    </>
+                )}
+            </Box>
             {mobileDrawer}
         </AppBar>
     );

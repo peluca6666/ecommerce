@@ -6,52 +6,126 @@ import { useAuth } from '../../context/AuthContext';
 
 const styles = {
     // Estilos del drawer 
-    drawer: {
-        paper: { width: 320, borderRight: '1px solid rgba(0,0,0,0.08)' }
+     drawer: {
+        paper: {
+            background: 'linear-gradient(135deg, #FF6B35 0%, #FF4500 100%)',
+            color: 'white'
+        }
     },
     sidebar: {
         header: {
             display: 'flex', justifyContent: 'space-between', alignItems: 'center', p: 2,
-            background: 'linear-gradient(135deg, #db4f0eff 0%, #f7dbc4e7 100%)', color: 'white',
+            background: 'linear-gradient(135deg, #FF6B35 0%, #FF4500 100%)', 
+            color: 'white',
         },
         headerTitle: { display: 'flex', alignItems: 'center', gap: 1.5 },
         content: { p: 1.5, height: '100%', overflowY: 'auto' },
         catalogButton: {
-            background: 'linear-gradient(45deg, #FF6B6B, #FF8E8E)', color: 'white', py: 1.5,
-            borderRadius: 2, fontWeight: 600, boxShadow: '0 4px 20px rgba(233, 107, 35, 0.3)',
-            '&:hover': { background: 'linear-gradient(45deg, #FF5252, #FF7979)', transform: 'translateY(-2px)' },
-        },
-        listItem: {
-            mb: 0.5, borderRadius: 2, transition: 'transform 0.2s, background-color 0.2s',
-            '&:hover': {
-                background: 'rgba(0,0,0,0.04)', transform: 'translateX(4px)',
+            background: 'rgba(255,255,255,0.15)', 
+            color: 'white', 
+            py: 1.5,
+            borderRadius: 2, 
+            fontWeight: 600, 
+            border: '1px solid rgba(255,255,255,0.3)',
+            '&:hover': { 
+                background: 'rgba(255,255,255,0.25)', 
+                transform: 'translateY(-2px)' 
             },
         },
-        loaderBox: { display: 'flex', flexDirection: 'column', alignItems: 'center', py: 5, gap: 2 },
+        listItem: {
+            mb: 0.5, 
+            borderRadius: 2, 
+            transition: 'transform 0.2s, background-color 0.2s',
+            color: 'white',
+            '&:hover': {
+                background: 'rgba(255,255,255,0.1)', 
+                transform: 'translateX(4px)',
+            },
+        },
+        loaderBox: { 
+            display: 'flex', 
+            flexDirection: 'column', 
+            alignItems: 'center', 
+            py: 5, 
+            gap: 2,
+            '& .MuiCircularProgress-root': { color: 'white' }
+        },
     },
 
     // Estilos base para botones de navegación
     navButton: {
-        color: 'black',
-        textTransform: 'none', borderRadius: 2, py: 0.75, px: 1.5,
+        color: 'white',
+        textTransform: 'none', 
+        borderRadius: 2, 
+        py: 0.75, 
+        px: 1.5,
         transition: 'transform 0.2s, background-color 0.2s',
-        '&:hover': { transform: 'translateY(-1px)' },
+        '&:hover': { 
+            transform: 'translateY(-1px)',
+            backgroundColor: 'rgba(255,255,255,0.1)'
+        },
     },
 
     // Estilos para la vista de escritorio
     desktop: {
-        adminButton: { borderColor: 'rgba(0,0,0,0.2)', color: 'text.primary', '&:hover': { bgcolor: 'action.hover', borderColor: 'text.primary' } },
-        offerButton: { color: '#c0392b', bgcolor: 'rgba(231, 76, 60, 0.1)', '&:hover': { bgcolor: 'rgba(231, 76, 60, 0.2)' } },
+        adminButton: { 
+            borderColor: 'rgba(255,255,255,0.3)', 
+            color: 'white', 
+            '&:hover': { 
+                backgroundColor: 'rgba(255,255,255,0.1)', 
+                borderColor: 'white' 
+            } 
+        },
+        offerButton: { 
+            color: 'white', 
+            backgroundColor: 'rgba(255,255,255,0.1)', 
+            border: '1px solid rgba(255,255,255,0.3)',
+            '&:hover': { 
+                backgroundColor: 'rgba(255,255,255,0.2)' 
+            } 
+        },
     },
 
     // Estilos para la vista móvil
     mobile: {
-        container: { width: '100%', p: 1 },
-        baseButton: { justifyContent: 'flex-start', width: '100%', mb: 1, py: 1.25, px: 2 },
-        adminButton: { color: 'secondary.main', fontWeight: 'bold', border: '1px solid', borderColor: 'secondary.light' },
-        categoryToggle: { bgcolor: 'action.hover' },
-        offerButton: { background: 'linear-gradient(45deg, #FF6B6B, #FF8E8E)', color: 'white', '& .MuiSvgIcon-root': { color: 'white' } },
-        listItem: { pl: 4, mb: 0.5, borderRadius: 2 },
+        container: { 
+            width: '100%', 
+            p: 1,
+            background: 'linear-gradient(135deg, #FF6B35 0%, #FF4500 100%)'
+        },
+        baseButton: { 
+            justifyContent: 'flex-start', 
+            width: '100%', 
+            mb: 1, 
+            py: 1.25, 
+            px: 2,
+            color: 'white'
+        },
+        adminButton: { 
+            color: 'white', 
+            fontWeight: 'bold', 
+            border: '1px solid', 
+            borderColor: 'rgba(255,255,255,0.3)' 
+        },
+        categoryToggle: { 
+            backgroundColor: 'rgba(255,255,255,0.1)',
+            color: 'white'
+        },
+        offerButton: { 
+            background: 'rgba(255,255,255,0.15)', 
+            color: 'white', 
+            border: '1px solid rgba(255,255,255,0.3)',
+            '& .MuiSvgIcon-root': { color: 'white' } 
+        },
+        listItem: { 
+            pl: 4, 
+            mb: 0.5, 
+            borderRadius: 2,
+            color: 'white',
+            '&:hover': {
+                background: 'rgba(255,255,255,0.1)'
+            }
+        },
     },
 
     // Estilos para el contenedor principal
@@ -63,7 +137,10 @@ const styles = {
         overflowX: 'auto',
         '&::-webkit-scrollbar': { display: 'none' },
         msOverflowStyle: 'none',
-        scrollbarWidth: 'none'
+        scrollbarWidth: 'none',
+        background: 'linear-gradient(135deg, #FF6B35 0%, #FF4500 100%)',
+        padding: '8px 16px',
+        borderRadius: '8px'
     },
 
     // Estilos para botones de categoría
@@ -73,16 +150,15 @@ const styles = {
         borderRadius: 2,
         px: 1.5,
         py: 0.75,
-        color: 'text.primary',
+        color: 'white',
         '&:hover': {
-            backgroundColor: 'rgba(0,0,0,0.04)',
+            backgroundColor: 'rgba(255, 255, 255, 0.15)',
             transform: 'translateY(-1px)'
         },
         transition: 'all 0.2s ease',
         minWidth: 'auto'
     }
 };
-
 
 /* Muestra la lista de categorías */
 const CategoryList = ({ categories, onItemClick, mobile = false }) => (
@@ -94,7 +170,7 @@ const CategoryList = ({ categories, onItemClick, mobile = false }) => (
                 onClick={onItemClick} 
                 sx={styles.mobile.listItem}
             >
-                <ListItemText primary="Ver Todo el Catálogo" primaryTypographyProps={{ fontWeight: 500 }} />
+                <ListItemText primary="Ver Todo el Catálogo" primaryTypographyProps={{ fontWeight: 500, color: 'white' }} />
             </ListItemButton>
         )}
         {categories.map((cat) => (
@@ -105,7 +181,7 @@ const CategoryList = ({ categories, onItemClick, mobile = false }) => (
                 onClick={onItemClick}
                 sx={mobile ? styles.mobile.listItem : styles.sidebar.listItem}
             >
-                <ListItemText primary={cat.nombre} primaryTypographyProps={{ fontWeight: 500 }} />
+                <ListItemText primary={cat.nombre} primaryTypographyProps={{ fontWeight: 500, color: 'white' }} />
             </ListItemButton>
         ))}
     </List>
@@ -116,7 +192,7 @@ const SidebarContent = ({ loading, categories, onItemClick, onClose }) => (
     <>
         <Box sx={styles.sidebar.header}>
             <Box sx={styles.sidebar.headerTitle}>
-                <Typography variant="h6" fontWeight={700}>Categorías</Typography>
+                <Typography variant="h6" fontWeight={700} color="white">Categorías</Typography>
             </Box>
             <IconButton onClick={onClose} sx={{ color: 'white' }}><Close /></IconButton>
         </Box>
@@ -125,11 +201,11 @@ const SidebarContent = ({ loading, categories, onItemClick, onClose }) => (
             <Button fullWidth component={RouterLink} to="/productos" onClick={onItemClick} sx={styles.sidebar.catalogButton}>
                 Ver Todo el Catálogo
             </Button>
-            <Divider sx={{ my: 2 }} />
+            <Divider sx={{ my: 2, borderColor: 'rgba(255,255,255,0.2)' }} />
             {loading ? (
                 <Box sx={styles.sidebar.loaderBox}>
                     <CircularProgress size={30} />
-                    <Typography variant="body2" color="text.secondary">Cargando...</Typography>
+                    <Typography variant="body2" color="white">Cargando...</Typography>
                 </Box>
             ) : (
                 <CategoryList categories={categories} onItemClick={onItemClick} />
@@ -183,7 +259,7 @@ const NavMenu = ({ mobile = false, onItemClick }) => {
                 </Button>
 
                 <Collapse in={openMobileCategories} timeout="auto" unmountOnExit>
-                    {loading ? <CircularProgress sx={{ ml: 4, my: 2 }} size={24}/> : <CategoryList categories={categories} onItemClick={onItemClick} mobile />}
+                    {loading ? <CircularProgress sx={{ ml: 4, my: 2, color: 'white' }} size={24}/> : <CategoryList categories={categories} onItemClick={onItemClick} mobile />}
                 </Collapse>
 
                 <Button 
