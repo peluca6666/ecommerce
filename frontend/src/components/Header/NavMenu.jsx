@@ -4,10 +4,8 @@ import { Link as RouterLink } from 'react-router-dom';
 import { ExpandLess, ExpandMore, AdminPanelSettings, Close, ViewList, LocalOffer, Menu as MenuIcon } from '@mui/icons-material';
 import { useAuth } from '../../context/AuthContext';
 
-// --- DEFINICIÓN DE ESTILOS ---
-
 const styles = {
-    // Estilos del Drawer (Sidebar)
+    // Estilos del drawer 
     drawer: {
         paper: { width: 320, borderRight: '1px solid rgba(0,0,0,0.08)' }
     },
@@ -31,6 +29,7 @@ const styles = {
         },
         loaderBox: { display: 'flex', flexDirection: 'column', alignItems: 'center', py: 5, gap: 2 },
     },
+
     // Estilos base para botones de navegación
     navButton: {
         color: 'black',
@@ -38,11 +37,13 @@ const styles = {
         transition: 'transform 0.2s, background-color 0.2s',
         '&:hover': { transform: 'translateY(-1px)' },
     },
+
     // Estilos para la vista de escritorio
     desktop: {
         adminButton: { borderColor: 'rgba(0,0,0,0.2)', color: 'text.primary', '&:hover': { bgcolor: 'action.hover', borderColor: 'text.primary' } },
         offerButton: { color: '#c0392b', bgcolor: 'rgba(231, 76, 60, 0.1)', '&:hover': { bgcolor: 'rgba(231, 76, 60, 0.2)' } },
     },
+
     // Estilos para la vista móvil
     mobile: {
         container: { width: '100%', p: 1 },
@@ -52,6 +53,7 @@ const styles = {
         offerButton: { background: 'linear-gradient(45deg, #FF6B6B, #FF8E8E)', color: 'white', '& .MuiSvgIcon-root': { color: 'white' } },
         listItem: { pl: 4, mb: 0.5, borderRadius: 2 },
     },
+
     // Estilos para el contenedor principal
     desktopNavContainer: {
         display: 'flex',
@@ -63,6 +65,7 @@ const styles = {
         msOverflowStyle: 'none',
         scrollbarWidth: 'none'
     },
+
     // Estilos para botones de categoría
     categoryButton: {
         whiteSpace: 'nowrap',
@@ -80,9 +83,8 @@ const styles = {
     }
 };
 
-// --- SUB-COMPONENTES PARA MAYOR CLARIDAD ---
 
-/** Muestra la lista de categorías sin iconos */
+/* Muestra la lista de categorías */
 const CategoryList = ({ categories, onItemClick, mobile = false }) => (
     <List disablePadding sx={{ mt: mobile ? 1 : 0 }}>
         {mobile && (
@@ -109,7 +111,7 @@ const CategoryList = ({ categories, onItemClick, mobile = false }) => (
     </List>
 );
 
-/** Renderiza el contenido completo del Sidebar. */
+/* Renderiza el contenido completo del sidebar*/
 const SidebarContent = ({ loading, categories, onItemClick, onClose }) => (
     <>
         <Box sx={styles.sidebar.header}>
@@ -136,7 +138,7 @@ const SidebarContent = ({ loading, categories, onItemClick, onClose }) => (
     </>
 );
 
-// --- COMPONENTE PRINCIPAL ---
+// COMPONENTE PRINCIPAL 
 
 const NavMenu = ({ mobile = false, onItemClick }) => {
     const { user } = useAuth();
@@ -166,7 +168,7 @@ const NavMenu = ({ mobile = false, onItemClick }) => {
         else setSidebarOpen(false);
     };
 
-    // --- RENDERIZADO VISTA MÓVIL ---
+    // RENDERIZADO VISTA MÓVIL
     if (mobile) {
         return (
             <Box sx={styles.mobile.container}>
@@ -197,7 +199,7 @@ const NavMenu = ({ mobile = false, onItemClick }) => {
         );
     }
 
-    // --- RENDERIZADO VISTA DESKTOP ---
+    // RENDERIZADO VISTA DESKTOP
     return (
         <Box sx={styles.desktopNavContainer}>
             {user?.rol === 'admin' && (

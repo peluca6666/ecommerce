@@ -33,7 +33,6 @@ const Header = () => {
                 <ListItem sx={{ px: 2, display: 'flex', flexDirection: 'column', alignItems: 'stretch', gap: 1 }}>
                     <NavMenu mobile onItemClick={() => setDrawerOpen(false)} />
                 </ListItem>
-                {/* Agregar UserButton en el drawer móvil si es necesario */}
                 <ListItem sx={{ px: 2, pt: 2 }}>
                     <UserButton mobile />
                 </ListItem>
@@ -42,12 +41,34 @@ const Header = () => {
     );
 
     return (
-        <AppBar position="sticky" color="white" elevation={1}>
+        <AppBar 
+            position="sticky" 
+            sx={{ 
+                backgroundColor: 'white', // Fondo blanco sólido
+                color: 'black', // Color de texto negro
+                boxShadow: '0 2px 4px rgba(0,0,0,0.1)', // Sombra sutil
+                backgroundImage: 'none', // Elimina cualquier degradado
+            }}
+            elevation={0} // Elimina la sombra por defecto
+        >
             <Container maxWidth="xl">
-                <Toolbar sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <Toolbar sx={{ 
+                    display: 'flex', 
+                    justifyContent: 'space-between', 
+                    alignItems: 'center',
+                    py: 1 // Ajuste de padding vertical
+                }}>
                     <Box sx={{ display: 'flex', alignItems: 'center' }}>
                         {isMobile && (
-                            <IconButton color="inherit" edge="start" onClick={handleDrawerToggle} sx={{ mr: 1 }}>
+                            <IconButton 
+                                color="inherit" 
+                                edge="start" 
+                                onClick={handleDrawerToggle} 
+                                sx={{ 
+                                    mr: 1,
+                                    color: 'black' // Color del icono negro
+                                }}
+                            >
                                 <MenuIcon />
                             </IconButton>
                         )}
@@ -84,25 +105,26 @@ const Header = () => {
                         display: 'flex', 
                         alignItems: 'center', 
                         gap: { xs: 1, sm: 2 },
-                        // Asegurarse de que siempre sea visible
-                        visibility: { xs: 'visible', md: 'visible' }
                     }}>
-                        {/* UserButton siempre visible */}
-                        <Box sx={{ display: { xs: 'block', md: 'block' } }}>
-                            <UserButton />
-                        </Box>
+                        <UserButton />
                         <CartDropdown />
                     </Box>
                 </Toolbar>
             </Container>
-            {!isMobile && <Divider />}
+            {!isMobile && (
+                <Divider sx={{ 
+                    backgroundColor: 'rgba(0, 0, 0, 0.12)', 
+                    my: 0 // Ajuste del margen del divider
+                }} />
+            )}
             {!isMobile && (
                 <Container maxWidth="xl">
                     <Toolbar
                         variant="dense"
                         sx={{
-                            justifyContent: 'center',        
-                            color: 'black'
+                            justifyContent: 'center',
+                            backgroundColor: 'white', // Fondo blanco para la segunda línea
+                            py: 0 // Ajuste de padding
                         }}
                     >
                         <NavMenu />
