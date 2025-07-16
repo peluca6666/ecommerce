@@ -188,7 +188,7 @@ const BannerCarousel = () => {
           transition: 'all 0.2s ease',
         }}
       >
-        <ArrowBackIosIcon sx={{ fontSize: '1 rem' }} />
+        <ArrowBackIosIcon sx={{ fontSize: '1.5 rem' }} />
       </IconButton>
 
       {/* Flecha siguiente */}
@@ -212,7 +212,7 @@ const BannerCarousel = () => {
           transition: 'all 0.2s ease',
         }}
       >
-        <ArrowForwardIosIcon sx={{ fontSize: '1 rem' }} />
+        <ArrowForwardIosIcon sx={{ fontSize: '1.5  rem' }} />
       </IconButton>
 
       {/* Indicadores (dots) */}
