@@ -73,26 +73,30 @@ const Header = () => {
                             </IconButton>
                         )}
                         <Typography
-                            variant="h5"
-                            component={RouterLink}
-                            to="/main"
-                            sx={{
-                                textDecoration: 'none',
-                                cursor: 'pointer',
-                                background: 'linear-gradient(45deg, #FF8C00, #FF6B35, #FF4500)',
-                                WebkitBackgroundClip: 'text',
-                                WebkitTextFillColor: 'transparent',
-                                fontWeight: 'bold',
-                                letterSpacing: '0.5px',
-                                transition: 'all 0.3s ease',
-                                '&:hover': {
-                                    transform: 'scale(1.05)',
-                                    filter: 'brightness(1.2)'
-                                }
-                            }}
-                        >
-                            S a l o m a r k e t
-                        </Typography>
+    variant="h5"
+    component={RouterLink}
+    to="/main"
+    sx={{ 
+        textDecoration: 'none', 
+        cursor: 'pointer',
+        color: '#FF8C00',
+        fontFamily: '"Roboto", "Arial Black", sans-serif',
+        fontWeight: 900,
+        letterSpacing: '2px',
+        textTransform: 'uppercase',
+        border: '2px solid #FF8C00',
+        borderRadius: '8px',
+        padding: '4px 12px',
+        transition: 'all 0.3s ease',
+        '&:hover': {
+            backgroundColor: '#FF8C00',
+            color: 'white',
+            transform: 'scale(1.02)'
+        }
+    }}
+>
+    S a l o m a r k e t
+</Typography>
                     </Box>
                     
                     {!isMobile && (
