@@ -58,7 +58,7 @@ const CategorySlider = ({ categoria }) => {
           fontWeight: 'bold', 
           textAlign: 'center',
           color: 'text.primary',
-          background: 'linear-gradient(135deg, #1976d2 0%, #42a5f5 100%)',
+          background: 'linear-gradient(135deg, #e77911ff 0%, #f57b42ff 100%)',
           WebkitBackgroundClip: 'text',
           WebkitTextFillColor: 'transparent',
           backgroundClip: 'text',
@@ -71,7 +71,7 @@ const CategorySlider = ({ categoria }) => {
             transform: 'translateX(-50%)',
             width: 60,
             height: 3,
-            background: 'linear-gradient(135deg, #1976d2 0%, #42a5f5 100%)',
+            background: 'linear-gradient(135deg, #d25d19ff 0%, #f59342ff 100%)',
             borderRadius: 2,
           }
         }}
