@@ -10,6 +10,7 @@ import { Link as RouterLink } from 'react-router-dom';
 const Header = () => {
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+    const isSmallScreen = useMediaQuery(theme.breakpoints.down('sm'));
     const [drawerOpen, setDrawerOpen] = useState(false);
 
     const handleDrawerToggle = () => setDrawerOpen(!drawerOpen);
@@ -60,7 +61,6 @@ const Header = () => {
             }}
             elevation={0}
         >
-            {/* Eliminamos el Container y usamos Box directamente */}
             <Box sx={{
                 width: '100%',
                 maxWidth: '100%',
@@ -71,20 +71,25 @@ const Header = () => {
                     display: 'flex',
                     justifyContent: 'space-between',
                     alignItems: 'center',
-                    py: 1,
+                    py: { xs: 0.5, sm: 1 },
+                    minHeight: { xs: 56, sm: 64 },
                     maxWidth: 'xl',
                     margin: '0 auto',
                     width: '100%',
-                    px: { xs: 2, sm: 4, md: 6 }
+                    px: { xs: 1, sm: 2, md: 6 }
                 }}>
-                    <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                    <Box sx={{ 
+                        display: 'flex', 
+                        alignItems: 'center',
+                        flex: isMobile ? 1 : 'initial'
+                    }}>
                         {isMobile && (
                             <IconButton
                                 color="inherit"
                                 edge="start"
                                 onClick={handleDrawerToggle}
                                 sx={{
-                                    mr: 1,
+                                    mr: { xs: 0.5, sm: 1 },
                                     color: 'white',
                                     '&:hover': {
                                         backgroundColor: 'rgba(255, 255, 255, 0.1)',
@@ -95,7 +100,7 @@ const Header = () => {
                             </IconButton>
                         )}
                         <Typography
-                            variant="h5"
+                            variant={isSmallScreen ? "h6" : "h5"}
                             component={RouterLink}
                             to="/main"
                             sx={{
@@ -103,7 +108,9 @@ const Header = () => {
                                 cursor: 'pointer',
                                 color: 'white',
                                 fontWeight: '700',
-                                letterSpacing: '1px',
+                                letterSpacing: { xs: '0.5px', sm: '1px' },
+                                fontSize: { xs: '1rem', sm: '1.25rem', md: '1.5rem' },
+                                whiteSpace: 'nowrap',
                                 position: 'relative',
                                 transition: 'all 0.3s ease',
                                 textShadow: '0 2px 4px rgba(0, 0, 0, 0.2)',
@@ -129,12 +136,18 @@ const Header = () => {
                                 }
                             }}
                         >
-                            S a l o m a r k e t
+                            {isSmallScreen ? 'Salomarket' : 'S a l o m a r k e t'}
                         </Typography>
                     </Box>
 
                     {!isMobile && (
-                        <Box sx={{ flex: 1, display: 'flex', justifyContent: 'center', px: 4 }}>
+                        <Box sx={{ 
+                            flex: 1, 
+                            display: 'flex', 
+                            justifyContent: 'center', 
+                            px: { md: 2, lg: 4 },
+                            maxWidth: '600px'
+                        }}>
                             <SearchBar />
                         </Box>
                     )}
@@ -142,7 +155,7 @@ const Header = () => {
                     <Box sx={{
                         display: 'flex',
                         alignItems: 'center',
-                        gap: { xs: 1, sm: 2 },
+                        gap: { xs: 0.5, sm: 1, md: 2 },
                     }}>
                         <UserButton />
                         <CartDropdown />
@@ -160,6 +173,7 @@ const Header = () => {
                             sx={{
                                 justifyContent: 'center',
                                 py: 0.5,
+                                minHeight: 48,
                                 borderTop: '1px solid rgba(255, 255, 255, 0.1)',
                                 maxWidth: 'xl',
                                 margin: '0 auto',

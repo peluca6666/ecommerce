@@ -1,22 +1,25 @@
-import { Outlet } from 'react-router-dom';
+import { Outlet, useLocation } from 'react-router-dom';
 import Header from '../Header/Header'; 
 import Footer from '../Footer/Footer'; 
-import { Container } from '@mui/material';
+import { Container, Box } from '@mui/material';
 
-// componente plantilla que muestra header y footer
-// y en medio carga la página correspondiente con <Outlet />
 const MainLayout = () => {
+  const location = useLocation();
+  const isLoginOrRegister = ['/login', '/register'].includes(location.pathname);
+
   return (
     <>
       <Header />
       <main>
-         <Container 
-                component="main" 
-                maxWidth="xl" // Podés cambiar a "md" o "xl" según prefieras
-                sx={{ py: 3 }} // 'py' agrega un padding vertical (arriba y abajo)
-            >
-                <Outlet />
-            </Container>
+        {isLoginOrRegister ? (
+          <Box sx={{ width: '100%' }}>
+            <Outlet />
+          </Box>
+        ) : (
+          <Container component="main" maxWidth="xl" sx={{ py: 0 }}>
+            <Outlet />
+          </Container>
+        )}
       </main>
       <Footer />
     </>
