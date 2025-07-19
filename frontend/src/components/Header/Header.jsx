@@ -4,7 +4,7 @@ import { useState } from "react";
 import SearchBar from "./SearchBar";
 import NavMenu from "./NavMenu";
 import CartDropdown from "../Cart/CartDropdown.jsx";
-import UserButton from "../Common/UserButton.jsx";
+import UserButton from "../common/UserButton.jsx";
 import { Link as RouterLink } from 'react-router-dom';
 
 const Header = () => {
