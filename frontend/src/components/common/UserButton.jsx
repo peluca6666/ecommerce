@@ -35,7 +35,35 @@ const UserButton = () => {
     navigate("/profile");
   };
 
-  // Versión para móvil no autenticado (iconos)
+  // Estilos para botones con línea hover
+  const buttonWithLineStyles = {
+    textTransform: 'none', 
+    fontWeight: 500,
+    color: 'inherit',
+    pb: 1, // Espacio para la línea
+    position: 'relative',
+    transition: 'all 0.3s ease',
+    '&::after': {
+      content: '""',
+      position: 'absolute',
+      bottom: 0,
+      left: '50%',
+      width: '0%',
+      height: '2px',
+      backgroundColor: 'white',
+      transition: 'all 0.3s ease',
+      transform: 'translateX(-50%)',
+      boxShadow: '0 0 6px rgba(255, 255, 255, 0.8)'
+    },
+    '&:hover': {
+      transform: 'translateY(-1px)',
+      '&::after': {
+        width: '100%'
+      }
+    }
+  };
+
+  // Versión para móvil no autenticado (iconos con líneas)
   if (!isAuthenticated && isMobile) {
     return (
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
@@ -43,7 +71,30 @@ const UserButton = () => {
           color="inherit"
           onClick={handleLogin}
           aria-label="Iniciar sesión"
-          sx={{ p: 1 }}
+          sx={{ 
+            p: 1,
+            pb: 1.5, // Espacio para la línea
+            position: 'relative',
+            transition: 'all 0.3s ease',
+            '&::after': {
+              content: '""',
+              position: 'absolute',
+              bottom: 0,
+              left: '50%',
+              width: '0%',
+              height: '2px',
+              backgroundColor: 'white',
+              transition: 'all 0.3s ease',
+              transform: 'translateX(-50%)',
+              boxShadow: '0 0 6px rgba(255, 255, 255, 0.8)'
+            },
+            '&:hover': {
+              transform: 'translateY(-1px)',
+              '&::after': {
+                width: '100%'
+              }
+            }
+          }}
         >
           <Login />
         </IconButton>
@@ -51,7 +102,30 @@ const UserButton = () => {
           color="inherit"
           onClick={handleRegister}
           aria-label="Registrarse"
-          sx={{ p: 1 }}
+          sx={{ 
+            p: 1,
+            pb: 1.5, // Espacio para la línea
+            position: 'relative',
+            transition: 'all 0.3s ease',
+            '&::after': {
+              content: '""',
+              position: 'absolute',
+              bottom: 0,
+              left: '50%',
+              width: '0%',
+              height: '2px',
+              backgroundColor: 'white',
+              transition: 'all 0.3s ease',
+              transform: 'translateX(-50%)',
+              boxShadow: '0 0 6px rgba(255, 255, 255, 0.8)'
+            },
+            '&:hover': {
+              transform: 'translateY(-1px)',
+              '&::after': {
+                width: '100%'
+              }
+            }
+          }}
         >
           <PersonAdd />
         </IconButton>
@@ -59,7 +133,7 @@ const UserButton = () => {
     );
   }
 
-  // Versión para desktop no autenticado (texto completo)
+  // Versión para desktop no autenticado (texto completo con líneas individuales)
   if (!isAuthenticated) {
     return (
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
@@ -67,18 +141,25 @@ const UserButton = () => {
           variant="text"
           color="inherit"
           onClick={handleLogin}
-          sx={{ textTransform: 'none', fontWeight: 500 }}
+          sx={buttonWithLineStyles}
         >
           Iniciar sesión  
         </Button>
         
-        <Divider orientation="vertical" flexItem />
+        <Divider 
+          orientation="vertical" 
+          flexItem 
+          sx={{ 
+            borderColor: 'rgba(255, 255, 255, 0.3)',
+            mx: 0.5
+          }} 
+        />
         
         <Button
           variant="text"
           color="inherit"
           onClick={handleRegister}
-          sx={{ textTransform: 'none', fontWeight: 500 }}
+          sx={buttonWithLineStyles}
         >
           Registrarse 
         </Button>
@@ -86,7 +167,7 @@ const UserButton = () => {
     );
   }
 
-  // Usuario autenticado (todas las pantallas)
+  // Usuario autenticado (con línea hover también)
   return (
     <>
       <Button
@@ -99,14 +180,31 @@ const UserButton = () => {
           fontWeight: 'medium',
           borderRadius: '20px',
           bgcolor: 'transparent',
-          '&:hover': {
-            bgcolor: theme.palette.action.hover,
-            transform: 'translateY(-1px)'
-          },
-          transition: 'all 0.3s ease-in-out',
+          pb: 1.25, // Espacio para la línea
+          position: 'relative',
+          transition: 'all 0.3s ease',
           px: 1.5,
           py: 0.5,
-          minWidth: 'auto'
+          minWidth: 'auto',
+          '&::after': {
+            content: '""',
+            position: 'absolute',
+            bottom: 0,
+            left: '50%',
+            width: '0%',
+            height: '2px',
+            backgroundColor: 'white',
+            transition: 'all 0.3s ease',
+            transform: 'translateX(-50%)',
+            boxShadow: '0 0 6px rgba(255, 255, 255, 0.8)'
+          },
+          '&:hover': {
+            bgcolor: theme.palette.action.hover,
+            transform: 'translateY(-1px)',
+            '&::after': {
+              width: '100%'
+            }
+          }
         }}
       >
         <AccountCircle sx={{ mr: { xs: 0, sm: 0.5 } }} />

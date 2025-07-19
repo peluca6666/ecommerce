@@ -120,24 +120,24 @@ const Header = () => {
                                 textShadow: '0 2px 4px rgba(0, 0, 0, 0.2)',
                                 overflow: 'hidden', 
                                 textOverflow: 'ellipsis', 
-                                flexShrink: 0, 
-                                '&:after': {
+                                flexShrink: 0,
+                                pb: 1, // Espacio para la línea
+                                '&::after': {
                                     content: '""',
                                     position: 'absolute',
-                                    bottom: '-4px',
-                                    left: '50%',
-                                    width: '0',
+                                    bottom: 0,
+                                    left: 0,
+                                    width: '0%',
                                     height: '2px',
                                     backgroundColor: 'white',
-                                    transition: 'all 0.3s ease',
-                                    transform: 'translateX(-50%)',
-                                    boxShadow: '0 0 8px rgba(255, 255, 255, 0.6)'
+                                    transition: 'width 0.3s ease',
+                                    boxShadow: '0 0 8px rgba(255, 255, 255, 0.8)'
                                 },
                                 '&:hover': {
                                     color: '#FFF8DC',
                                     transform: 'translateY(-1px)',
                                     textShadow: '0 4px 8px rgba(0, 0, 0, 0.3)',
-                                    '&:after': {
+                                    '&::after': {
                                         width: '100%'
                                     }
                                 }
@@ -167,7 +167,27 @@ const Header = () => {
                         flexShrink: 0 
                     }}>
                         <UserButton />
-                        <CartDropdown />
+                        <Box sx={{
+                            position: 'relative',
+                            pb: 1, // Espacio para la línea
+                            '&::after': {
+                                content: '""',
+                                position: 'absolute',
+                                bottom: 0,
+                                left: '50%',
+                                width: '0%',
+                                height: '2px',
+                                backgroundColor: 'white',
+                                transition: 'all 0.3s ease',
+                                transform: 'translateX(-50%)',
+                                boxShadow: '0 0 6px rgba(255, 255, 255, 0.8)'
+                            },
+                            '&:hover::after': {
+                                width: '100%'
+                            }
+                        }}>
+                            <CartDropdown />
+                        </Box>
                     </Box>
                 </Toolbar>
 
@@ -184,7 +204,6 @@ const Header = () => {
                                 py: 0.5,
                                 minHeight: 48,
                                 borderTop: '1px solid rgba(255, 255, 255, 0.1)',
-                                
                                 width: '100%',
                                 px: { xs: 2, sm: 3, md: 3, lg: 4 }, 
                                 boxSizing: 'border-box',

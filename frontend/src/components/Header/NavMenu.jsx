@@ -52,17 +52,34 @@ const styles = {
         },
     },
 
-    // Estilos base para botones de navegación
+    // Estilos base para botones de navegación con efecto de línea
     navButton: {
         color: 'white',
         textTransform: 'none', 
         borderRadius: 2, 
         py: 0.75, 
         px: 1.5,
+        pb: 1.25, // Espacio extra para la línea
+        position: 'relative',
         transition: 'transform 0.2s, background-color 0.2s',
+        '&::after': {
+            content: '""',
+            position: 'absolute',
+            bottom: 0,
+            left: '50%',
+            width: '0%',
+            height: '2px',
+            backgroundColor: 'white',
+            transition: 'all 0.3s ease',
+            transform: 'translateX(-50%)',
+            boxShadow: '0 0 6px rgba(255, 255, 255, 0.8)'
+        },
         '&:hover': { 
             transform: 'translateY(-1px)',
-            backgroundColor: 'rgba(255,255,255,0.1)'
+            backgroundColor: 'rgba(255,255,255,0.1)',
+            '&::after': {
+                width: '100%'
+            }
         },
     },
 
@@ -70,18 +87,52 @@ const styles = {
     desktop: {
         adminButton: { 
             borderColor: 'rgba(255,255,255,0.3)', 
-            color: 'white', 
+            color: 'white',
+            pb: 1.25, // Espacio para la línea
+            position: 'relative',
+            '&::after': {
+                content: '""',
+                position: 'absolute',
+                bottom: 0,
+                left: '50%',
+                width: '0%',
+                height: '2px',
+                backgroundColor: 'white',
+                transition: 'all 0.3s ease',
+                transform: 'translateX(-50%)',
+                boxShadow: '0 0 6px rgba(255, 255, 255, 0.8)'
+            },
             '&:hover': { 
                 backgroundColor: 'rgba(255,255,255,0.1)', 
-                borderColor: 'white' 
+                borderColor: 'white',
+                '&::after': {
+                    width: '100%'
+                }
             } 
         },
         offerButton: { 
             color: 'white', 
             backgroundColor: 'rgba(255,255,255,0.1)', 
             border: '1px solid rgba(255,255,255,0.3)',
+            pb: 1.25, // Espacio para la línea
+            position: 'relative',
+            '&::after': {
+                content: '""',
+                position: 'absolute',
+                bottom: 0,
+                left: '50%',
+                width: '0%',
+                height: '2px',
+                backgroundColor: 'white',
+                transition: 'all 0.3s ease',
+                transform: 'translateX(-50%)',
+                boxShadow: '0 0 6px rgba(255, 255, 255, 0.8)'
+            },
             '&:hover': { 
-                backgroundColor: 'rgba(255,255,255,0.2)' 
+                backgroundColor: 'rgba(255,255,255,0.2)',
+                '&::after': {
+                    width: '100%'
+                }
             } 
         },
     },
@@ -128,21 +179,37 @@ const styles = {
         },
     },
 
-
-    // Estilos para botones de categoría
+    // Estilos para botones de categoría con efecto de línea
     categoryButton: {
         whiteSpace: 'nowrap',
         textTransform: 'none',
         borderRadius: 2,
         px: 1.5,
         py: 0.75,
+        pb: 1.25, // Espacio para la línea
         color: 'white',
+        position: 'relative',
+        transition: 'all 0.2s ease',
+        minWidth: 'auto',
+        '&::after': {
+            content: '""',
+            position: 'absolute',
+            bottom: 0,
+            left: '50%',
+            width: '0%',
+            height: '2px',
+            backgroundColor: 'white',
+            transition: 'all 0.3s ease',
+            transform: 'translateX(-50%)',
+            boxShadow: '0 0 6px rgba(255, 255, 255, 0.8)'
+        },
         '&:hover': {
             backgroundColor: 'rgba(255, 255, 255, 0.15)',
-            transform: 'translateY(-1px)'
-        },
-        transition: 'all 0.2s ease',
-        minWidth: 'auto'
+            transform: 'translateY(-1px)',
+            '&::after': {
+                width: '100%'
+            }
+        }
     }
 };
 
@@ -208,7 +275,6 @@ const SidebarContent = ({ loading, categories, onItemClick, onClose }) => (
 );
 
 // COMPONENTE PRINCIPAL 
-
 const NavMenu = ({ mobile = false, onItemClick }) => {
     const { user } = useAuth();
     const [categories, setCategories] = useState([]);
