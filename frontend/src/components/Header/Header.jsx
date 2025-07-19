@@ -59,33 +59,32 @@ const Header = () => {
                 padding: 0,
                 margin: 0,
                 width: '100%',
-                overflow: 'hidden' // Previene overflow horizontal
+                overflow: 'hidden' 
             }}
             elevation={0}
         >
             <Box sx={{
                 width: '100%',
-                maxWidth: '100vw', // Cambiado de 100% a 100vw
+                maxWidth: '100vw',
                 margin: 0,
                 padding: 0,
-                overflow: 'hidden' // Agregado
+                overflow: 'hidden'
             }}>
                 <Toolbar sx={{
                     display: 'flex',
                     justifyContent: 'space-between',
                     alignItems: 'center',
                     py: { xs: 0.5, sm: 1 },
-                    minHeight: { xs: 56, sm: 64 },
-                    // Removido maxWidth y margin auto problemáticos
+                    minHeight: { xs: 56, sm: 64 },      
                     width: '100%',
-                    px: { xs: 1, sm: 2, md: 3, lg: 4 }, // Reducido padding en md
-                    boxSizing: 'border-box' // Agregado
+                    px: { xs: 1, sm: 2, md: 3, lg: 4 }, 
+                    boxSizing: 'border-box' 
                 }}>
                     <Box sx={{ 
                         display: 'flex', 
                         alignItems: 'center',
                         flex: isMobile ? 1 : 'initial',
-                        minWidth: 0 // Permite que se comprima si es necesario
+                        minWidth: 0 
                     }}>
                         {isMobile && (
                             <IconButton
@@ -95,7 +94,7 @@ const Header = () => {
                                 sx={{
                                     mr: { xs: 0.5, sm: 1 },
                                     color: 'white',
-                                    flexShrink: 0, // No se comprime
+                                    flexShrink: 0, 
                                     '&:hover': {
                                         backgroundColor: 'rgba(255, 255, 255, 0.1)',
                                     }
@@ -119,9 +118,9 @@ const Header = () => {
                                 position: 'relative',
                                 transition: 'all 0.3s ease',
                                 textShadow: '0 2px 4px rgba(0, 0, 0, 0.2)',
-                                overflow: 'hidden', // Agregado
-                                textOverflow: 'ellipsis', // Agregado
-                                flexShrink: 0, // No se comprime
+                                overflow: 'hidden', 
+                                textOverflow: 'ellipsis', 
+                                flexShrink: 0, 
                                 '&:after': {
                                     content: '""',
                                     position: 'absolute',
@@ -153,9 +152,9 @@ const Header = () => {
                             flex: 1, 
                             display: 'flex', 
                             justifyContent: 'center', 
-                            px: { md: 1, lg: 2 }, // Reducido padding
-                            maxWidth: '500px', // Reducido de 600px
-                            minWidth: 0 // Permite compresión
+                            px: { md: 1, lg: 2 }, 
+                            maxWidth: '500px', 
+                            minWidth: 0 
                         }}>
                             <SearchBar />
                         </Box>
@@ -164,8 +163,8 @@ const Header = () => {
                     <Box sx={{
                         display: 'flex',
                         alignItems: 'center',
-                        gap: { xs: 0.5, sm: 1, md: 1.5 }, // Reducido gap en md
-                        flexShrink: 0 // No se comprime
+                        gap: { xs: 0.5, sm: 1, md: 1.5 }, 
+                        flexShrink: 0 
                     }}>
                         <UserButton />
                         <CartDropdown />
@@ -185,11 +184,11 @@ const Header = () => {
                                 py: 0.5,
                                 minHeight: 48,
                                 borderTop: '1px solid rgba(255, 255, 255, 0.1)',
-                                // Removido maxWidth y margin auto
+                                
                                 width: '100%',
-                                px: { xs: 2, sm: 3, md: 3, lg: 4 }, // Reducido padding
+                                px: { xs: 2, sm: 3, md: 3, lg: 4 }, 
                                 boxSizing: 'border-box',
-                                overflow: 'hidden' // Agregado
+                                overflow: 'hidden' 
                             }}
                         >
                             <NavMenu />
