@@ -116,21 +116,69 @@ const MainPage = () => {
   }
 
   return (
-    <Box >
+    <Box>
+      {/* Banner con container limitado */}
       <Container maxWidth="lg">
         <MainBanner />
-        <CategorySlider categoria={state.categoria} />
-        <Paper elevation={1} sx={{ p: 3, my: 4 }}>
-          <Typography variant="h5" align="center" gutterBottom>
+      </Container>
+
+      {/* CategorySlider sin restricción de ancho */}
+      <CategorySlider categoria={state.categoria} />
+
+      {/* Ofertas con container más amplio */}
+      <Container maxWidth="xl" sx={{ px: { xs: 2, md: 4 } }}>
+        <Paper elevation={1} sx={{ 
+          p: { xs: 2, md: 3 }, 
+          my: 4,
+          borderRadius: 3,
+          background: 'linear-gradient(135deg, #ffffff 0%, #fafbfc 100%)',
+          border: '1px solid #f1f3f4'
+        }}>
+          <Typography variant="h4" sx={{
+            textAlign: 'center',
+            fontWeight: 700,
+            mb: 4,
+            color: '#2c3e50',
+            position: 'relative',
+            '&::after': {
+              content: '""',
+              position: 'absolute',
+              bottom: -8,
+              left: '50%',
+              transform: 'translateX(-50%)',
+              width: 80,
+              height: 3,
+              background: 'linear-gradient(90deg, #FF8C00, #FF6B35)',
+              borderRadius: 2,
+            }
+          }}>
             OFERTAS IMPERDIBLES
           </Typography>
+          
           <ProductGrid productos={state.ofertas} />
+          
           <Box sx={{ mt: 4, textAlign: 'center' }}>
             <Button
               component={Link}
               to="/productos?es_oferta=true"
               variant="contained"
-              color="primary"
+              size="large"
+              sx={{
+                px: 4,
+                py: 1.5,
+                borderRadius: 3,
+                fontWeight: 600,
+                textTransform: 'none',
+                background: 'linear-gradient(135deg, #FF8C00, #FF6B35)',
+                color: 'white',
+                fontSize: '1.1rem',
+                transition: 'all 0.3s ease',
+                '&:hover': {
+                  background: 'linear-gradient(135deg, #FF6B35, #FF4500)',
+                  transform: 'translateY(-2px)',
+                  boxShadow: '0 8px 25px rgba(255,107,53,0.4)'
+                }
+              }}
             >
               Ver Todas las Ofertas
             </Button>

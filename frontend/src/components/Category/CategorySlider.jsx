@@ -47,23 +47,18 @@ const CategorySlider = ({ categoria }) => {
         centeredSlides: false,
       },
       768: {
-        slidesPerView: 3.2,
+        slidesPerView: 3.5,
         spaceBetween: 20,
         centeredSlides: false,
       },
       1024: {
-        slidesPerView: 4.8,
+        slidesPerView: 4.5,
         spaceBetween: 24,
         centeredSlides: false,
       },
       1200: {
-        slidesPerView: 5.5,
-        spaceBetween: 28,
-        centeredSlides: false,
-      },
-      1400: {
-        slidesPerView: 6.2,
-        spaceBetween: 32,
+        slidesPerView: 5,
+        spaceBetween: 24,
         centeredSlides: false,
       }
     }
@@ -73,7 +68,7 @@ const CategorySlider = ({ categoria }) => {
     <Box sx={{ 
       py: { xs: 4, md: 6 }, 
       px: { xs: 2, md: 3 },
-      maxWidth: { xs: '100vw', md: '1600px' }, // Más ancho
+      maxWidth: '1400px', // Volvemos al ancho original
       mx: 'auto',
       overflow: 'hidden'
     }}>
@@ -81,7 +76,7 @@ const CategorySlider = ({ categoria }) => {
       <Typography variant={isMobile ? "h5" : "h4"} sx={{ 
         textAlign: 'center',
         fontWeight: 700,
-        mb: { xs: 3, md: 5 }, // Más espacio
+        mb: { xs: 3, md: 4 }, // Volvemos al spacing original
         color: '#2c3e50',
         position: 'relative',
         '&::after': {
