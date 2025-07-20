@@ -99,7 +99,8 @@ const CategorySlider = ({ categoria }) => {
         position: 'relative',
         '& .swiper': {
           overflow: 'visible',
-          pb: isMobile ? 4 : 2,
+          pb: isMobile ? 4 : 3,
+          pt: 1, // Padding top para hover effect
         },
         '& .swiper-wrapper': {
           // Mask para fade effect en desktop
@@ -116,7 +117,9 @@ const CategorySlider = ({ categoria }) => {
             md: '180px',
             lg: '200px',
             xl: '220px'
-          }
+          },
+          // Espacio extra para hover effects
+          py: 1
         },
         // Estilos para flechas custom
         '& .swiper-button-prev-custom, & .swiper-button-next-custom': {
@@ -219,7 +222,7 @@ const CategorySlider = ({ categoria }) => {
             <Box sx={{
               position: 'absolute',
               left: 0,
-              top: 0,
+              top: 8, // Offset para el padding top
               bottom: 0,
               width: 80,
               background: 'linear-gradient(to right, rgba(255,255,255,1) 0%, rgba(255,255,255,0.8) 40%, transparent 100%)',
@@ -230,7 +233,7 @@ const CategorySlider = ({ categoria }) => {
             <Box sx={{
               position: 'absolute',
               right: 0,
-              top: 0,
+              top: 8, // Offset para el padding top
               bottom: 0,
               width: 80,
               background: 'linear-gradient(to left, rgba(255,255,255,1) 0%, rgba(255,255,255,0.8) 40%, transparent 100%)',
