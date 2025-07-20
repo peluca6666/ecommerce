@@ -1,123 +1,178 @@
-import { Box } from '@mui/material';
-import ImageGallery from 'react-image-gallery';
-import 'react-image-gallery/styles/css/image-gallery.css';
+import { useState } from 'react';
+import { Box, IconButton } from '@mui/material';
+import { ChevronLeft, ChevronRight, Fullscreen } from '@mui/icons-material';
 
 const ProductImageGallery = ({ producto }) => {
-  // Preparar imágenes para la galería
+  // Preparar imágenes
   const allImages = [producto.imagen, ...(Array.isArray(producto.imagenes) ? producto.imagenes : [])] 
     .filter(Boolean)
-    .map(imgRelativa => {
-      const fullUrl = `${import.meta.env.VITE_API_BASE_URL}${imgRelativa}`;
-      return {
-        original: fullUrl,
-        thumbnail: fullUrl,
-        originalAlt: producto.nombre_producto,
-        thumbnailAlt: producto.nombre_producto
-      };
-    });
+    .map(imgRelativa => `${import.meta.env.VITE_API_BASE_URL}${imgRelativa}`);
 
   // Si no hay imágenes, usar placeholder
   if (allImages.length === 0) {
-    allImages.push({
-      original: 'https://via.placeholder.com/500x500?text=Imagen+no+disponible',
-      thumbnail: 'https://via.placeholder.com/80x80?text=Sin+imagen',
-      originalAlt: producto.nombre_producto,
-      thumbnailAlt: producto.nombre_producto
-    });
+    allImages.push('https://via.placeholder.com/500x500?text=Imagen+no+disponible');
   }
 
+  const [selectedImageIndex, setSelectedImageIndex] = useState(0);
+
+  const nextImage = () => {
+    setSelectedImageIndex((prev) => (prev + 1) % allImages.length);
+  };
+
+  const prevImage = () => {
+    setSelectedImageIndex((prev) => (prev - 1 + allImages.length) % allImages.length);
+  };
+
+  const openFullscreen = () => {
+    const img = document.createElement('img');
+    img.src = allImages[selectedImageIndex];
+    img.style.maxWidth = '90vw';
+    img.style.maxHeight = '90vh';
+    img.style.objectFit = 'contain';
+    
+    const overlay = document.createElement('div');
+    overlay.style.cssText = `
+      position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+      background: rgba(0,0,0,0.9); display: flex; align-items: center;
+      justify-content: center; z-index: 9999; cursor: pointer;
+    `;
+    overlay.appendChild(img);
+    overlay.onclick = () => document.body.removeChild(overlay);
+    document.body.appendChild(overlay);
+  };
+
   return (
-    <Box sx={{ 
-      width: '100%',
-      maxWidth: 600,
-      mx: 'auto',
-      '& .image-gallery': {
+    <Box sx={{ width: '100%', maxWidth: 600, mx: 'auto' }}>
+      {/* Imagen principal */}
+      <Box sx={{ 
+        position: 'relative',
+        mb: 3,
         borderRadius: 3,
         overflow: 'hidden',
         boxShadow: '0 4px 20px rgba(0,0,0,0.1)'
-      },
-      '& .image-gallery-slide img': {
-        borderRadius: '12px 12px 0 0',
-        maxHeight: { xs: 350, sm: 450, md: 500 },
-        objectFit: 'contain',
-        background: '#f8f9fa'
-      },
-      '& .image-gallery-thumbnail': {
-        border: '2px solid transparent',
-        borderRadius: 2,
-        overflow: 'hidden',
-        transition: 'all 0.3s ease',
-        '&:hover': {
-          borderColor: '#FF8C00'
-        },
-        '&.active': {
-          borderColor: '#FF6B35'
-        }
-      },
-      '& .image-gallery-thumbnail img': {
-        borderRadius: 1
-      },
-      '& .image-gallery-icon': {
-        color: '#FF6B35',
-        filter: 'drop-shadow(0 1px 3px rgba(0,0,0,0.3))',
-        '&:hover': {
-          color: '#FF4500'
-        }
-      },
-      '& .image-gallery-left-nav, & .image-gallery-right-nav': {
-        background: 'rgba(255,255,255,0.9)',
-        borderRadius: '50%',
-        width: 50,
-        height: 50,
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        transition: 'all 0.3s ease',
-        '&:hover': {
-          background: 'rgba(255,255,255,1)',
-          transform: 'scale(1.1)'
-        }
-      },
-      '& .image-gallery-fullscreen-button, & .image-gallery-play-button': {
-        background: 'rgba(255,107,53,0.9)',
-        borderRadius: 2,
-        '&:hover': {
-          background: 'rgba(255,107,53,1)'
-        }
-      }
-    }}>
-      <ImageGallery
-        items={allImages}
-        showPlayButton={false}
-        showFullscreenButton={true}
-        showNav={allImages.length > 1}
-        showThumbnails={allImages.length > 1}
-        thumbnailPosition="bottom"
-        useBrowserFullscreen={true}
-        lazyLoad={true}
-        slideDuration={300}
-        slideInterval={4000}
-        renderLeftNav={(onClick, disabled) => (
-          <button
-            className="image-gallery-icon image-gallery-left-nav"
-            disabled={disabled}
-            onClick={onClick}
-            aria-label="Previous Image"
-          >
-            ‹
-          </button>
+      }}>
+        <Box
+          component="img"
+          src={allImages[selectedImageIndex]}
+          alt={producto.nombre_producto}
+          sx={{
+            width: '100%',
+            height: { xs: 350, sm: 450, md: 500 },
+            objectFit: 'contain',
+            background: '#f8f9fa',
+            cursor: 'pointer'
+          }}
+          onClick={openFullscreen}
+        />
+        
+        {/* Controles de navegación */}
+        {allImages.length > 1 && (
+          <>
+            <IconButton
+              onClick={prevImage}
+              sx={{
+                position: 'absolute',
+                left: 16,
+                top: '50%',
+                transform: 'translateY(-50%)',
+                background: 'rgba(255,255,255,0.9)',
+                color: '#FF6B35',
+                width: 48,
+                height: 48,
+                transition: 'all 0.3s ease',
+                '&:hover': {
+                  background: 'white',
+                  transform: 'translateY(-50%) scale(1.1)'
+                }
+              }}
+            >
+              <ChevronLeft />
+            </IconButton>
+            
+            <IconButton
+              onClick={nextImage}
+              sx={{
+                position: 'absolute',
+                right: 16,
+                top: '50%',
+                transform: 'translateY(-50%)',
+                background: 'rgba(255,255,255,0.9)',
+                color: '#FF6B35',
+                width: 48,
+                height: 48,
+                transition: 'all 0.3s ease',
+                '&:hover': {
+                  background: 'white',
+                  transform: 'translateY(-50%) scale(1.1)'
+                }
+              }}
+            >
+              <ChevronRight />
+            </IconButton>
+          </>
         )}
-        renderRightNav={(onClick, disabled) => (
-          <button
-            className="image-gallery-icon image-gallery-right-nav"
-            disabled={disabled}
-            onClick={onClick}
-            aria-label="Next Image"
-          >
-            ›
-          </button>
-        )}
-      />
+        
+        {/* Botón fullscreen */}
+        <IconButton
+          onClick={openFullscreen}
+          sx={{
+            position: 'absolute',
+            top: 16,
+            right: 16,
+            background: 'rgba(255,107,53,0.9)',
+            color: 'white',
+            width: 40,
+            height: 40,
+            transition: 'all 0.3s ease',
+            '&:hover': {
+              background: 'rgba(255,107,53,1)',
+              transform: 'scale(1.1)'
+            }
+          }}
+        >
+          <Fullscreen />
+        </IconButton>
+      </Box>
+
+      {/* Thumbnails */}
+      {allImages.length > 1 && (
+        <Box sx={{ 
+          display: 'flex',
+          gap: 2,
+          overflowX: 'auto',
+          pb: 1,
+          justifyContent: 'center',
+          '&::-webkit-scrollbar': { height: 4 },
+          '&::-webkit-scrollbar-thumb': { 
+            background: '#FF6B35',
+            borderRadius: 2
+          }
+        }}>
+          {allImages.map((img, index) => (
+            <Box
+              key={index}
+              component="img"
+              src={img}
+              alt={`Vista ${index + 1}`}
+              onClick={() => setSelectedImageIndex(index)}
+              sx={{
+                width: 80,
+                height: 80,
+                objectFit: 'cover',
+                borderRadius: 2,
+                cursor: 'pointer',
+                border: selectedImageIndex === index ? '3px solid #FF6B35' : '2px solid #e9ecef',
+                transition: 'all 0.3s ease',
+                flexShrink: 0,
+                '&:hover': {
+                  transform: 'scale(1.05)',
+                  borderColor: '#FF8C00'
+                }
+              }}
+            />
+          ))}
+        </Box>
+      )}
     </Box>
   );
 };
