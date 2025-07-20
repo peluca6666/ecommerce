@@ -149,8 +149,8 @@ const ProductCard = ({ producto }) => {
                 </Box>
             </CardContent>
 
-            {/* Botón del carrito */}
-            <Box sx={{ p: 3, pt: 0 }}>
+            {/* Botones de acción */}
+            <Box sx={{ p: 3, pt: 0, display: 'flex', flexDirection: 'column', gap: 1.5 }}>
                 <Button 
                     fullWidth 
                     variant="contained"
@@ -175,6 +175,32 @@ const ProductCard = ({ producto }) => {
                     }}
                 >
                     Agregar al Carrito
+                </Button>
+                
+                <Button 
+                    fullWidth 
+                    variant="outlined"
+                    onClick={(e) => {
+                        e.stopPropagation(); 
+                    }}
+                    component={Link}
+                    to={`/producto/${producto.producto_id}`}
+                    sx={{
+                        py: 1.2,
+                        borderRadius: 2,
+                        fontWeight: 500,
+                        textTransform: 'none',
+                        borderColor: '#e9ecef',
+                        color: '#6c757d',
+                        transition: 'all 0.3s ease',
+                        '&:hover': {
+                            borderColor: '#FF8C00',
+                            color: '#FF6B35',
+                            background: 'rgba(255,140,0,0.05)'
+                        }
+                    }}
+                >
+                    Ver Detalles
                 </Button>
             </Box>
         </Card>
