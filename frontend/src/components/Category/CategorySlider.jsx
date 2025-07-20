@@ -250,6 +250,36 @@ const CategorySlider = ({ categoria }) => {
         {/* Paginación custom */}
         <Box className="swiper-pagination-custom" />
       </Box>
+
+      {/* Separador elegante */}
+      <Box sx={{
+        mt: { xs: 4, md: 6 },
+        mb: { xs: 2, md: 3 },
+        display: 'flex',
+        alignItems: 'center',
+        maxWidth: '800px',
+        mx: 'auto',
+        px: { xs: 4, md: 6 }
+      }}>
+        <Box sx={{
+          flex: 1,
+          height: '1px',
+          background: 'linear-gradient(to right, transparent 0%, rgba(0,0,0,0.1) 50%, transparent 100%)'
+        }} />
+        <Box sx={{
+          mx: 3,
+          width: 8,
+          height: 8,
+          borderRadius: '50%',
+          background: 'linear-gradient(135deg, #FF8C00, #FF6B35)',
+          boxShadow: '0 2px 8px rgba(255,140,0,0.3)'
+        }} />
+        <Box sx={{
+          flex: 1,
+          height: '1px',
+          background: 'linear-gradient(to left, transparent 0%, rgba(0,0,0,0.1) 50%, transparent 100%)'
+        }} />
+      </Box>
     </Box>
   );
 };
