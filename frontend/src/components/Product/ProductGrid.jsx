@@ -1,29 +1,25 @@
-import { Grid } from "@mui/material";
+import { Box } from "@mui/material";
 import ProductCard from "./ProductCard";
 
 const ProductGrid = ({ productos = [] }) => (
-  <Grid container spacing={{ xs: 2, md: 3 }} sx={{
-    // Para que todas las cards tengan la misma altura usamos:
-    '& .MuiGrid-item': {
-      display: 'flex',
-      '& > *': {
-        width: '100%'
-      }
-    }
+  <Box sx={{
+    display: 'grid',
+    gridTemplateColumns: {
+      xs: 'repeat(2, 1fr)',     // Móvil: 2 columnas
+      sm: 'repeat(3, 1fr)',     // Tablet: 3 columnas
+      md: 'repeat(4, 1fr)',     // Desktop: 4 columnas
+      lg: 'repeat(5, 1fr)'      // Large: 5 columnas
+    },
+    gap: { xs: 2, md: 3 },
+    gridAutoRows: '1fr'
   }}>
-    {productos.map(productoIndividual => (
-      <Grid 
-        item 
-        xs={6}    // Celular: 2 productos por fila
-        sm={4}    // Tablet: 3 productos por fila 
-        md={3}    // Desktop: 4 productos por fila
-        lg={2.4}  // Desktop grande: 5 productos por fila
-        key={productoIndividual.producto_id}
-      >
-        <ProductCard producto={productoIndividual} />
-      </Grid>
+    {productos.map(producto => (
+      <ProductCard 
+        key={producto.producto_id}
+        producto={producto} 
+      />
     ))}
-  </Grid>
+  </Box>
 );
 
 export default ProductGrid;
