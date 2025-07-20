@@ -1,93 +1,76 @@
-import { useState, useRef, useEffect } from 'react';
-import { Box, IconButton, Typography, useTheme, useMediaQuery } from "@mui/material";
-import { ChevronLeft, ChevronRight } from "@mui/icons-material";
+import { Box, Typography, useTheme, useMediaQuery } from "@mui/material";
+import { Swiper, SwiperSlide } from 'swiper/react';
+import { Navigation, Pagination, Mousewheel } from 'swiper/modules';
 import CategoryCard from "./CategoryCard";
+
+// Import Swiper styles
+import 'swiper/css';
+import 'swiper/css/navigation';
+import 'swiper/css/pagination';
 
 const CategorySlider = ({ categoria }) => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
-  const sliderRef = useRef(null);
-  const [showLeftArrow, setShowLeftArrow] = useState(false);
-  const [showRightArrow, setShowRightArrow] = useState(true);
-  const [isDragging, setIsDragging] = useState(false);
-  const [dragStart, setDragStart] = useState(0);
-
-  const checkArrows = () => {
-    const container = sliderRef.current;
-    if (!container) return;
-    setShowLeftArrow(container.scrollLeft > 10);
-    const maxScrollLeft = container.scrollWidth - container.clientWidth;
-    setShowRightArrow(container.scrollLeft < maxScrollLeft - 10);
-  };
-
-  useEffect(() => {
-    const container = sliderRef.current;
-    if (container) {
-      checkArrows();
-      container.addEventListener('scroll', checkArrows);
-      // Resize observer para recalcular flechas
-      const resizeObserver = new ResizeObserver(checkArrows);
-      resizeObserver.observe(container);
-      return () => {
-        container.removeEventListener('scroll', checkArrows);
-        resizeObserver.disconnect();
-      };
-    }
-  }, [categoria]);
-
-  const handleScroll = (direction) => {
-    if (sliderRef.current) {
-      const scrollAmount = isMobile ? 250 : 350;
-      sliderRef.current.scrollBy({ 
-        left: direction * scrollAmount, 
-        behavior: 'smooth' 
-      });
-    }
-  };
-
-  // Drag functionality para desktop
-  const handleMouseDown = (e) => {
-    if (isMobile) return;
-    setIsDragging(true);
-    setDragStart(e.pageX - sliderRef.current.offsetLeft);
-    sliderRef.current.style.cursor = 'grabbing';
-  };
-
-  const handleMouseMove = (e) => {
-    if (!isDragging || isMobile) return;
-    e.preventDefault();
-    const x = e.pageX - sliderRef.current.offsetLeft;
-    const scroll = (x - dragStart) * 2;
-    sliderRef.current.scrollLeft = sliderRef.current.scrollLeft - scroll;
-    setDragStart(x);
-  };
-
-  const handleMouseUp = () => {
-    setIsDragging(false);
-    if (sliderRef.current) {
-      sliderRef.current.style.cursor = 'grab';
-    }
-  };
-
-  useEffect(() => {
-    if (isDragging) {
-      document.addEventListener('mousemove', handleMouseMove);
-      document.addEventListener('mouseup', handleMouseUp);
-      return () => {
-        document.removeEventListener('mousemove', handleMouseMove);
-        document.removeEventListener('mouseup', handleMouseUp);
-      };
-    }
-  }, [isDragging, dragStart]);
+  const isTablet = useMediaQuery(theme.breakpoints.between('md', 'lg'));
 
   if (!categoria || categoria.length === 0) return null;
+
+  // Configuración responsive de slides
+  const swiperConfig = {
+    modules: [Navigation, Pagination, Mousewheel],
+    spaceBetween: isMobile ? 16 : 24,
+    slidesPerView: 'auto',
+    centeredSlides: isMobile,
+    loop: categoria.length > 4,
+    mousewheel: {
+      forceToAxis: true,
+    },
+    navigation: {
+      nextEl: '.swiper-button-next-custom',
+      prevEl: '.swiper-button-prev-custom',
+    },
+    pagination: {
+      el: '.swiper-pagination-custom',
+      clickable: true,
+      renderBullet: (index, className) => 
+        `<span class="${className}" style="background: #FF6B35; width: 8px; height: 8px;"></span>`,
+    },
+    breakpoints: {
+      320: {
+        slidesPerView: 2.2,
+        spaceBetween: 12,
+        centeredSlides: false,
+      },
+      480: {
+        slidesPerView: 2.5,
+        spaceBetween: 16,
+        centeredSlides: false,
+      },
+      768: {
+        slidesPerView: 3.5,
+        spaceBetween: 20,
+        centeredSlides: false,
+      },
+      1024: {
+        slidesPerView: 4.5,
+        spaceBetween: 24,
+        centeredSlides: false,
+      },
+      1200: {
+        slidesPerView: 5,
+        spaceBetween: 24,
+        centeredSlides: false,
+      }
+    }
+  };
 
   return (
     <Box sx={{ 
       py: { xs: 4, md: 6 }, 
       px: { xs: 2, md: 4 },
-      maxWidth: { xs: '100vw', md: '1400px' }, // Más ancho en desktop
-      mx: 'auto'
+      maxWidth: '1400px',
+      mx: 'auto',
+      overflow: 'hidden'
     }}>
       {/* Título */}
       <Typography variant={isMobile ? "h5" : "h4"} sx={{ 
@@ -111,170 +94,123 @@ const CategorySlider = ({ categoria }) => {
         Nuestras Categorías
       </Typography>
 
-      {/* Contenedor del slider */}
-      <Box sx={{ position: 'relative' }}>
+      {/* Swiper Container */}
+      <Box sx={{ 
+        position: 'relative',
+        '& .swiper': {
+          overflow: 'visible',
+          pb: isMobile ? 4 : 2,
+        },
+        '& .swiper-slide': {
+          width: 'auto !important',
+          minWidth: {
+            xs: '140px',
+            sm: '160px', 
+            md: '200px',
+            lg: '220px'
+          }
+        },
+        // Estilos para flechas custom
+        '& .swiper-button-prev-custom, & .swiper-button-next-custom': {
+          position: 'absolute',
+          top: '45%',
+          transform: 'translateY(-50%)',
+          width: { xs: 40, md: 50 },
+          height: { xs: 40, md: 50 },
+          background: 'white',
+          borderRadius: '50%',
+          boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
+          border: '1px solid #e9ecef',
+          cursor: 'pointer',
+          zIndex: 10,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          transition: 'all 0.3s ease',
+          opacity: 0.9,
+          '&:hover': {
+            opacity: 1,
+            transform: 'translateY(-50%) scale(1.05)',
+            boxShadow: '0 6px 25px rgba(0,0,0,0.15)',
+            background: '#f8f9fa'
+          },
+          '&.swiper-button-disabled': {
+            opacity: 0.3,
+            pointerEvents: 'none'
+          },
+          '&::after': {
+            content: 'none'
+          }
+        },
+        '& .swiper-button-prev-custom': {
+          left: { xs: -8, md: -20 },
+          '&::before': {
+            content: '"‹"',
+            fontSize: { xs: 20, md: 24 },
+            color: '#FF6B35',
+            fontWeight: 'bold'
+          }
+        },
+        '& .swiper-button-next-custom': {
+          right: { xs: -8, md: -20 },
+          '&::before': {
+            content: '"›"',
+            fontSize: { xs: 20, md: 24 },
+            color: '#FF6B35',
+            fontWeight: 'bold'
+          }
+        },
+        // Estilos para paginación
+        '& .swiper-pagination-custom': {
+          position: 'static',
+          mt: 2,
+          textAlign: 'center',
+          display: isMobile ? 'block' : 'none',
+          '& .swiper-pagination-bullet': {
+            width: '8px',
+            height: '8px',
+            margin: '0 4px',
+            borderRadius: '50%',
+            background: '#e9ecef',
+            opacity: 1,
+            transition: 'all 0.3s ease',
+            '&.swiper-pagination-bullet-active': {
+              background: '#FF6B35',
+              transform: 'scale(1.2)'
+            }
+          }
+        }
+      }}>
         
-        {/* Flecha izquierda */}
-        <IconButton
-          onClick={() => handleScroll(-1)}
-          sx={{
-            position: 'absolute',
-            left: isMobile ? -8 : -20,
-            top: '50%',
-            transform: 'translateY(-50%)',
-            zIndex: 10,
-            width: isMobile ? 40 : 50,
-            height: isMobile ? 40 : 50,
-            background: 'white',
-            boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
-            opacity: showLeftArrow ? 1 : 0,
-            pointerEvents: showLeftArrow ? 'auto' : 'none',
-            transition: 'all 0.3s ease',
-            border: '1px solid #e9ecef',
-            '&:hover': { 
-              background: '#f8f9fa',
-              transform: 'translateY(-50%) scale(1.05)',
-              boxShadow: '0 6px 25px rgba(0,0,0,0.15)'
-            }
-          }}
-        >
-          <ChevronLeft sx={{ color: '#FF6B35' }} />
-        </IconButton>
-
-        {/* Flecha derecha */}
-        <IconButton
-          onClick={() => handleScroll(1)}
-          sx={{
-            position: 'absolute',
-            right: isMobile ? -8 : -20,
-            top: '50%',
-            transform: 'translateY(-50%)',
-            zIndex: 10,
-            width: isMobile ? 40 : 50,
-            height: isMobile ? 40 : 50,
-            background: 'white',
-            boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
-            opacity: showRightArrow ? 1 : 0,
-            pointerEvents: showRightArrow ? 'auto' : 'none',
-            transition: 'all 0.3s ease',
-            border: '1px solid #e9ecef',
-            '&:hover': { 
-              background: '#f8f9fa',
-              transform: 'translateY(-50%) scale(1.05)',
-              boxShadow: '0 6px 25px rgba(0,0,0,0.15)'
-            }
-          }}
-        >
-          <ChevronRight sx={{ color: '#FF6B35' }} />
-        </IconButton>
-
-        {/* Slider container */}
-        <Box
-          ref={sliderRef}
-          onMouseDown={handleMouseDown}
-          sx={{
-            display: 'flex',
-            gap: { xs: 2, md: 3 },
-            overflowX: 'auto',
-            overflowY: 'hidden',
-            scrollSnapType: 'x mandatory',
-            pb: 2,
-            px: { xs: 1, md: 2 },
-            cursor: isMobile ? 'default' : 'grab',
-            userSelect: 'none',
-            // Scroll más suave en móvil
-            scrollBehavior: isMobile ? 'smooth' : 'auto',
-            // Ocultar scrollbar
-            '&::-webkit-scrollbar': { display: 'none' },
-            scrollbarWidth: 'none',
-            // Más espacio en desktop para mostrar más categorías
-            minHeight: { xs: 140, md: 180 }
-          }}
-        >
+        <Swiper {...swiperConfig}>
           {categoria.map((cat, index) => (
-            <Box 
-              key={cat.categoria_id} 
-              sx={{ 
-                scrollSnapAlign: 'center',
-                flexShrink: 0,
-                // Responsive sizing para mostrar diferentes cantidades
-                minWidth: { 
-                  xs: 'calc(50vw - 32px)', // 2 categorías visibles en móvil
-                  sm: 'calc(33.33vw - 24px)', // 3 categorías en tablet
-                  md: 250, // Tamaño fijo en desktop para más categorías
-                  lg: 280
-                },
-                maxWidth: { 
-                  xs: 180, // Límite máximo en móvil
-                  md: 'none' 
-                },
-                // Animación de entrada escalonada
+            <SwiperSlide key={cat.categoria_id}>
+              <Box sx={{
                 animation: `slideIn 0.6s ease-out ${index * 0.1}s both`,
                 '@keyframes slideIn': {
                   '0%': {
                     opacity: 0,
-                    transform: 'translateY(20px) scale(0.9)',
+                    transform: 'translateY(20px)',
                   },
                   '100%': {
                     opacity: 1,
-                    transform: 'translateY(0) scale(1)',
+                    transform: 'translateY(0)',
                   }
                 }
-              }}
-            >
-              <CategoryCard categoria={cat} />
-            </Box>
+              }}>
+                <CategoryCard categoria={cat} />
+              </Box>
+            </SwiperSlide>
           ))}
-        </Box>
+        </Swiper>
 
-        {/* Gradientes laterales para efecto fade */}
-        <Box sx={{
-          position: 'absolute',
-          left: 0,
-          top: 0,
-          bottom: 0,
-          width: 20,
-          background: 'linear-gradient(to right, rgba(255,255,255,0.8), transparent)',
-          pointerEvents: 'none',
-          opacity: showLeftArrow ? 1 : 0,
-          transition: 'opacity 0.3s ease'
-        }} />
+        {/* Flechas de navegación custom */}
+        <Box className="swiper-button-prev-custom" />
+        <Box className="swiper-button-next-custom" />
         
-        <Box sx={{
-          position: 'absolute',
-          right: 0,
-          top: 0,
-          bottom: 0,
-          width: 20,
-          background: 'linear-gradient(to left, rgba(255,255,255,0.8), transparent)',
-          pointerEvents: 'none',
-          opacity: showRightArrow ? 1 : 0,
-          transition: 'opacity 0.3s ease'
-        }} />
+        {/* Paginación custom */}
+        <Box className="swiper-pagination-custom" />
       </Box>
-
-      {/* Indicador de scroll para móvil */}
-      {isMobile && (
-        <Box sx={{ 
-          display: 'flex', 
-          justifyContent: 'center', 
-          mt: 2, 
-          gap: 0.5 
-        }}>
-          {Array.from({ length: Math.ceil(categoria.length / 2) }).map((_, i) => (
-            <Box
-              key={i}
-              sx={{
-                width: 6,
-                height: 6,
-                borderRadius: '50%',
-                bgcolor: i === 0 ? '#FF6B35' : '#e9ecef',
-                transition: 'all 0.3s ease'
-              }}
-            />
-          ))}
-        </Box>
-      )}
     </Box>
   );
 };
