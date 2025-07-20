@@ -2,6 +2,8 @@ import { Box, Typography, useTheme, useMediaQuery } from "@mui/material";
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation, Pagination, Mousewheel } from 'swiper/modules';
 import CategoryCard from "./CategoryCard";
+
+// Import Swiper styles
 import 'swiper/css';
 import 'swiper/css/navigation';
 import 'swiper/css/pagination';
@@ -45,18 +47,23 @@ const CategorySlider = ({ categoria }) => {
         centeredSlides: false,
       },
       768: {
-        slidesPerView: 3.5,
+        slidesPerView: 3.2,
         spaceBetween: 20,
         centeredSlides: false,
       },
       1024: {
-        slidesPerView: 4.5,
+        slidesPerView: 4.8,
         spaceBetween: 24,
         centeredSlides: false,
       },
       1200: {
-        slidesPerView: 5,
-        spaceBetween: 24,
+        slidesPerView: 5.5,
+        spaceBetween: 28,
+        centeredSlides: false,
+      },
+      1400: {
+        slidesPerView: 6.2,
+        spaceBetween: 32,
         centeredSlides: false,
       }
     }
@@ -65,8 +72,8 @@ const CategorySlider = ({ categoria }) => {
   return (
     <Box sx={{ 
       py: { xs: 4, md: 6 }, 
-      px: { xs: 2, md: 4 },
-      maxWidth: '1400px',
+      px: { xs: 2, md: 3 },
+      maxWidth: { xs: '100vw', md: '1600px' }, // Más ancho
       mx: 'auto',
       overflow: 'hidden'
     }}>
@@ -74,7 +81,7 @@ const CategorySlider = ({ categoria }) => {
       <Typography variant={isMobile ? "h5" : "h4"} sx={{ 
         textAlign: 'center',
         fontWeight: 700,
-        mb: { xs: 3, md: 4 },
+        mb: { xs: 3, md: 5 }, // Más espacio
         color: '#2c3e50',
         position: 'relative',
         '&::after': {
@@ -111,8 +118,9 @@ const CategorySlider = ({ categoria }) => {
           minWidth: {
             xs: '140px',
             sm: '160px', 
-            md: '200px',
-            lg: '220px'
+            md: '180px',
+            lg: '200px',
+            xl: '220px'
           }
         },
         // Estilos para flechas custom
@@ -210,7 +218,7 @@ const CategorySlider = ({ categoria }) => {
         </Swiper>
 
                 
-        {/* gradientes laterales para fade effect en desktop */}
+        {/* Gradientes laterales para fade effect en desktop */}
         {!isMobile && (
           <>
             <Box sx={{
@@ -237,9 +245,11 @@ const CategorySlider = ({ categoria }) => {
           </>
         )}
 
+        {/* Flechas de navegación custom */}
         <Box className="swiper-button-prev-custom" />
         <Box className="swiper-button-next-custom" />
         
+        {/* Paginación custom */}
         <Box className="swiper-pagination-custom" />
       </Box>
     </Box>
