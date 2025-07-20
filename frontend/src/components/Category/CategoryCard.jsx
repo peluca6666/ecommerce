@@ -16,7 +16,7 @@ const CategoryCard = ({ categoria }) => {
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
-          width: { xs: 120, sm: 140, md: 160 }, // Más ancho para formato cuadrado
+          width: { xs: 120, sm: 140, md: 160 }, 
           mx: 'auto',
           cursor: 'pointer',
           transition: 'all 0.3s ease',
@@ -39,7 +39,7 @@ const CategoryCard = ({ categoria }) => {
           sx={{
             width: { xs: 90, sm: 110, md: 130 },
             height: { xs: 90, sm: 110, md: 130 },
-            borderRadius: 3, // Cuadrado redondeado en lugar de círculo
+            borderRadius: 3, 
             overflow: 'hidden',
             boxShadow: '0 4px 20px rgba(0, 0, 0, 0.08)',
             transition: 'all 0.3s ease',
@@ -49,7 +49,6 @@ const CategoryCard = ({ categoria }) => {
             backgroundPosition: 'center',
             border: '2px solid transparent',
             position: 'relative',
-            // Efecto de overlay sutil
             '&::before': {
               content: '""',
               position: 'absolute',
@@ -83,7 +82,7 @@ const CategoryCard = ({ categoria }) => {
             display: '-webkit-box',
             WebkitLineClamp: 2,
             WebkitBoxOrient: 'vertical',
-            minHeight: '2.6em', // Altura mínima para 2 líneas
+            minHeight: '2.6em', 
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center'

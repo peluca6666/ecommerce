@@ -72,7 +72,7 @@ const CategorySlider = ({ categoria }) => {
       mx: 'auto',
       overflow: 'hidden'
     }}>
-      {/* Título */}
+      {/* Titulo */}
       <Typography variant={isMobile ? "h5" : "h4"} sx={{ 
         textAlign: 'center',
         fontWeight: 700,
@@ -100,7 +100,7 @@ const CategorySlider = ({ categoria }) => {
         '& .swiper': {
           overflow: 'visible',
           pb: isMobile ? 4 : 3,
-          pt: 1, // Padding top para hover effect
+          pt: 1, 
         },
         '& .swiper-wrapper': {
           // Mask para fade effect en desktop
@@ -118,7 +118,6 @@ const CategorySlider = ({ categoria }) => {
             lg: '200px',
             xl: '220px'
           },
-          // Espacio extra para hover effects
           py: 1
         },
         // Estilos para flechas custom
@@ -222,7 +221,7 @@ const CategorySlider = ({ categoria }) => {
             <Box sx={{
               position: 'absolute',
               left: 0,
-              top: 8, // Offset para el padding top
+              top: 8, 
               bottom: 0,
               width: 80,
               background: 'linear-gradient(to right, rgba(255,255,255,1) 0%, rgba(255,255,255,0.8) 40%, transparent 100%)',
@@ -233,7 +232,7 @@ const CategorySlider = ({ categoria }) => {
             <Box sx={{
               position: 'absolute',
               right: 0,
-              top: 8, // Offset para el padding top
+              top: 8, 
               bottom: 0,
               width: 80,
               background: 'linear-gradient(to left, rgba(255,255,255,1) 0%, rgba(255,255,255,0.8) 40%, transparent 100%)',
@@ -243,15 +242,13 @@ const CategorySlider = ({ categoria }) => {
           </>
         )}
 
-        {/* Flechas de navegación custom */}
+        {/* Flechas de navegación*/}
         <Box className="swiper-button-prev-custom" />
         <Box className="swiper-button-next-custom" />
         
-        {/* Paginación custom */}
         <Box className="swiper-pagination-custom" />
       </Box>
 
-      {/* Separador elegante */}
       <Box sx={{
         mt: { xs: 4, md: 6 },
         mb: { xs: 2, md: 3 },

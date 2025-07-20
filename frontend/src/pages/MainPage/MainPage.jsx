@@ -117,7 +117,6 @@ const MainPage = () => {
 
   return (
     <Box>
-      {/* Banner con container limitado */}
       <Container maxWidth="lg">
         <MainBanner />
       </Container>
@@ -125,7 +124,6 @@ const MainPage = () => {
       {/* CategorySlider sin restricción de ancho */}
       <CategorySlider categoria={state.categoria} />
 
-      {/* Ofertas con container más amplio */}
       <Container maxWidth="xl" sx={{ px: { xs: 2, md: 4 } }}>
         <Paper elevation={1} sx={{ 
           p: { xs: 2, md: 3 }, 
