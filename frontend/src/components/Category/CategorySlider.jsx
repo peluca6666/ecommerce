@@ -66,7 +66,7 @@ const CategorySlider = ({ categoria }) => {
 
   return (
     <Box sx={{ 
-      py: { xs: 6, md: 8 }, // Más padding para "respirar"
+      py: { xs: 4, md: 5 }, // Reducido de 6-8 a 4-5
       background: 'linear-gradient(135deg, #f8f9fa 0%, #e9ecef 50%, #f8f9fa 100%)',
       position: 'relative',
       overflow: 'hidden',
@@ -93,7 +93,7 @@ const CategorySlider = ({ categoria }) => {
         <Typography variant={isMobile ? "h5" : "h4"} sx={{ 
           textAlign: 'center',
           fontWeight: 700,
-          mb: { xs: 4, md: 5 },
+          mb: { xs: 3, md: 4 }, // Reducido de 4-5 a 3-4
           color: '#2c3e50',
           position: 'relative',
           '&::after': {
