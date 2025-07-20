@@ -133,16 +133,16 @@ const Footer = () => {
                 Navegación
               </Typography>
               <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
-                <Link component={RouterLink} to="/productos" sx={linkStyles}>
+                <Link component={RouterLink} to="/productos" sx={linkStyles}   onClick={() => window.scrollTo(0, 0)}>
                   Catálogo
                 </Link>
-                <Link component={RouterLink} to="/productos?es_oferta=true" sx={linkStyles}>
+                <Link component={RouterLink} to="/productos?es_oferta=true" sx={linkStyles}   onClick={() => window.scrollTo(0, 0)}> 
                   Ofertas
                 </Link>
-                <Link component={RouterLink} to="/sobre-nosotros" sx={linkStyles}>
+                <Link component={RouterLink} to="/sobre-nosotros" sx={linkStyles}   onClick={() => window.scrollTo(0, 0)}>
                   Sobre nosotros
                 </Link>
-                <Link component={RouterLink} to="/contacto" sx={linkStyles}>
+                <Link component={RouterLink} to="/contacto" sx={linkStyles}   onClick={() => window.scrollTo(0, 0)}>
                   Contacto
                 </Link>
               </Box>
