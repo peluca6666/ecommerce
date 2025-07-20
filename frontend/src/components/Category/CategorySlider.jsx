@@ -2,8 +2,6 @@ import { Box, Typography, useTheme, useMediaQuery } from "@mui/material";
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation, Pagination, Mousewheel } from 'swiper/modules';
 import CategoryCard from "./CategoryCard";
-
-// Import Swiper styles
 import 'swiper/css';
 import 'swiper/css/navigation';
 import 'swiper/css/pagination';
@@ -100,6 +98,13 @@ const CategorySlider = ({ categoria }) => {
         '& .swiper': {
           overflow: 'visible',
           pb: isMobile ? 4 : 2,
+        },
+        '& .swiper-wrapper': {
+          // Mask para fade effect en desktop
+          ...(!isMobile && {
+            maskImage: 'linear-gradient(to right, transparent 0%, black 5%, black 95%, transparent 100%)',
+            WebkitMaskImage: 'linear-gradient(to right, transparent 0%, black 5%, black 95%, transparent 100%)'
+          })
         },
         '& .swiper-slide': {
           width: 'auto !important',
@@ -204,11 +209,37 @@ const CategorySlider = ({ categoria }) => {
           ))}
         </Swiper>
 
-        {/* Flechas de navegación custom */}
+                
+        {/* gradientes laterales para fade effect en desktop */}
+        {!isMobile && (
+          <>
+            <Box sx={{
+              position: 'absolute',
+              left: 0,
+              top: 0,
+              bottom: 0,
+              width: 80,
+              background: 'linear-gradient(to right, rgba(255,255,255,1) 0%, rgba(255,255,255,0.8) 40%, transparent 100%)',
+              pointerEvents: 'none',
+              zIndex: 5
+            }} />
+            
+            <Box sx={{
+              position: 'absolute',
+              right: 0,
+              top: 0,
+              bottom: 0,
+              width: 80,
+              background: 'linear-gradient(to left, rgba(255,255,255,1) 0%, rgba(255,255,255,0.8) 40%, transparent 100%)',
+              pointerEvents: 'none',
+              zIndex: 5
+            }} />
+          </>
+        )}
+
         <Box className="swiper-button-prev-custom" />
         <Box className="swiper-button-next-custom" />
         
-        {/* Paginación custom */}
         <Box className="swiper-pagination-custom" />
       </Box>
     </Box>
