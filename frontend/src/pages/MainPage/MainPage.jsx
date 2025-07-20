@@ -178,7 +178,7 @@ const MainPage = () => {
                   transform: 'translateY(-2px)',
                   boxShadow: '0 8px 25px rgba(255,107,53,0.4)'
                 }
-              }}
+              } }onClick={() => window.scrollTo(0, 0)}
             >
               Ver Todas las Ofertas
             </Button>

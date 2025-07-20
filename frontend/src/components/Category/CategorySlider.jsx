@@ -66,58 +66,75 @@ const CategorySlider = ({ categoria }) => {
 
   return (
     <Box sx={{ 
-      py: { xs: 4, md: 6 }, 
-      px: { xs: 2, md: 3 },
-      maxWidth: '1400px', // Volvemos al ancho original
-      mx: 'auto',
-      overflow: 'hidden'
+      py: { xs: 6, md: 8 }, // Más padding para "respirar"
+      background: 'linear-gradient(135deg, #f8f9fa 0%, #e9ecef 50%, #f8f9fa 100%)',
+      position: 'relative',
+      overflow: 'hidden',
+      // Patrón sutil de fondo
+      '&::before': {
+        content: '""',
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        backgroundImage: 'radial-gradient(circle at 25% 25%, rgba(255,140,0,0.03) 0%, transparent 50%)',
+        pointerEvents: 'none'
+      }
     }}>
-      {/* Título */}
-      <Typography variant={isMobile ? "h5" : "h4"} sx={{ 
-        textAlign: 'center',
-        fontWeight: 700,
-        mb: { xs: 3, md: 4 }, // Volvemos al spacing original
-        color: '#2c3e50',
+      <Box sx={{
+        maxWidth: '1400px',
+        mx: 'auto',
+        px: { xs: 2, md: 3 },
         position: 'relative',
-        '&::after': {
-          content: '""',
-          position: 'absolute',
-          bottom: -8,
-          left: '50%',
-          transform: 'translateX(-50%)',
-          width: 60,
-          height: 3,
-          background: 'linear-gradient(90deg, #FF8C00, #FF6B35)',
-          borderRadius: 2,
-        }
+        zIndex: 1
       }}>
-        Nuestras Categorías
-      </Typography>
-
-      {/* Swiper Container */}
-      <Box sx={{ 
-        position: 'relative',
-        '& .swiper': {
-          overflow: 'visible',
-          pb: isMobile ? 4 : 2,
-        },
-        '& .swiper-wrapper': {
-          // Mask para fade effect en desktop
-          ...(!isMobile && {
-            maskImage: 'linear-gradient(to right, transparent 0%, black 5%, black 95%, transparent 100%)',
-            WebkitMaskImage: 'linear-gradient(to right, transparent 0%, black 5%, black 95%, transparent 100%)'
-          })
-        },
-        '& .swiper-slide': {
-          width: 'auto !important',
-          minWidth: {
-            xs: '140px',
-            sm: '160px', 
-            md: '180px',
-            lg: '200px',
-            xl: '220px'
+        {/* Título */}
+        <Typography variant={isMobile ? "h5" : "h4"} sx={{ 
+          textAlign: 'center',
+          fontWeight: 700,
+          mb: { xs: 4, md: 5 },
+          color: '#2c3e50',
+          position: 'relative',
+          '&::after': {
+            content: '""',
+            position: 'absolute',
+            bottom: -8,
+            left: '50%',
+            transform: 'translateX(-50%)',
+            width: 60,
+            height: 3,
+            background: 'linear-gradient(90deg, #FF8C00, #FF6B35)',
+            borderRadius: 2,
           }
-        },
+        }}>
+          Nuestras Categorías
+        </Typography>
+
+        {/* Swiper Container */}
+        <Box sx={{ 
+          position: 'relative',
+          '& .swiper': {
+            overflow: 'visible',
+            pb: isMobile ? 4 : 2,
+          },
+          '& .swiper-wrapper': {
+            // Mask para fade effect en desktop
+            ...(!isMobile && {
+              maskImage: 'linear-gradient(to right, transparent 0%, black 5%, black 95%, transparent 100%)',
+              WebkitMaskImage: 'linear-gradient(to right, transparent 0%, black 5%, black 95%, transparent 100%)'
+            })
+          },
+          '& .swiper-slide': {
+            width: 'auto !important',
+            minWidth: {
+              xs: '140px',
+              sm: '160px', 
+              md: '180px',
+              lg: '200px',
+              xl: '220px'
+            }
+          },
         // Estilos para flechas custom
         '& .swiper-button-prev-custom, & .swiper-button-next-custom': {
           position: 'absolute',
@@ -222,7 +239,7 @@ const CategorySlider = ({ categoria }) => {
               top: 0,
               bottom: 0,
               width: 80,
-              background: 'linear-gradient(to right, rgba(255,255,255,1) 0%, rgba(255,255,255,0.8) 40%, transparent 100%)',
+              background: 'linear-gradient(to right, rgba(248,249,250,1) 0%, rgba(248,249,250,0.8) 40%, transparent 100%)',
               pointerEvents: 'none',
               zIndex: 5
             }} />
@@ -233,7 +250,7 @@ const CategorySlider = ({ categoria }) => {
               top: 0,
               bottom: 0,
               width: 80,
-              background: 'linear-gradient(to left, rgba(255,255,255,1) 0%, rgba(255,255,255,0.8) 40%, transparent 100%)',
+              background: 'linear-gradient(to left, rgba(248,249,250,1) 0%, rgba(248,249,250,0.8) 40%, transparent 100%)',
               pointerEvents: 'none',
               zIndex: 5
             }} />
@@ -246,6 +263,7 @@ const CategorySlider = ({ categoria }) => {
         
         {/* Paginación custom */}
         <Box className="swiper-pagination-custom" />
+      </Box>
       </Box>
     </Box>
   );
