@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { Box, Typography, Button, Divider, IconButton, Chip, Stack } from '@mui/material';
-import { AddCircleOutline, RemoveCircleOutline, ShoppingCart } from '@mui/icons-material';
+import { Box, Typography, Button, IconButton, Chip, Stack } from '@mui/material';
+import { Add, Remove, ShoppingCart, FlashOn } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 
@@ -33,224 +33,212 @@ const ProductInfo = ({ producto }) => {
     : 0;
 
   return (
-    <Stack spacing={3}>
-      {/* Título */}
-      <Typography 
-        variant="h4" 
-        component="h1" 
-        sx={{ 
-          fontWeight: 700,
-          lineHeight: 1.2, 
-          color: '#2c3e50'
-        }}
-      >
-        {producto.nombre_producto}
-      </Typography>
+    <Box sx={{ 
+      height: '100%',
+      display: 'flex',
+      flexDirection: 'column',
+      justifyContent: 'space-between'
+    }}>
+      {/* Contenido superior */}
+      <Stack spacing={4}>
+        {/* Título */}
+        <Typography 
+          variant="h4" 
+          component="h1" 
+          sx={{ 
+            fontWeight: 700,
+            lineHeight: 1.2, 
+            color: '#2c3e50',
+            fontSize: { xs: '1.5rem', md: '2rem' }
+          }}
+        >
+          {producto.nombre_producto}
+        </Typography>
 
-      {/* Precios */}
-      <Box>
-        {hasDiscount && (
-          <Typography 
-            variant="h6" 
-            sx={{ 
-              textDecoration: 'line-through', 
-              color: '#999',
-              mb: 0.5
-            }}
-          >
-            ${producto.precio_original?.toLocaleString('es-AR')}
-          </Typography>
-        )}
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, flexWrap: 'wrap' }}>
+        {/* Precios con badge */}
+        <Box>
+          {hasDiscount && (
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
+              <Chip 
+                icon={<FlashOn />}
+                label={`${discountPercentage}% OFF`}
+                size="small"
+                sx={{
+                  background: 'linear-gradient(135deg, #FF4500, #FF6B35)',
+                  color: 'white',
+                  fontWeight: 700
+                }}
+              />
+              <Typography 
+                variant="body2" 
+                sx={{ 
+                  textDecoration: 'line-through', 
+                  color: '#999'
+                }}
+              >
+                ${producto.precio_original?.toLocaleString('es-AR')}
+              </Typography>
+            </Box>
+          )}
+          
           <Typography 
             variant="h3"
             sx={{ 
               fontWeight: 800,
               color: hasDiscount ? '#FF4500' : '#2c3e50',
-              lineHeight: 1
+              lineHeight: 1,
+              fontSize: { xs: '2rem', md: '2.5rem' }
             }}
           >
             ${producto.precio?.toLocaleString('es-AR')}
           </Typography>
-          {hasDiscount && (
-            <Chip 
-              label={`${discountPercentage}% OFF`}
-              sx={{
-                background: 'linear-gradient(135deg, #FF4500, #FF6B35)',
-                color: 'white',
-                fontWeight: 700,
-                fontSize: '1rem',
-                height: 40
-              }}
-            />
-          )}
         </Box>
-      </Box>
 
-      <Divider />
+        {/* Descripción */}
+        <Typography 
+          variant="body1" 
+          sx={{ 
+            color: '#6c757d',
+            lineHeight: 1.6,
+            fontSize: '1rem'
+          }}
+        >
+          {producto.descripcion}
+        </Typography>
 
-      {/* Descripción */}
-      <Typography 
-        variant="body1" 
-        sx={{ 
-          whiteSpace: 'pre-wrap',
-          color: '#495057',
-          lineHeight: 1.7,
-          fontSize: '1.1rem'
-        }}
-      >
-        {producto.descripcion}
-      </Typography>
-
-      <Divider />
-
-      {/* Stock */}
-      <Box>
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
-          <Typography variant="body1" sx={{ fontWeight: 600, color: '#2c3e50' }}>
-            Disponibilidad:
+        {/* Stock */}
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+          <Typography variant="body2" sx={{ color: '#495057', fontWeight: 500 }}>
+            Stock:
           </Typography>
           <Chip 
-            label={producto.stock_actual > 0 ? `En Stock (${producto.stock_actual})` : 'Sin Stock'} 
+            label={producto.stock_actual > 0 ? `${producto.stock_actual} disponibles` : 'Sin Stock'} 
             color={producto.stock_actual > 0 ? 'success' : 'error'} 
-            sx={{ fontWeight: 600 }}
+            size="small"
+            variant="outlined"
           />
         </Box>
-      </Box>
-
-      <Divider />
-
-      {/* Selector de cantidad */}
-      <Box>
-        <Typography variant="h6" sx={{ fontWeight: 600, mb: 2, color: '#2c3e50' }}>
-          Cantidad:
-        </Typography>
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-          <IconButton 
-            onClick={() => handleCantidadChange(-1)} 
-            disabled={cantidad <= 1}
-            sx={{ 
-              border: '2px solid #e9ecef',
-              borderRadius: 2,
-              width: 48,
-              height: 48,
-              color: '#FF6B35',
-              '&:hover': { 
-                borderColor: '#FF6B35',
-                background: 'rgba(255,107,53,0.1)'
-              },
-              '&:disabled': {
-                borderColor: '#e9ecef',
-                color: '#ccc'
-              }
-            }}
-          >
-            <RemoveCircleOutline />
-          </IconButton>
-          
-          <Typography 
-            variant="h5" 
-            sx={{ 
-              minWidth: 60,
-              textAlign: 'center',
-              fontWeight: 700,
-              color: '#2c3e50',
-              py: 1,
-              px: 2,
-              border: '2px solid #e9ecef',
-              borderRadius: 2,
-              background: '#f8f9fa'
-            }}
-          >
-            {cantidad}
-          </Typography>
-          
-          <IconButton 
-            onClick={() => handleCantidadChange(1)} 
-            disabled={cantidad >= producto.stock_actual}
-            sx={{ 
-              border: '2px solid #e9ecef',
-              borderRadius: 2,
-              width: 48,
-              height: 48,
-              color: '#FF6B35',
-              '&:hover': { 
-                borderColor: '#FF6B35',
-                background: 'rgba(255,107,53,0.1)'
-              },
-              '&:disabled': {
-                borderColor: '#e9ecef',
-                color: '#ccc'
-              }
-            }}
-          >
-            <AddCircleOutline />
-          </IconButton>
-        </Box>
-      </Box>
-
-      {/* Botones de acción */}
-      <Stack spacing={2} sx={{ pt: 2 }}>
-        <Button 
-          variant="contained" 
-          size="large" 
-          onClick={handleAddToCart} 
-          startIcon={<ShoppingCart />}
-          disabled={producto.stock_actual <= 0}
-          sx={{
-            py: 2,
-            fontSize: '1.1rem',
-            fontWeight: 700,
-            borderRadius: 3,
-            textTransform: 'none',
-            background: 'linear-gradient(135deg, #FF8C00, #FF6B35)',
-            boxShadow: '0 4px 15px rgba(255,140,0,0.4)',
-            transition: 'all 0.3s ease',
-            '&:hover': {
-              background: 'linear-gradient(135deg, #FF6B35, #FF4500)',
-              transform: 'translateY(-2px)',
-              boxShadow: '0 6px 20px rgba(255,107,53,0.5)'
-            },
-            '&:disabled': {
-              background: '#e9ecef',
-              color: '#6c757d'
-            }
-          }}
-        >
-          Agregar al Carrito
-        </Button>
-        
-        <Button 
-          variant="outlined" 
-          size="large" 
-          onClick={handleBuyNow}
-          disabled={producto.stock_actual <= 0}
-          sx={{
-            py: 2,
-            fontSize: '1.1rem',
-            fontWeight: 600,
-            borderRadius: 3,
-            textTransform: 'none',
-            borderColor: '#FF6B35',
-            color: '#FF6B35',
-            borderWidth: 2,
-            transition: 'all 0.3s ease',
-            '&:hover': {
-              background: 'rgba(255,107,53,0.1)',
-              borderColor: '#FF4500',
-              color: '#FF4500',
-              transform: 'translateY(-2px)'
-            },
-            '&:disabled': {
-              borderColor: '#e9ecef',
-              color: '#6c757d'
-            }
-          }}
-        >
-          Comprar Ahora
-        </Button>
       </Stack>
-    </Stack>
+
+      {/* Controles inferiores */}
+      <Stack spacing={3} sx={{ mt: 4 }}>
+        {/* Selector de cantidad */}
+        <Box>
+          <Typography variant="body2" sx={{ fontWeight: 600, mb: 2, color: '#495057' }}>
+            Cantidad:
+          </Typography>
+          <Box sx={{ 
+            display: 'inline-flex', 
+            alignItems: 'center',
+            border: '2px solid #e9ecef',
+            borderRadius: 3,
+            background: 'white'
+          }}>
+            <IconButton 
+              onClick={() => handleCantidadChange(-1)} 
+              disabled={cantidad <= 1}
+              size="small"
+              sx={{ 
+                color: '#FF6B35',
+                '&:hover': { background: 'rgba(255,107,53,0.1)' },
+                '&:disabled': { color: '#ccc' }
+              }}
+            >
+              <Remove />
+            </IconButton>
+            
+            <Typography 
+              variant="h6" 
+              sx={{ 
+                minWidth: 50,
+                textAlign: 'center',
+                fontWeight: 600,
+                color: '#2c3e50',
+                py: 1,
+                px: 2
+              }}
+            >
+              {cantidad}
+            </Typography>
+            
+            <IconButton 
+              onClick={() => handleCantidadChange(1)} 
+              disabled={cantidad >= producto.stock_actual}
+              size="small"
+              sx={{ 
+                color: '#FF6B35',
+                '&:hover': { background: 'rgba(255,107,53,0.1)' },
+                '&:disabled': { color: '#ccc' }
+              }}
+            >
+              <Add />
+            </IconButton>
+          </Box>
+        </Box>
+
+        {/* Botones de acción */}
+        <Stack spacing={2}>
+          <Button 
+            variant="contained" 
+            size="large" 
+            onClick={handleAddToCart} 
+            startIcon={<ShoppingCart />}
+            disabled={producto.stock_actual <= 0}
+            sx={{
+              py: 2,
+              fontSize: '1rem',
+              fontWeight: 600,
+              borderRadius: 3,
+              textTransform: 'none',
+              background: 'linear-gradient(135deg, #FF8C00, #FF6B35)',
+              boxShadow: 'none',
+              transition: 'all 0.3s ease',
+              '&:hover': {
+                background: 'linear-gradient(135deg, #FF6B35, #FF4500)',
+                transform: 'translateY(-1px)',
+                boxShadow: '0 4px 15px rgba(255,107,53,0.3)'
+              },
+              '&:disabled': {
+                background: '#e9ecef',
+                color: '#6c757d'
+              }
+            }}
+          >
+            Agregar al Carrito
+          </Button>
+          
+          <Button 
+            variant="outlined" 
+            size="large" 
+            onClick={handleBuyNow}
+            disabled={producto.stock_actual <= 0}
+            sx={{
+              py: 2,
+              fontSize: '1rem',
+              fontWeight: 600,
+              borderRadius: 3,
+              textTransform: 'none',
+              borderColor: '#e9ecef',
+              color: '#495057',
+              borderWidth: 2,
+              transition: 'all 0.3s ease',
+              '&:hover': {
+                background: '#f8f9fa',
+                borderColor: '#FF6B35',
+                color: '#FF6B35',
+                transform: 'translateY(-1px)'
+              },
+              '&:disabled': {
+                borderColor: '#e9ecef',
+                color: '#6c757d'
+              }
+            }}
+          >
+            Comprar Ahora
+          </Button>
+        </Stack>
+      </Stack>
+    </Box>
   );
 };
 
