@@ -2,7 +2,8 @@ import { useState } from "react";
 import { Link as RouterLink } from "react-router-dom";
 import { 
     IconButton, Badge, Popover, Box, Typography, 
-    Divider, Button, Stack, Chip, alpha
+    Divider, Button, List, ListItem, ListItemAvatar, 
+    ListItemText, Stack
 } from "@mui/material";
 import { ShoppingCart, DeleteOutline, ShoppingBag } from "@mui/icons-material";
 import { useAuth } from '../../context/AuthContext';
@@ -16,18 +17,24 @@ const CartDropdown = () => {
   } = useAuth() || {};
 
   const [anchorEl, setAnchorEl] = useState(null);
-  const open = Boolean(anchorEl);
 
+  // Funcionalidad original mantenida
   const handleClick = (event) => {
     if (!isAuthenticated) {
-      showNotification('Debes estar logueado para acceder al carrito', 'warning');
+      showNotification('debes estar logueado para acceder al carrito', 'warning');
       return;
     }
     setAnchorEl(event.currentTarget);
   };
 
-  const handleClose = () => setAnchorEl(null);
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
 
+  const open = Boolean(anchorEl);
+  const id = open ? 'cart-popover' : undefined;
+
+  // Funcionalidad original del eliminar mantenida
   const handleRemove = (e, productoId) => {
     e.stopPropagation();
     e.preventDefault();
@@ -36,16 +43,32 @@ const CartDropdown = () => {
 
   return (
     <>
-      <IconButton color="inherit" onClick={handleClick}>
+      {/* Botón del carrito - mejorado visualmente */}
+      <IconButton 
+        color="inherit" 
+        aria-label="carrito" 
+        onClick={handleClick}
+        sx={{
+          '&:hover': { transform: 'scale(1.05)' }
+        }}
+      >
         <Badge 
           badgeContent={cart.count} 
-          sx={{ '& .MuiBadge-badge': { bgcolor: '#FF6B35', fontWeight: 'bold' } }}
+          sx={{
+            '& .MuiBadge-badge': {
+              bgcolor: '#FF6B35',
+              color: 'white',
+              fontWeight: 'bold'
+            }
+          }}
         >
           <ShoppingCart />
         </Badge>
       </IconButton>
 
+      {/* Popover mejorado */}
       <Popover
+        id={id}
         open={open}
         anchorEl={anchorEl}
         onClose={handleClose}
@@ -55,126 +78,182 @@ const CartDropdown = () => {
           paper: { 
             sx: { 
               width: 380, 
-              borderRadius: 3, 
-              boxShadow: '0 8px 32px rgba(0,0,0,0.12)' 
+              borderRadius: 3,
+              boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
+              border: '1px solid #f0f0f0'
             } 
           } 
         }}
       >
-        {/* Header */}
-        <Box sx={{ p: 3, bgcolor: (theme) => alpha(theme.palette.primary.main, 0.08) }}>
+        {/* Header limpio */}
+        <Box sx={{ px: 3, py: 2.5, bgcolor: '#fafbfc', borderBottom: '1px solid #f0f0f0' }}>
           <Stack direction="row" alignItems="center" spacing={1.5}>
-            <ShoppingBag color="primary" />
-            <Typography variant="h6" fontWeight={700}>Tu Carrito</Typography>
+            <ShoppingBag sx={{ color: '#FF6B35', fontSize: 22 }} />
+            <Typography variant="h6" sx={{ fontWeight: 600, color: '#2c3e50' }}>
+              Tu carrito
+            </Typography>
             {cart.count > 0 && (
-              <Chip 
-                label={`${cart.count} items`} 
-                size="small" 
-                sx={{ bgcolor: 'primary.main', color: 'white' }}
-              />
+              <Box sx={{ 
+                bgcolor: '#FF6B35', 
+                color: 'white', 
+                px: 1, 
+                py: 0.3, 
+                borderRadius: 2,
+                fontSize: '0.75rem',
+                fontWeight: 600
+              }}>
+                {cart.count} {cart.count === 1 ? 'item' : 'items'}
+              </Box>
             )}
           </Stack>
         </Box>
 
-        {/* Items */}
+        {/* Lista de productos - estructura original mantenida */}
         {cart.productos.length === 0 ? (
           <Box sx={{ p: 4, textAlign: 'center' }}>
-            <ShoppingBag sx={{ fontSize: 48, color: 'grey.400', mb: 1 }} />
-            <Typography color="text.secondary">Tu carrito está vacío</Typography>
+            <ShoppingBag sx={{ fontSize: 48, color: '#bdc3c7', mb: 2 }} />
+            <Typography variant="body1" sx={{ color: '#7f8c8d', mb: 0.5 }}>
+              Tu carrito está vacío
+            </Typography>
+            <Typography variant="body2" sx={{ color: '#95a5a6' }}>
+              ¡Agrega algunos productos!
+            </Typography>
           </Box>
         ) : (
-          <Box sx={{ maxHeight: 300, overflow: 'auto', p: 1 }}>
+          <List dense sx={{ py: 0, maxHeight: 350, overflow: 'auto' }}>
             {cart.productos.map((producto) => {
               const imageUrl = producto.imagen 
                 ? `${import.meta.env.VITE_API_BASE_URL}${producto.imagen}` 
-                : 'https://via.placeholder.com/50x50?text=IMG';
-              
-              const precio = producto.precio_actual || 0;
-              const cantidad = producto.cantidad || 0;
-              const subtotal = precio * cantidad;
+                : 'https://via.placeholder.com/60x60?text=prod';
+
+              const itemPrice = typeof producto.precio_actual === 'number' && !isNaN(producto.precio_actual) ? producto.precio_actual : 0;
+              const itemQuantity = typeof producto.cantidad === 'number' && !isNaN(producto.cantidad) ? producto.cantidad : 0;
+              const itemSubtotal = itemPrice * itemQuantity;
 
               return (
-                <Box
+                <ListItem
                   key={producto.producto_id}
                   component={RouterLink}
                   to={`/producto/${producto.producto_id}`}
                   onClick={handleClose}
                   sx={{
-                    display: 'flex',
-                    gap: 2,
-                    p: 2,
-                    borderRadius: 2,
-                    textDecoration: 'none',
                     color: 'inherit',
-                    position: 'relative',
+                    textDecoration: 'none',
+                    py: 1.5,
+                    px: 2,
+                    borderBottom: '1px solid #f8f9fa',
                     '&:hover': { 
-                      bgcolor: (theme) => alpha(theme.palette.primary.main, 0.04),
-                      transform: 'translateY(-1px)'
+                      bgcolor: '#f8f9fa'
+                    },
+                    '&:last-child': {
+                      borderBottom: 'none'
                     }
                   }}
                 >
-                  {/* Imagen */}
-                  <img
-                    src={imageUrl}
-                    alt={producto.nombre_producto}
-                    style={{
-                      width: 50,
-                      height: 50,
-                      objectFit: 'cover',
-                      borderRadius: 8,
-                      border: '1px solid #e0e0e0'
-                    }}
+                  {/* Avatar con imagen mejorada */}
+                  <ListItemAvatar sx={{ minWidth: 0, mr: 2 }}>
+                    <Box
+                      sx={{
+                        width: 60,
+                        height: 60,
+                        borderRadius: 2,
+                        overflow: 'hidden',
+                        border: '1px solid #e9ecef',
+                        bgcolor: '#f8f9fa',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center'
+                      }}
+                    >
+                      <img
+                        src={imageUrl}
+                        alt={producto.nombre_producto}
+                        style={{
+                          width: '100%',
+                          height: '100%',
+                          objectFit: 'cover'
+                        }}
+                      />
+                    </Box>
+                  </ListItemAvatar>
+
+                  {/* Información del producto más clara */}
+                  <ListItemText
+                    primary={
+                      <Typography 
+                        variant="body2" 
+                        sx={{ 
+                          fontWeight: 600, 
+                          lineHeight: 1.3,
+                          color: '#2c3e50',
+                          mb: 0.5
+                        }}
+                      >
+                        {producto.nombre_producto}
+                      </Typography>
+                    }
+                    secondary={
+                      <Box>
+                        <Typography variant="body2" sx={{ color: '#7f8c8d', mb: 0.5 }}>
+                          {itemQuantity} × ${itemPrice.toLocaleString('es-AR', { minimumFractionDigits: 2 })}
+                        </Typography>
+                        <Typography 
+                          variant="body2" 
+                          sx={{ 
+                            fontWeight: 700,
+                            color: '#FF6B35',
+                            fontSize: '0.95rem'
+                          }}
+                        >
+                          ${itemSubtotal.toLocaleString('es-AR', { minimumFractionDigits: 2 })}
+                        </Typography>
+                      </Box>
+                    }
                   />
 
-                  {/* Info */}
-                  <Box sx={{ flex: 1, minWidth: 0 }}>
-                    <Typography variant="body2" fontWeight={600} noWrap>
-                      {producto.nombre_producto}
-                    </Typography>
-                    <Stack direction="row" spacing={1} alignItems="center" sx={{ mt: 0.5 }}>
-                      <Chip 
-                        label={`${cantidad}x`} 
-                        size="small" 
-                        sx={{ height: 18, fontSize: '0.7rem' }} 
-                      />
-                      <Typography variant="caption" color="text.secondary">
-                        ${precio.toLocaleString('es-AR')}
-                      </Typography>
-                    </Stack>
-                    <Typography variant="body2" color="primary" fontWeight={700}>
-                      ${subtotal.toLocaleString('es-AR')}
-                    </Typography>
-                  </Box>
-
-                  {/* Botón eliminar */}
+                  {/* Botón eliminar más visible pero discreto */}
                   <IconButton
-                    size="small"
+                    edge="end"
+                    aria-label="delete"
                     onClick={(e) => handleRemove(e, producto.producto_id)}
-                    sx={{ 
-                      position: 'absolute', 
-                      top: 4, 
-                      right: 4,
-                      bgcolor: (theme) => alpha(theme.palette.error.main, 0.1),
-                      '&:hover': { bgcolor: (theme) => alpha(theme.palette.error.main, 0.2) }
+                    sx={{
+                      ml: 1,
+                      bgcolor: '#fff5f5',
+                      border: '1px solid #fed7d7',
+                      width: 32,
+                      height: 32,
+                      '&:hover': {
+                        bgcolor: '#fee',
+                        transform: 'scale(1.05)'
+                      }
                     }}
                   >
-                    <DeleteOutline sx={{ fontSize: 14, color: 'error.main' }} />
+                    <DeleteOutline sx={{ fontSize: 16, color: '#e53e3e' }} />
                   </IconButton>
-                </Box>
+                </ListItem>
               );
             })}
-          </Box>
+          </List>
         )}
 
-        {/* Footer */}
+        {/* Footer con total y botón */}
         {cart.productos.length > 0 && (
           <>
-            <Divider />
+            <Divider sx={{ borderColor: '#f0f0f0' }} />
             <Box sx={{ p: 3 }}>
-              <Stack direction="row" justifyContent="space-between" sx={{ mb: 2 }}>
-                <Typography fontWeight={600}>Total:</Typography>
-                <Typography variant="h6" color="primary" fontWeight={700}>
-                  ${(cart.total || 0).toLocaleString('es-AR')}
+              <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 2.5 }}>
+                <Typography variant="h6" sx={{ fontWeight: 600, color: '#2c3e50' }}>
+                  Total:
+                </Typography>
+                <Typography 
+                  variant="h6" 
+                  sx={{ 
+                    fontWeight: 700,
+                    color: '#FF6B35',
+                    fontSize: '1.3rem'
+                  }}
+                >
+                  ${(cart.total || 0).toLocaleString('es-AR', { minimumFractionDigits: 2 })}
                 </Typography>
               </Stack>
               <Button
@@ -182,16 +261,22 @@ const CartDropdown = () => {
                 to="/carrito"
                 variant="contained"
                 fullWidth
-                onClick={handleClose}
                 sx={{
                   py: 1.5,
                   fontWeight: 700,
                   borderRadius: 2,
-                  background: 'linear-gradient(135deg, #FF6B35, #FF4500)',
-                  '&:hover': { transform: 'translateY(-1px)' }
+                  bgcolor: '#FF6B35',
+                  fontSize: '1rem',
+                  '&:hover': {
+                    bgcolor: '#FF4500',
+                    transform: 'translateY(-1px)',
+                    boxShadow: '0 4px 12px rgba(255,107,53,0.3)'
+                  }
                 }}
+                onClick={handleClose}
+                disabled={cart.productos.length === 0}
               >
-                Ver Carrito Completo
+                Ver carrito completo
               </Button>
             </Box>
           </>
