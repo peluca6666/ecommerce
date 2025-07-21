@@ -1,11 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { 
-    Container, Grid, Typography, Box, Pagination, 
-    IconButton, Drawer, useMediaQuery, useTheme,
-    Paper
-} from '@mui/material';
-import { FilterList, Close } from '@mui/icons-material';
+import { Container, Grid, Typography, Box, Pagination } from '@mui/material';
 import axios from 'axios';
 
 import ProductGrid from '../../components/Product/ProductGrid';
@@ -15,9 +10,6 @@ import { useDebounce } from '../../hooks/useDebounce';
 
 const ProductListPage = () => {
     const [searchParams, setSearchParams] = useSearchParams();
-    const theme = useTheme();
-    const isMobile = useMediaQuery(theme.breakpoints.down('md'));
-    const [drawerOpen, setDrawerOpen] = useState(false);
 
     // Inicializamos filtros a partir de los parámetros de la URL para mantener estado sincronizado con URL
     const getInitialFilters = () => ({
@@ -110,140 +102,48 @@ const ProductListPage = () => {
         setPagina(value);
     };
 
-    // Toggle del drawer en móvil
-    const handleDrawerToggle = () => {
-        setDrawerOpen(!drawerOpen);
-    };
-
     if (loading && productos.length === 0) return <LoadingSpinner />;
     if (error) return <Typography color="error">Error: {error}</Typography>;
 
-    const FilterComponent = () => (
-        <ProductFilters 
-            filtros={filtros} 
-            onFilterChange={handleFilterChange}
-            onCheckboxChange={handleCheckboxChange}
-        />
-    );
-
     return (
-        <Box sx={{ minHeight: '100vh', backgroundColor: '#f8f9fa' }}>
-            <Container maxWidth="xl" sx={{ py: 4 }}>
-                {/* Header */}
-                <Box sx={{ mb: 4 }}>
-                    <Typography variant="h4" component="h1" fontWeight="bold" sx={{ mb: 1 }}>
-                        Nuestro Catálogo
-                    </Typography>
-                    <Typography variant="body1" color="text.secondary">
-                        Descubre todos nuestros productos
-                    </Typography>
-                </Box>
-
-                {/* Botón de filtros para móvil */}
-                {isMobile && (
-                    <Paper sx={{ p: 2, mb: 3, display: 'flex', alignItems: 'center', gap: 2 }}>
-                        <IconButton 
-                            onClick={handleDrawerToggle}
-                            sx={{ 
-                                backgroundColor: '#FF6B35',
-                                color: 'white',
-                                '&:hover': { backgroundColor: '#FF4500' }
-                            }}
-                        >
-                            <FilterList />
-                        </IconButton>
-                        <Typography variant="body1" fontWeight="500">
-                            Filtros y búsqueda
-                        </Typography>
-                    </Paper>
-                )}
-
-                {/* Layout principal */}
-                <Grid container spacing={3}>
-                    {/* Sidebar de filtros - Solo en desktop */}
-                    {!isMobile && (
-                        <Grid item xs={12} md={3} lg={2.5}>
-                            <Box sx={{ position: 'sticky', top: 20 }}>
-                                <FilterComponent />
-                            </Box>
-                        </Grid>
-                    )}
+        <Box>
+            <Container maxWidth="lg" sx={{ my: 4 }}>
+                <Typography variant="h4" component="h1" gutterBottom fontWeight="bold">
+                    Nuestro Catálogo
+                </Typography>
+                
+                {/* LAYOUT FIJO - Flex en lugar de Grid */}
+                <Box sx={{ display: 'flex', gap: 4, flexDirection: { xs: 'column', md: 'row' } }}>
+                    {/* SIDEBAR DE FILTROS */}
+                    <Box sx={{ 
+                        width: { xs: '100%', md: '300px' },
+                        flexShrink: 0
+                    }}>
+                        <ProductFilters 
+                            filtros={filtros} 
+                            onFilterChange={handleFilterChange}
+                            onCheckboxChange={handleCheckboxChange}
+                        />
+                    </Box>
                     
-                    {/* Área de productos */}
-                    <Grid item xs={12} md={isMobile ? 12 : 9} lg={isMobile ? 12 : 9.5}>
-                        <Box>
-                            {loading ? (
-                                <Box sx={{ display: 'flex', justifyContent: 'center', py: 8 }}>
-                                    <LoadingSpinner />
-                                </Box>
-                            ) : productos.length === 0 ? (
-                                <Paper sx={{ p: 6, textAlign: 'center' }}>
-                                    <Typography variant="h6" color="text.secondary" sx={{ mb: 2 }}>
-                                        No se encontraron productos
-                                    </Typography>
-                                    <Typography variant="body2" color="text.secondary">
-                                        Intenta ajustar los filtros de búsqueda
-                                    </Typography>
-                                </Paper>
+                    {/* ÁREA DE PRODUCTOS */}
+                    <Box sx={{ flex: 1, minWidth: 0 }}>
+                        {loading ? <LoadingSpinner /> : (
+                            productos.length === 0 ? (
+                                <Typography>No se encontraron productos que coincidan con tu búsqueda.</Typography>
                             ) : (
                                 <ProductGrid productos={productos} />
-                            )}
-                            
-                            {/* Paginación */}
-                            {totalPaginas > 1 && (
-                                <Box sx={{ display: 'flex', justifyContent: 'center', mt: 6 }}>
-                                    <Pagination 
-                                        count={totalPaginas} 
-                                        page={pagina} 
-                                        onChange={handlePageChange} 
-                                        color="primary"
-                                        size="large"
-                                        sx={{
-                                            '& .MuiPaginationItem-root': {
-                                                fontSize: '1rem'
-                                            }
-                                        }}
-                                    />
-                                </Box>
-                            )}
-                        </Box>
-                    </Grid>
-                </Grid>
-
-                {/* Drawer de filtros para móvil */}
-                <Drawer
-                    anchor="left"
-                    open={drawerOpen}
-                    onClose={handleDrawerToggle}
-                    sx={{
-                        '& .MuiDrawer-paper': {
-                            width: { xs: '85vw', sm: 400 },
-                            maxWidth: 400
-                        }
-                    }}
-                >
-                    <Box sx={{ p: 2 }}>
-                        {/* Header del drawer */}
-                        <Box sx={{ 
-                            display: 'flex', 
-                            justifyContent: 'space-between', 
-                            alignItems: 'center',
-                            mb: 3,
-                            pb: 2,
-                            borderBottom: '1px solid #e9ecef'
-                        }}>
-                            <Typography variant="h6" fontWeight="bold">
-                                Filtros
-                            </Typography>
-                            <IconButton onClick={handleDrawerToggle}>
-                                <Close />
-                            </IconButton>
-                        </Box>
+                            )
+                        )}
                         
-                        {/* Filtros */}
-                        <FilterComponent />
+                        {/* PAGINACIÓN */}
+                        {totalPaginas > 1 && (
+                            <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
+                                <Pagination count={totalPaginas} page={pagina} onChange={handlePageChange} color="primary" />
+                            </Box>
+                        )}
                     </Box>
-                </Drawer>
+                </Box>
             </Container>
         </Box>
     );
