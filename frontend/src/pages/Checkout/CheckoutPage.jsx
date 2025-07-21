@@ -4,15 +4,16 @@ import { useAuth } from '../../context/AuthContext';
 import { getShippingInfo } from '../../utils/shippingUtils';
 import axios from 'axios';
 import { 
-    Paper, Box, Avatar, Typography, Divider, Grid, Stack, TextField,
-    RadioGroup, FormControlLabel, Radio, Button, Container, CircularProgress, 
-    ListItem, ListItemText, Alert
+    Paper, Box, Avatar, Typography, Divider, Grid, Stack,
+    Container, CircularProgress
 } from '@mui/material';
 import {  
     LocalShippingOutlined as LocalShippingOutlinedIcon, 
-    CreditCardOutlined as CreditCardOutlinedIcon,
-    LocalShipping 
+    CreditCardOutlined as CreditCardOutlinedIcon
 } from '@mui/icons-material';
+import OrderSummary from '../../components/Checkout/OrderSummary';
+import ShippingForm from '../../components/Checkout/ShippingForm';
+import PaymentMethodSelector from '../../components/Checkout/PaymentMethodSelector';
 
 // componente reutilizable para mostrar cada paso del checkout
 const CheckoutStep = ({ title, icon, children }) => (
@@ -58,7 +59,6 @@ const CheckoutPage = () => {
                 });
                 const profile = response.data;
 
-                // se rellenan los campos del formulario con datos del perfil
                 setShippingData({
                     nombre: profile.nombre || '',
                     apellido: profile.apellido || '',
@@ -79,7 +79,6 @@ const CheckoutPage = () => {
         fetchProfile();
     }, [user, getToken, showNotification, navigate]);
 
-    // cuando cambia algún campo del form de dirección
     const handleShippingChange = (e) => {
         setShippingData({
             ...shippingData,
@@ -87,7 +86,10 @@ const CheckoutPage = () => {
         });
     };
 
-    // cuando el usuario confirma la compra
+    const handlePaymentChange = (e) => {
+        setPaymentMethod(e.target.value);
+    };
+
     const handlePlaceOrder = async () => {
         const requiredFields = ['nombre', 'apellido', 'direccion', 'localidad', 'provincia', 'codigo_postal'];
         for (const field of requiredFields) {
@@ -103,7 +105,6 @@ const CheckoutPage = () => {
 
         try {
             if (paymentMethod === 'mercadopago') {
-                // Incluir información de envío en la orden
                 const response = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/api/create-order`,
                     { 
                         direccion_envio: formattedAddress,
@@ -153,190 +154,34 @@ const CheckoutPage = () => {
                     Finalizar Compra
                 </Typography>
                 <Grid container spacing={4}>
-                    {/* columna izquierda con los pasos del formulario */}
+                    {/* Formulario */}
                     <Grid item xs={12} md={7}>
                         <Stack spacing={3}>
                             <CheckoutStep title="1. Dirección de Envío" icon={<LocalShippingOutlinedIcon />}>
-                                <Grid container spacing={2}>
-                                    <Grid item xs={12} sm={6}>
-                                        <TextField 
-                                            name="nombre" 
-                                            label="Nombre" 
-                                            value={shippingData.nombre} 
-                                            onChange={handleShippingChange} 
-                                            fullWidth 
-                                            required 
-                                        />
-                                    </Grid>
-                                    <Grid item xs={12} sm={6}>
-                                        <TextField 
-                                            name="apellido" 
-                                            label="Apellido" 
-                                            value={shippingData.apellido} 
-                                            onChange={handleShippingChange} 
-                                            fullWidth 
-                                            required 
-                                        />
-                                    </Grid>
-                                    <Grid item xs={12}>
-                                        <TextField 
-                                            name="direccion" 
-                                            label="Dirección (Calle y Nro)" 
-                                            value={shippingData.direccion} 
-                                            onChange={handleShippingChange} 
-                                            fullWidth 
-                                            required 
-                                        />
-                                    </Grid>
-                                    <Grid item xs={12} sm={6}>
-                                        <TextField 
-                                            name="localidad" 
-                                            label="Localidad" 
-                                            value={shippingData.localidad} 
-                                            onChange={handleShippingChange} 
-                                            fullWidth 
-                                            required 
-                                            helperText="El costo de envío se calcula según la localidad"
-                                        />
-                                    </Grid>
-                                    <Grid item xs={12} sm={6}>
-                                        <TextField 
-                                            name="codigo_postal" 
-                                            label="Código Postal" 
-                                            value={shippingData.codigo_postal} 
-                                            onChange={handleShippingChange} 
-                                            fullWidth 
-                                            required 
-                                        />
-                                    </Grid>
-                                    <Grid item xs={12} sm={6}>
-                                        <TextField 
-                                            name="provincia" 
-                                            label="Provincia" 
-                                            value={shippingData.provincia} 
-                                            onChange={handleShippingChange} 
-                                            fullWidth 
-                                            required 
-                                        />
-                                    </Grid>
-                                    <Grid item xs={12} sm={6}>
-                                        <TextField 
-                                            name="telefono" 
-                                            label="Teléfono (Opcional)" 
-                                            value={shippingData.telefono} 
-                                            onChange={handleShippingChange} 
-                                            fullWidth 
-                                        />
-                                    </Grid>
-                                </Grid>
-
-                                {/* Información de envío en tiempo real */}
-                                {shippingData.localidad && (
-                                    <Alert 
-                                        severity={shipping.isLocal ? 'success' : 'info'} 
-                                        sx={{ mt: 2 }}
-                                    >
-                                        <Stack direction="row" alignItems="center" spacing={1}>
-                                            <LocalShipping />
-                                            <Box>
-                                                <Typography variant="body2" fontWeight={600}>
-                                                    Envío a {shippingData.localidad}: {shipping.description}
-                                                </Typography>
-                                                <Typography variant="caption">
-                                                    {shipping.deliveryTime}
-                                                </Typography>
-                                            </Box>
-                                        </Stack>
-                                    </Alert>
-                                )}
+                                <ShippingForm 
+                                    data={shippingData}
+                                    onChange={handleShippingChange}
+                                    shipping={shipping}
+                                />
                             </CheckoutStep>
 
                             <CheckoutStep title="2. Método de Pago" icon={<CreditCardOutlinedIcon />}>
-                                <RadioGroup value={paymentMethod} onChange={(e) => setPaymentMethod(e.target.value)}>
-                                    <FormControlLabel 
-                                        value="mercadopago" 
-                                        control={<Radio />} 
-                                        label="Tarjeta de Crédito / Débito (Mercado Pago)" 
-                                    />
-                                    <FormControlLabel 
-                                        value="transferencia" 
-                                        control={<Radio />} 
-                                        label="Transferencia Bancaria" 
-                                    />
-                                </RadioGroup>
+                                <PaymentMethodSelector 
+                                    value={paymentMethod}
+                                    onChange={handlePaymentChange}
+                                />
                             </CheckoutStep>
                         </Stack>
                     </Grid>
 
-                    {/* columna derecha con resumen del pedido */}
+                    {/* Resumen */}
                     <Grid item xs={12} md={5}>
-                        <Paper 
-                            sx={{ 
-                                p: 3, 
-                                position: 'sticky', 
-                                top: '80px', 
-                                borderRadius: '16px', 
-                                border: '1px solid #e0e0e0' 
-                            }} 
-                            elevation={0}
-                        >
-                            <Typography variant="h6" gutterBottom>Resumen del Pedido</Typography>
-                            <Divider sx={{ my: 2 }} />
-                            
-                            {/* Lista de productos */}
-                            <Stack spacing={1.5} sx={{ maxHeight: '250px', overflowY: 'auto', pr: 1 }}>
-                                {cart.productos.map(p => (
-                                    <ListItem key={p.producto_id} disableGutters sx={{p:0}}>
-                                        <ListItemText 
-                                            primary={p.nombre_producto} 
-                                            secondary={`Cantidad: ${p.cantidad}`} 
-                                        />
-                                        <Typography variant="body1" fontWeight="500">
-                                            ${(p.subtotal || p.cantidad * p.precio_actual).toLocaleString('es-AR', { minimumFractionDigits: 2 })}
-                                        </Typography>
-                                    </ListItem>
-                                ))}
-                            </Stack>
-                            
-                            <Divider sx={{ my: 2 }} />
-                            
-                            {/* Subtotal */}
-                            <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
-                                <Typography variant="body1">Subtotal</Typography>
-                                <Typography variant="body1" fontWeight="500">
-                                    ${cart.total.toLocaleString('es-AR', { minimumFractionDigits: 2 })}
-                                </Typography>
-                            </Box>
-                            
-                            {/* Envío */}
-                            <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
-                                <Typography variant="body1">Envío ({shipping.region})</Typography>
-                                <Typography variant="body1" fontWeight="500" color={shipping.isLocal ? 'warning.main' : 'text.primary'}>
-                                    ${shipping.cost.toLocaleString('es-AR', { minimumFractionDigits: 2 })}
-                                </Typography>
-                            </Box>
-                            
-                            <Divider sx={{ mb: 2 }} />
-                            
-                            {/* Total final */}
-                            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-                                <Typography variant="h6">Total Final</Typography>
-                                <Typography variant="h6" fontWeight="bold" color="primary.main">
-                                    ${shipping.total.toLocaleString('es-AR', { minimumFractionDigits: 2 })}
-                                </Typography>
-                            </Box>
-                            
-                            <Button
-                                variant="contained"
-                                fullWidth
-                                size="large"
-                                sx={{ mt: 3, py: 1.5, borderRadius: '12px', fontWeight: 'bold' }}
-                                disabled={cart.productos.length === 0 || isProcessing}
-                                onClick={handlePlaceOrder}
-                            >
-                                {isProcessing ? <CircularProgress size={26} color="inherit"/> : 'Realizar Pedido'}
-                            </Button>
-                        </Paper>
+                        <OrderSummary 
+                            cart={cart}
+                            shipping={shipping}
+                            isProcessing={isProcessing}
+                            onPlaceOrder={handlePlaceOrder}
+                        />
                     </Grid>
                 </Grid>
             </Container>
