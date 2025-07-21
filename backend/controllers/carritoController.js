@@ -75,6 +75,7 @@ export async function actualizarProductoEnCarrito(req, res) {
   }
 }
 
+// 🔧 FUNCIÓN ARREGLADA
 export async function eliminarProductoDelCarrito(req, res) {
   try {
     const usuarioId = req.usuario.id;
@@ -84,8 +85,8 @@ export async function eliminarProductoDelCarrito(req, res) {
       return res.status(400).json({ exito: false, mensaje: 'Se requiere el ID del producto' });
     }
 
-    // Llamamos al servicio para que lo elimine
-    const fueEliminado = await carritoService.eliminarProductoDelCarrito(usuarioId, parseInt(id));
+    // ✅ CAMBIO: Usar vaciarCarrito que sí existe en el service
+    const fueEliminado = await carritoService.vaciarCarrito(usuarioId, parseInt(id));
 
     if (fueEliminado) {
       return res.status(200).json({ exito: true, mensaje: 'Producto eliminado del carrito' });
