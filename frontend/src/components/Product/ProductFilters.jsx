@@ -1,25 +1,12 @@
 import { useState, useEffect } from 'react';
-import { useForm, Controller } from 'react-hook-form';
 import { 
-    Box, TextField, Select, MenuItem, FormControl, 
-    Paper, Typography, Chip, Stack, Divider, Autocomplete
+    Box, TextField, FormControl, Paper, Typography, 
+    Chip, Stack, Divider, Autocomplete
 } from '@mui/material';
 import { Search, Category, AttachMoney, Sort, LocalOffer } from '@mui/icons-material';
 import axios from 'axios';
 
 const ProductFilters = ({ filtros, onFilterChange, onCheckboxChange }) => {
-    const { control, watch, setValue, reset } = useForm({
-        defaultValues: {
-            busqueda: filtros.busqueda || '',
-            categoria: filtros.categoria || '',
-            minPrice: filtros.minPrice || '',
-            maxPrice: filtros.maxPrice || '',
-            sortBy: filtros.sortBy || 'nombre_asc',
-            es_oferta: filtros.es_oferta === 'true'
-        }
-    });
-
-    // Opciones de categorías y ordenamiento
     const [categorias, setCategorias] = useState([]);
     
     const sortOptions = [
@@ -47,26 +34,34 @@ const ProductFilters = ({ filtros, onFilterChange, onCheckboxChange }) => {
         fetchCategorias();
     }, []);
 
-    // Observar cambios y notificar al padre
-    const watchedValues = watch();
-    useEffect(() => {
-        const { es_oferta, ...otherFilters } = watchedValues;
-        
-        // Convertir valores para el componente padre
-        Object.entries(otherFilters).forEach(([key, value]) => {
-            onFilterChange({ target: { name: key, value } });
+    const handleOfferToggle = () => {
+        onCheckboxChange({
+            target: {
+                name: 'es_oferta',
+                checked: filtros.es_oferta !== 'true'
+            }
         });
-        
-        // Manejar checkbox de ofertas
-        onCheckboxChange({ 
-            target: { 
-                name: 'es_oferta', 
-                checked: es_oferta 
-            } 
-        });
-    }, [watchedValues]);
+    };
 
-    const FilterField = ({ name, label, icon: Icon, children }) => (
+    const handleSortChange = (_, newValue) => {
+        onFilterChange({
+            target: {
+                name: 'sortBy',
+                value: newValue?.value || 'nombre_asc'
+            }
+        });
+    };
+
+    const handleCategoryChange = (_, newValue) => {
+        onFilterChange({
+            target: {
+                name: 'categoria',
+                value: newValue?.value || ''
+            }
+        });
+    };
+
+    const FilterField = ({ label, icon: Icon, children }) => (
         <Box>
             <Typography variant="subtitle2" sx={{ 
                 color: '#495057', 
@@ -116,71 +111,53 @@ const ProductFilters = ({ filtros, onFilterChange, onCheckboxChange }) => {
 
             <Stack spacing={3}>
                 {/* Búsqueda */}
-                <FilterField name="busqueda" label="Buscar producto" icon={Search}>
-                    <Controller
+                <FilterField label="Buscar producto" icon={Search}>
+                    <TextField 
+                        placeholder="¿Qué estás buscando?"
                         name="busqueda"
-                        control={control}
-                        render={({ field }) => (
-                            <TextField 
-                                {...field}
-                                placeholder="¿Qué estás buscando?"
-                                fullWidth
-                                sx={inputStyles}
-                            />
-                        )}
+                        value={filtros.busqueda}
+                        onChange={onFilterChange}
+                        fullWidth
+                        sx={inputStyles}
                     />
                 </FilterField>
 
                 <Divider sx={{ borderColor: '#f1f3f4' }} />
 
                 {/* Categoría con Autocomplete */}
-                <FilterField name="categoria" label="Categoría" icon={Category}>
-                    <Controller
-                        name="categoria"
-                        control={control}
-                        render={({ field: { value, onChange } }) => (
-                            <Autocomplete
-                                options={[{ value: '', label: 'Todas las categorías' }, ...categorias]}
-                                getOptionLabel={(option) => option.label}
-                                value={categorias.find(cat => cat.value === value) || { value: '', label: 'Todas las categorías' }}
-                                onChange={(_, newValue) => onChange(newValue?.value || '')}
-                                renderInput={(params) => (
-                                    <TextField {...params} sx={inputStyles} />
-                                )}
-                                isOptionEqualToValue={(option, value) => option.value === value.value}
-                            />
+                <FilterField label="Categoría" icon={Category}>
+                    <Autocomplete
+                        options={[{ value: '', label: 'Todas las categorías' }, ...categorias]}
+                        getOptionLabel={(option) => option.label}
+                        value={categorias.find(cat => cat.value === filtros.categoria) || { value: '', label: 'Todas las categorías' }}
+                        onChange={handleCategoryChange}
+                        renderInput={(params) => (
+                            <TextField {...params} sx={inputStyles} />
                         )}
+                        isOptionEqualToValue={(option, value) => option.value === value.value}
                     />
                 </FilterField>
 
                 <Divider sx={{ borderColor: '#f1f3f4' }} />
 
                 {/* Rango de precios */}
-                <FilterField name="precio" label="Rango de precio" icon={AttachMoney}>
+                <FilterField label="Rango de precio" icon={AttachMoney}>
                     <Stack direction="row" spacing={2}>
-                        <Controller
+                        <TextField 
+                            placeholder="Mín."
                             name="minPrice"
-                            control={control}
-                            render={({ field }) => (
-                                <TextField 
-                                    {...field}
-                                    placeholder="Mín."
-                                    type="number"
-                                    sx={{ flex: 1, ...inputStyles }}
-                                />
-                            )}
+                            type="number"
+                            value={filtros.minPrice}
+                            onChange={onFilterChange}
+                            sx={{ flex: 1, ...inputStyles }}
                         />
-                        <Controller
+                        <TextField 
+                            placeholder="Máx."
                             name="maxPrice"
-                            control={control}
-                            render={({ field }) => (
-                                <TextField 
-                                    {...field}
-                                    placeholder="Máx."
-                                    type="number"
-                                    sx={{ flex: 1, ...inputStyles }}
-                                />
-                            )}
+                            type="number"
+                            value={filtros.maxPrice}
+                            onChange={onFilterChange}
+                            sx={{ flex: 1, ...inputStyles }}
                         />
                     </Stack>
                 </FilterField>
@@ -188,64 +165,66 @@ const ProductFilters = ({ filtros, onFilterChange, onCheckboxChange }) => {
                 <Divider sx={{ borderColor: '#f1f3f4' }} />
 
                 {/* Ordenar con Autocomplete */}
-                <FilterField name="sortBy" label="Ordenar por" icon={Sort}>
-                    <Controller
-                        name="sortBy"
-                        control={control}
-                        render={({ field: { value, onChange } }) => (
-                            <Autocomplete
-                                options={sortOptions}
-                                getOptionLabel={(option) => option.label}
-                                value={sortOptions.find(opt => opt.value === value)}
-                                onChange={(_, newValue) => onChange(newValue?.value)}
-                                renderInput={(params) => (
-                                    <TextField {...params} sx={inputStyles} />
-                                )}
-                                isOptionEqualToValue={(option, value) => option.value === value.value}
-                            />
+                <FilterField label="Ordenar por" icon={Sort}>
+                    <Autocomplete
+                        options={sortOptions}
+                        getOptionLabel={(option) => option.label}
+                        value={sortOptions.find(opt => opt.value === filtros.sortBy) || sortOptions[0]}
+                        onChange={handleSortChange}
+                        renderInput={(params) => (
+                            <TextField {...params} sx={inputStyles} />
                         )}
+                        isOptionEqualToValue={(option, value) => option.value === value.value}
                     />
                 </FilterField>
 
                 <Divider sx={{ borderColor: '#f1f3f4' }} />
 
                 {/* Ofertas */}
-                <FilterField name="es_oferta" label="Ofertas especiales" icon={LocalOffer}>
-                    <Controller
-                        name="es_oferta"
-                        control={control}
-                        render={({ field: { value, onChange } }) => (
-                            <Chip
-                                icon={<LocalOffer />}
-                                label="Solo ofertas"
-                                clickable
-                                onClick={() => onChange(!value)}
-                                variant={value ? 'filled' : 'outlined'}
-                                sx={{
-                                    borderRadius: 3,
-                                    height: 40,
-                                    fontSize: '0.9rem',
-                                    fontWeight: 500,
-                                    ...(value ? {
-                                        background: 'linear-gradient(135deg, #FF4500, #FF6B35)',
-                                        color: 'white',
-                                        '& .MuiChip-icon': { color: 'white' }
-                                    } : {
-                                        borderColor: '#e9ecef',
-                                        color: '#495057',
-                                        '&:hover': {
-                                            borderColor: '#FF8C00',
-                                            background: 'rgba(255,140,0,0.05)'
-                                        }
-                                    })
-                                }}
-                            />
-                        )}
+                <FilterField label="Ofertas especiales" icon={LocalOffer}>
+                    <Chip
+                        icon={<LocalOffer />}
+                        label="Solo ofertas"
+                        clickable
+                        onClick={handleOfferToggle}
+                        variant={filtros.es_oferta === 'true' ? 'filled' : 'outlined'}
+                        sx={{
+                            borderRadius: 3,
+                            height: 40,
+                            fontSize: '0.9rem',
+                            fontWeight: 500,
+                            ...(filtros.es_oferta === 'true' ? {
+                                background: 'linear-gradient(135deg, #FF4500, #FF6B35)',
+                                color: 'white',
+                                '& .MuiChip-icon': { color: 'white' }
+                            } : {
+                                borderColor: '#e9ecef',
+                                color: '#495057',
+                                '&:hover': {
+                                    borderColor: '#FF8C00',
+                                    background: 'rgba(255,140,0,0.05)'
+                                }
+                            })
+                        }}
                     />
                 </FilterField>
             </Stack>
+
+            {/* Decoración */}
+            <Box sx={{
+                position: 'absolute',
+                top: -30,
+                right: -30,
+                width: 100,
+                height: 100,
+                borderRadius: '50%',
+                background: 'linear-gradient(135deg, rgba(255,140,0,0.05), rgba(255,107,53,0.05))',
+                pointerEvents: 'none'
+            }} />
         </Paper>
     );
 };
 
 export default ProductFilters;
+
+
