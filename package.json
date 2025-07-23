@@ -11,6 +11,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@ant-design/icons": "^6.0.0",
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.0",
     "@mantine/core": "^8.2.1",
@@ -19,6 +20,7 @@
     "@mantine/notifications": "^8.2.1",
     "@mui/x-data-grid": "^8.5.2",
     "@tabler/icons-react": "^3.34.1",
+    "antd": "^5.26.6",
     "axios": "^1.10.0",
     "bcrypt": "^6.0.0",
     "cors": "^2.8.5",
