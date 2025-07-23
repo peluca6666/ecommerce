@@ -72,28 +72,38 @@ const ProfilePage = () => {
         { headers: { Authorization: `Bearer ${token}` } }
       );
       
-      // Mostrar modal de éxito
-      Modal.success({
-        title: '¡Contraseña actualizada exitosamente!',
-        content: (
-          <div>
-            <p>Tu contraseña ha sido cambiada correctamente.</p>
-            <p style={{ marginTop: 10 }}>
-              <strong>Recordá:</strong> Usá tu nueva contraseña la próxima vez que inicies sesión.
-            </p>
-          </div>
-        ),
-        icon: <CheckCircleOutlined style={{ color: '#52c41a' }} />,
-        okText: 'Entendido',
-        okButtonProps: {
-          size: 'large',
-        },
-        centered: true,
-      });
-      
+      // Resetear el formulario primero
       passwordForm.resetFields();
+      
+      // Mostrar mensaje de éxito inmediato
+      message.success('¡Contraseña actualizada correctamente! 🔒');
+      
+      // Mostrar modal de éxito con un pequeño delay para asegurar que se muestre
+      setTimeout(() => {
+        Modal.success({
+          title: '¡Contraseña actualizada exitosamente!',
+          content: (
+            <div>
+              <p>Tu contraseña ha sido cambiada correctamente.</p>
+              <p style={{ marginTop: 10 }}>
+                <strong>Recordá:</strong> Usá tu nueva contraseña la próxima vez que inicies sesión.
+              </p>
+            </div>
+          ),
+          icon: <CheckCircleOutlined style={{ color: '#52c41a' }} />,
+          okText: 'Entendido',
+          okButtonProps: {
+            size: 'large',
+            style: { backgroundColor: '#FF6B35', borderColor: '#FF6B35' }
+          },
+          centered: true,
+          width: 450,
+        });
+      }, 100);
+      
     } catch (error) {
-      message.error('Verificá tu contraseña actual');
+      console.error('Error al cambiar contraseña:', error);
+      message.error(error.response?.data?.mensaje || 'Error: Verificá tu contraseña actual');
     }
   };
 
@@ -245,7 +255,7 @@ const ProfilePage = () => {
           <TabPane tab={<span style={{ fontSize: 16 }}><LockOutlined /> Seguridad</span>} key="2">
             <Card style={{ maxWidth: 600, margin: '40px auto', padding: 20 }}>
               <Title level={3} style={{ marginBottom: 8 }}>Cambiá tu contraseña</Title>
-              
+
               <Form 
                 form={passwordForm} 
                 layout="vertical" 

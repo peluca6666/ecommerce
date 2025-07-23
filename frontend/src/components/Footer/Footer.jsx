@@ -141,31 +141,7 @@ const Footer = () => {
                 </Link>
                 <Link component={RouterLink} to="/sobre-nosotros" sx={linkStyles}   onClick={() => window.scrollTo(0, 0)}>
                   Sobre nosotros
-                </Link>
-                <Link component={RouterLink} to="/contacto" sx={linkStyles}   onClick={() => window.scrollTo(0, 0)}>
-                  Contacto
-                </Link>
-              </Box>
-            </Grid>
-
-            {/* Sección Contacto */}
-            <Grid item xs={12} sm={6} md={4}>
-              <Typography variant="h6" sx={sectionTitleStyles}>
-                Contacto
-              </Typography>
-              
-              <Box sx={contactBoxStyles}>
-                <Email sx={iconStyles} />
-                <Typography variant="body2" sx={{ color: '#BDC3C7' }}>
-                  gercab666@gmail.com
-                </Typography>
-              </Box>
-              
-              <Box sx={contactBoxStyles}>
-                <Phone sx={iconStyles} />
-                <Typography variant="body2" sx={{ color: '#BDC3C7' }}>
-                  +54 3546 417985
-                </Typography>
+                </Link>           
               </Box>
             </Grid>
           </Grid>
