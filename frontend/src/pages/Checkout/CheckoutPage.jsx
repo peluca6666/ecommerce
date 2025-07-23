@@ -4,37 +4,26 @@ import { useAuth } from '../../context/AuthContext';
 import { getShippingInfo } from '../../utils/shippingUtils';
 import axios from 'axios';
 import { 
-    Paper, Box, Avatar, Typography, Divider, Grid, Stack,
-    Container, CircularProgress
+    Container, Box, Typography, Stepper, Step, StepLabel, Button,
+    Stack, Paper, CircularProgress, StepContent
 } from '@mui/material';
-import {  
-    LocalShippingOutlined as LocalShippingOutlinedIcon, 
-    CreditCardOutlined as CreditCardOutlinedIcon
+import { 
+    ArrowBack, 
+    ArrowForward,
+    LocalShipping,
+    Payment,
+    ShoppingCart
 } from '@mui/icons-material';
-import OrderSummary from '../../components/Checkout/OrderSummary';
 import ShippingForm from '../../components/Checkout/ShippingForm';
 import PaymentMethodSelector from '../../components/Checkout/PaymentMethodSelector';
+import OrderSummary from '../../components/Checkout/OrderSummary';
 
-// componente reutilizable para mostrar cada paso del checkout
-const CheckoutStep = ({ title, icon, children }) => (
-    <Paper elevation={0} sx={{ border: '1px solid #e0e0e0', p: 3, borderRadius: '16px' }}>
-        <Box sx={{ display: 'flex', alignItems: 'center', mb: 2, gap: 1.5 }}>
-            <Avatar sx={{ bgcolor: 'primary.main', color: 'white' }}>
-                {icon}
-            </Avatar>
-            <Typography variant="h6">{title}</Typography>
-        </Box>
-        <Divider sx={{ mb: 3 }} />
-        {children}
-    </Paper>
-);
-
-// componente principal del checkout
 const CheckoutPage = () => {
     const navigate = useNavigate();
     const { user, cart, getToken, showNotification, refreshCart } = useAuth();
 
-    // estados para manejar datos de envío, método de pago y carga
+    // Estados
+    const [activeStep, setActiveStep] = useState(0);
     const [shippingData, setShippingData] = useState({
         nombre: '', apellido: '', direccion: '', localidad: '', provincia: '', codigo_postal: '', telefono: ''
     });
@@ -42,10 +31,29 @@ const CheckoutPage = () => {
     const [isProcessing, setIsProcessing] = useState(false);
     const [loading, setLoading] = useState(true);
 
-    // Calcular información de envío basada en la localidad
+    // Calcular información de envío
     const shipping = getShippingInfo(shippingData.localidad, cart.total);
 
-    // al montar, si hay usuario, se traen sus datos del perfil
+    // Configuración de pasos
+    const steps = [
+        {
+            label: 'Datos de Envío',
+            icon: <LocalShipping />,
+            description: 'Completá tu información personal y dirección'
+        },
+        {
+            label: 'Método de Pago',
+            icon: <Payment />,
+            description: 'Elegí cómo querés pagar tu pedido'
+        },
+        {
+            label: 'Confirmar Pedido',
+            icon: <ShoppingCart />,
+            description: 'Revisá tu pedido antes de finalizar'
+        }
+    ];
+
+    // Cargar datos del perfil
     useEffect(() => {
         const fetchProfile = async () => {
             if (!user) {
@@ -79,6 +87,7 @@ const CheckoutPage = () => {
         fetchProfile();
     }, [user, getToken, showNotification, navigate]);
 
+    // Handlers
     const handleShippingChange = (e) => {
         setShippingData({
             ...shippingData,
@@ -90,13 +99,36 @@ const CheckoutPage = () => {
         setPaymentMethod(e.target.value);
     };
 
+    // Validación por paso
+    const validateStep = (step) => {
+        if (step === 0) {
+            const requiredFields = ['nombre', 'apellido', 'direccion', 'localidad', 'provincia', 'codigo_postal'];
+            return requiredFields.every(field => shippingData[field].trim() !== '');
+        }
+        if (step === 1) {
+            return paymentMethod !== '';
+        }
+        return true;
+    };
+
+    // Navegación entre pasos
+    const handleNext = () => {
+        if (validateStep(activeStep)) {
+            setActiveStep((prev) => prev + 1);
+        } else {
+            showNotification('Por favor completá todos los campos obligatorios', 'error');
+        }
+    };
+
+    const handleBack = () => {
+        setActiveStep((prev) => prev - 1);
+    };
+
+    // Procesar pedido
     const handlePlaceOrder = async () => {
-        const requiredFields = ['nombre', 'apellido', 'direccion', 'localidad', 'provincia', 'codigo_postal'];
-        for (const field of requiredFields) {
-            if (!shippingData[field]) {
-                showNotification(`El campo "${field.replace('_', ' ')}" es obligatorio.`, 'error');
-                return;
-            }
+        if (!validateStep(0) || !validateStep(1)) {
+            showNotification('Por favor verificá que todos los datos estén completos', 'error');
+            return;
         }
 
         setIsProcessing(true);
@@ -143,47 +175,150 @@ const CheckoutPage = () => {
         }
     };
 
+    // Renderizar contenido del paso activo
+    const renderStepContent = (step) => {
+        switch (step) {
+            case 0:
+                return (
+                    <ShippingForm 
+                        data={shippingData}
+                        onChange={handleShippingChange}
+                        shipping={shipping}
+                    />
+                );
+            case 1:
+                return (
+                    <PaymentMethodSelector 
+                        value={paymentMethod}
+                        onChange={handlePaymentChange}
+                    />
+                );
+            case 2:
+                return (
+                    <OrderSummary 
+                        cart={cart}
+                        shipping={shipping}
+                        isProcessing={isProcessing}
+                        onPlaceOrder={handlePlaceOrder}
+                    />
+                );
+            default:
+                return null;
+        }
+    };
+
     if (loading) {
         return <Container sx={{py: 5, textAlign: 'center'}}><CircularProgress /></Container>;
     }
 
     return (
         <Box sx={{ bgcolor: 'grey.50', minHeight: '100vh' }}>
-            <Container maxWidth="lg" sx={{ py: 4 }}>
-                <Typography variant="h4" component="h1" gutterBottom fontWeight="bold" sx={{ mb: 4, textAlign: 'center' }}>
-                    Finalizar Compra
-                </Typography>
-                <Grid container spacing={4}>
-                    {/* Formulario */}
-                    <Grid item xs={12} md={7}>
-                        <Stack spacing={3}>
-                            <CheckoutStep title="1. Dirección de Envío" icon={<LocalShippingOutlinedIcon />}>
-                                <ShippingForm 
-                                    data={shippingData}
-                                    onChange={handleShippingChange}
-                                    shipping={shipping}
-                                />
-                            </CheckoutStep>
+            <Container maxWidth="md" sx={{ py: 4 }}>
+                
+                {/* Header */}
+                <Box sx={{ textAlign: 'center', mb: 4 }}>
+                    <Typography variant="h4" component="h1" fontWeight="bold" sx={{ mb: 1 }}>
+                        Finalizar Compra
+                    </Typography>
+                    <Typography variant="body1" color="text.secondary">
+                        Completá los siguientes pasos para confirmar tu pedido
+                    </Typography>
+                </Box>
 
-                            <CheckoutStep title="2. Método de Pago" icon={<CreditCardOutlinedIcon />}>
-                                <PaymentMethodSelector 
-                                    value={paymentMethod}
-                                    onChange={handlePaymentChange}
-                                />
-                            </CheckoutStep>
-                        </Stack>
-                    </Grid>
+                {/* Stepper */}
+                <Paper elevation={0} sx={{ mb: 4, borderRadius: 3, overflow: 'hidden' }}>
+                    <Stepper 
+                        activeStep={activeStep} 
+                        sx={{ 
+                            p: 3,
+                            '& .MuiStepLabel-root .Mui-completed': {
+                                color: '#4caf50'
+                            },
+                            '& .MuiStepLabel-root .Mui-active': {
+                                color: '#FF6B35'
+                            }
+                        }}
+                    >
+                        {steps.map((step, index) => (
+                            <Step key={step.label}>
+                                <StepLabel 
+                                    icon={step.icon}
+                                    sx={{
+                                        '& .MuiStepLabel-labelContainer': {
+                                            '& .MuiStepLabel-label': {
+                                                fontWeight: 600,
+                                                fontSize: '0.95rem'
+                                            }
+                                        }
+                                    }}
+                                >
+                                    {step.label}
+                                </StepLabel>
+                            </Step>
+                        ))}
+                    </Stepper>
+                </Paper>
 
-                    {/* Resumen */}
-                    <Grid item xs={12} md={5}>
-                        <OrderSummary 
-                            cart={cart}
-                            shipping={shipping}
-                            isProcessing={isProcessing}
-                            onPlaceOrder={handlePlaceOrder}
-                        />
-                    </Grid>
-                </Grid>
+                {/* Contenido del paso */}
+                <Paper elevation={0} sx={{ borderRadius: 3, overflow: 'hidden' }}>
+                    <Box sx={{ p: 4 }}>
+                        {/* Descripción del paso */}
+                        <Box sx={{ mb: 4, textAlign: 'center' }}>
+                            <Typography variant="h6" fontWeight={600} sx={{ mb: 1, color: '#2c3e50' }}>
+                                {steps[activeStep].label}
+                            </Typography>
+                            <Typography variant="body2" color="text.secondary">
+                                {steps[activeStep].description}
+                            </Typography>
+                        </Box>
+
+                        {/* Contenido */}
+                        <Box sx={{ mb: 4 }}>
+                            {renderStepContent(activeStep)}
+                        </Box>
+
+                        {/* Navegación */}
+                        {activeStep < 2 && (
+                            <Stack direction="row" justifyContent="space-between" sx={{ mt: 4 }}>
+                                <Button
+                                    disabled={activeStep === 0}
+                                    onClick={handleBack}
+                                    startIcon={<ArrowBack />}
+                                    variant="outlined"
+                                    sx={{
+                                        borderColor: '#e9ecef',
+                                        color: '#6c757d',
+                                        '&:hover': {
+                                            borderColor: '#FF6B35',
+                                            color: '#FF6B35'
+                                        }
+                                    }}
+                                >
+                                    Anterior
+                                </Button>
+
+                                <Button
+                                    onClick={handleNext}
+                                    endIcon={<ArrowForward />}
+                                    variant="contained"
+                                    disabled={!validateStep(activeStep)}
+                                    sx={{
+                                        background: 'linear-gradient(135deg, #FF6B35, #FF4500)',
+                                        fontWeight: 600,
+                                        px: 4,
+                                        '&:hover': {
+                                            background: 'linear-gradient(135deg, #FF4500, #FF2500)',
+                                            transform: 'translateY(-1px)'
+                                        }
+                                    }}
+                                >
+                                    {activeStep === steps.length - 1 ? 'Finalizar' : 'Siguiente'}
+                                </Button>
+                            </Stack>
+                        )}
+                    </Box>
+                </Paper>
+
             </Container>
         </Box>
     );
