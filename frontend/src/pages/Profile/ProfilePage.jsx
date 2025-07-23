@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { 
   Card, Tabs, Form, Input, Button, Row, Col, Avatar, 
-  Progress, Alert, Space, Typography, Divider, message, Modal 
+  Progress, Alert, Space, Typography, Divider, message, Modal, notification 
 } from 'antd';
 import { 
   UserOutlined, LockOutlined, ShoppingOutlined, EditOutlined, 
@@ -61,9 +61,11 @@ const ProfilePage = () => {
 
   // Cambiar contraseña
   const handleChangePassword = async (values) => {
+    console.log('Iniciando cambio de contraseña...');
+    
     try {
       const token = getToken();
-      await axios.post(
+      const response = await axios.post(
         `${import.meta.env.VITE_API_BASE_URL}/api/profile/change-password`,
         {
           contraseniaActual: values.contraseniaActual,
@@ -72,38 +74,51 @@ const ProfilePage = () => {
         { headers: { Authorization: `Bearer ${token}` } }
       );
       
-      // Resetear el formulario primero
+      console.log('Respuesta del servidor:', response);
+      
+      // Resetear el formulario
       passwordForm.resetFields();
       
-      // Mostrar mensaje de éxito inmediato
-      message.success('¡Contraseña actualizada correctamente! 🔒');
+      // Usar notification en lugar de Modal
+      notification.success({
+        message: '¡Contraseña actualizada exitosamente! 🎉',
+        description: (
+          <div>
+            <p>Tu contraseña ha sido cambiada correctamente.</p>
+            <p style={{ marginTop: 8 }}>
+              <strong>Importante:</strong> Usá tu nueva contraseña la próxima vez que inicies sesión.
+            </p>
+          </div>
+        ),
+        placement: 'top',
+        duration: 6,
+        style: {
+          width: 400,
+        },
+        btn: (
+          <Button type="primary" size="small" onClick={() => notification.destroy()}>
+            Entendido
+          </Button>
+        ),
+      });
       
-      // Mostrar modal de éxito con un pequeño delay para asegurar que se muestre
-      setTimeout(() => {
-        Modal.success({
-          title: '¡Contraseña actualizada exitosamente!',
-          content: (
-            <div>
-              <p>Tu contraseña ha sido cambiada correctamente.</p>
-              <p style={{ marginTop: 10 }}>
-                <strong>Recordá:</strong> Usá tu nueva contraseña la próxima vez que inicies sesión.
-              </p>
-            </div>
-          ),
-          icon: <CheckCircleOutlined style={{ color: '#52c41a' }} />,
-          okText: 'Entendido',
-          okButtonProps: {
-            size: 'large',
-            style: { backgroundColor: '#FF6B35', borderColor: '#FF6B35' }
-          },
-          centered: true,
-          width: 450,
-        });
-      }, 100);
+      // También mostrar un message como backup
+      message.success('¡Contraseña actualizada correctamente!');
       
     } catch (error) {
-      console.error('Error al cambiar contraseña:', error);
-      message.error(error.response?.data?.mensaje || 'Error: Verificá tu contraseña actual');
+      console.error('Error completo:', error);
+      console.error('Response del error:', error.response);
+      
+      const errorMessage = error.response?.data?.mensaje || 
+                          error.response?.data?.error || 
+                          'Error al cambiar la contraseña. Verificá tu contraseña actual.';
+      
+      notification.error({
+        message: 'Error al cambiar contraseña',
+        description: errorMessage,
+        placement: 'top',
+        duration: 5,
+      });
     }
   };
 
@@ -255,7 +270,8 @@ const ProfilePage = () => {
           <TabPane tab={<span style={{ fontSize: 16 }}><LockOutlined /> Seguridad</span>} key="2">
             <Card style={{ maxWidth: 600, margin: '40px auto', padding: 20 }}>
               <Title level={3} style={{ marginBottom: 8 }}>Cambiá tu contraseña</Title>
-
+              <Text type="secondary" style={{ fontSize: 16 }}>Te recomendamos cambiarla cada 3 meses</Text>
+              
               <Form 
                 form={passwordForm} 
                 layout="vertical" 
@@ -301,7 +317,7 @@ const ProfilePage = () => {
                 
                 <Alert 
                   message="Requisitos de la contraseña"
-                  description="La contraseña debe tener al menos 8 caracteres, una mayúscula, un número y un carácter especial" 
+                  description="La contraseña debe tener al menos 8 caracteres, una mayúscula, una minúscula y un número" 
                   type="info" 
                   showIcon 
                   style={{ marginBottom: 24 }}
