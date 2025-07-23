@@ -25,7 +25,7 @@ const CheckoutPage = () => {
     // Estados
     const [activeStep, setActiveStep] = useState(0);
     const [shippingData, setShippingData] = useState({
-        nombre: '', apellido: '', direccion: '', localidad: '', provincia: '', codigo_postal: '', telefono: ''
+        nombre: '', apellido: '', dni: '', direccion: '', localidad: '', provincia: '', codigo_postal: '', telefono: ''
     });
     const [paymentMethod, setPaymentMethod] = useState('mercadopago');
     const [isProcessing, setIsProcessing] = useState(false);
@@ -70,6 +70,7 @@ const CheckoutPage = () => {
                 setShippingData({
                     nombre: profile.nombre || '',
                     apellido: profile.apellido || '',
+                    dni: profile.dni || '',
                     direccion: profile.direccion || '',
                     localidad: profile.localidad || '',
                     provincia: profile.provincia || '',
@@ -102,7 +103,7 @@ const CheckoutPage = () => {
     // Validación por paso
     const validateStep = (step) => {
         if (step === 0) {
-            const requiredFields = ['nombre', 'apellido', 'direccion', 'localidad', 'provincia', 'codigo_postal'];
+            const requiredFields = ['nombre', 'apellido', 'dni', 'direccion', 'localidad', 'provincia', 'codigo_postal'];
             return requiredFields.every(field => shippingData[field].trim() !== '');
         }
         if (step === 1) {

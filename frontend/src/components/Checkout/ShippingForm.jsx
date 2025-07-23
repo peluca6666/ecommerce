@@ -1,5 +1,5 @@
 import { Grid, TextField, Alert, Stack, Box, Typography, Autocomplete, Paper } from '@mui/material';
-import { LocalShipping, Person, Home, LocationOn, Phone } from '@mui/icons-material';
+import { LocalShipping, Person, Home, LocationOn, Phone, Badge } from '@mui/icons-material';
 
 // Lista básica de principales ciudades argentinas
 const MAIN_CITIES = [
@@ -67,6 +67,33 @@ const ShippingForm = ({ data, onChange, shipping }) => {
               }}
             />
           </Grid>
+          
+          <Grid item xs={12} sm={6}>
+            <TextField 
+              name="dni" 
+              label="DNI" 
+              value={data.dni} 
+              onChange={onChange} 
+              fullWidth 
+              required
+              placeholder="Ej: 12345678"
+              inputProps={{ 
+                maxLength: 8,
+                pattern: '[0-9]*'
+              }}
+              InputProps={{
+                startAdornment: <Badge sx={{ color: '#95a5a6', fontSize: 18, mr: 1 }} />
+              }}
+              sx={{
+                '& .MuiOutlinedInput-root': {
+                  bgcolor: 'white',
+                  '&:hover fieldset': { borderColor: '#FF8C00' },
+                  '&.Mui-focused fieldset': { borderColor: '#FF6B35' }
+                }
+              }}
+            />
+          </Grid>
+          
           <Grid item xs={12} sm={6}>
             <TextField 
               name="telefono" 
