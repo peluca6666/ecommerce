@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react';
 import { 
   Card, Tabs, Form, Input, Button, Row, Col, Avatar, 
-  Progress, Alert, Space, Typography, Divider, message, Modal, notification 
+  Progress, Alert, Space, Typography, Divider
 } from 'antd';
 import { 
   UserOutlined, LockOutlined, ShoppingOutlined, EditOutlined, 
-  SaveOutlined, EyeInvisibleOutlined, EyeTwoTone, CheckCircleOutlined 
+  SaveOutlined
 } from '@ant-design/icons';
 import { useAuth } from '../../context/AuthContext';
 import axios from 'axios';
@@ -15,7 +15,7 @@ const { Title, Text } = Typography;
 const { TabPane } = Tabs;
 
 const ProfilePage = () => {
-  const { user, getToken } = useAuth();
+  const { user, getToken, showNotification } = useAuth();
   const [form] = Form.useForm();
   const [passwordForm] = Form.useForm();
   const [loading, setLoading] = useState(true);
@@ -34,13 +34,13 @@ const ProfilePage = () => {
         setProfileData(data);
         form.setFieldsValue(data);
       } catch (error) {
-        message.error('Error al cargar el perfil');
+        showNotification('Error al cargar el perfil', 'error');
       } finally {
         setLoading(false);
       }
     };
     if (user) fetchProfile();
-  }, [user]);
+  }, [user, getToken, showNotification]);
 
   // Guardar perfil
   const handleSaveProfile = async (values) => {
@@ -51,11 +51,11 @@ const ProfilePage = () => {
         values,
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      message.success('¡Perfil actualizado! 🎉');
+      showNotification('¡Perfil actualizado exitosamente! 🎉', 'success');
       setProfileData(values);
       setIsEditing(false);
     } catch (error) {
-      message.error('Error al guardar');
+      showNotification('Error al guardar el perfil', 'error');
     }
   };
 
@@ -79,46 +79,16 @@ const ProfilePage = () => {
       // Resetear el formulario
       passwordForm.resetFields();
       
-      // Usar notification en lugar de Modal
-      notification.success({
-        message: '¡Contraseña actualizada exitosamente! 🎉',
-        description: (
-          <div>
-            <p>Tu contraseña ha sido cambiada correctamente.</p>
-            <p style={{ marginTop: 8 }}>
-              <strong>Importante:</strong> Usá tu nueva contraseña la próxima vez que inicies sesión.
-            </p>
-          </div>
-        ),
-        placement: 'top',
-        duration: 6,
-        style: {
-          width: 400,
-        },
-        btn: (
-          <Button type="primary" size="small" onClick={() => notification.destroy()}>
-            Entendido
-          </Button>
-        ),
-      });
-      
-      // También mostrar un message como backup
-      message.success('¡Contraseña actualizada correctamente!');
+      // Usar el showNotification del AuthContext que ya funciona
+      showNotification('¡Contraseña actualizada exitosamente! 🔒 Usá tu nueva contraseña la próxima vez que inicies sesión.', 'success');
       
     } catch (error) {
       console.error('Error completo:', error);
-      console.error('Response del error:', error.response);
       
       const errorMessage = error.response?.data?.mensaje || 
-                          error.response?.data?.error || 
                           'Error al cambiar la contraseña. Verificá tu contraseña actual.';
       
-      notification.error({
-        message: 'Error al cambiar contraseña',
-        description: errorMessage,
-        placement: 'top',
-        duration: 5,
-      });
+      showNotification(errorMessage, 'error');
     }
   };
 
@@ -270,7 +240,6 @@ const ProfilePage = () => {
           <TabPane tab={<span style={{ fontSize: 16 }}><LockOutlined /> Seguridad</span>} key="2">
             <Card style={{ maxWidth: 600, margin: '40px auto', padding: 20 }}>
               <Title level={3} style={{ marginBottom: 8 }}>Cambiá tu contraseña</Title>
-              <Text type="secondary" style={{ fontSize: 16 }}>Te recomendamos cambiarla cada 3 meses</Text>
               
               <Form 
                 form={passwordForm} 
@@ -317,7 +286,7 @@ const ProfilePage = () => {
                 
                 <Alert 
                   message="Requisitos de la contraseña"
-                  description="La contraseña debe tener al menos 8 caracteres, una mayúscula, una minúscula y un número" 
+                  description="La contraseña debe tener al menos 8 caracteres, una mayúscula, un número y un carácter especial" 
                   type="info" 
                   showIcon 
                   style={{ marginBottom: 24 }}
