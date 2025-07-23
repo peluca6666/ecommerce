@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react';
 import { 
   Card, Tabs, Form, Input, Button, Row, Col, Avatar, 
-  Progress, Alert, Space, Typography, Divider, message 
+  Progress, Alert, Space, Typography, Divider, message, Modal 
 } from 'antd';
 import { 
   UserOutlined, LockOutlined, ShoppingOutlined, EditOutlined, 
-  SaveOutlined, EyeInvisibleOutlined, EyeTwoTone 
+  SaveOutlined, EyeInvisibleOutlined, EyeTwoTone, CheckCircleOutlined 
 } from '@ant-design/icons';
 import { useAuth } from '../../context/AuthContext';
 import axios from 'axios';
@@ -71,7 +71,26 @@ const ProfilePage = () => {
         },
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      message.success('¡Contraseña actualizada! 🔒');
+      
+      // Mostrar modal de éxito
+      Modal.success({
+        title: '¡Contraseña actualizada exitosamente!',
+        content: (
+          <div>
+            <p>Tu contraseña ha sido cambiada correctamente.</p>
+            <p style={{ marginTop: 10 }}>
+              <strong>Recordá:</strong> Usá tu nueva contraseña la próxima vez que inicies sesión.
+            </p>
+          </div>
+        ),
+        icon: <CheckCircleOutlined style={{ color: '#52c41a' }} />,
+        okText: 'Entendido',
+        okButtonProps: {
+          size: 'large',
+        },
+        centered: true,
+      });
+      
       passwordForm.resetFields();
     } catch (error) {
       message.error('Verificá tu contraseña actual');
@@ -272,7 +291,7 @@ const ProfilePage = () => {
                 
                 <Alert 
                   message="Requisitos de la contraseña"
-                  description="La contraseña debe tener al menos 8 caracteres, una mayúscula, un número y un carácter especial." 
+                  description="La contraseña debe tener al menos 8 caracteres, una mayúscula, un número y un carácter especial" 
                   type="info" 
                   showIcon 
                   style={{ marginBottom: 24 }}
