@@ -13,7 +13,12 @@
   "dependencies": {
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.0",
+    "@mantine/core": "^8.2.1",
+    "@mantine/form": "^8.2.1",
+    "@mantine/hooks": "^8.2.1",
+    "@mantine/notifications": "^8.2.1",
     "@mui/x-data-grid": "^8.5.2",
+    "@tabler/icons-react": "^3.34.1",
     "axios": "^1.10.0",
     "bcrypt": "^6.0.0",
     "cors": "^2.8.5",
