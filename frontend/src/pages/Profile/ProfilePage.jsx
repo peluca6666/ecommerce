@@ -79,150 +79,184 @@ const ProfilePage = () => {
   };
 
   // Calcular completitud
-  const completeness = Math.round(
-    (Object.values(profileData).filter(v => v).length / 9) * 100
-  );
+  const calculateCompleteness = () => {
+    const fields = ['nombre', 'apellido', 'dni', 'telefono', 'direccion', 'localidad', 'provincia', 'codigo_postal'];
+    const filledFields = fields.filter(field => profileData[field]);
+    const percentage = Math.round((filledFields.length / fields.length) * 100);
+    return Math.min(percentage, 100); // Nunca más de 100%
+  };
+  const completeness = calculateCompleteness();
 
   return (
-    <div style={{ maxWidth: 900, margin: '0 auto', padding: 24 }}>
+    <div style={{ maxWidth: 1200, margin: '0 auto', padding: '24px 48px' }}>
       {/* Header */}
-      <div style={{ textAlign: 'center', marginBottom: 32 }}>
-        <Avatar size={80} style={{ backgroundColor: '#FF6B35', marginBottom: 16 }}>
+      <div style={{ textAlign: 'center', marginBottom: 48 }}>
+        <Avatar size={100} style={{ backgroundColor: '#FF6B35', marginBottom: 24, fontSize: '2.5rem' }}>
           {profileData.nombre?.[0]?.toUpperCase() || 'U'}
         </Avatar>
-        <Title level={2}>¡Hola, {profileData.nombre || 'Usuario'}! 👋</Title>
-        <Text type="secondary">Gestioná tu cuenta desde acá</Text>
+        <Title level={2} style={{ marginBottom: 8 }}>¡Hola, {profileData.nombre || 'Usuario'}! 👋</Title>
+        <Text type="secondary" style={{ fontSize: 16 }}>Gestioná tu cuenta desde acá</Text>
         
-        <Card style={{ maxWidth: 400, margin: '24px auto' }}>
-          <Text strong>Tu perfil está {completeness}% completo</Text>
-          <Progress percent={completeness} strokeColor="#FF6B35" />
+        <Card style={{ maxWidth: 500, margin: '32px auto', padding: '8px 16px' }}>
+          <Text strong style={{ fontSize: 16 }}>Tu perfil está {completeness}% completo</Text>
+          <Progress percent={completeness} strokeColor="#FF6B35" style={{ marginTop: 8 }} />
         </Card>
       </div>
 
       {/* Tabs */}
-      <Card>
-        <Tabs defaultActiveKey="1">
-          <TabPane tab={<span><UserOutlined /> Mi Perfil</span>} key="1">
+      <Card style={{ boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}>
+        <Tabs defaultActiveKey="1" size="large">
+          <TabPane tab={<span style={{ fontSize: 16 }}><UserOutlined /> Mi Perfil</span>} key="1">
             {isEditing ? (
-              <Form form={form} layout="vertical" onFinish={handleSaveProfile}>
-                <Row gutter={16}>
+              <Form 
+                form={form} 
+                layout="vertical" 
+                onFinish={handleSaveProfile}
+                size="large"
+                style={{ padding: '20px 0' }}
+              >
+                <Row gutter={24}>
                   <Col xs={24} sm={12}>
-                    <Form.Item name="nombre" label="Nombre" rules={[{ required: true }]}>
-                      <Input placeholder="Juan" />
+                    <Form.Item name="nombre" label="Nombre" rules={[{ required: true, message: 'Por favor ingresá tu nombre' }]}>
+                      <Input placeholder="Juan" size="large" />
                     </Form.Item>
                   </Col>
                   <Col xs={24} sm={12}>
-                    <Form.Item name="apellido" label="Apellido" rules={[{ required: true }]}>
-                      <Input placeholder="Pérez" />
+                    <Form.Item name="apellido" label="Apellido" rules={[{ required: true, message: 'Por favor ingresá tu apellido' }]}>
+                      <Input placeholder="Pérez" size="large" />
                     </Form.Item>
                   </Col>
                   <Col xs={24} sm={12}>
                     <Form.Item name="email" label="Email">
-                      <Input disabled />
+                      <Input disabled size="large" />
                     </Form.Item>
                   </Col>
                   <Col xs={24} sm={12}>
                     <Form.Item name="dni" label="DNI">
-                      <Input placeholder="12345678" maxLength={8} />
+                      <Input placeholder="12345678" maxLength={8} size="large" />
                     </Form.Item>
                   </Col>
                   <Col xs={24} sm={12}>
                     <Form.Item name="telefono" label="Teléfono">
-                      <Input placeholder="1123456789" />
+                      <Input placeholder="1123456789" size="large" />
                     </Form.Item>
                   </Col>
                   <Col xs={24}>
-                    <Divider>Dirección de envío</Divider>
+                    <Divider style={{ fontSize: 18, margin: '32px 0' }}>Dirección de envío</Divider>
                   </Col>
                   <Col xs={24}>
                     <Form.Item name="direccion" label="Dirección">
-                      <Input placeholder="Av. Corrientes 1234" />
+                      <Input placeholder="Av. Corrientes 1234, 5° B" size="large" />
                     </Form.Item>
                   </Col>
                   <Col xs={24} sm={8}>
                     <Form.Item name="localidad" label="Localidad">
-                      <Input placeholder="CABA" />
+                      <Input placeholder="CABA" size="large" />
                     </Form.Item>
                   </Col>
                   <Col xs={24} sm={8}>
                     <Form.Item name="provincia" label="Provincia">
-                      <Input placeholder="Buenos Aires" />
+                      <Input placeholder="Buenos Aires" size="large" />
                     </Form.Item>
                   </Col>
                   <Col xs={24} sm={8}>
-                    <Form.Item name="codigo_postal" label="CP">
-                      <Input placeholder="1234" maxLength={4} />
+                    <Form.Item name="codigo_postal" label="Código Postal">
+                      <Input placeholder="1234" maxLength={4} size="large" />
                     </Form.Item>
                   </Col>
                 </Row>
-                <Space>
-                  <Button type="primary" htmlType="submit" icon={<SaveOutlined />}>
+                <Space size="middle" style={{ marginTop: 24 }}>
+                  <Button 
+                    type="primary" 
+                    htmlType="submit" 
+                    icon={<SaveOutlined />} 
+                    size="large"
+                    style={{ minWidth: 150 }}
+                  >
                     Guardar cambios
                   </Button>
-                  <Button onClick={() => setIsEditing(false)}>Cancelar</Button>
+                  <Button onClick={() => setIsEditing(false)} size="large">
+                    Cancelar
+                  </Button>
                 </Space>
               </Form>
             ) : (
-              <>
+              <div style={{ padding: '20px 0' }}>
                 <Button 
                   type="primary" 
                   icon={<EditOutlined />} 
                   onClick={() => setIsEditing(true)}
-                  style={{ marginBottom: 24 }}
+                  size="large"
+                  style={{ marginBottom: 32 }}
                 >
                   Editar perfil
                 </Button>
                 
-                <Row gutter={[16, 16]}>
+                <Row gutter={[24, 24]}>
                   {[
-                    { label: 'Nombre completo', value: `${profileData.nombre} ${profileData.apellido}`.trim() },
-                    { label: 'Email', value: profileData.email },
-                    { label: 'DNI', value: profileData.dni },
-                    { label: 'Teléfono', value: profileData.telefono },
+                    { label: 'Nombre completo', value: `${profileData.nombre} ${profileData.apellido}`.trim(), icon: <UserOutlined /> },
+                    { label: 'Email', value: profileData.email, icon: <UserOutlined /> },
+                    { label: 'DNI', value: profileData.dni, icon: <UserOutlined /> },
+                    { label: 'Teléfono', value: profileData.telefono, icon: <UserOutlined /> },
                     { 
-                      label: 'Dirección', 
-                      value: [profileData.direccion, profileData.localidad, profileData.provincia, profileData.codigo_postal]
-                        .filter(Boolean).join(', ') 
+                      label: 'Dirección de envío', 
+                      value: [profileData.direccion, profileData.localidad, profileData.provincia, profileData.codigo_postal && `CP ${profileData.codigo_postal}`]
+                        .filter(Boolean).join(', '),
+                      icon: <UserOutlined />
                     }
                   ].map((item, i) => (
                     <Col xs={24} sm={i === 4 ? 24 : 12} key={i}>
-                      <Card size="small">
-                        <Text type="secondary">{item.label}</Text>
-                        <br />
-                        <Text strong>{item.value || 'No especificado'}</Text>
+                      <Card 
+                        size="default" 
+                        style={{ height: '100%', cursor: 'default' }}
+                        hoverable
+                      >
+                        <Space direction="vertical" size="small" style={{ width: '100%' }}>
+                          <Text type="secondary" style={{ fontSize: 14 }}>{item.label}</Text>
+                          <Text strong style={{ fontSize: 16 }}>{item.value || 'No especificado'}</Text>
+                        </Space>
                       </Card>
                     </Col>
                   ))}
                 </Row>
-              </>
+              </div>
             )}
           </TabPane>
 
-          <TabPane tab={<span><LockOutlined /> Seguridad</span>} key="2">
-            <Card style={{ maxWidth: 500, margin: '0 auto' }}>
-              <Title level={4}>Cambiá tu contraseña</Title>
-              <Text type="secondary">Te recomendamos cambiarla cada 3 meses</Text>
+          <TabPane tab={<span style={{ fontSize: 16 }}><LockOutlined /> Seguridad</span>} key="2">
+            <Card style={{ maxWidth: 600, margin: '40px auto', padding: 20 }}>
+              <Title level={3} style={{ marginBottom: 8 }}>Cambiá tu contraseña</Title>
               
-              <Form form={passwordForm} layout="vertical" onFinish={handleChangePassword} style={{ marginTop: 24 }}>
-                <Form.Item name="contraseniaActual" label="Contraseña actual" rules={[{ required: true }]}>
-                  <Input.Password placeholder="••••••••" />
+              <Form 
+                form={passwordForm} 
+                layout="vertical" 
+                onFinish={handleChangePassword} 
+                style={{ marginTop: 32 }}
+                size="large"
+              >
+                <Form.Item 
+                  name="contraseniaActual" 
+                  label={<span style={{ fontSize: 16 }}>Contraseña actual</span>} 
+                  rules={[{ required: true, message: 'Por favor ingresá tu contraseña actual' }]}
+                >
+                  <Input.Password placeholder="••••••••" size="large" />
                 </Form.Item>
                 <Form.Item 
                   name="nuevaContrasenia" 
-                  label="Nueva contraseña" 
+                  label={<span style={{ fontSize: 16 }}>Nueva contraseña</span>}
                   rules={[
-                    { required: true },
-                    { min: 8, message: 'Mínimo 8 caracteres' }
+                    { required: true, message: 'Por favor ingresá una nueva contraseña' },
+                    { min: 8, message: 'La contraseña debe tener al menos 8 caracteres' }
                   ]}
                 >
-                  <Input.Password placeholder="••••••••" />
+                  <Input.Password placeholder="••••••••" size="large" />
                 </Form.Item>
                 <Form.Item 
                   name="confirmarContrasenia" 
-                  label="Confirmar contraseña"
+                  label={<span style={{ fontSize: 16 }}>Confirmar nueva contraseña</span>}
                   dependencies={['nuevaContrasenia']}
                   rules={[
-                    { required: true },
+                    { required: true, message: 'Por favor confirmá tu nueva contraseña' },
                     ({ getFieldValue }) => ({
                       validator(_, value) {
                         if (!value || getFieldValue('nuevaContrasenia') === value) {
@@ -233,24 +267,25 @@ const ProfilePage = () => {
                     }),
                   ]}
                 >
-                  <Input.Password placeholder="••••••••" />
+                  <Input.Password placeholder="••••••••" size="large" />
                 </Form.Item>
                 
                 <Alert 
-                  message="La contraseña debe tener al menos 8 caracteres, una mayúscula, una minúscula y un número" 
+                  message="Requisitos de la contraseña"
+                  description="La contraseña debe tener al menos 8 caracteres, una mayúscula, un número y un carácter especial." 
                   type="info" 
                   showIcon 
-                  style={{ marginBottom: 16 }}
+                  style={{ marginBottom: 24 }}
                 />
                 
-                <Button type="primary" htmlType="submit" block>
+                <Button type="primary" htmlType="submit" block size="large">
                   Actualizar contraseña
                 </Button>
               </Form>
             </Card>
           </TabPane>
 
-          <TabPane tab={<span><ShoppingOutlined /> Mis Compras</span>} key="3">
+          <TabPane tab={<span style={{ fontSize: 16 }}><ShoppingOutlined /> Mis Compras</span>} key="3">
             <PurchaseHistoryTab />
           </TabPane>
         </Tabs>
