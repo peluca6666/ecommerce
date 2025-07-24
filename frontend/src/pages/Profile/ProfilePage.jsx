@@ -50,7 +50,7 @@ const ProfilePage = () => {
       maxWidth: 1400,
       margin: '0 auto',
       padding: '24px',
-      height: 'calc(100vh - 48px)', // Ajustar según tu header de navegación
+      height: 'calc(100vh - 48px)', 
       overflow: 'hidden'
     }}>
       <Row gutter={24} style={{ height: '100%' }}>
