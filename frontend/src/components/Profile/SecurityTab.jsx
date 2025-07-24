@@ -45,69 +45,82 @@ const SecurityTab = () => {
   };
 
   return (
-    <Card style={{ maxWidth: 600, margin: '40px auto', padding: 20 }}>
-      <Title level={3} style={{ marginBottom: 8 }}>
-        Cambiá tu contraseña
-      </Title>
-      
-      <Form 
-        form={passwordForm} 
-        layout="vertical" 
-        onFinish={handleChangePassword} 
-        style={{ marginTop: 32 }}
-        size="large"
-      >
-        <Form.Item 
-          name="contraseniaActual" 
-          label={<span style={{ fontSize: 16 }}>Contraseña actual</span>} 
-          rules={[{ required: true, message: 'Por favor ingresá tu contraseña actual' }]}
+    <div style={{ 
+      display: 'flex', 
+      justifyContent: 'center', 
+      alignItems: 'flex-start',
+      height: '100%',
+      padding: '20px 0'
+    }}>
+      <Card style={{ 
+        width: '100%',
+        maxWidth: 600,
+        padding: 20,
+        boxShadow: '0 2px 8px rgba(0,0,0,0.08)'
+      }}>
+        <Title level={3} style={{ marginBottom: 8, textAlign: 'center' }}>
+          Cambiá tu contraseña
+        </Title>
+        
+        <Form 
+          form={passwordForm} 
+          layout="vertical" 
+          onFinish={handleChangePassword} 
+          style={{ marginTop: 32 }}
+          size="large"
         >
-          <Input.Password placeholder="••••••••" size="large" />
-        </Form.Item>
-        
-        <Form.Item 
-          name="nuevaContrasenia" 
-          label={<span style={{ fontSize: 16 }}>Nueva contraseña</span>}
-          rules={[
-            { required: true, message: 'Por favor ingresá una nueva contraseña' },
-            { min: 8, message: 'La contraseña debe tener al menos 8 caracteres, una mayúscula, un número y un caracter especial' }
-          ]}
-        >
-          <Input.Password placeholder="••••••••" size="large" />
-        </Form.Item>
-        
-        <Form.Item 
-          name="confirmarContrasenia" 
-          label={<span style={{ fontSize: 16 }}>Confirmar nueva contraseña</span>}
-          dependencies={['nuevaContrasenia']}
-          rules={[
-            { required: true, message: 'Por favor confirmá tu nueva contraseña' },
-            ({ getFieldValue }) => ({
-              validator(_, value) {
-                if (!value || getFieldValue('nuevaContrasenia') === value) {
-                  return Promise.resolve();
-                }
-                return Promise.reject('Las contraseñas no coinciden');
-              },
-            }),
-          ]}
-        >
-          <Input.Password placeholder="••••••••" size="large" />
-        </Form.Item>
-        
-        <Alert 
-          message="Requisitos de la contraseña"
-          description="La contraseña debe tener al menos 8 caracteres, una mayúscula, un número y un carácter especial" 
-          type="info" 
-          showIcon 
-          style={{ marginBottom: 24 }}
-        />
-        
-        <Button type="primary" htmlType="submit" block size="large">
-          Actualizar contraseña
-        </Button>
-      </Form>
-    </Card>
+          <Form.Item 
+            name="contraseniaActual" 
+            label={<span style={{ fontSize: 16 }}>Contraseña actual</span>} 
+            rules={[{ required: true, message: 'Por favor ingresá tu contraseña actual' }]}
+          >
+            <Input.Password placeholder="••••••••" size="large" />
+          </Form.Item>
+          
+          <Form.Item 
+            name="nuevaContrasenia" 
+            label={<span style={{ fontSize: 16 }}>Nueva contraseña</span>}
+            rules={[
+              { required: true, message: 'Por favor ingresá una nueva contraseña' },
+              { min: 8, message: 'La contraseña debe tener al menos 8 caracteres' }
+            ]}
+          >
+            <Input.Password placeholder="••••••••" size="large" />
+          </Form.Item>
+          
+          <Form.Item 
+            name="confirmarContrasenia" 
+            label={<span style={{ fontSize: 16 }}>Confirmar nueva contraseña</span>}
+            dependencies={['nuevaContrasenia']}
+            rules={[
+              { required: true, message: 'Por favor confirmá tu nueva contraseña' },
+              ({ getFieldValue }) => ({
+                validator(_, value) {
+                  if (!value || getFieldValue('nuevaContrasenia') === value) {
+                    return Promise.resolve();
+                  }
+                  return Promise.reject('Las contraseñas no coinciden');
+                },
+              }),
+            ]}
+          >
+            <Input.Password placeholder="••••••••" size="large" />
+          </Form.Item>
+          
+          <Alert 
+            message="Requisitos de la contraseña"
+            description="La contraseña debe tener al menos 8 caracteres, una mayúscula, un número y un carácter especial" 
+            type="info" 
+            showIcon 
+            style={{ marginBottom: 24 }}
+          />
+          
+          <Button type="primary" htmlType="submit" block size="large">
+            Actualizar contraseña
+          </Button>
+        </Form>
+      </Card>
+    </div>
   );
 };
 
