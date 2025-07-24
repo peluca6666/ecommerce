@@ -55,12 +55,12 @@ const ProfilePage = () => {
     }}>
       <Row gutter={24} style={{ height: '100%' }}>
         {/* Columna izquierda - Header del perfil */}
-        <Col xs={24} lg={8} xl={6} style={{ height: '7%5' }}>
+        <Col xs={24} lg={8} xl={6} style={{ height: '85%' }}>
           <ProfileHeader profileData={profileData} />
         </Col>
 
         {/* Columna derecha - Tabs principales */}
-        <Col xs={24} lg={16} xl={18} style={{ height: '75%' }}>
+        <Col xs={24} lg={16} xl={18} style={{ height: '85%' }}>
           <Card style={{ 
             boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
             height: '100%',
