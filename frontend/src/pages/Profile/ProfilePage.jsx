@@ -32,7 +32,7 @@ const ProfilePage = () => {
         setLoading(false);
       }
     };
-    
+
     if (user) fetchProfile();
   }, [user, getToken, showNotification]);
 
@@ -46,59 +46,59 @@ const ProfilePage = () => {
   }
 
   return (
-    <div style={{ 
-      maxWidth: 1400, 
-      margin: '0 auto', 
+    <div style={{
+      maxWidth: 1400,
+      margin: '0 auto',
       padding: '24px',
       height: 'calc(100vh - 48px)', // Ajustar según tu header de navegación
       overflow: 'hidden'
     }}>
       <Row gutter={24} style={{ height: '100%' }}>
         {/* Columna izquierda - Header del perfil */}
-        <Col xs={24} lg={8} xl={6} style={{ height: '80%' }}>
+        <Col xs={24} lg={8} xl={6} style={{ height: '90%' }}>
           <ProfileHeader profileData={profileData} />
         </Col>
 
         {/* Columna derecha - Tabs principales */}
-        <Col xs={24} lg={16} xl={18} style={{ height: '80%' }}>
-          <Card style={{ 
+        <Col xs={24} lg={16} xl={18} style={{ height: '90%' }}>
+          <Card style={{
             boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
             height: '100%',
             display: 'flex',
             flexDirection: 'column'
           }}>
-            <Tabs 
-              defaultActiveKey="1" 
+            <Tabs
+              defaultActiveKey="1"
               size="large"
-              style={{ 
+              style={{
                 flex: 1,
                 display: 'flex',
                 flexDirection: 'column'
               }}
-              tabBarStyle={{ 
+              tabBarStyle={{
                 marginBottom: 24,
                 borderBottom: '2px solid #f0f0f0'
               }}
             >
-              <TabPane 
-                tab={<span style={{ fontSize: 16 }}><UserOutlined /> Mi Perfil</span>} 
+              <TabPane
+                tab={<span style={{ fontSize: 16 }}><UserOutlined /> Mi Perfil</span>}
                 key="1"
-                style={{ 
+                style={{
                   flex: 1,
                   overflow: 'auto',
                   paddingRight: '8px'
                 }}
               >
-                <ProfileInfoTab 
+                <ProfileInfoTab
                   profileData={profileData}
                   onProfileUpdate={handleProfileUpdate}
                 />
               </TabPane>
 
-              <TabPane 
-                tab={<span style={{ fontSize: 16 }}><LockOutlined /> Seguridad</span>} 
+              <TabPane
+                tab={<span style={{ fontSize: 16 }}><LockOutlined /> Seguridad</span>}
                 key="2"
-                style={{ 
+                style={{
                   flex: 1,
                   overflow: 'auto',
                   paddingRight: '8px'
@@ -107,19 +107,18 @@ const ProfilePage = () => {
                 <SecurityTab />
               </TabPane>
 
-              <TabPane 
-  tab={<span style={{ fontSize: 16 }}><ShoppingOutlined /> Mis Compras</span>} 
-  key="3"
->
-  <div style={{ 
-    height: '650px', 
-    overflow: 'auto', 
-    border: '2px black solid',  
-    paddingRight: '8px' 
-  }}>
-    <PurchaseHistoryTab />
-  </div>
-</TabPane>
+              <TabPane
+                tab={<span style={{ fontSize: 16 }}><ShoppingOutlined /> Mis Compras</span>}
+                key="3"
+              >
+                <div style={{
+                  height: '600px',
+                  overflow: 'auto',
+                  paddingRight: '8px'
+                }}>
+                  <PurchaseHistoryTab />
+                </div>
+              </TabPane>
             </Tabs>
           </Card>
         </Col>
