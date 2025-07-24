@@ -14,33 +14,46 @@ const ProfileHeader = ({ profileData }) => {
   const completeness = calculateCompleteness();
 
   return (
-    <div style={{ textAlign: 'center', marginBottom: 48 }}>
+    <Card style={{ 
+      height: '100%', 
+      display: 'flex', 
+      flexDirection: 'column',
+      justifyContent: 'center',
+      textAlign: 'center',
+      padding: '24px',
+      boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
+    }}>
       <Avatar 
-        size={100} 
-        style={{ backgroundColor: '#FF6B35', marginBottom: 24, fontSize: '2.5rem' }}
+        size={80} 
+        style={{ 
+          backgroundColor: '#FF6B35', 
+          marginBottom: 20, 
+          fontSize: '2rem',
+          alignSelf: 'center'
+        }}
       >
         {profileData.nombre?.[0]?.toUpperCase() || 'U'}
       </Avatar>
       
-      <Title level={2} style={{ marginBottom: 8 }}>
+      <Title level={3} style={{ marginBottom: 8, fontSize: '1.5rem' }}>
         ¡Hola, {profileData.nombre || 'Usuario'}! 👋
       </Title>
       
-      <Text type="secondary" style={{ fontSize: 16 }}>
+      <Text type="secondary" style={{ fontSize: 14, marginBottom: 24 }}>
         Gestioná tu cuenta desde acá
       </Text>
       
-      <Card style={{ maxWidth: 500, margin: '32px auto', padding: '8px 16px' }}>
-        <Text strong style={{ fontSize: 16 }}>
+      <div style={{ marginTop: 'auto' }}>
+        <Text strong style={{ fontSize: 14, display: 'block', marginBottom: 8 }}>
           Tu perfil está {completeness}% completo
         </Text>
         <Progress 
           percent={completeness} 
-          strokeColor="#FF6B35" 
-          style={{ marginTop: 8 }} 
+          strokeColor="#FF6B35"
+          size="small"
         />
-      </Card>
-    </div>
+      </div>
+    </Card>
   );
 };
 

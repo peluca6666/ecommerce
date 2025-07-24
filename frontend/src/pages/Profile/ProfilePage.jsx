@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Card, Tabs } from 'antd';
+import { Card, Tabs, Row, Col } from 'antd';
 import { UserOutlined, LockOutlined, ShoppingOutlined } from '@ant-design/icons';
 import { useAuth } from '../../context/AuthContext';
 import axios from 'axios';
@@ -46,38 +46,82 @@ const ProfilePage = () => {
   }
 
   return (
-    <div style={{ maxWidth: 1200, margin: '0 auto', padding: '24px 48px' }}>
-      {/* Header del perfil */}
-      <ProfileHeader profileData={profileData} />
+    <div style={{ 
+      maxWidth: 1400, 
+      margin: '0 auto', 
+      padding: '24px',
+      height: 'calc(100vh - 48px)', 
+      overflow: 'hidden'
+    }}>
+      <Row gutter={24} style={{ height: '100%' }}>
+        {/* Columna izquierda - Header del perfil */}
+        <Col xs={24} lg={8} xl={6} style={{ height: '100%' }}>
+          <ProfileHeader profileData={profileData} />
+        </Col>
 
-      {/* Tabs principales */}
-      <Card style={{ boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}>
-        <Tabs defaultActiveKey="1" size="large">
-          <TabPane 
-            tab={<span style={{ fontSize: 16 }}><UserOutlined /> Mi Perfil</span>} 
-            key="1"
-          >
-            <ProfileInfoTab 
-              profileData={profileData}
-              onProfileUpdate={handleProfileUpdate}
-            />
-          </TabPane>
+        {/* Columna derecha - Tabs principales */}
+        <Col xs={24} lg={16} xl={18} style={{ height: '100%' }}>
+          <Card style={{ 
+            boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+            height: '100%',
+            display: 'flex',
+            flexDirection: 'column'
+          }}>
+            <Tabs 
+              defaultActiveKey="1" 
+              size="large"
+              style={{ 
+                flex: 1,
+                display: 'flex',
+                flexDirection: 'column'
+              }}
+              tabBarStyle={{ 
+                marginBottom: 24,
+                borderBottom: '2px solid #f0f0f0'
+              }}
+            >
+              <TabPane 
+                tab={<span style={{ fontSize: 16 }}><UserOutlined /> Mi Perfil</span>} 
+                key="1"
+                style={{ 
+                  flex: 1,
+                  overflow: 'auto',
+                  paddingRight: '8px'
+                }}
+              >
+                <ProfileInfoTab 
+                  profileData={profileData}
+                  onProfileUpdate={handleProfileUpdate}
+                />
+              </TabPane>
 
-          <TabPane 
-            tab={<span style={{ fontSize: 16 }}><LockOutlined /> Seguridad</span>} 
-            key="2"
-          >
-            <SecurityTab />
-          </TabPane>
+              <TabPane 
+                tab={<span style={{ fontSize: 16 }}><LockOutlined /> Seguridad</span>} 
+                key="2"
+                style={{ 
+                  flex: 1,
+                  overflow: 'auto',
+                  paddingRight: '8px'
+                }}
+              >
+                <SecurityTab />
+              </TabPane>
 
-          <TabPane 
-            tab={<span style={{ fontSize: 16 }}><ShoppingOutlined /> Mis Compras</span>} 
-            key="3"
-          >
-            <PurchaseHistoryTab />
-          </TabPane>
-        </Tabs>
-      </Card>
+              <TabPane 
+                tab={<span style={{ fontSize: 16 }}><ShoppingOutlined /> Mis Compras</span>} 
+                key="3"
+                style={{ 
+                  flex: 1,
+                  overflow: 'auto',
+                  paddingRight: '8px'
+                }}
+              >
+                <PurchaseHistoryTab />
+              </TabPane>
+            </Tabs>
+          </Card>
+        </Col>
+      </Row>
     </div>
   );
 };
