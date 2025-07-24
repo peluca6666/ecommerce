@@ -10,13 +10,21 @@ const MainLayout = () => {
   return (
     <>
       <Header />
-      <main>
+      <main style={{ backgroundColor: '#ffffff', minHeight: '100vh' }}>
         {isLoginOrRegister ? (
           <Box sx={{ width: '100%' }}>
             <Outlet />
           </Box>
         ) : (
-          <Container component="main" maxWidth="xl" sx={{ py: 0 }}>
+          <Container 
+            component="main" 
+            maxWidth="xl" 
+            sx={{ 
+              py: 0,
+              backgroundColor: '#ffffff', 
+              minHeight: '100vh'
+            }}
+          >
             <Outlet />
           </Container>
         )}

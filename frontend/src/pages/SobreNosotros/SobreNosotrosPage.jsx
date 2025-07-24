@@ -26,7 +26,6 @@ const SobreNosotrosPage = () => {
   return (
     <Box sx={{ 
       minHeight: '100vh', 
-      background: '#fafbfc',
       py: { xs: 4, md: 8 }
     }}>
       <Container maxWidth="md">

@@ -10,7 +10,7 @@ const Footer = () => {
     transition: 'all 0.3s ease',
     position: 'relative',
     width: 'fit-content',
-    '&:hover': { 
+    '&:hover': {
       color: '#FF8C00',
       transform: 'translateX(8px)'
     },
@@ -29,8 +29,8 @@ const Footer = () => {
   };
 
   const contactBoxStyles = {
-    display: 'flex', 
-    alignItems: 'center', 
+    display: 'flex',
+    alignItems: 'center',
     mb: 2,
     p: 2,
     borderRadius: 2,
@@ -44,7 +44,7 @@ const Footer = () => {
   };
 
   const iconStyles = {
-    mr: 2, 
+    mr: 2,
     color: '#FF8C00',
     p: 1,
     borderRadius: '50%',
@@ -91,12 +91,12 @@ const Footer = () => {
       <Container maxWidth="lg" sx={{ position: 'relative', zIndex: 1 }}>
         <Box sx={{ py: 6 }}>
           <Grid container spacing={4}>
-            
+
             {/* Sección Empresa */}
             <Grid item xs={12} md={4}>
-              <Typography 
-                variant="h5" 
-                sx={{ 
+              <Typography
+                variant="h5"
+                sx={{
                   fontWeight: 700,
                   mb: 2,
                   background: 'linear-gradient(45deg, #FF8C00, #FFD700)',
@@ -108,15 +108,15 @@ const Footer = () => {
               >
                 Salomarket
               </Typography>
-              <Typography 
-                variant="body2" 
-                sx={{ 
+              <Typography
+                variant="body2"
+                sx={{
                   color: '#BDC3C7',
                   lineHeight: 1.6,
                   mb: 3
                 }}
               >
-                Tu tienda online confiable desde 2025. Ofrecemos la mejor calidad y servicio 
+                Tu tienda online confiable desde 2025. Ofrecemos la mejor calidad y servicio
                 para nuestros clientes en toda Argentina.
               </Typography>
               <Box sx={{ display: 'flex', alignItems: 'center', color: '#95A5A6' }}>
@@ -133,30 +133,33 @@ const Footer = () => {
                 Navegación
               </Typography>
               <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
-                <Link component={RouterLink} to="/productos" sx={linkStyles}   onClick={() => window.scrollTo(0, 0)}>
+                <Link component={RouterLink} to="/productos" sx={linkStyles} onClick={() => window.scrollTo(0, 0)}>
                   Catálogo
                 </Link>
-                <Link component={RouterLink} to="/productos?es_oferta=true" sx={linkStyles}   onClick={() => window.scrollTo(0, 0)}> 
+                <Link component={RouterLink} to="/productos?es_oferta=true" sx={linkStyles} onClick={() => window.scrollTo(0, 0)}>
                   Ofertas
                 </Link>
-                <Link component={RouterLink} to="/sobre-nosotros" sx={linkStyles}   onClick={() => window.scrollTo(0, 0)}>
+                <Link component={RouterLink} to="/sobre-nosotros" sx={linkStyles} onClick={() => window.scrollTo(0, 0)}>
                   Sobre nosotros
-                </Link>           
+                </Link>
+                <Link component={RouterLink} to="/contacto" sx={linkStyles} onClick={() => window.scrollTo(0, 0)}>
+                  Contacto</Link>
               </Box>
             </Grid>
           </Grid>
         </Box>
 
-        <Divider sx={{ 
+
+        <Divider sx={{
           background: 'linear-gradient(90deg, transparent 0%, rgba(255, 140, 0, 0.3) 50%, transparent 100%)',
           height: '1px',
           border: 'none'
         }} />
-        
+
         <Box sx={{ py: 3, textAlign: 'center' }}>
-          <Typography 
-            variant="body2" 
-            sx={{ 
+          <Typography
+            variant="body2"
+            sx={{
               color: '#95A5A6',
               fontSize: '0.85rem'
             }}

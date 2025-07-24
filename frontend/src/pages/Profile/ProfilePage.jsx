@@ -144,7 +144,6 @@ const ProfilePage = () => {
       margin: '0 auto',
       padding: '24px',
       minHeight: '100vh',
-      backgroundColor: '#f5f5f5'
     }}>
       <Row gutter={[24, 24]} style={{ minHeight: 'calc(100vh - 48px)' }}>
         {/* Sidebar izquierdo */}
