@@ -42,13 +42,15 @@ const PurchaseHistoryTab = () => {
     if (error) return <Typography color="error">{error}</Typography>;
 
     return (
-        <Box>
+        <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column', p: 3 }}>
             <Typography variant="h6" sx={{ mb: 3 }}>Mi Historial de Compras</Typography>
-            {ordenes.length > 0 ? (
-                ordenes.map(orden => <OrderItem key={orden.venta_id} orden={orden} />)
-            ) : (
-                <Typography>Aún no has realizado ninguna compra.</Typography>
-            )}
+            <Box sx={{ flex: 1, overflow: 'auto', pr: 1 }}>
+                {ordenes.length > 0 ? (
+                    ordenes.map(orden => <OrderItem key={orden.venta_id} orden={orden} />)
+                ) : (
+                    <Typography>Aún no has realizado ninguna compra.</Typography>
+                )}
+            </Box>
         </Box>
     );
 };
