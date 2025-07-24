@@ -112,9 +112,9 @@ const ProfilePage = () => {
   key="3"
 >
   <div style={{ 
-    height: '750px', 
+    height: '650px', 
     overflow: 'auto', 
-    border: '2px solid red',  
+    border: '2px black solid',  
     paddingRight: '8px' 
   }}>
     <PurchaseHistoryTab />
