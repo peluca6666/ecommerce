@@ -3,8 +3,6 @@ import { Card, Tabs, Row, Col } from 'antd';
 import { UserOutlined, LockOutlined, ShoppingOutlined } from '@ant-design/icons';
 import { useAuth } from '../../context/AuthContext';
 import axios from 'axios';
-
-// Componentes modularizados
 import ProfileHeader from '../../components/Profile/ProfileHeader';
 import ProfileInfoTab from '../../components/Profile/ProfileInfoTab';
 import SecurityTab from '../../components/Profile/SecurityTab';
@@ -57,12 +55,12 @@ const ProfilePage = () => {
     }}>
       <Row gutter={24} style={{ height: '100%' }}>
         {/* Columna izquierda - Header del perfil */}
-        <Col xs={24} lg={8} xl={6} style={{ height: '100%' }}>
+        <Col xs={24} lg={8} xl={6} style={{ height: '80%' }}>
           <ProfileHeader profileData={profileData} />
         </Col>
 
         {/* Columna derecha - Tabs principales */}
-        <Col xs={24} lg={16} xl={18} style={{ height: '100%' }}>
+        <Col xs={24} lg={16} xl={18} style={{ height: '80%' }}>
           <Card style={{ 
             boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
             height: '100%',
@@ -114,9 +112,9 @@ const ProfilePage = () => {
   key="3"
 >
   <div style={{ 
-    height: '600px', 
+    height: '750px', 
     overflow: 'auto', 
-    border: '2px solid red',  // Para ver los límites
+    border: '2px solid red',  
     paddingRight: '8px' 
   }}>
     <PurchaseHistoryTab />
