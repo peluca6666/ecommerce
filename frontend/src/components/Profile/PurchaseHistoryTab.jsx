@@ -44,9 +44,9 @@ const PurchaseHistoryTab = () => {
     if (error) return <Text type="danger">{error}</Text>;
 
     return (
-        <div style={{ height: '100%', display: 'flex', flexDirection: 'column', padding: '24px 0' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', padding: '24px 0' }}>
             <Title level={4} style={{ marginBottom: 24 }}>Mi Historial de Compras</Title>
-            <div style={{ flex: 1, overflow: 'auto', paddingRight: '8px' }}>
+            <div>
                 {ordenes.length > 0 ? (
                     ordenes.map(orden => <OrderItem key={orden.venta_id} orden={orden} />)
                 ) : (
