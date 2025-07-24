@@ -21,3 +21,10 @@ p, span, div, a, li {
   font-weight: 400; /* Para texto normal */
 }
 
+html {
+  scroll-behavior: smooth !important;
+}
+
+* {
+  scroll-behavior: smooth !important;
+}
