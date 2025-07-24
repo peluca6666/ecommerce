@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react';
-import { Box, Typography } from '@mui/material';
+import { Typography } from 'antd';
 import { useAuth } from '../../context/AuthContext';
 import axios from 'axios';
 import LoadingSpinner from '../common/LoadingSpinner';
 import OrderItem from './OrderItem';
+
+const { Title, Text } = Typography;
 
 const PurchaseHistoryTab = () => {
     const { getToken } = useAuth();
@@ -39,19 +41,19 @@ const PurchaseHistoryTab = () => {
     }, [getToken]);
 
     if (loading) return <LoadingSpinner />;
-    if (error) return <Typography color="error">{error}</Typography>;
+    if (error) return <Text type="danger">{error}</Text>;
 
     return (
-        <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column', p: 3 }}>
-            <Typography variant="h6" sx={{ mb: 3 }}>Mi Historial de Compras</Typography>
-            <Box sx={{ flex: 1, overflow: 'auto', pr: 1 }}>
+        <div style={{ height: '100%', display: 'flex', flexDirection: 'column', padding: '24px 0' }}>
+            <Title level={4} style={{ marginBottom: 24 }}>Mi Historial de Compras</Title>
+            <div style={{ flex: 1, overflow: 'auto', paddingRight: '8px' }}>
                 {ordenes.length > 0 ? (
                     ordenes.map(orden => <OrderItem key={orden.venta_id} orden={orden} />)
                 ) : (
-                    <Typography>Aún no has realizado ninguna compra.</Typography>
+                    <Text>Aún no has realizado ninguna compra.</Text>
                 )}
-            </Box>
-        </Box>
+            </div>
+        </div>
     );
 };
 
