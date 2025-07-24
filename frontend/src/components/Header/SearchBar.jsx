@@ -43,6 +43,12 @@ const SearchBar = () => {
         if (!isDropdownOpen) setIsDropdownOpen(true);
     };
 
+  
+    const handleProductClick = () => {
+        closeDropdown();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
+
     return (
         <Box
             ref={searchRef}
@@ -60,33 +66,33 @@ const SearchBar = () => {
                 value={inputValue}
                 onChange={handleInputChange}
                 onFocus={() => setIsDropdownOpen(true)}
-    slotProps={{
-        input: {
-            startAdornment: (
-                <InputAdornment position="start">
-                    <SearchIcon sx={{ color: '#6d6c6cff' }} />
-                </InputAdornment>
-            ),
-        }
-    }}
-    sx={{
-        '& .MuiOutlinedInput-root': {
-            borderRadius: '7px',
-            backgroundColor: '#e6e5e5ff', 
-            '& fieldset': {
-                borderColor: 'transparent', 
-            },           
-            '&.Mui-focused fieldset': {
-                borderColor: 'black',
-                borderWidth: '1.5px',
-            },
-        },
-        '& .MuiInputBase-input::placeholder': {
-            color: '#6e6e6eff',
-            opacity: 1,
-        },
-    }}
-/>
+                slotProps={{
+                    input: {
+                        startAdornment: (
+                            <InputAdornment position="start">
+                                <SearchIcon sx={{ color: '#6d6c6cff' }} />
+                            </InputAdornment>
+                        ),
+                    }
+                }}
+                sx={{
+                    '& .MuiOutlinedInput-root': {
+                        borderRadius: '7px',
+                        backgroundColor: '#e6e5e5ff', 
+                        '& fieldset': {
+                            borderColor: 'transparent', 
+                        },           
+                        '&.Mui-focused fieldset': {
+                            borderColor: 'black',
+                            borderWidth: '1.5px',
+                        },
+                    },
+                    '& .MuiInputBase-input::placeholder': {
+                        color: '#6e6e6eff',
+                        opacity: 1,
+                    },
+                }}
+            />
 
             {isDropdownOpen && inputValue.length > 1 && (
                 <Paper
@@ -95,19 +101,21 @@ const SearchBar = () => {
                         top: '110%',
                         left: 0,
                         right: 0,
-                        zIndex: 1200,
+                        zIndex: 9999, 
                         maxHeight: '400px',
                         overflowY: 'auto',
                         width: '100%',
+                        boxShadow: '0 8px 32px rgba(0, 0, 0, 0.12)', 
+                        border: '1px solid rgba(0, 0, 0, 0.08)',
                     }}
-                    elevation={6}
+                    elevation={8} 
                 >
                     {loading ? (
                         <Box sx={{ display: 'flex', justifyContent: 'center', p: 2 }}>
                             <CircularProgress size={24} />
                         </Box>
                     ) : (
-                        <List>
+                        <List sx={{ py: 0 }}>
                             {results.length > 0 ? (
                                 results.map(producto => {
                                     const imageUrl = producto.imagen 
@@ -119,14 +127,22 @@ const SearchBar = () => {
                                             key={producto.producto_id}
                                             component={RouterLink}
                                             to={`/producto/${producto.producto_id}`}
-                                            onClick={closeDropdown} 
+                                            onClick={handleProductClick} 
                                             sx={{ 
                                                 textDecoration: 'none', 
                                                 color: 'inherit', 
-                                                '&:hover': { bgcolor: 'action.hover' },
+                                                '&:hover': { 
+                                                    bgcolor: 'action.hover',
+                                                    transform: 'translateX(4px)',
+                                                },
                                                 py: 2,
                                                 px: 3,
-                                                gap: 2
+                                                gap: 2,
+                                                borderBottom: '1px solid rgba(0, 0, 0, 0.04)',
+                                                transition: 'all 0.2s ease', 
+                                                '&:last-child': {
+                                                    borderBottom: 'none'
+                                                }
                                             }}
                                         >
                                             <Box
@@ -139,7 +155,8 @@ const SearchBar = () => {
                                                     bgcolor: 'background.default',
                                                     display: 'flex',
                                                     alignItems: 'center',
-                                                    justifyContent: 'center'
+                                                    justifyContent: 'center',
+                                                    boxShadow: '0 2px 8px rgba(0, 0, 0, 0.08)'
                                                 }}
                                             >
                                                 <img 
@@ -158,10 +175,24 @@ const SearchBar = () => {
                                             </Box>
                                             
                                             <Box sx={{ flex: 1 }}>
-                                                <Typography variant="body1" fontWeight={500}>
+                                                <Typography 
+                                                    variant="body1" 
+                                                    fontWeight={500}
+                                                    sx={{ 
+                                                        mb: 0.5,
+                                                        overflow: 'hidden',
+                                                        textOverflow: 'ellipsis',
+                                                        whiteSpace: 'nowrap'
+                                                    }}
+                                                >
                                                     {producto.nombre_producto}
                                                 </Typography>
-                                                <Typography variant="body2" color="text.secondary">
+                                                <Typography 
+                                                    variant="body2" 
+                                                    color="text.secondary"
+                                                    fontWeight={600}
+                                                    sx={{ color: 'primary.main' }}
+                                                >
                                                     ${producto.precio}
                                                 </Typography>
                                             </Box>
@@ -169,8 +200,11 @@ const SearchBar = () => {
                                     );
                                 })
                             ) : (
-                                <ListItem>
-                                    <ListItemText primary="No se encontraron resultados." />
+                                <ListItem sx={{ py: 3 }}>
+                                    <ListItemText 
+                                        primary="No se encontraron productos."
+                                        sx={{ textAlign: 'center' }}
+                                    />
                                 </ListItem>
                             )}
                         </List>
