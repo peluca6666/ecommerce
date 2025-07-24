@@ -18,7 +18,7 @@ const SearchBar = () => {
             setLoading(true);
             const fetchResults = async () => {
                 try {
-                     const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/api/categoria?activo=true`);
+                     const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/api/producto?busqueda=${debouncedSearchTerm}&limite=5`);
                     if (response.data.exito) {
                         setResults(response.data.datos);
                     }

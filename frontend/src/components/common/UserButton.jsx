@@ -1,5 +1,5 @@
 import { useState, useContext } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate} from "react-router-dom";
 import { Menu, MenuItem, Button, Box, Typography, useTheme, useMediaQuery, Divider, IconButton } from "@mui/material";
 import { AccountCircle, Logout, Login, PersonAdd } from "@mui/icons-material";
 import { AuthContext } from "../../context/AuthContext";
@@ -40,7 +40,7 @@ const UserButton = () => {
     textTransform: 'none', 
     fontWeight: 500,
     color: 'inherit',
-    pb: 1, // Espacio para la línea
+    pb: 1, 
     position: 'relative',
     transition: 'all 0.3s ease',
     '&::after': {
@@ -63,7 +63,7 @@ const UserButton = () => {
     }
   };
 
-  // Versión para móvil no autenticado (iconos con líneas)
+  // Versión para móvil no autenticado 
   if (!isAuthenticated && isMobile) {
     return (
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
@@ -73,7 +73,7 @@ const UserButton = () => {
           aria-label="Iniciar sesión"
           sx={{ 
             p: 1,
-            pb: 1.5, // Espacio para la línea
+            pb: 1.5, 
             position: 'relative',
             transition: 'all 0.3s ease',
             '&::after': {
@@ -104,7 +104,7 @@ const UserButton = () => {
           aria-label="Registrarse"
           sx={{ 
             p: 1,
-            pb: 1.5, // Espacio para la línea
+            pb: 1.5, 
             position: 'relative',
             transition: 'all 0.3s ease',
             '&::after': {
@@ -133,7 +133,7 @@ const UserButton = () => {
     );
   }
 
-  // Versión para desktop no autenticado (texto completo con líneas individuales)
+  // Versión para desktop no autenticado
   if (!isAuthenticated) {
     return (
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
@@ -167,7 +167,7 @@ const UserButton = () => {
     );
   }
 
-  // Usuario autenticado (con línea hover también)
+  // Usuario autenticado 
   return (
     <>
       <Button
@@ -180,7 +180,7 @@ const UserButton = () => {
           fontWeight: 'medium',
           borderRadius: '20px',
           bgcolor: 'transparent',
-          pb: 1.25, // Espacio para la línea
+          pb: 1.25, 
           position: 'relative',
           transition: 'all 0.3s ease',
           px: 1.5,
@@ -209,7 +209,7 @@ const UserButton = () => {
       >
         <AccountCircle sx={{ mr: { xs: 0, sm: 0.5 } }} />
         <Typography variant="body1" sx={{ display: { xs: 'none', sm: 'block' } }}>
-          {user?.nombre || 'mi cuenta'}
+          {user?.nombre || 'Mi cuenta'}
         </Typography>
       </Button>
 
