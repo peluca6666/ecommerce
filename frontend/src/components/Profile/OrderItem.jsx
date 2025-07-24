@@ -1,6 +1,5 @@
-import { Card, Typography, Tag, Row, Col } from 'antd';
-import { Link as RouterLink } from 'react-router-dom';
-
+import { Card, Typography, Button, Tag, Row, Col } from 'antd';
+ 
 const { Text } = Typography;
 
 const OrderItem = ({ orden }) => {
@@ -43,18 +42,14 @@ const OrderItem = ({ orden }) => {
                         ${orden.total.toFixed(2)}
                     </Text>
                     <br />
-                    <RouterLink 
-                        to={`/orden-confirmada/${orden.venta_id}`}
-                        style={{ 
-                            color: '#1890ff',
-                            textDecoration: 'none',
-                            fontSize: 14,
-                            marginTop: 8,
-                            display: 'inline-block'
-                        }}
+                    <Button
+                        type="link"
+                        size="small"
+                        style={{ marginTop: 8, padding: 0 }}
+                        onClick={() => window.location.href = `/orden-confirmada/${orden.venta_id}`}
                     >
                         Ver Detalles
-                    </RouterLink>
+                    </Button>
                 </Col>
             </Row>
         </Card>
