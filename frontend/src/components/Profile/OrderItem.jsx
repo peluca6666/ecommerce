@@ -53,7 +53,7 @@ const OrderItem = ({ orden }) => {
                             padding: 0,
                             height: 'auto'
                         }}
-                        onClick={() => navigate(`/orden-confirmada/${orden.venta_id}`)}
+                        onClick={() => navigate(`/orden-confirmada/${orden.venta_id}`, { state: null })}
                     >
                         Ver Detalles
                     </Button>
