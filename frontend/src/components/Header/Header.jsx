@@ -59,7 +59,6 @@ const Header = () => {
                 padding: 0,
                 margin: 0,
                 width: '100%',
-                overflow: 'hidden' 
             }}
             elevation={0}
         >
@@ -68,7 +67,7 @@ const Header = () => {
                 maxWidth: '100vw',
                 margin: 0,
                 padding: 0,
-                overflow: 'hidden'
+                overflow: 'visible'
             }}>
                 <Toolbar sx={{
                     display: 'flex',
@@ -118,10 +117,9 @@ const Header = () => {
                                 position: 'relative',
                                 transition: 'all 0.3s ease',
                                 textShadow: '0 2px 4px rgba(0, 0, 0, 0.2)',
-                                overflow: 'hidden', 
                                 textOverflow: 'ellipsis', 
                                 flexShrink: 0,
-                                pb: 1, // Espacio para la línea
+                                pb: 1,
                                 '&::after': {
                                     content: '""',
                                     position: 'absolute',
@@ -154,7 +152,9 @@ const Header = () => {
                             justifyContent: 'center', 
                             px: { md: 1, lg: 2 }, 
                             maxWidth: '500px', 
-                            minWidth: 0 
+                            minWidth: 0,
+                            position: 'relative',
+                            zIndex: 1
                         }}>
                             <SearchBar />
                         </Box>
@@ -169,7 +169,7 @@ const Header = () => {
                         <UserButton />
                         <Box sx={{
                             position: 'relative',
-                            pb: 1, // Espacio para la línea
+                            pb: 1,
                             '&::after': {
                                 content: '""',
                                 position: 'absolute',
@@ -206,8 +206,7 @@ const Header = () => {
                                 borderTop: '1px solid rgba(255, 255, 255, 0.1)',
                                 width: '100%',
                                 px: { xs: 2, sm: 3, md: 3, lg: 4 }, 
-                                boxSizing: 'border-box',
-                                overflow: 'hidden' 
+                                boxSizing: 'border-box', 
                             }}
                         >
                             <NavMenu />
