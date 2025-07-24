@@ -13,12 +13,12 @@ const OrderItem = ({ orden }) => {
         return 'default';
     };
 
-
+    
     return (
-
-        <Card
+        
+        <Card 
             size="small"
-            style={{
+            style={{ 
                 marginBottom: 16,
                 width: '100%'
             }}
@@ -33,27 +33,31 @@ const OrderItem = ({ orden }) => {
                         Fecha: {new Date(orden.fecha_venta).toLocaleDateString()}
                     </Text>
                     <br />
-                    <Tag
+                    <Tag 
                         color={getStatusTagColor(orden.estado)}
                         style={{ marginTop: 8 }}
                     >
                         {orden.estado || 'Desconocido'}
                     </Tag>
                 </Col>
-
+                
                 <Col flex="none" style={{ textAlign: 'right', paddingLeft: 16 }}>
                     <Text strong style={{ fontSize: 18 }}>
                         ${orden.total.toFixed(2)}
                     </Text>
                     <br />
-                    <Button
-                        type="link"
-                        size="small"
-                        style={{ marginTop: 8, padding: 0 }}
-                        href={`/orden-confirmada/${orden.venta_id}`}
+                    <RouterLink 
+                        to={`/orden-confirmada/${orden.venta_id}`}
+                        style={{ 
+                            color: '#1890ff',
+                            textDecoration: 'none',
+                            fontSize: 14,
+                            marginTop: 8,
+                            display: 'inline-block'
+                        }}
                     >
                         Ver Detalles
-                    </Button>
+                    </RouterLink>
                 </Col>
             </Row>
         </Card>
