@@ -2,10 +2,7 @@ import { useState, useEffect } from 'react';
 import { Card, Tabs, Row, Col } from 'antd';
 import { UserOutlined, LockOutlined, ShoppingOutlined } from '@ant-design/icons';
 import { useAuth } from '../../context/AuthContext';
-import { useLocation } from 'react-router-dom';
 import axios from 'axios';
-
-// Componentes modularizados
 import ProfileHeader from '../../components/Profile/ProfileHeader';
 import ProfileInfoTab from '../../components/Profile/ProfileInfoTab';
 import SecurityTab from '../../components/Profile/SecurityTab';
@@ -16,17 +13,8 @@ const { TabPane } = Tabs;
 
 const ProfilePage = () => {
   const { user, getToken, showNotification } = useAuth();
-  const location = useLocation();
   const [loading, setLoading] = useState(true);
   const [profileData, setProfileData] = useState({});
-
-  // Determinar tab activo basado en el state de navegación
-  const getInitialActiveKey = () => {
-    const activeTab = location.state?.activeTab;
-    if (activeTab === 2 || activeTab === 3) return "3"; // Tab de "Mis Compras"
-    if (activeTab === 1) return "2"; // Tab de "Seguridad"  
-    return "1"; // Default: "Mi Perfil"
-  };
 
   // Cargar perfil
   useEffect(() => {
@@ -44,7 +32,7 @@ const ProfilePage = () => {
         setLoading(false);
       }
     };
-    
+
     if (user) fetchProfile();
   }, [user, getToken, showNotification]);
 
@@ -58,59 +46,59 @@ const ProfilePage = () => {
   }
 
   return (
-    <div style={{ 
-      maxWidth: 1400, 
-      margin: '0 auto', 
+    <div style={{
+      maxWidth: 1400,
+      margin: '0 auto',
       padding: '24px',
       height: 'calc(100vh - 48px)', // Ajustar según tu header de navegación
       overflow: 'hidden'
     }}>
       <Row gutter={24} style={{ height: '100%' }}>
         {/* Columna izquierda - Header del perfil */}
-        <Col xs={24} lg={8} xl={6} style={{ height: '100%' }}>
+        <Col xs={24} lg={8} xl={6} style={{ height: '90%' }}>
           <ProfileHeader profileData={profileData} />
         </Col>
 
         {/* Columna derecha - Tabs principales */}
-        <Col xs={24} lg={16} xl={18} style={{ height: '100%' }}>
-          <Card style={{ 
+        <Col xs={24} lg={16} xl={18} style={{ height: '90%' }}>
+          <Card style={{
             boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
             height: '100%',
             display: 'flex',
             flexDirection: 'column'
           }}>
-            <Tabs 
-              defaultActiveKey="1" 
+            <Tabs
+              defaultActiveKey="1"
               size="large"
-              style={{ 
+              style={{
                 flex: 1,
                 display: 'flex',
                 flexDirection: 'column'
               }}
-              tabBarStyle={{ 
+              tabBarStyle={{
                 marginBottom: 24,
                 borderBottom: '2px solid #f0f0f0'
               }}
             >
-              <TabPane 
-                tab={<span style={{ fontSize: 16 }}><UserOutlined /> Mi Perfil</span>} 
+              <TabPane
+                tab={<span style={{ fontSize: 16 }}><UserOutlined /> Mi Perfil</span>}
                 key="1"
-                style={{ 
+                style={{
                   flex: 1,
                   overflow: 'auto',
                   paddingRight: '8px'
                 }}
               >
-                <ProfileInfoTab 
+                <ProfileInfoTab
                   profileData={profileData}
                   onProfileUpdate={handleProfileUpdate}
                 />
               </TabPane>
 
-              <TabPane 
-                tab={<span style={{ fontSize: 16 }}><LockOutlined /> Seguridad</span>} 
+              <TabPane
+                tab={<span style={{ fontSize: 16 }}><LockOutlined /> Seguridad</span>}
                 key="2"
-                style={{ 
+                style={{
                   flex: 1,
                   overflow: 'auto',
                   paddingRight: '8px'
@@ -119,16 +107,17 @@ const ProfilePage = () => {
                 <SecurityTab />
               </TabPane>
 
-              <TabPane 
-                tab={<span style={{ fontSize: 16 }}><ShoppingOutlined /> Mis Compras</span>} 
+              <TabPane
+                tab={<span style={{ fontSize: 16 }}><ShoppingOutlined /> Mis Compras</span>}
                 key="3"
-                style={{ 
-                  flex: 1,
+              >
+                <div style={{
+                  height: '600px',
                   overflow: 'auto',
                   paddingRight: '8px'
-                }}
-              >
-                <PurchaseHistoryTab />
+                }}>
+                  <PurchaseHistoryTab />
+                </div>
               </TabPane>
             </Tabs>
           </Card>
