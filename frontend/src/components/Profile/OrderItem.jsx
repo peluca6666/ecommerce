@@ -1,11 +1,11 @@
-import { Card, Typography, Tag, Row, Col } from 'antd';
-import { Link as RouterLink } from 'react-router-dom';
+import { Card, Typography, Tag, Row, Col, Button } from 'antd';
 import { useNavigate } from 'react-router-dom';
 
 const { Text } = Typography;
 
 const OrderItem = ({ orden }) => {
-    // devuelve un color para el tag según el estado de la orden
+    const navigate = useNavigate();
+    
     const getStatusTagColor = (estado) => {
         if (estado === 'Completado') return 'success';
         if (estado === 'Pendiente') return 'warning';
@@ -13,9 +13,7 @@ const OrderItem = ({ orden }) => {
         return 'default';
     };
 
-    
     return (
-        
         <Card 
             size="small"
             style={{ 
@@ -46,18 +44,19 @@ const OrderItem = ({ orden }) => {
                         ${orden.total.toFixed(2)}
                     </Text>
                     <br />
-                    <RouterLink 
-                        to={`/orden-confirmada/${orden.venta_id}`}
+                    <Button
+                        type="link"
+                        size="small"
                         style={{ 
-                            color: '#1890ff',
-                            textDecoration: 'none',
                             fontSize: 14,
                             marginTop: 8,
-                            display: 'inline-block'
+                            padding: 0,
+                            height: 'auto'
                         }}
+                        onClick={() => navigate(`/orden-confirmada/${orden.venta_id}`)}
                     >
                         Ver Detalles
-                    </RouterLink>
+                    </Button>
                 </Col>
             </Row>
         </Card>
