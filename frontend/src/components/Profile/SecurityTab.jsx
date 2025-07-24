@@ -7,6 +7,7 @@ const { Title } = Typography;
 const SecurityTab = () => {
   const { getToken, showNotification } = useAuth();
   const [passwordForm] = Form.useForm();
+  const isMobile = window.innerWidth < 768;
 
   // Cambiar contraseña
   const handleChangePassword = async (values) => {
@@ -49,16 +50,24 @@ const SecurityTab = () => {
       display: 'flex', 
       justifyContent: 'center', 
       alignItems: 'flex-start',
-      height: '100%',
-      padding: '20px 0'
+      minHeight: isMobile ? 'auto' : '100%',
+      padding: isMobile ? '16px 0' : '20px 0'
     }}>
       <Card style={{ 
         width: '100%',
-        maxWidth: 600,
-        padding: 20,
-        boxShadow: '0 2px 8px rgba(0,0,0,0.08)'
+        maxWidth: isMobile ? '100%' : 600,
+        padding: isMobile ? 12 : 20,
+        boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
+        borderRadius: isMobile ? '8px' : '12px'
       }}>
-        <Title level={3} style={{ marginBottom: 8, textAlign: 'center' }}>
+        <Title 
+          level={isMobile ? 4 : 3} 
+          style={{ 
+            marginBottom: isMobile ? 16 : 8, 
+            textAlign: 'center',
+            fontSize: isMobile ? '18px' : '24px'
+          }}
+        >
           Cambiá tu contraseña
         </Title>
         
@@ -66,31 +75,51 @@ const SecurityTab = () => {
           form={passwordForm} 
           layout="vertical" 
           onFinish={handleChangePassword} 
-          style={{ marginTop: 32 }}
-          size="large"
+          style={{ marginTop: isMobile ? 20 : 32 }}
+          size={isMobile ? "middle" : "large"}
         >
           <Form.Item 
             name="contraseniaActual" 
-            label={<span style={{ fontSize: 16 }}>Contraseña actual</span>} 
+            label={
+              <span style={{ fontSize: isMobile ? 14 : 16 }}>
+                Contraseña actual
+              </span>
+            } 
             rules={[{ required: true, message: 'Por favor ingresá tu contraseña actual' }]}
           >
-            <Input.Password placeholder="••••••••" size="large" />
+            <Input.Password 
+              placeholder="••••••••" 
+              size={isMobile ? "middle" : "large"}
+              style={{ borderRadius: '6px' }}
+            />
           </Form.Item>
           
           <Form.Item 
             name="nuevaContrasenia" 
-            label={<span style={{ fontSize: 16 }}>Nueva contraseña</span>}
+            label={
+              <span style={{ fontSize: isMobile ? 14 : 16 }}>
+                Nueva contraseña
+              </span>
+            }
             rules={[
               { required: true, message: 'Por favor ingresá una nueva contraseña' },
               { min: 8, message: 'La contraseña debe tener al menos 8 caracteres' }
             ]}
           >
-            <Input.Password placeholder="••••••••" size="large" />
+            <Input.Password 
+              placeholder="••••••••" 
+              size={isMobile ? "middle" : "large"}
+              style={{ borderRadius: '6px' }}
+            />
           </Form.Item>
           
           <Form.Item 
             name="confirmarContrasenia" 
-            label={<span style={{ fontSize: 16 }}>Confirmar nueva contraseña</span>}
+            label={
+              <span style={{ fontSize: isMobile ? 14 : 16 }}>
+                Confirmar nueva contraseña
+              </span>
+            }
             dependencies={['nuevaContrasenia']}
             rules={[
               { required: true, message: 'Por favor confirmá tu nueva contraseña' },
@@ -104,7 +133,11 @@ const SecurityTab = () => {
               }),
             ]}
           >
-            <Input.Password placeholder="••••••••" size="large" />
+            <Input.Password 
+              placeholder="••••••••" 
+              size={isMobile ? "middle" : "large"}
+              style={{ borderRadius: '6px' }}
+            />
           </Form.Item>
           
           <Alert 
@@ -112,10 +145,24 @@ const SecurityTab = () => {
             description="La contraseña debe tener al menos 8 caracteres, una mayúscula, un número y un carácter especial" 
             type="info" 
             showIcon 
-            style={{ marginBottom: 24 }}
+            style={{ 
+              marginBottom: isMobile ? 16 : 24,
+              fontSize: isMobile ? 12 : 14,
+              borderRadius: '6px'
+            }}
           />
           
-          <Button type="primary" htmlType="submit" block size="large">
+          <Button 
+            type="primary" 
+            htmlType="submit" 
+            block 
+            size={isMobile ? "middle" : "large"}
+            style={{ 
+              borderRadius: '6px',
+              fontWeight: '500',
+              height: isMobile ? '40px' : '48px'
+            }}
+          >
             Actualizar contraseña
           </Button>
         </Form>

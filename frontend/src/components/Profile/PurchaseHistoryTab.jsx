@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Typography } from 'antd';
+import { Typography, Empty } from 'antd';
 import { useAuth } from '../../context/AuthContext';
 import axios from 'axios';
 import LoadingSpinner from '../common/LoadingSpinner';
@@ -12,6 +12,7 @@ const PurchaseHistoryTab = () => {
     const [ordenes, setOrdenes] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const isMobile = window.innerWidth < 768;
 
     useEffect(() => {
         // traemos el historial de compras cuando se monta el componente
@@ -41,16 +42,73 @@ const PurchaseHistoryTab = () => {
     }, [getToken]);
 
     if (loading) return <LoadingSpinner />;
-    if (error) return <Text type="danger">{error}</Text>;
+    
+    if (error) {
+        return (
+            <div style={{ 
+                padding: isMobile ? '16px 0' : '24px 0',
+                textAlign: 'center' 
+            }}>
+                <Text type="danger" style={{ fontSize: isMobile ? 14 : 16 }}>
+                    {error}
+                </Text>
+            </div>
+        );
+    }
 
     return (
-        <div style={{ display: 'flex', flexDirection: 'column', padding: '24px 0' }}>
-            <Title level={4} style={{ marginBottom: 24 }}>Mi Historial de Compras</Title>
-            <div>
+        <div style={{ 
+            display: 'flex', 
+            flexDirection: 'column', 
+            padding: isMobile ? '12px 0' : '24px 0',
+            minHeight: isMobile ? 'auto' : '500px'
+        }}>
+            <Title 
+                level={isMobile ? 5 : 4} 
+                style={{ 
+                    marginBottom: isMobile ? 16 : 24,
+                    fontSize: isMobile ? '16px' : '20px',
+                    fontWeight: '600'
+                }}
+            >
+                Mi Historial de Compras
+            </Title>
+            
+            <div style={{
+                flex: 1,
+                maxHeight: isMobile ? 'none' : '600px',
+                overflowY: isMobile ? 'visible' : 'auto',
+                paddingRight: isMobile ? 0 : '8px'
+            }}>
                 {ordenes.length > 0 ? (
-                    ordenes.map(orden => <OrderItem key={orden.venta_id} orden={orden} />)
+                    <div style={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: isMobile ? '8px' : '12px'
+                    }}>
+                        {ordenes.map(orden => (
+                            <OrderItem key={orden.venta_id} orden={orden} />
+                        ))}
+                    </div>
                 ) : (
-                    <Text>Aún no has realizado ninguna compra.</Text>
+                    <div style={{
+                        display: 'flex',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        minHeight: isMobile ? '200px' : '300px'
+                    }}>
+                        <Empty
+                            description={
+                                <Text style={{ 
+                                    fontSize: isMobile ? 14 : 16,
+                                    color: '#999'
+                                }}>
+                                    Aún no has realizado ninguna compra
+                                </Text>
+                            }
+                            image={Empty.PRESENTED_IMAGE_SIMPLE}
+                        />
+                    </div>
                 )}
             </div>
         </div>
