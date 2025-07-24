@@ -3,8 +3,6 @@ import { Card, Tabs, Row, Col } from 'antd';
 import { UserOutlined, LockOutlined, ShoppingOutlined } from '@ant-design/icons';
 import { useAuth } from '../../context/AuthContext';
 import axios from 'axios';
-
-// Componentes modularizados
 import ProfileHeader from '../../components/Profile/ProfileHeader';
 import ProfileInfoTab from '../../components/Profile/ProfileInfoTab';
 import SecurityTab from '../../components/Profile/SecurityTab';
@@ -52,7 +50,7 @@ const ProfilePage = () => {
       maxWidth: 1400, 
       margin: '0 auto', 
       padding: '24px',
-      height: 'calc(100vh - 48px)', // Ajustar según tu header de navegación
+      height: 'calc(100vh - 48px)', 
       overflow: 'hidden'
     }}>
       <Row gutter={24} style={{ height: '100%' }}>
