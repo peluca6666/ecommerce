@@ -9,6 +9,15 @@ const theme = createTheme({
   typography: {
     fontFamily: `'Montserrat', sans-serif`,
   },
+  components: {
+    MuiCssBaseline: {
+      styleOverrides: {
+        html: {
+          scrollBehavior: 'smooth',
+        },
+      },
+    },
+  },
 })
 
 ReactDOM.createRoot(document.getElementById('root')).render(

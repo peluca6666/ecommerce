@@ -172,7 +172,7 @@ const UserButton = () => {
     <>
       <Button
         color="inherit"
-        aria-label="mi cuenta"
+        aria-label="Mi cuenta"
         onClick={handleOpenMenu}
         sx={{
           textTransform: 'none',
