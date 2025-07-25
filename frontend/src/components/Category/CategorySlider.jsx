@@ -2,8 +2,6 @@ import { Box, Typography, useTheme, useMediaQuery } from "@mui/material";
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation, Pagination, Mousewheel } from 'swiper/modules';
 import CategoryCard from "./CategoryCard";
-
-// Import Swiper styles
 import 'swiper/css';
 import 'swiper/css/navigation';
 import 'swiper/css/pagination';
@@ -66,28 +64,27 @@ const CategorySlider = ({ categoria }) => {
 
   return (
     <Box sx={{ 
-      py: { xs: 1.5, md: 2 }, // ✅ DRÁSTICAMENTE reducido (antes py: { xs: 4, md: 6 })
-      px: { xs: 2, md: 3 },
+      py: { xs: 1.5, md: 2 },
+      px: { xs: 3, md: 4 }, 
       maxWidth: '1400px',
       mx: 'auto',
-      overflow: 'hidden'
+      overflow: 'visible'
     }}>
-      {/* Titulo más compacto */}
-      <Typography variant={isMobile ? "h6" : "h5"} sx={{ // ✅ Variante más pequeña
+      <Typography variant={isMobile ? "h6" : "h5"} sx={{ 
         textAlign: 'center',
-        fontWeight: 600, // ✅ Menos peso
-        mb: { xs: 1, md: 1.5 }, // ✅ MUCHO menos margen (antes mb: { xs: 3, md: 4 })
+        fontWeight: 600, 
+        mb: { xs: 1, md: 1.5 }, 
         color: '#2c3e50',
-        fontSize: { xs: '1.1rem', md: '1.25rem' }, // ✅ Tamaño específico más pequeño
+        fontSize: { xs: '1.1rem', md: '1.25rem' }, 
         position: 'relative',
         '&::after': {
           content: '""',
           position: 'absolute',
-          bottom: -6, // ✅ Más cerca del texto
+          bottom: -6, 
           left: '50%',
           transform: 'translateX(-50%)',
-          width: 40, // ✅ Línea más pequeña (antes 60)
-          height: 2, // ✅ Más delgada (antes 3)
+          width: 40, 
+          height: 2, 
           background: 'linear-gradient(90deg, #FF8C00, #FF6B35)',
           borderRadius: 2,
         }
@@ -99,9 +96,9 @@ const CategorySlider = ({ categoria }) => {
       <Box sx={{ 
         position: 'relative',
         '& .swiper': {
-          overflow: 'visible',
-          pb: isMobile ? 2 : 1, // ✅ Menos padding bottom (antes pb: isMobile ? 4 : 3)
-          pt: 0.5, // ✅ Menos padding top
+          overflow: 'visible', 
+          pb: isMobile ? 2 : 1,
+          pt: 1,
         },
         '& .swiper-wrapper': {
           // Mask para fade effect en desktop
@@ -113,24 +110,24 @@ const CategorySlider = ({ categoria }) => {
         '& .swiper-slide': {
           width: 'auto !important',
           minWidth: {
-            xs: '110px', // ✅ Más pequeño (antes 140px)
-            sm: '130px', // ✅ Más pequeño (antes 160px)
-            md: '150px', // ✅ Más pequeño (antes 180px)
-            lg: '160px', // ✅ Más pequeño (antes 200px)
-            xl: '180px'  // ✅ Más pequeño (antes 220px)
+            xs: '110px',
+            sm: '130px',
+            md: '150px',
+            lg: '160px',
+            xl: '180px'
           },
-          py: 0.5 // ✅ Menos padding vertical
+          py: 1 
         },
         // Estilos para flechas custom más pequeñas
         '& .swiper-button-prev-custom, & .swiper-button-next-custom': {
           position: 'absolute',
           top: '45%',
           transform: 'translateY(-50%)',
-          width: { xs: 32, md: 40 }, // ✅ Más pequeñas (antes 40, 50)
-          height: { xs: 32, md: 40 }, // ✅ Más pequeñas
+          width: { xs: 32, md: 40 },
+          height: { xs: 32, md: 40 },
           background: 'white',
           borderRadius: '50%',
-          boxShadow: '0 2px 12px rgba(0,0,0,0.08)', // ✅ Sombra más sutil
+          boxShadow: '0 2px 12px rgba(0,0,0,0.08)', 
           border: '1px solid #e9ecef',
           cursor: 'pointer',
           zIndex: 10,
@@ -138,7 +135,7 @@ const CategorySlider = ({ categoria }) => {
           alignItems: 'center',
           justifyContent: 'center',
           transition: 'all 0.3s ease',
-          opacity: 0.8, // ✅ Menos opacidad
+          opacity: 0.8, 
           '&:hover': {
             opacity: 1,
             transform: 'translateY(-50%) scale(1.05)',
@@ -154,31 +151,30 @@ const CategorySlider = ({ categoria }) => {
           }
         },
         '& .swiper-button-prev-custom': {
-          left: { xs: -6, md: -16 }, // ✅ Menos separación
+          left: { xs: -10, md: -20 }, 
           '&::before': {
             content: '"‹"',
-            fontSize: { xs: 16, md: 20 }, // ✅ Íconos más pequeños
+            fontSize: { xs: 18, md: 22 }, 
             color: '#FF6B35',
             fontWeight: 'bold'
           }
         },
         '& .swiper-button-next-custom': {
-          right: { xs: -6, md: -16 }, // ✅ Menos separación
+          right: { xs: -10, md: -20 }, 
           '&::before': {
             content: '"›"',
-            fontSize: { xs: 16, md: 20 }, // ✅ Íconos más pequeños
+            fontSize: { xs: 18, md: 22 },
             color: '#FF6B35',
             fontWeight: 'bold'
           }
         },
-        // Estilos para paginación más pequeña
         '& .swiper-pagination-custom': {
           position: 'static',
-          mt: 1, // ✅ Menos margen (antes mt: 2)
+          mt: 1, 
           textAlign: 'center',
           display: isMobile ? 'block' : 'none',
           '& .swiper-pagination-bullet': {
-            width: '6px', // ✅ Más pequeño
+            width: '6px', 
             height: '6px',
             margin: '0 3px',
             borderRadius: '50%',
@@ -187,7 +183,7 @@ const CategorySlider = ({ categoria }) => {
             transition: 'all 0.3s ease',
             '&.swiper-pagination-bullet-active': {
               background: '#FF6B35',
-              transform: 'scale(1.1)' // ✅ Menos escala
+              transform: 'scale(1.1)' 
             }
           }
         }
@@ -197,11 +193,11 @@ const CategorySlider = ({ categoria }) => {
           {categoria.map((cat, index) => (
             <SwiperSlide key={cat.categoria_id}>
               <Box sx={{
-                animation: `slideIn 0.4s ease-out ${index * 0.05}s both`, // ✅ Animación más rápida
+                animation: `slideIn 0.4s ease-out ${index * 0.05}s both`, 
                 '@keyframes slideIn': {
                   '0%': {
                     opacity: 0,
-                    transform: 'translateY(10px)', // ✅ Menos movimiento
+                    transform: 'translateY(10px)', 
                   },
                   '100%': {
                     opacity: 1,
@@ -214,17 +210,15 @@ const CategorySlider = ({ categoria }) => {
             </SwiperSlide>
           ))}
         </Swiper>
-
-                
-        {/* Gradientes laterales más sutiles */}
+ 
         {!isMobile && (
           <>
             <Box sx={{
               position: 'absolute',
               left: 0,
-              top: 4, // ✅ Menos espacio
+              top: 4,
               bottom: 0,
-              width: 60, // ✅ Más estrecho (antes 80)
+              width: 60, 
               background: 'linear-gradient(to right, rgba(255,255,255,1) 0%, rgba(255,255,255,0.8) 40%, transparent 100%)',
               pointerEvents: 'none',
               zIndex: 5
@@ -233,9 +227,9 @@ const CategorySlider = ({ categoria }) => {
             <Box sx={{
               position: 'absolute',
               right: 0,
-              top: 4, // ✅ Menos espacio
+              top: 4, 
               bottom: 0,
-              width: 60, // ✅ Más estrecho
+              width: 60, 
               background: 'linear-gradient(to left, rgba(255,255,255,1) 0%, rgba(255,255,255,0.8) 40%, transparent 100%)',
               pointerEvents: 'none',
               zIndex: 5
@@ -250,33 +244,32 @@ const CategorySlider = ({ categoria }) => {
         <Box className="swiper-pagination-custom" />
       </Box>
 
-      {/* ✅ SEPARADOR más compacto */}
       <Box sx={{
-        mt: { xs: 1, md: 1.5 }, // ✅ MUCHO menos margen (antes mt: { xs: 4, md: 6 })
-        mb: { xs: 0.5, md: 1 }, // ✅ MUCHO menos margen (antes mb: { xs: 2, md: 3 })
+        mt: { xs: 1, md: 1.5 },
+        mb: { xs: 0.5, md: 1 },
         display: 'flex',
         alignItems: 'center',
-        maxWidth: '600px', // ✅ Más estrecho (antes 800px)
+        maxWidth: '600px', 
         mx: 'auto',
         px: { xs: 4, md: 6 }
       }}>
         <Box sx={{
           flex: 1,
           height: '1px',
-          background: 'linear-gradient(to right, transparent 0%, rgba(0,0,0,0.08) 50%, transparent 100%)' // ✅ Más sutil
+          background: 'linear-gradient(to right, transparent 0%, rgba(0,0,0,0.08) 50%, transparent 100%)' 
         }} />
         <Box sx={{
-          mx: 2, // ✅ Menos separación (antes mx: 3)
-          width: 6, // ✅ Más pequeño (antes 8)
+          mx: 2,
+          width: 6, 
           height: 6,
           borderRadius: '50%',
           background: 'linear-gradient(135deg, #FF8C00, #FF6B35)',
-          boxShadow: '0 1px 4px rgba(255,140,0,0.2)' // ✅ Sombra más sutil
+          boxShadow: '0 1px 4px rgba(255,140,0,0.2)' 
         }} />
         <Box sx={{
           flex: 1,
           height: '1px',
-          background: 'linear-gradient(to left, transparent 0%, rgba(0,0,0,0.08) 50%, transparent 100%)' // ✅ Más sutil
+          background: 'linear-gradient(to left, transparent 0%, rgba(0,0,0,0.08) 50%, transparent 100%)' 
         }} />
       </Box>
     </Box>
