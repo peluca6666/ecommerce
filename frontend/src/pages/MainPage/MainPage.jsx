@@ -117,21 +117,22 @@ const MainPage = () => {
 
   return (
     <Box>
-      {/* ✅ CAMBIO: Banner más compacto */}
-      <Container maxWidth="lg" sx={{ py: { xs: 1, md: 2 } }}>
+      {/* ✅ CAMBIO: Banner MUY compacto - sin padding */}
+      <Container maxWidth="lg" sx={{ py: 0 }}>
         <MainBanner />
       </Container>
 
-      {/* ✅ CAMBIO: CategorySlider más compacto */}
-      <Box sx={{ py: { xs: 1, md: 1.5 } }}>
+      {/* ✅ CAMBIO: CategorySlider sin padding vertical */}
+      <Box sx={{ py: 0 }}>
         <CategorySlider categoria={state.categoria} />
       </Box>
 
-      {/* ✅ CAMBIO: Ofertas más arriba y compactas */}
+      {/* ✅ CAMBIO: Ofertas pegadas arriba - sin margen superior */}
       <Container maxWidth="xl" sx={{ px: { xs: 2, md: 4 } }}>
         <Paper elevation={2} sx={{ 
-          p: { xs: 2, md: 3 }, 
-          my: { xs: 2, md: 3 }, // ✅ Menos margen vertical
+          p: { xs: 1.5, md: 2 }, // ✅ Menos padding interno
+          mt: 0, // ✅ SIN margen superior
+          mb: { xs: 2, md: 3 },
           borderRadius: 3,
           background: 'linear-gradient(135deg, #ffffff 0%, #fafbfc 100%)',
           border: '1px solid #f1f3f4'
@@ -161,7 +162,8 @@ const MainPage = () => {
           
           <ProductGrid productos={state.ofertas} />
           
-          <Box sx={{ mt: { xs: 2, md: 3 }, textAlign: 'center' }}>
+          {/* ✅ CAMBIO: Botón más compacto */}
+          <Box sx={{ mt: { xs: 1, md: 1.5 }, textAlign: 'center' }}>
             <Button
               component={Link}
               to="/productos?es_oferta=true"

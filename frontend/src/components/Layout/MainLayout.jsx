@@ -1,7 +1,7 @@
 import { Outlet, useLocation } from 'react-router-dom';
 import Header from '../Header/Header'; 
 import Footer from '../Footer/Footer'; 
-import { Box } from '@mui/material';
+import { Container, Box } from '@mui/material';
 
 const MainLayout = () => {
   const location = useLocation();
@@ -10,10 +10,16 @@ const MainLayout = () => {
   return (
     <>
       <Header />
-      <main style={{ backgroundColor: '#ffffff', minHeight: '100vh' }}>
-        <Box sx={{ width: '100%' }}>
-          <Outlet />
-        </Box>
+      <main>
+        {isLoginOrRegister ? (
+          <Box sx={{ width: '100%' }}>
+            <Outlet />
+          </Box>
+        ) : (
+          <Container component="main" maxWidth="xl" sx={{ py: 0 }}>
+            <Outlet />
+          </Container>
+        )}
       </main>
       <Footer />
     </>
