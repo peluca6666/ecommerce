@@ -1,8 +1,5 @@
 import { useState, useEffect } from 'react';
-import { 
-    Box, TextField, FormControl, Paper, Typography, 
-    Chip, Stack, Divider, Autocomplete
-} from '@mui/material';
+import {  Box, TextField, FormControl, Paper, Typography, Chip, Stack, Divider, Autocomplete} from '@mui/material';
 import { Search, Category, AttachMoney, Sort, LocalOffer } from '@mui/icons-material';
 import axios from 'axios';
 
@@ -16,7 +13,6 @@ const ProductFilters = ({ filtros, onFilterChange, onCheckboxChange }) => {
         { value: 'precio_desc', label: 'Precio (Mayor a Menor)' }
     ];
 
-    // Cargar categorías
     useEffect(() => {
         const fetchCategorias = async () => {
             try {
@@ -35,10 +31,11 @@ const ProductFilters = ({ filtros, onFilterChange, onCheckboxChange }) => {
     }, []);
 
     const handleOfferToggle = () => {
+        const newValue = filtros.es_oferta === 'true' ? 'false' : 'true';
         onCheckboxChange({
             target: {
                 name: 'es_oferta',
-                checked: filtros.es_oferta !== 'true'
+                checked: newValue === 'true'
             }
         });
     };
@@ -99,7 +96,6 @@ const ProductFilters = ({ filtros, onFilterChange, onCheckboxChange }) => {
                 overflow: 'hidden'
             }}
         >
-            {/* Header */}
             <Box sx={{ mb: 4 }}>
                 <Typography variant="h5" sx={{ fontWeight: 700, color: '#2c3e50', mb: 1 }}>
                     Filtros
@@ -110,21 +106,20 @@ const ProductFilters = ({ filtros, onFilterChange, onCheckboxChange }) => {
             </Box>
 
             <Stack spacing={3}>
-                {/* Búsqueda */}
                 <FilterField label="Buscar producto" icon={Search}>
                     <TextField 
                         placeholder="¿Qué estás buscando?"
                         name="busqueda"
-                        value={filtros.busqueda}
+                        value={filtros.busqueda || ''}
                         onChange={onFilterChange}
                         fullWidth
                         sx={inputStyles}
+                        autoComplete="off"
                     />
                 </FilterField>
 
                 <Divider sx={{ borderColor: '#f1f3f4' }} />
 
-                {/* Categoría con Autocomplete */}
                 <FilterField label="Categoría" icon={Category}>
                     <Autocomplete
                         options={[{ value: '', label: 'Todas las categorías' }, ...categorias]}
@@ -135,28 +130,30 @@ const ProductFilters = ({ filtros, onFilterChange, onCheckboxChange }) => {
                             <TextField {...params} sx={inputStyles} />
                         )}
                         isOptionEqualToValue={(option, value) => option.value === value.value}
+                        disableClearable
                     />
                 </FilterField>
 
                 <Divider sx={{ borderColor: '#f1f3f4' }} />
 
-                {/* Rango de precios */}
                 <FilterField label="Rango de precio" icon={AttachMoney}>
                     <Stack direction="row" spacing={2}>
                         <TextField 
                             placeholder="Mín."
                             name="minPrice"
                             type="number"
-                            value={filtros.minPrice}
+                            value={filtros.minPrice || ''}
                             onChange={onFilterChange}
+                            slotProps={{ input: { min: 0, step: "any" } }}
                             sx={{ flex: 1, ...inputStyles }}
                         />
                         <TextField 
                             placeholder="Máx."
                             name="maxPrice"
                             type="number"
-                            value={filtros.maxPrice}
+                            value={filtros.maxPrice || ''}
                             onChange={onFilterChange}
+                            slotProps={{ input: { min: 0, step: "any" } }}
                             sx={{ flex: 1, ...inputStyles }}
                         />
                     </Stack>
@@ -164,7 +161,6 @@ const ProductFilters = ({ filtros, onFilterChange, onCheckboxChange }) => {
 
                 <Divider sx={{ borderColor: '#f1f3f4' }} />
 
-                {/* Ordenar con Autocomplete */}
                 <FilterField label="Ordenar por" icon={Sort}>
                     <Autocomplete
                         options={sortOptions}
@@ -175,12 +171,12 @@ const ProductFilters = ({ filtros, onFilterChange, onCheckboxChange }) => {
                             <TextField {...params} sx={inputStyles} />
                         )}
                         isOptionEqualToValue={(option, value) => option.value === value.value}
+                        disableClearable
                     />
                 </FilterField>
 
                 <Divider sx={{ borderColor: '#f1f3f4' }} />
 
-                {/* Ofertas */}
                 <FilterField label="Ofertas especiales" icon={LocalOffer}>
                     <Chip
                         icon={<LocalOffer />}
@@ -210,7 +206,6 @@ const ProductFilters = ({ filtros, onFilterChange, onCheckboxChange }) => {
                 </FilterField>
             </Stack>
 
-            {/* Decoración */}
             <Box sx={{
                 position: 'absolute',
                 top: -30,
@@ -226,5 +221,3 @@ const ProductFilters = ({ filtros, onFilterChange, onCheckboxChange }) => {
 };
 
 export default ProductFilters;
-
-
