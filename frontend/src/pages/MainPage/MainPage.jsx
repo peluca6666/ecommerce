@@ -117,31 +117,37 @@ const MainPage = () => {
 
   return (
     <Box>
-      <Container maxWidth="lg">
+      {/* ✅ CAMBIO: Banner más compacto */}
+      <Container maxWidth="lg" sx={{ py: { xs: 1, md: 2 } }}>
         <MainBanner />
       </Container>
 
-      {/* CategorySlider sin restricción de ancho */}
-      <CategorySlider categoria={state.categoria} />
+      {/* ✅ CAMBIO: CategorySlider más compacto */}
+      <Box sx={{ py: { xs: 1, md: 1.5 } }}>
+        <CategorySlider categoria={state.categoria} />
+      </Box>
 
+      {/* ✅ CAMBIO: Ofertas más arriba y compactas */}
       <Container maxWidth="xl" sx={{ px: { xs: 2, md: 4 } }}>
-        <Paper elevation={1} sx={{ 
+        <Paper elevation={2} sx={{ 
           p: { xs: 2, md: 3 }, 
-          my: 4,
+          my: { xs: 2, md: 3 }, // ✅ Menos margen vertical
           borderRadius: 3,
           background: 'linear-gradient(135deg, #ffffff 0%, #fafbfc 100%)',
           border: '1px solid #f1f3f4'
         }}>
+          {/* ✅ CAMBIO: Título más compacto */}
           <Typography variant="h4" sx={{
             textAlign: 'center',
             fontWeight: 700,
-            mb: 4,
+            mb: { xs: 2, md: 3 }, // ✅ Menos margin bottom
             color: '#2c3e50',
+            fontSize: { xs: '1.75rem', md: '2.125rem' }, // ✅ Más pequeño en móvil
             position: 'relative',
             '&::after': {
               content: '""',
               position: 'absolute',
-              bottom: -8,
+              bottom: -6, // ✅ Más cerca del texto
               left: '50%',
               transform: 'translateX(-50%)',
               width: 80,
@@ -155,7 +161,7 @@ const MainPage = () => {
           
           <ProductGrid productos={state.ofertas} />
           
-          <Box sx={{ mt: 4, textAlign: 'center' }}>
+          <Box sx={{ mt: { xs: 2, md: 3 }, textAlign: 'center' }}>
             <Button
               component={Link}
               to="/productos?es_oferta=true"
@@ -176,7 +182,8 @@ const MainPage = () => {
                   transform: 'translateY(-2px)',
                   boxShadow: '0 8px 25px rgba(255,107,53,0.4)'
                 }
-              } }onClick={() => window.scrollTo(0, 0)}
+              }}
+              onClick={() => window.scrollTo(0, 0)}
             >
               Ver Todas las Ofertas
             </Button>
