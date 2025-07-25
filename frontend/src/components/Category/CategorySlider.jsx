@@ -23,6 +23,11 @@ const CategorySlider = ({ categoria }) => {
     mousewheel: {
       forceToAxis: true,
     },
+    grabCursor: true,
+    allowTouchMove: true,
+    simulateTouch: true,
+    touchRatio: 1,
+    touchAngle: 45,
     navigation: {
       nextEl: '.swiper-button-next-custom',
       prevEl: '.swiper-button-prev-custom',
@@ -70,17 +75,18 @@ const CategorySlider = ({ categoria }) => {
       mx: 'auto',
       overflow: 'visible'
     }}>
+      {/* Titulo */}
       <Typography variant={isMobile ? "h6" : "h5"} sx={{ 
         textAlign: 'center',
         fontWeight: 600, 
-        mb: { xs: 1, md: 1.5 }, 
+        mb: { xs: 1, md: 1.5 },
         color: '#2c3e50',
         fontSize: { xs: '1.1rem', md: '1.25rem' }, 
         position: 'relative',
         '&::after': {
           content: '""',
           position: 'absolute',
-          bottom: -6, 
+          bottom: -6,
           left: '50%',
           transform: 'translateX(-50%)',
           width: 40, 
@@ -98,14 +104,18 @@ const CategorySlider = ({ categoria }) => {
         '& .swiper': {
           overflow: 'visible', 
           pb: isMobile ? 2 : 1,
-          pt: 1,
+          pt: 1, 
         },
         '& .swiper-wrapper': {
+          cursor: 'grab',
           // Mask para fade effect en desktop
           ...(!isMobile && {
             maskImage: 'linear-gradient(to right, transparent 0%, black 5%, black 95%, transparent 100%)',
             WebkitMaskImage: 'linear-gradient(to right, transparent 0%, black 5%, black 95%, transparent 100%)'
-          })
+          }),
+          '&:active': {
+            cursor: 'grabbing'
+          }
         },
         '& .swiper-slide': {
           width: 'auto !important',
@@ -118,13 +128,12 @@ const CategorySlider = ({ categoria }) => {
           },
           py: 1 
         },
-        // Estilos para flechas custom más pequeñas
         '& .swiper-button-prev-custom, & .swiper-button-next-custom': {
           position: 'absolute',
           top: '45%',
           transform: 'translateY(-50%)',
-          width: { xs: 32, md: 40 },
-          height: { xs: 32, md: 40 },
+          width: { xs: 32, md: 40 }, 
+          height: { xs: 32, md: 40 }, 
           background: 'white',
           borderRadius: '50%',
           boxShadow: '0 2px 12px rgba(0,0,0,0.08)', 
@@ -135,7 +144,7 @@ const CategorySlider = ({ categoria }) => {
           alignItems: 'center',
           justifyContent: 'center',
           transition: 'all 0.3s ease',
-          opacity: 0.8, 
+          opacity: 0.8,
           '&:hover': {
             opacity: 1,
             transform: 'translateY(-50%) scale(1.05)',
@@ -154,7 +163,7 @@ const CategorySlider = ({ categoria }) => {
           left: { xs: -10, md: -20 }, 
           '&::before': {
             content: '"‹"',
-            fontSize: { xs: 18, md: 22 }, 
+            fontSize: { xs: 18, md: 22 },
             color: '#FF6B35',
             fontWeight: 'bold'
           }
@@ -174,7 +183,7 @@ const CategorySlider = ({ categoria }) => {
           textAlign: 'center',
           display: isMobile ? 'block' : 'none',
           '& .swiper-pagination-bullet': {
-            width: '6px', 
+            width: '6px',
             height: '6px',
             margin: '0 3px',
             borderRadius: '50%',
@@ -210,13 +219,13 @@ const CategorySlider = ({ categoria }) => {
             </SwiperSlide>
           ))}
         </Swiper>
- 
+
         {!isMobile && (
           <>
             <Box sx={{
               position: 'absolute',
               left: 0,
-              top: 4,
+              top: 4, 
               bottom: 0,
               width: 60, 
               background: 'linear-gradient(to right, rgba(255,255,255,1) 0%, rgba(255,255,255,0.8) 40%, transparent 100%)',
@@ -245,8 +254,8 @@ const CategorySlider = ({ categoria }) => {
       </Box>
 
       <Box sx={{
-        mt: { xs: 1, md: 1.5 },
-        mb: { xs: 0.5, md: 1 },
+        mt: { xs: 1, md: 1.5 }, 
+        mb: { xs: 0.5, md: 1 }, 
         display: 'flex',
         alignItems: 'center',
         maxWidth: '600px', 
@@ -259,7 +268,7 @@ const CategorySlider = ({ categoria }) => {
           background: 'linear-gradient(to right, transparent 0%, rgba(0,0,0,0.08) 50%, transparent 100%)' 
         }} />
         <Box sx={{
-          mx: 2,
+          mx: 2, 
           width: 6, 
           height: 6,
           borderRadius: '50%',
@@ -269,7 +278,7 @@ const CategorySlider = ({ categoria }) => {
         <Box sx={{
           flex: 1,
           height: '1px',
-          background: 'linear-gradient(to left, transparent 0%, rgba(0,0,0,0.08) 50%, transparent 100%)' 
+          background: 'linear-gradient(to left, transparent 0%, rgba(0,0,0,0.08) 50%, transparent 100%)'
         }} />
       </Box>
     </Box>
