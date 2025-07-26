@@ -1,6 +1,4 @@
 import { useState } from 'react';
-import { Box, Typography, Button, IconButton, Chip, Stack } from '@mui/material';
-import { Add, Remove, ShoppingCart, FlashOn } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 
@@ -33,212 +31,146 @@ const ProductInfo = ({ producto }) => {
     : 0;
 
   return (
-    <Box sx={{ 
-      height: '100%',
-      display: 'flex',
-      flexDirection: 'column',
-      justifyContent: 'space-between'
-    }}>
+    <div className="h-full flex flex-col justify-between">
       {/* Contenido superior */}
-      <Stack spacing={4}>
+      <div className="space-y-6">
+        {/* Marca y SKU */}
+        <div>
+          <p className="text-gray-500 font-semibold uppercase text-sm tracking-wide">
+            {producto.marca || 'PRODUCTO'}
+          </p>
+          <p className="text-gray-400 text-sm">
+            SKU: {producto.sku || producto.producto_id}
+          </p>
+        </div>
+
         {/* Título */}
-        <Typography 
-          variant="h4" 
-          component="h1" 
-          sx={{ 
-            fontWeight: 700,
-            lineHeight: 1.2, 
-            color: '#2c3e50',
-            fontSize: { xs: '1.5rem', md: '2rem' }
-          }}
-        >
+        <h1 className="text-3xl md:text-4xl font-bold text-gray-800 leading-tight">
           {producto.nombre_producto}
-        </Typography>
+        </h1>
 
         {/* Precios con badge */}
-        <Box>
+        <div>
           {hasDiscount && (
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
-              <Chip 
-                icon={<FlashOn />}
-                label={`${discountPercentage}% OFF`}
-                size="small"
-                sx={{
-                  background: 'linear-gradient(135deg, #FF4500, #FF6B35)',
-                  color: 'white',
-                  fontWeight: 700
-                }}
-              />
-              <Typography 
-                variant="body2" 
-                sx={{ 
-                  textDecoration: 'line-through', 
-                  color: '#999'
-                }}
-              >
+            <div className="flex items-center gap-3 mb-2">
+              <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm font-bold text-white bg-gradient-to-r from-red-500 to-orange-500">
+                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" clipRule="evenodd" />
+                </svg>
+                -{discountPercentage}%
+              </span>
+              <span className="text-lg text-gray-500 line-through font-medium">
                 ${producto.precio_original?.toLocaleString('es-AR')}
-              </Typography>
-            </Box>
+              </span>
+            </div>
           )}
           
-          <Typography 
-            variant="h3"
-            sx={{ 
-              fontWeight: 800,
-              color: hasDiscount ? '#FF4500' : '#2c3e50',
-              lineHeight: 1,
-              fontSize: { xs: '2rem', md: '2.5rem' }
-            }}
-          >
+          <div className="text-4xl md:text-5xl font-bold text-red-500 leading-none">
             ${producto.precio?.toLocaleString('es-AR')}
-          </Typography>
-        </Box>
+          </div>
+          
+          <p className="text-gray-500 text-sm mt-1">
+            Precio sin Impuestos Nacionales ${(producto.precio * 0.85).toLocaleString('es-AR')}
+          </p>
+        </div>
 
         {/* Descripción */}
-        <Typography 
-          variant="body1" 
-          sx={{ 
-            color: '#6c757d',
-            lineHeight: 1.6,
-            fontSize: '1rem'
-          }}
-        >
+        <p className="text-gray-600 leading-relaxed text-base">
           {producto.descripcion}
-        </Typography>
+        </p>
 
         {/* Stock */}
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-          <Typography variant="body2" sx={{ color: '#495057', fontWeight: 500 }}>
-            Stock:
-          </Typography>
-          <Chip 
-            label={producto.stock_actual > 0 ? `${producto.stock_actual} disponibles` : 'Sin Stock'} 
-            color={producto.stock_actual > 0 ? 'success' : 'error'} 
-            size="small"
-            variant="outlined"
-          />
-        </Box>
-      </Stack>
+        <div className="flex items-center gap-3">
+          <span className="text-gray-700 font-medium">Stock:</span>
+          <span className={`px-3 py-1 rounded-full text-sm font-medium border ${
+            producto.stock_actual > 0 
+              ? 'bg-green-50 text-green-700 border-green-200' 
+              : 'bg-red-50 text-red-700 border-red-200'
+          }`}>
+            {producto.stock_actual > 0 ? `${producto.stock_actual} disponibles` : 'Sin Stock'}
+          </span>
+        </div>
+      </div>
 
       {/* Controles inferiores */}
-      <Stack spacing={3} sx={{ mt: 4 }}>
+      <div className="space-y-4 mt-8">
         {/* Selector de cantidad */}
-        <Box>
-          <Typography variant="body2" sx={{ fontWeight: 600, mb: 2, color: '#495057' }}>
-            Cantidad:
-          </Typography>
-          <Box sx={{ 
-            display: 'inline-flex', 
-            alignItems: 'center',
-            border: '2px solid #e9ecef',
-            borderRadius: 3,
-            background: 'white'
-          }}>
-            <IconButton 
+        <div>
+          <p className="text-gray-700 font-semibold mb-3">Cantidad:</p>
+          <div className="inline-flex items-center border-2 border-gray-200 rounded-xl bg-white">
+            <button 
               onClick={() => handleCantidadChange(-1)} 
               disabled={cantidad <= 1}
-              size="small"
-              sx={{ 
-                color: '#FF6B35',
-                '&:hover': { background: 'rgba(255,107,53,0.1)' },
-                '&:disabled': { color: '#ccc' }
-              }}
+              className="w-10 h-10 flex items-center justify-center text-orange-500 hover:bg-orange-50 disabled:text-gray-300 disabled:hover:bg-white transition-colors rounded-l-xl"
             >
-              <Remove />
-            </IconButton>
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 12H4" />
+              </svg>
+            </button>
             
-            <Typography 
-              variant="h6" 
-              sx={{ 
-                minWidth: 50,
-                textAlign: 'center',
-                fontWeight: 600,
-                color: '#2c3e50',
-                py: 1,
-                px: 2
-              }}
-            >
+            <span className="min-w-12 text-center font-bold text-gray-800 text-lg px-4 py-2">
               {cantidad}
-            </Typography>
+            </span>
             
-            <IconButton 
+            <button 
               onClick={() => handleCantidadChange(1)} 
               disabled={cantidad >= producto.stock_actual}
-              size="small"
-              sx={{ 
-                color: '#FF6B35',
-                '&:hover': { background: 'rgba(255,107,53,0.1)' },
-                '&:disabled': { color: '#ccc' }
-              }}
+              className="w-10 h-10 flex items-center justify-center text-orange-500 hover:bg-orange-50 disabled:text-gray-300 disabled:hover:bg-white transition-colors rounded-r-xl"
             >
-              <Add />
-            </IconButton>
-          </Box>
-        </Box>
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+              </svg>
+            </button>
+          </div>
+        </div>
 
-        {/* Botones de acción */}
-        <Stack spacing={2}>
-          <Button 
-            variant="contained" 
-            size="large" 
-            onClick={handleAddToCart} 
-            startIcon={<ShoppingCart />}
-            disabled={producto.stock_actual <= 0}
-            sx={{
-              py: 2,
-              fontSize: '1rem',
-              fontWeight: 600,
-              borderRadius: 3,
-              textTransform: 'none',
-              background: 'linear-gradient(135deg, #FF8C00, #FF6B35)',
-              boxShadow: 'none',
-              transition: 'all 0.3s ease',
-              '&:hover': {
-                background: 'linear-gradient(135deg, #FF6B35, #FF4500)',
-                transform: 'translateY(-1px)',
-                boxShadow: '0 4px 15px rgba(255,107,53,0.3)'
-              },
-              '&:disabled': {
-                background: '#e9ecef',
-                color: '#6c757d'
-              }
-            }}
-          >
-            Agregar al Carrito
-          </Button>
-          
-          <Button 
-            variant="outlined" 
-            size="large" 
-            onClick={handleBuyNow}
-            disabled={producto.stock_actual <= 0}
-            sx={{
-              py: 2,
-              fontSize: '1rem',
-              fontWeight: 600,
-              borderRadius: 3,
-              textTransform: 'none',
-              borderColor: '#e9ecef',
-              color: '#495057',
-              borderWidth: 2,
-              transition: 'all 0.3s ease',
-              '&:hover': {
-                background: '#f8f9fa',
-                borderColor: '#FF6B35',
-                color: '#FF6B35',
-                transform: 'translateY(-1px)'
-              },
-              '&:disabled': {
-                borderColor: '#e9ecef',
-                color: '#6c757d'
-              }
-            }}
-          >
-            Comprar Ahora
-          </Button>
-        </Stack>
-      </Stack>
-    </Box>
+        {/* Botón principal de compra */}
+        <button 
+          onClick={handleBuyNow}
+          disabled={producto.stock_actual <= 0}
+          className="w-full py-4 text-lg font-bold text-white bg-gradient-to-r from-red-500 to-orange-500 rounded-xl hover:from-red-600 hover:to-orange-600 disabled:from-gray-300 disabled:to-gray-400 transform hover:-translate-y-0.5 disabled:transform-none transition-all duration-300 shadow-lg hover:shadow-xl"
+        >
+          COMPRAR AHORA
+        </button>
+        
+        {/* Botón secundario */}
+        <button 
+          onClick={handleAddToCart}
+          disabled={producto.stock_actual <= 0}
+          className="w-full py-3 text-lg font-semibold text-gray-700 bg-white border-2 border-gray-200 rounded-xl hover:border-orange-500 hover:text-orange-500 hover:bg-gray-50 disabled:text-gray-400 disabled:border-gray-200 disabled:hover:bg-white transform hover:-translate-y-0.5 disabled:transform-none transition-all duration-300 flex items-center justify-center gap-2"
+        >
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-2.5 5H19" />
+          </svg>
+          Agregar al Carrito
+        </button>
+
+        {/* Información de envío */}
+        <div className="p-4 bg-gray-50 rounded-xl border border-gray-200">
+          <div className="space-y-3">
+            <div className="flex items-center gap-3">
+              <svg className="w-6 h-6 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 4H6a2 2 0 00-2 2v12a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-2m-4-1v8m0 0l3-3m-3 3L9 8m-5 5h2.586a1 1 0 01.707.293l2.414 2.414a1 1 0 00.707.293H20" />
+              </svg>
+              <div>
+                <p className="font-semibold text-gray-800 text-sm">Envío a domicilio</p>
+                <p className="text-gray-600 text-sm">Ingresá tu código postal para conocer tu mejor opción de envío.</p>
+              </div>
+            </div>
+            
+            <div className="flex items-center gap-3">
+              <svg className="w-6 h-6 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+              </svg>
+              <div>
+                <p className="font-semibold text-gray-800 text-sm">Retiro en sucursal</p>
+                <p className="text-gray-600 text-sm">No disponible. Consultá otras opciones de retiro.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   );
 };
 

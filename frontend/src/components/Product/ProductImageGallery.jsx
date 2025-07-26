@@ -1,17 +1,8 @@
 import { useState } from 'react';
-import { Box, IconButton } from '@mui/material';
-import { Fullscreen } from '@mui/icons-material';
-import { Swiper, SwiperSlide } from 'swiper/react';
-import { Navigation, Pagination, Thumbs, Zoom } from 'swiper/modules';
-
-// Import Swiper styles
-import 'swiper/css';
-import 'swiper/css/navigation';
-import 'swiper/css/pagination';
-import 'swiper/css/thumbs';
-import 'swiper/css/zoom';
 
 const ProductImageGallery = ({ producto }) => {
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  
   // Preparar imágenes
   const allImages = [producto.imagen, ...(Array.isArray(producto.imagenes) ? producto.imagenes : [])] 
     .filter(Boolean)
@@ -21,9 +12,6 @@ const ProductImageGallery = ({ producto }) => {
   if (allImages.length === 0) {
     allImages.push('https://via.placeholder.com/500x500?text=Imagen+no+disponible');
   }
-
-  const [thumbsSwiper, setThumbsSwiper] = useState(null);
-  const [mainSwiper, setMainSwiper] = useState(null);
 
   const openFullscreen = (imageUrl) => {
     const img = document.createElement('img');
@@ -44,168 +32,87 @@ const ProductImageGallery = ({ producto }) => {
   };
 
   return (
-    <Box sx={{ 
-      width: '100%', 
-      maxWidth: 600, 
-      mx: 'auto',
-      '& .swiper': {
-        borderRadius: 3,
-        overflow: 'hidden'
-      },
-      '& .swiper-slide': {
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        background: '#f8f9fa'
-      },
-      '& .swiper-button-next, & .swiper-button-prev': {
-        background: 'rgba(255,255,255,0.9)',
-        width: '48px',
-        height: '48px',
-        borderRadius: '50%',
-        color: '#FF6B35',
-        boxShadow: '0 2px 10px rgba(0,0,0,0.2)',
-        transition: 'all 0.3s ease',
-        '&:hover': {
-          background: 'white',
-          transform: 'scale(1.1)',
-          color: '#FF4500'
-        },
-        '&::after': {
-          fontSize: '20px',
-          fontWeight: 'bold'
-        }
-      },
-      '& .swiper-pagination-bullet': {
-        background: '#e9ecef',
-        opacity: 1,
-        width: '12px',
-        height: '12px',
-        '&.swiper-pagination-bullet-active': {
-          background: '#FF6B35',
-          transform: 'scale(1.2)'
-        }
-      }
-    }}>
-      {/* Swiper principal */}
-      <Box sx={{ 
-        position: 'relative',
-        mb: 3,
-        boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
-        borderRadius: 3,
-        overflow: 'hidden'
-      }}>
-        <Swiper
-          modules={[Navigation, Pagination, Thumbs, Zoom]}
-          spaceBetween={10}
-          navigation={allImages.length > 1}
-          pagination={{
-            clickable: true,
-            dynamicBullets: true
-          }}
-          thumbs={{ swiper: thumbsSwiper && !thumbsSwiper.destroyed ? thumbsSwiper : null }}
-          zoom={true}
-          onSwiper={setMainSwiper}
-          style={{ 
-            height: '500px',
-            maxHeight: '60vh'
-          }}
-        >
-          {allImages.map((img, index) => (
-            <SwiperSlide key={index}>
-              <div className="swiper-zoom-container">
-                <Box
-                  component="img"
-                  src={img}
-                  alt={`${producto.nombre_producto} - Vista ${index + 1}`}
-                  onClick={() => openFullscreen(img)}
-                  sx={{
-                    maxWidth: '100%',
-                    maxHeight: '100%',
-                    objectFit: 'contain',
-                    cursor: 'pointer',
-                    transition: 'transform 0.3s ease'
-                  }}
-                />
-              </div>
-            </SwiperSlide>
-          ))}
-        </Swiper>
-        
-        {/* Botón fullscreen */}
-        <IconButton
-          onClick={() => {
-            const activeIndex = mainSwiper?.activeIndex || 0;
-            openFullscreen(allImages[activeIndex]);
-          }}
-          sx={{
-            position: 'absolute',
-            top: 16,
-            right: 16,
-            background: 'rgba(255,107,53,0.9)',
-            color: 'white',
-            width: 48,
-            height: 48,
-            zIndex: 10,
-            transition: 'all 0.3s ease',
-            '&:hover': {
-              background: 'rgba(255,107,53,1)',
-              transform: 'scale(1.1)'
-            }
-          }}
-        >
-          <Fullscreen />
-        </IconButton>
-      </Box>
-
-      {/* Swiper de thumbnails */}
+    <div className="flex gap-4 w-full">
+      {/* Thumbnails verticales a la izquierda */}
       {allImages.length > 1 && (
-        <Box sx={{
-          '& .swiper-slide': {
-            width: 'auto !important',
-            cursor: 'pointer'
-          },
-          '& .swiper-slide-thumb-active img': {
-            borderColor: '#FF6B35 !important'
-          }
-        }}>
-          <Swiper
-            modules={[Thumbs]}
-            onSwiper={setThumbsSwiper}
-            spaceBetween={12}
-            slidesPerView="auto"
-            watchSlidesProgress={true}
-            centeredSlides={true}
-            style={{
-              padding: '8px 0'
-            }}
-          >
-            {allImages.map((img, index) => (
-              <SwiperSlide key={index} style={{ width: 'auto' }}>
-                <Box
-                  component="img"
-                  src={img}
-                  alt={`Miniatura ${index + 1}`}
-                  sx={{
-                    width: 80,
-                    height: 80,
-                    objectFit: 'cover',
-                    borderRadius: 2,
-                    border: '2px solid #e9ecef',
-                    transition: 'all 0.3s ease',
-                    display: 'block',
-                    '&:hover': {
-                      transform: 'scale(1.05)',
-                      borderColor: '#FF8C00'
-                    }
-                  }}
-                />
-              </SwiperSlide>
-            ))}
-          </Swiper>
-        </Box>
+        <div className="flex flex-col gap-3 flex-shrink-0">
+          {allImages.map((img, index) => (
+            <img
+              key={index}
+              src={img}
+              alt={`Miniatura ${index + 1}`}
+              onClick={() => setCurrentImageIndex(index)}
+              className={`w-16 h-16 md:w-20 md:h-20 object-cover rounded-lg cursor-pointer transition-all duration-300 hover:scale-105 ${
+                currentImageIndex === index 
+                  ? 'border-2 border-orange-500 shadow-lg' 
+                  : 'border-2 border-gray-200 hover:border-orange-300'
+              }`}
+            />
+          ))}
+        </div>
       )}
-    </Box>
+
+      {/* Imagen principal */}
+      <div className="flex-1">
+        <div className="relative shadow-lg rounded-xl overflow-hidden bg-gray-50">
+          <img
+            src={allImages[currentImageIndex]}
+            alt={`${producto.nombre_producto} - Vista ${currentImageIndex + 1}`}
+            onClick={() => openFullscreen(allImages[currentImageIndex])}
+            className="w-full h-[400px] md:h-[500px] object-contain cursor-pointer transition-transform duration-300 hover:scale-105"
+          />
+          
+          {/* Botón fullscreen */}
+          <button
+            onClick={() => openFullscreen(allImages[currentImageIndex])}
+            className="absolute top-4 right-4 w-12 h-12 bg-orange-500 bg-opacity-90 text-white rounded-full flex items-center justify-center hover:bg-orange-600 hover:scale-110 transition-all"
+          >
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
+            </svg>
+          </button>
+
+          {/* Navegación de imágenes */}
+          {allImages.length > 1 && (
+            <>
+              <button
+                onClick={() => setCurrentImageIndex(prev => 
+                  prev > 0 ? prev - 1 : allImages.length - 1
+                )}
+                className="absolute left-4 top-1/2 transform -translate-y-1/2 w-10 h-10 md:w-12 md:h-12 bg-white bg-opacity-90 text-orange-500 rounded-full flex items-center justify-center hover:bg-white hover:scale-110 transition-all"
+              >
+                <span className="text-xl md:text-2xl font-bold">‹</span>
+              </button>
+              <button
+                onClick={() => setCurrentImageIndex(prev => 
+                  prev < allImages.length - 1 ? prev + 1 : 0
+                )}
+                className="absolute right-4 top-1/2 transform -translate-y-1/2 w-10 h-10 md:w-12 md:h-12 bg-white bg-opacity-90 text-orange-500 rounded-full flex items-center justify-center hover:bg-white hover:scale-110 transition-all"
+              >
+                <span className="text-xl md:text-2xl font-bold">›</span>
+              </button>
+            </>
+          )}
+
+          {/* Indicadores de posición */}
+          {allImages.length > 1 && (
+            <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex gap-2">
+              {allImages.map((_, index) => (
+                <button
+                  key={index}
+                  onClick={() => setCurrentImageIndex(index)}
+                  className={`w-2 h-2 rounded-full transition-all ${
+                    currentImageIndex === index 
+                      ? 'bg-orange-500 w-6' 
+                      : 'bg-white bg-opacity-70 hover:bg-opacity-100'
+                  }`}
+                />
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
   );
 };
 

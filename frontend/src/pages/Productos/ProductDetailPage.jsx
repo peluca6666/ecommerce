@@ -1,7 +1,5 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Container, Grid, Box, Button, Paper, Typography } from '@mui/material'; 
-import { KeyboardBackspace as ArrowBack } from '@mui/icons-material'; 
 import LoadingSpinner from '../../components/common/LoadingSpinner';
 import ProductImageGallery from '../../components/Product/ProductImageGallery';
 import ProductInfo from '../../components/Product/ProductInfo';
@@ -63,70 +61,57 @@ const ProductDetailPage = () => {
     }, [id]);
 
     if (loading) return <LoadingSpinner />;
+    
     if (error) return (
-        <Container maxWidth="lg" sx={{ mt: 4 }}>
-            <Typography color="error" align="center" variant="h6">{error}</Typography>
-        </Container>
+        <div className="max-w-7xl mx-auto py-8 px-4">
+            <p className="text-red-600 text-center text-lg">{error}</p>
+        </div>
     );
+    
     if (!producto) return (
-        <Container maxWidth="lg" sx={{ mt: 4 }}>
-            <Typography align="center" variant="h6">Producto no encontrado.</Typography>
-        </Container>
+        <div className="max-w-7xl mx-auto py-8 px-4">
+            <p className="text-center text-lg">Producto no encontrado.</p>
+        </div>
     );
 
     return (
-        <Container maxWidth="lg" sx={{ py: { xs: 2, md: 4 } }}> 
+        <div className="max-w-7xl mx-auto py-4 md:py-8 px-4">
             {/* Botón volver */}
-            <Box sx={{ mb: 3 }}>
-                <Button 
-                    startIcon={<ArrowBack />} 
+            <div className="mb-6">
+                <button 
                     onClick={() => navigate(-1)}
-                    variant="text"
-                    sx={{ 
-                        textTransform: 'none',
-                        color: '#6c757d',
-                        fontWeight: 500,
-                        '&:hover': {
-                            color: '#FF6B35',
-                            background: 'rgba(255,107,53,0.1)'
-                        }
-                    }}
+                    className="flex items-center gap-2 text-gray-600 hover:text-orange-500 hover:bg-orange-50 px-3 py-2 rounded-lg transition-colors font-medium"
                 >
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                    </svg>
                     Volver
-                </Button>
-            </Box>
+                </button>
+            </div>
 
             {/* Contenido principal */}
-            <Paper 
-                elevation={2}
-                sx={{ 
-                    p: { xs: 3, md: 6 },
-                    borderRadius: 4,
-                    background: 'white',
-                    border: '1px solid #f0f0f0'
-                }}
-            >
-                <Grid container spacing={{ xs: 4, md: 6 }}> 
+            <div className="bg-white p-6 md:p-12 rounded-2xl shadow-lg border border-gray-100">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12">
                     {/* Galería de imágenes */}
-                    <Grid item xs={12} md={6}>
+                    <div>
                         <ProductImageGallery producto={producto} />
-                    </Grid>
+                    </div>
 
                     {/* Información del producto */}
-                    <Grid item xs={12} md={6}> 
+                    <div>
                         <ProductInfo producto={producto} />
-                    </Grid>
-                </Grid>
-            </Paper>
+                    </div>
+                </div>
+            </div>
 
             {/* Descripción completa */}
-            <Box sx={{ mt: { xs: 4, md: 6 } }}>
+            <div className="mt-8 md:mt-12">
                 <ProductDescription descripcionLarga={producto.descripcion_larga} />
-            </Box>
+            </div>
 
             {/* Productos relacionados */}
             <RelatedProducts productos={productosRelacionados} />
-        </Container>
+        </div>
     );
 };
 
