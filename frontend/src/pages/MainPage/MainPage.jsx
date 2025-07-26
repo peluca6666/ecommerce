@@ -130,46 +130,41 @@ const MainPage = () => {
           border: '1px solid #f1f3f4'
         }}>
           {/* Título destacado con rectángulo de color */}
-          <Box sx={{ 
-            textAlign: 'center',
-            mb: { xs: 2, md: 3 }
+          <Box sx={{
+            background: 'linear-gradient(135deg, #FF4500 0%, #FF6B35 50%, #FF8C00 100%)',
+            borderRadius: 3,
+            py: { xs: 2, md: 2.5 },
+            mb: { xs: 2, md: 3 },
+            boxShadow: '0 4px 20px rgba(255, 69, 0, 0.3)',
+            position: 'relative',
+            overflow: 'hidden',
+            '&::before': {
+              content: '""',
+              position: 'absolute',
+              top: 0,
+              left: '-100%',
+              width: '100%',
+              height: '100%',
+              background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent)',
+              animation: 'shine 3s infinite',
+            },
+            '@keyframes shine': {
+              '0%': { left: '-100%' },
+              '100%': { left: '100%' }
+            }
           }}>
-            <Box sx={{
-              display: 'inline-block',
-              background: 'linear-gradient(135deg, #FF4500 0%, #FF6B35 50%, #FF8C00 100%)',
-              borderRadius: 3,
-              px: { xs: 3, md: 4 },
-              py: { xs: 1.5, md: 2 },
-              boxShadow: '0 4px 20px rgba(255, 69, 0, 0.3)',
+            <Typography variant="h4" sx={{
+              color: 'white',
+              fontWeight: 700,
+              fontSize: { xs: '1.5rem', md: '2rem' },
+              textShadow: '0 2px 4px rgba(0,0,0,0.3)',
+              letterSpacing: '1px',
               position: 'relative',
-              overflow: 'hidden',
-              '&::before': {
-                content: '""',
-                position: 'absolute',
-                top: 0,
-                left: '-100%',
-                width: '100%',
-                height: '100%',
-                background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent)',
-                animation: 'shine 3s infinite',
-              },
-              '@keyframes shine': {
-                '0%': { left: '-100%' },
-                '100%': { left: '100%' }
-              }
+              zIndex: 1,
+              textAlign: 'center'
             }}>
-              <Typography variant="h4" sx={{
-                color: 'white',
-                fontWeight: 700,
-                fontSize: { xs: '1.5rem', md: '2rem' },
-                textShadow: '0 2px 4px rgba(0,0,0,0.3)',
-                letterSpacing: '1px',
-                position: 'relative',
-                zIndex: 1
-              }}>
-                🔥 OFERTAS IMPERDIBLES 🔥
-              </Typography>
-            </Box>
+              OFERTAS IMPERDIBLES
+            </Typography>
           </Box>
           
           <ProductGrid productos={state.ofertas} />
