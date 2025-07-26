@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import {  Box, TextField, FormControl, Paper, Typography, Chip, Stack, Divider, Autocomplete} from '@mui/material';
+import {  Box, TextField, Paper, Typography, Chip, Stack, Divider, Autocomplete} from '@mui/material';
 import { Search, Category, AttachMoney, Sort, LocalOffer } from '@mui/icons-material';
 import axios from 'axios';
 

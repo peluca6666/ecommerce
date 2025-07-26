@@ -18,7 +18,6 @@ const MainPage = () => {
 
   const { cart = { count: 0 }, loading: authLoading = true } = useAuth() || {};
 
-  // trae todos los productos
   const fetchProducto = async () => {
     try {
       const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/producto`);
@@ -34,7 +33,6 @@ const MainPage = () => {
     }
   };
 
-  // trae las categorías disponibles
   const fetchCategoria = async () => {
     try {
       const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/categoria`);
@@ -50,7 +48,6 @@ const MainPage = () => {
     }
   };
 
-  // trae productos en oferta
   const fetchOfertas = async () => {
     try {
       const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/producto/ofertas`);
@@ -66,13 +63,11 @@ const MainPage = () => {
     }
   };
 
-  // carga los datos cuando se monta el componente
   useEffect(() => {
     const loadData = async () => {
       try {
         setState(prev => ({ ...prev, loading: true, error: null }));
 
-        // carga todo en paralelo para que sea más rápido
         const [productoData, categoriaData, ofertasData] = await Promise.all([
           fetchProducto(),
           fetchCategoria(),
@@ -117,52 +112,68 @@ const MainPage = () => {
 
   return (
     <Box>
-      {/* ✅ CAMBIO: Banner MUY compacto - sin padding */}
       <Container maxWidth="lg" sx={{ py: 0 }}>
         <MainBanner />
       </Container>
 
-      {/* ✅ CAMBIO: CategorySlider sin padding vertical */}
       <Box sx={{ py: 0 }}>
         <CategorySlider categoria={state.categoria} />
       </Box>
 
-      {/* ✅ CAMBIO: Ofertas pegadas arriba - sin margen superior */}
       <Container maxWidth="xl" sx={{ px: { xs: 2, md: 4 } }}>
         <Paper elevation={2} sx={{ 
-          p: { xs: 1.5, md: 2 }, // ✅ Menos padding interno
-          mt: 0, // ✅ SIN margen superior
+          p: { xs: 1.5, md: 2 },
+          mt: 0,
           mb: { xs: 2, md: 3 },
           borderRadius: 3,
           background: 'linear-gradient(135deg, #ffffff 0%, #fafbfc 100%)',
           border: '1px solid #f1f3f4'
         }}>
-          {/* ✅ CAMBIO: Título más compacto */}
-          <Typography variant="h4" sx={{
+          {/* Título destacado con rectángulo de color */}
+          <Box sx={{ 
             textAlign: 'center',
-            fontWeight: 700,
-            mb: { xs: 2, md: 3 }, // ✅ Menos margin bottom
-            color: '#2c3e50',
-            fontSize: { xs: '1.75rem', md: '2.125rem' }, // ✅ Más pequeño en móvil
-            position: 'relative',
-            '&::after': {
-              content: '""',
-              position: 'absolute',
-              bottom: -6, // ✅ Más cerca del texto
-              left: '50%',
-              transform: 'translateX(-50%)',
-              width: 80,
-              height: 3,
-              background: 'linear-gradient(90deg, #FF8C00, #FF6B35)',
-              borderRadius: 2,
-            }
+            mb: { xs: 2, md: 3 }
           }}>
-            OFERTAS IMPERDIBLES
-          </Typography>
+            <Box sx={{
+              display: 'inline-block',
+              background: 'linear-gradient(135deg, #FF4500 0%, #FF6B35 50%, #FF8C00 100%)',
+              borderRadius: 3,
+              px: { xs: 3, md: 4 },
+              py: { xs: 1.5, md: 2 },
+              boxShadow: '0 4px 20px rgba(255, 69, 0, 0.3)',
+              position: 'relative',
+              overflow: 'hidden',
+              '&::before': {
+                content: '""',
+                position: 'absolute',
+                top: 0,
+                left: '-100%',
+                width: '100%',
+                height: '100%',
+                background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent)',
+                animation: 'shine 3s infinite',
+              },
+              '@keyframes shine': {
+                '0%': { left: '-100%' },
+                '100%': { left: '100%' }
+              }
+            }}>
+              <Typography variant="h4" sx={{
+                color: 'white',
+                fontWeight: 700,
+                fontSize: { xs: '1.5rem', md: '2rem' },
+                textShadow: '0 2px 4px rgba(0,0,0,0.3)',
+                letterSpacing: '1px',
+                position: 'relative',
+                zIndex: 1
+              }}>
+                🔥 OFERTAS IMPERDIBLES 🔥
+              </Typography>
+            </Box>
+          </Box>
           
           <ProductGrid productos={state.ofertas} />
           
-          {/* ✅ CAMBIO: Botón más compacto */}
           <Box sx={{ mt: { xs: 1, md: 1.5 }, textAlign: 'center' }}>
             <Button
               component={Link}
