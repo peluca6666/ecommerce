@@ -1,3 +1,6 @@
+import { Paper, Typography, Box, Divider } from '@mui/material';
+import { InfoOutlined } from '@mui/icons-material';
+
 const ProductDescription = ({ descripcionLarga }) => {
   // Si no hay descripción larga, no renderizar nada
   if (!descripcionLarga) return null;
@@ -16,64 +19,129 @@ const ProductDescription = ({ descripcionLarga }) => {
 
       if (isList) {
         return (
-          <ul key={index} className="pl-6 mb-4 space-y-2">
+          <Box key={index} component="ul" sx={{ 
+            pl: 2, 
+            mb: 2,
+            '& li': {
+              mb: 0.5,
+              color: '#495057',
+              lineHeight: 1.6
+            }
+          }}>
             {lines.filter(line => line.trim()).map((line, lineIndex) => (
-              <li 
+              <Typography 
                 key={lineIndex} 
-                className="text-gray-700 leading-relaxed text-lg list-disc"
+                component="li" 
+                variant="body1"
+                sx={{ fontSize: '1.05rem' }}
               >
                 {line.replace(/^\s*[-*•]\s*/, '').replace(/^\s*\d+\.\s*/, '')}
-              </li>
+              </Typography>
             ))}
-          </ul>
+          </Box>
         );
       }
 
       // Párrafo normal
       return (
-        <p 
+        <Typography 
           key={index}
-          className="text-gray-700 leading-relaxed text-lg mb-4 last:mb-0"
+          variant="body1" 
+          paragraph
+          sx={{ 
+            lineHeight: 1.7,
+            color: '#495057',
+            fontSize: '1.05rem',
+            mb: 2,
+            '&:last-child': { mb: 0 }
+          }}
         >
           {paragraph.trim()}
-        </p>
+        </Typography>
       );
     });
   };
 
   return (
-    <div className="p-6 md:p-8 bg-gradient-to-br from-white to-gray-50 rounded-2xl border border-gray-200 relative overflow-hidden">
+    <Paper 
+      elevation={0}
+      sx={{ 
+        p: { xs: 4, md: 5 },
+        borderRadius: 4,
+        background: 'linear-gradient(135deg, #ffffff 0%, #fafbfc 100%)',
+        border: '1px solid #e9ecef',
+        position: 'relative',
+        overflow: 'hidden'
+      }}
+    >
       {/* Header con icono */}
-      <div className="flex items-center gap-4 mb-6">
-        <div className="w-12 h-12 rounded-full bg-gradient-to-r from-orange-400 to-orange-500 flex items-center justify-center text-white">
-          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-          </svg>
-        </div>
+      <Box sx={{ 
+        display: 'flex', 
+        alignItems: 'center', 
+        gap: 2, 
+        mb: 4 
+      }}>
+        <Box sx={{
+          width: 48,
+          height: 48,
+          borderRadius: '50%',
+          background: 'linear-gradient(135deg, #FF8C00, #FF6B35)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          color: 'white'
+        }}>
+          <InfoOutlined />
+        </Box>
         
-        <div>
-          <h3 className="text-2xl font-bold text-gray-800 mb-1">
+        <Box>
+          <Typography 
+            variant="h5" 
+            component="h3" 
+            sx={{ 
+              fontWeight: 700,
+              color: '#2c3e50',
+              mb: 0.5
+            }}
+          >
             Descripción Detallada
-          </h3>
-          <p className="text-gray-600 text-sm">
+          </Typography>
+          <Typography variant="body2" sx={{ color: '#6c757d' }}>
             Información completa sobre este producto
-          </p>
-        </div>
-      </div>
+          </Typography>
+        </Box>
+      </Box>
 
-      {/* Divider con gradiente */}
-      <div className="w-full h-0.5 bg-gradient-to-r from-orange-400 to-orange-500 mb-6"></div>
+      <Divider sx={{ 
+        mb: 4, 
+        background: 'linear-gradient(90deg, #FF8C00, #FF6B35)',
+        height: 2,
+        border: 'none'
+      }} />
       
       {/* Contenido procesado */}
-      <div className="prose prose-lg max-w-none">
-        <div className="first:text-xl first:font-medium first:text-gray-800">
-          {processDescription(descripcionLarga)}
-        </div>
-      </div>
+      <Box sx={{
+        '& p:first-of-type': {
+          fontSize: '1.15rem',
+          fontWeight: 500,
+          color: '#2c3e50'
+        }
+      }}>
+        {processDescription(descripcionLarga)}
+      </Box>
 
       {/* Decoración sutil */}
-      <div className="absolute -bottom-5 -right-5 w-20 h-20 rounded-full bg-gradient-to-br from-orange-100 to-orange-200 opacity-50 pointer-events-none"></div>
-    </div>
+      <Box sx={{
+        position: 'absolute',
+        bottom: -20,
+        right: -20,
+        width: 80,
+        height: 80,
+        borderRadius: '50%',
+        background: 'linear-gradient(135deg, rgba(255,140,0,0.05), rgba(255,107,53,0.05))',
+        pointerEvents: 'none'
+      }} />
+    </Paper>
   );
 };
 
