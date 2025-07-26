@@ -14,15 +14,16 @@ const ProductCard = ({ producto }) => {
         ? Math.round(((producto.precio_anterior - producto.precio) / producto.precio_anterior) * 100)
         : 0;
 
+    const handleProductClick = () => {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
+
     return (
         <Card 
-            component={Link}
-            to={`/producto/${producto.producto_id}`}
             sx={{ 
                 height: '100%', 
                 display: 'flex', 
                 flexDirection: 'column',
-                textDecoration: 'none',
                 borderRadius: 2,
                 border: '1px solid #e0e0e0',
                 cursor: 'pointer',
@@ -43,7 +44,17 @@ const ProductCard = ({ producto }) => {
                 }
             }}
         >
-            <Box sx={{ position: 'relative', overflow: 'hidden' }}>
+            <Box 
+                component={Link}
+                to={`/producto/${producto.producto_id}`}
+                onClick={handleProductClick}
+                sx={{ 
+                    position: 'relative', 
+                    overflow: 'hidden',
+                    textDecoration: 'none',
+                    display: 'block'
+                }}
+            >
                 {hasDiscount && (
                     <Chip
                         label="OFERTA"
@@ -51,7 +62,7 @@ const ProductCard = ({ producto }) => {
                         sx={{
                             position: 'absolute',
                             top: 8,
-                            left: 8,
+                            right: 8,
                             zIndex: 2,
                             background: '#e53e3e',
                             color: 'white',
@@ -67,7 +78,7 @@ const ProductCard = ({ producto }) => {
                 
                 <CardMedia
                     component="img"
-                    height="180"
+                    height="200"
                     image={imageUrl}
                     alt={producto.nombre_producto}
                     className="product-image"
@@ -78,77 +89,69 @@ const ProductCard = ({ producto }) => {
                 />
             </Box>
 
-            <CardContent sx={{ flexGrow: 1, p: 2, pb: 1 }}>
+            <CardContent sx={{ flexGrow: 1, p: 2 }}>
                 <Typography 
                     variant="body2" 
                     sx={{
                         fontWeight: 400,
-                        mb: 1,
+                        mb: 2,
                         color: '#424242',
                         fontSize: '0.9rem',
-                        lineHeight: 1.3,
+                        lineHeight: 1.4,
                         display: '-webkit-box',
                         WebkitLineClamp: 2,
                         WebkitBoxOrient: 'vertical',
                         overflow: 'hidden',
-                        minHeight: '2.4em'
+                        minHeight: '2.8em'
                     }}
                 >
                     {producto.nombre_producto}
                 </Typography>
 
                 <Box sx={{ mb: 2 }}>
-                    {hasDiscount ? (
-                        <Box>
-                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 0.5 }}>
-                                <Typography 
-                                    variant="body2"
-                                    sx={{ 
-                                        textDecoration: 'line-through', 
-                                        color: '#9e9e9e',
-                                        fontSize: '0.8rem'
-                                    }}
-                                >
-                                    ${producto.precio_anterior?.toLocaleString()}
-                                </Typography>
-                                <Chip
-                                    label={`-${discountPercentage}%`}
-                                    size="small"
-                                    sx={{
-                                        background: '#e53e3e',
-                                        color: 'white',
-                                        fontSize: '0.65rem',
-                                        fontWeight: 600,
-                                        height: 18,
-                                        '& .MuiChip-label': {
-                                            px: 0.5
-                                        }
-                                    }}
-                                />
-                            </Box>
-                            <Typography 
-                                variant="h6" 
-                                sx={{ 
-                                    fontWeight: 700, 
-                                    color: '#e53e3e',
-                                    fontSize: '1.25rem'
-                                }}
-                            >
-                                ${producto.precio?.toLocaleString()}
-                            </Typography>
-                        </Box>
-                    ) : (
+                    {hasDiscount && (
                         <Typography 
-                            variant="h6" 
+                            variant="body2"
                             sx={{ 
-                                fontWeight: 700,
-                                color: '#424242',
-                                fontSize: '1.25rem'
+                                textDecoration: 'line-through', 
+                                color: '#9e9e9e',
+                                fontSize: '0.85rem',
+                                mb: 0.5
+                            }}
+                        >
+                            ${producto.precio_anterior?.toLocaleString()}
+                        </Typography>
+                    )}
+                    
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                        <Typography 
+                            variant="h5" 
+                            sx={{ 
+                                fontWeight: 700, 
+                                color: hasDiscount ? '#e53e3e' : '#424242',
+                                fontSize: '1.4rem'
                             }}
                         >
                             ${producto.precio?.toLocaleString()}
                         </Typography>
-                    )}
+                        
+                        {hasDiscount && (
+                            <Chip
+                                label={`-${discountPercentage}%`}
+                                size="small"
+                                sx={{
+                                    background: '#e53e3e',
+                                    color: 'white',
+                                    fontSize: '0.65rem',
+                                    fontWeight: 600,
+                                    height: 20,
+                                    '& .MuiChip-label': {
+                                        px: 0.5
+                                    }
+                                }}
+                            />
+                        )}
+                    </Box>
                 </Box>
             </CardContent>
 
@@ -171,30 +174,30 @@ const ProductCard = ({ producto }) => {
                         addToCart(producto.producto_id);
                     }}
                     sx={{
-                        py: 1.2,
+                        py: 1.5,
                         borderRadius: 1.5,
-                        fontWeight: 600,
+                        fontWeight: 700,
                         textTransform: 'none',
-                        background: 'linear-gradient(135deg, #FF8C00, #FF6B35)',
+                        background: '#e53e3e',
                         fontSize: '0.9rem',
                         mb: 1,
                         '&:hover': {
-                            background: 'linear-gradient(135deg, #FF6B35, #FF4500)',
+                            background: '#d32f2f',
                         }
                     }}
                 >
-                    Agregar al Carrito
+                    COMPRAR
                 </Button>
                 
                 <Button 
                     fullWidth 
                     variant="text"
+                    component={Link}
+                    to={`/producto/${producto.producto_id}`}
                     onClick={(e) => {
                         e.stopPropagation(); 
                         window.scrollTo({ top: 0, behavior: 'smooth' });
                     }}
-                    component={Link}
-                    to={`/producto/${producto.producto_id}`}
                     sx={{
                         py: 0.8,
                         fontWeight: 500,
