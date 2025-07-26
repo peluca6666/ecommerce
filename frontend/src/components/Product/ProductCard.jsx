@@ -60,9 +60,9 @@ const ProductCard = ({ producto }) => {
                             zIndex: 2,
                             background: '#e53e3e',
                             color: 'white',
-                            fontSize: '0.65rem',
+                            fontSize: '0.7rem',
                             fontWeight: 700,
-                            height: 20,
+                            height: 22,
                             '& .MuiChip-label': {
                                 px: 0.8
                             }
@@ -143,11 +143,11 @@ const ProductCard = ({ producto }) => {
                                 sx={{
                                     background: '#e53e3e',
                                     color: 'white',
-                                    fontSize: '0.6rem',
+                                    fontSize: '0.65rem',
                                     fontWeight: 600,
-                                    height: 18,
+                                    height: 20,
                                     '& .MuiChip-label': {
-                                        px: 0.4
+                                        px: 0.5
                                     }
                                 }}
                             />
