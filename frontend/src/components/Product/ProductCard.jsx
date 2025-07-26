@@ -35,6 +35,10 @@ const ProductCard = ({ producto }) => {
                     borderColor: '#FF8C00',
                     '& .product-image': {
                         transform: 'scale(1.03)'
+                    },
+                    '& .action-buttons': {
+                        opacity: 1,
+                        transform: 'translateY(0)'
                     }
                 }
             }}
@@ -42,7 +46,7 @@ const ProductCard = ({ producto }) => {
             <Box sx={{ position: 'relative', overflow: 'hidden' }}>
                 {hasDiscount && (
                     <Chip
-                        label={`EXTRA ${discountPercentage}%`}
+                        label="OFERTA"
                         size="small"
                         sx={{
                             position: 'absolute',
@@ -148,7 +152,16 @@ const ProductCard = ({ producto }) => {
                 </Box>
             </CardContent>
 
-            <Box sx={{ p: 2, pt: 0 }}>
+            <Box 
+                className="action-buttons"
+                sx={{ 
+                    p: 2, 
+                    pt: 0,
+                    opacity: 0,
+                    transform: 'translateY(10px)',
+                    transition: 'all 0.3s ease'
+                }}
+            >
                 <Button 
                     fullWidth 
                     variant="contained"
@@ -178,6 +191,7 @@ const ProductCard = ({ producto }) => {
                     variant="text"
                     onClick={(e) => {
                         e.stopPropagation(); 
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
                     }}
                     component={Link}
                     to={`/producto/${producto.producto_id}`}
