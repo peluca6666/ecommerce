@@ -20,10 +20,14 @@ const ProductCard = ({ producto }) => {
 
     return (
         <Card 
+            component={Link}
+            to={`/producto/${producto.producto_id}`}
+            onClick={handleProductClick}
             sx={{ 
                 height: '100%', 
                 display: 'flex', 
                 flexDirection: 'column',
+                textDecoration: 'none',
                 borderRadius: 2,
                 border: '1px solid #e0e0e0',
                 cursor: 'pointer',
@@ -31,11 +35,11 @@ const ProductCard = ({ producto }) => {
                 position: 'relative',
                 overflow: 'hidden',
                 '&:hover': {
-                    transform: 'translateY(-4px)',
-                    boxShadow: '0 8px 25px rgba(0,0,0,0.12)',
+                    transform: 'translateY(-2px)',
+                    boxShadow: '0 6px 20px rgba(0,0,0,0.1)',
                     borderColor: '#FF8C00',
                     '& .product-image': {
-                        transform: 'scale(1.03)'
+                        transform: 'scale(1.02)'
                     },
                     '& .action-buttons': {
                         opacity: 1,
@@ -44,33 +48,23 @@ const ProductCard = ({ producto }) => {
                 }
             }}
         >
-            <Box 
-                component={Link}
-                to={`/producto/${producto.producto_id}`}
-                onClick={handleProductClick}
-                sx={{ 
-                    position: 'relative', 
-                    overflow: 'hidden',
-                    textDecoration: 'none',
-                    display: 'block'
-                }}
-            >
+            <Box sx={{ position: 'relative', overflow: 'hidden' }}>
                 {hasDiscount && (
                     <Chip
                         label="OFERTA"
                         size="small"
                         sx={{
                             position: 'absolute',
-                            top: 8,
-                            right: 8,
+                            top: 6,
+                            right: 6,
                             zIndex: 2,
                             background: '#e53e3e',
                             color: 'white',
-                            fontSize: '0.7rem',
+                            fontSize: '0.65rem',
                             fontWeight: 700,
-                            height: 24,
+                            height: 20,
                             '& .MuiChip-label': {
-                                px: 1
+                                px: 0.8
                             }
                         }}
                     />
@@ -78,7 +72,7 @@ const ProductCard = ({ producto }) => {
                 
                 <CardMedia
                     component="img"
-                    height="200"
+                    height="160"
                     image={imageUrl}
                     alt={producto.nombre_producto}
                     className="product-image"
@@ -89,47 +83,54 @@ const ProductCard = ({ producto }) => {
                 />
             </Box>
 
-            <CardContent sx={{ flexGrow: 1, p: 2 }}>
+            <CardContent sx={{ 
+                flexGrow: 1, 
+                p: 1.5,
+                pb: 1,
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'space-between'
+            }}>
                 <Typography 
                     variant="body2" 
                     sx={{
                         fontWeight: 400,
-                        mb: 2,
+                        mb: 1.5,
                         color: '#424242',
-                        fontSize: '0.9rem',
-                        lineHeight: 1.4,
+                        fontSize: '0.85rem',
+                        lineHeight: 1.3,
                         display: '-webkit-box',
                         WebkitLineClamp: 2,
                         WebkitBoxOrient: 'vertical',
                         overflow: 'hidden',
-                        minHeight: '2.8em'
+                        minHeight: '2.2em'
                     }}
                 >
                     {producto.nombre_producto}
                 </Typography>
 
-                <Box sx={{ mb: 2 }}>
+                <Box>
                     {hasDiscount && (
                         <Typography 
                             variant="body2"
                             sx={{ 
                                 textDecoration: 'line-through', 
                                 color: '#9e9e9e',
-                                fontSize: '0.85rem',
-                                mb: 0.5
+                                fontSize: '0.75rem',
+                                mb: 0.2
                             }}
                         >
                             ${producto.precio_anterior?.toLocaleString()}
                         </Typography>
                     )}
                     
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.8, mb: 1 }}>
                         <Typography 
-                            variant="h5" 
+                            variant="h6" 
                             sx={{ 
                                 fontWeight: 700, 
                                 color: hasDiscount ? '#e53e3e' : '#424242',
-                                fontSize: '1.4rem'
+                                fontSize: '1.1rem'
                             }}
                         >
                             ${producto.precio?.toLocaleString()}
@@ -142,11 +143,11 @@ const ProductCard = ({ producto }) => {
                                 sx={{
                                     background: '#e53e3e',
                                     color: 'white',
-                                    fontSize: '0.65rem',
+                                    fontSize: '0.6rem',
                                     fontWeight: 600,
-                                    height: 20,
+                                    height: 18,
                                     '& .MuiChip-label': {
-                                        px: 0.5
+                                        px: 0.4
                                     }
                                 }}
                             />
@@ -158,10 +159,10 @@ const ProductCard = ({ producto }) => {
             <Box 
                 className="action-buttons"
                 sx={{ 
-                    p: 2, 
+                    p: 1.5, 
                     pt: 0,
                     opacity: 0,
-                    transform: 'translateY(10px)',
+                    transform: 'translateY(8px)',
                     transition: 'all 0.3s ease'
                 }}
             >
@@ -174,42 +175,18 @@ const ProductCard = ({ producto }) => {
                         addToCart(producto.producto_id);
                     }}
                     sx={{
-                        py: 1.5,
+                        py: 1,
                         borderRadius: 1.5,
                         fontWeight: 700,
                         textTransform: 'none',
                         background: '#e53e3e',
-                        fontSize: '0.9rem',
-                        mb: 1,
+                        fontSize: '0.8rem',
                         '&:hover': {
                             background: '#d32f2f',
                         }
                     }}
                 >
                     COMPRAR
-                </Button>
-                
-                <Button 
-                    fullWidth 
-                    variant="text"
-                    component={Link}
-                    to={`/producto/${producto.producto_id}`}
-                    onClick={(e) => {
-                        e.stopPropagation(); 
-                        window.scrollTo({ top: 0, behavior: 'smooth' });
-                    }}
-                    sx={{
-                        py: 0.8,
-                        fontWeight: 500,
-                        textTransform: 'none',
-                        color: '#1976d2',
-                        fontSize: '0.85rem',
-                        '&:hover': {
-                            background: 'rgba(25,118,210,0.08)'
-                        }
-                    }}
-                >
-                    Ver más detalles
                 </Button>
             </Box>
         </Card>
