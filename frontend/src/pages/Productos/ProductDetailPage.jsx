@@ -96,25 +96,34 @@ const ProductDetailPage = () => {
                 </Button>
             </Box>
 
-            {/* Layout principal con dos columnas */}
-            <Box sx={{ display: 'flex', gap: 4, alignItems: 'flex-start', flexWrap: 'wrap' }}>
-                {/* Columna izquierda - Producto e imágenes */}
-                <Box sx={{ flex: '1 1 65%', minWidth: { xs: '100%', lg: '65%' } }}>
-                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-                        {/* Contenedor de las imágenes */}
-                        <Paper 
-                            elevation={1}
-                            sx={{ 
-                                p: { xs: 3, md: 4 },
-                                borderRadius: 1,
-                                background: 'white',
-                                border: '1px solid #e0e0e0'
-                            }}
-                        >
-                            <ProductImageGallery producto={producto} />
-                        </Paper>
+            {/* Layout principal - Desktop: dos columnas, Mobile: una columna */}
+            <Box sx={{ 
+                display: 'flex', 
+                gap: 4, 
+                alignItems: 'flex-start', 
+                flexDirection: { xs: 'column', lg: 'row' }
+            }}>
+                {/* Columna izquierda - Imágenes (y descripción en desktop) */}
+                <Box sx={{ 
+                    flex: { lg: '1 1 65%' }, 
+                    width: { xs: '100%', lg: 'auto' }
+                }}>
+                    {/* Contenedor de las imágenes */}
+                    <Paper 
+                        elevation={1}
+                        sx={{ 
+                            p: { xs: 3, md: 4 },
+                            borderRadius: 1,
+                            background: 'white',
+                            border: '1px solid #e0e0e0',
+                            mb: { xs: 3, lg: 4 }
+                        }}
+                    >
+                        <ProductImageGallery producto={producto} />
+                    </Paper>
 
-                        {/* Contenedor de la descripción */}
+                    {/* Descripción - Solo visible en desktop */}
+                    <Box sx={{ display: { xs: 'none', lg: 'block' } }}>
                         <Paper 
                             elevation={1}
                             sx={{ 
@@ -129,21 +138,43 @@ const ProductDetailPage = () => {
                     </Box>
                 </Box>
 
-                {/* Columna derecha - Información, precios y botones */}
-                <Box sx={{ flex: '1 1 30%', minWidth: { xs: '100%', lg: '30%' } }}>
-                    <Box sx={{ position: 'sticky', top: 20 }}>
-                        <Paper 
-                            elevation={1}
-                            sx={{ 
-                                p: { xs: 3, md: 4 },
-                                borderRadius: 1,
-                                background: 'white',
-                                border: '1px solid #e0e0e0'
-                            }}
-                        >
-                            <ProductInfo producto={producto} />
-                        </Paper>
-                    </Box>
+                {/* Columna derecha - Información de compra */}
+                <Box sx={{ 
+                    flex: { lg: '1 1 30%' }, 
+                    width: { xs: '100%', lg: 'auto' },
+                    position: { lg: 'sticky' },
+                    top: { lg: 20 }
+                }}>
+                    <Paper 
+                        elevation={1}
+                        sx={{ 
+                            p: { xs: 3, md: 4 },
+                            borderRadius: 1,
+                            background: 'white',
+                            border: '1px solid #e0e0e0',
+                            mb: { xs: 3, lg: 0 }
+                        }}
+                    >
+                        <ProductInfo producto={producto} />
+                    </Paper>
+                </Box>
+
+                {/* Descripción - Solo visible en mobile, al final */}
+                <Box sx={{ 
+                    display: { xs: 'block', lg: 'none' }, 
+                    width: '100%' 
+                }}>
+                    <Paper 
+                        elevation={1}
+                        sx={{ 
+                            p: { xs: 3, md: 4 },
+                            borderRadius: 1,
+                            background: 'white',
+                            border: '1px solid #e0e0e0'
+                        }}
+                    >
+                        <ProductDescription descripcion={producto.descripcion_larga || producto.descripcion} />
+                    </Paper>
                 </Box>
             </Box>
 

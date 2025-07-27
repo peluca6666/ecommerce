@@ -1,8 +1,16 @@
-import { Typography, Box } from '@mui/material';
+import { useState } from 'react';
+import { Typography, Box, Button, Collapse } from '@mui/material';
+import { ExpandMore, ExpandLess } from '@mui/icons-material';
 
 const ProductDescription = ({ descripcion }) => {
+  const [expanded, setExpanded] = useState(false);
+
   // Si no hay descripción, no renderizar nada
   if (!descripcion) return null;
+
+  // Determinar si el texto es largo (más de 300 caracteres)
+  const isLongText = descripcion.length > 300;
+  const previewText = isLongText ? descripcion.substring(0, 300) + '...' : descripcion;
 
   // Procesar texto para párrafos y listas
   const processDescription = (text) => {
@@ -83,7 +91,46 @@ const ProductDescription = ({ descripcion }) => {
       </Typography>
       
       <Box>
-        {processDescription(descripcion)}
+        {isLongText ? (
+          <>
+            {/* Vista colapsada - solo preview */}
+            <Collapse in={!expanded} timeout="auto">
+              <Box>
+                {processDescription(previewText)}
+              </Box>
+            </Collapse>
+
+            {/* Vista expandida - texto completo */}
+            <Collapse in={expanded} timeout="auto">
+              <Box>
+                {processDescription(descripcion)}
+              </Box>
+            </Collapse>
+
+            {/* Botón expandir/contraer */}
+            <Box sx={{ mt: 2, textAlign: 'center' }}>
+              <Button
+                onClick={() => setExpanded(!expanded)}
+                startIcon={expanded ? <ExpandLess /> : <ExpandMore />}
+                sx={{
+                  color: '#FF6B35',
+                  fontWeight: 600,
+                  textTransform: 'none',
+                  '&:hover': {
+                    background: 'rgba(255,107,53,0.1)'
+                  }
+                }}
+              >
+                {expanded ? 'Ver menos' : 'Ver más'}
+              </Button>
+            </Box>
+          </>
+        ) : (
+          // Si el texto es corto, mostrar completo sin botón
+          <Box>
+            {processDescription(descripcion)}
+          </Box>
+        )}
       </Box>
     </Box>
   );
