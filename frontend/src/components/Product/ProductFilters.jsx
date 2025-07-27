@@ -1,9 +1,9 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, memo } from 'react';
 import {  Box, TextField, Paper, Typography, Chip, Stack, Divider, Autocomplete} from '@mui/material';
 import { Search, Category, AttachMoney, Sort, LocalOffer } from '@mui/icons-material';
 import axios from 'axios';
 
-const ProductFilters = ({ filtros, onFilterChange, onCheckboxChange }) => {
+const ProductFilters = memo(({ filtros, onFilterChange, onCheckboxChange }) => {
     const [categorias, setCategorias] = useState([]);
     const [searchInput, setSearchInput] = useState(filtros.busqueda || ''); // Estado local para el input
     
@@ -237,6 +237,9 @@ const ProductFilters = ({ filtros, onFilterChange, onCheckboxChange }) => {
             }} />
         </Paper>
     );
-};
+});
+
+// Añadir displayName para debugging
+ProductFilters.displayName = 'ProductFilters';
 
 export default ProductFilters;

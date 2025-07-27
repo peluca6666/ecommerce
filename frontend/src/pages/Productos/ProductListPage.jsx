@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Container, Typography, Box, Pagination } from '@mui/material';
 import axios from 'axios';
@@ -80,6 +80,16 @@ const ProductListPage = () => {
         setSearchParams(params, { replace: true });
     }, [filtros, pagina, setSearchParams]);
 
+    // Memoizamos los filtros para evitar cambios de referencia innecesarios
+    const memoizedFiltros = useMemo(() => filtros, [
+        filtros.busqueda,
+        filtros.categoria, 
+        filtros.minPrice,
+        filtros.maxPrice,
+        filtros.sortBy,
+        filtros.es_oferta
+    ]);
+
     // Memoizamos los handlers para evitar re-renders innecesarios
     const handleFilterChange = useCallback((event) => {
         const { name, value } = event.target;
@@ -120,7 +130,7 @@ const ProductListPage = () => {
                         flexShrink: 0
                     }}>
                         <ProductFilters 
-                            filtros={filtros} 
+                            filtros={memoizedFiltros} 
                             onFilterChange={handleFilterChange}
                             onCheckboxChange={handleCheckboxChange}
                         />
