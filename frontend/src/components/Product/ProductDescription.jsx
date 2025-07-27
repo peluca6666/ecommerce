@@ -1,8 +1,13 @@
 import { Paper, Typography, Box } from '@mui/material';
 
 const ProductDescription = ({ descripcionLarga }) => {
+  console.log('ProductDescription renderizado - descripcionLarga:', descripcionLarga);
+  
   // Si no hay descripción larga, no renderizar nada
-  if (!descripcionLarga) return null;
+  if (!descripcionLarga) {
+    console.log('No hay descripción larga, no se renderiza');
+    return null;
+  }
 
   // Procesar texto para párrafos y listas
   const processDescription = (text) => {
@@ -55,6 +60,8 @@ const ProductDescription = ({ descripcionLarga }) => {
       );
     });
   };
+
+  console.log('Renderizando ProductDescription con contenido');
 
   return (
     <Paper 
