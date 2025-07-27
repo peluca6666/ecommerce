@@ -9,7 +9,6 @@ const ProductInfo = ({ producto }) => {
   const { addToCart } = useAuth();
   const [cantidad, setCantidad] = useState(1);
 
-  // LÓGICA ORIGINAL EXACTA
   const handleCantidadChange = (change) => {
     setCantidad(prev => {
       const nuevaCantidad = prev + change;
