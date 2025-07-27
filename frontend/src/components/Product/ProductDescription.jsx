@@ -1,19 +1,17 @@
-import { Paper, Typography, Box } from '@mui/material';
+import { Paper, Typography, Box, Divider } from '@mui/material';
+import { InfoOutlined } from '@mui/icons-material';
 
 const ProductDescription = ({ descripcionLarga }) => {
-  console.log('ProductDescription renderizado - descripcionLarga:', descripcionLarga);
-  
   // Si no hay descripción larga, no renderizar nada
-  if (!descripcionLarga) {
-    console.log('No hay descripción larga, no se renderiza');
-    return null;
-  }
+  if (!descripcionLarga) return null;
 
   // Procesar texto para párrafos y listas
   const processDescription = (text) => {
+    // Dividir por párrafos (doble salto de línea)
     const paragraphs = text.split(/\n\s*\n/);
     
     return paragraphs.map((paragraph, index) => {
+      // Detectar si es una lista (líneas que empiezan con -, *, •, o números)
       const lines = paragraph.split('\n');
       const isList = lines.some(line => 
         /^\s*[-*•]\s/.test(line) || /^\s*\d+\.\s/.test(line)
@@ -35,6 +33,7 @@ const ProductDescription = ({ descripcionLarga }) => {
                 key={lineIndex} 
                 component="li" 
                 variant="body1"
+                sx={{ fontSize: '1.05rem' }}
               >
                 {line.replace(/^\s*[-*•]\s*/, '').replace(/^\s*\d+\.\s*/, '')}
               </Typography>
@@ -43,6 +42,7 @@ const ProductDescription = ({ descripcionLarga }) => {
         );
       }
 
+      // Párrafo normal
       return (
         <Typography 
           key={index}
@@ -51,6 +51,7 @@ const ProductDescription = ({ descripcionLarga }) => {
           sx={{ 
             lineHeight: 1.7,
             color: '#495057',
+            fontSize: '1.05rem',
             mb: 2,
             '&:last-child': { mb: 0 }
           }}
@@ -61,36 +62,85 @@ const ProductDescription = ({ descripcionLarga }) => {
     });
   };
 
-  console.log('Renderizando ProductDescription con contenido');
-
   return (
     <Paper 
-      elevation={1}
+      elevation={0}
       sx={{ 
-        p: 4,
-        borderRadius: 3,
-        background: 'white',
+        p: { xs: 4, md: 5 },
+        borderRadius: 4,
+        background: 'linear-gradient(135deg, #ffffff 0%, #fafbfc 100%)',
         border: '1px solid #e9ecef',
-        height: 'fit-content'
+        position: 'relative',
+        overflow: 'hidden'
       }}
     >
-      <Typography 
-        variant="h5" 
-        component="h3" 
-        sx={{ 
-          fontWeight: 600,
-          color: '#2c3e50',
-          mb: 3,
-          borderBottom: '2px solid #e9ecef',
-          pb: 2
-        }}
-      >
-        Descripción del Producto
-      </Typography>
+      {/* Header con icono */}
+      <Box sx={{ 
+        display: 'flex', 
+        alignItems: 'center', 
+        gap: 2, 
+        mb: 4 
+      }}>
+        <Box sx={{
+          width: 48,
+          height: 48,
+          borderRadius: '50%',
+          background: 'linear-gradient(135deg, #FF8C00, #FF6B35)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          color: 'white'
+        }}>
+          <InfoOutlined />
+        </Box>
+        
+        <Box>
+          <Typography 
+            variant="h5" 
+            component="h3" 
+            sx={{ 
+              fontWeight: 700,
+              color: '#2c3e50',
+              mb: 0.5
+            }}
+          >
+            Descripción Detallada
+          </Typography>
+          <Typography variant="body2" sx={{ color: '#6c757d' }}>
+            Información completa sobre este producto
+          </Typography>
+        </Box>
+      </Box>
+
+      <Divider sx={{ 
+        mb: 4, 
+        background: 'linear-gradient(90deg, #FF8C00, #FF6B35)',
+        height: 2,
+        border: 'none'
+      }} />
       
-      <Box>
+      {/* Contenido procesado */}
+      <Box sx={{
+        '& p:first-of-type': {
+          fontSize: '1.15rem',
+          fontWeight: 500,
+          color: '#2c3e50'
+        }
+      }}>
         {processDescription(descripcionLarga)}
       </Box>
+
+      {/* Decoración sutil */}
+      <Box sx={{
+        position: 'absolute',
+        bottom: -20,
+        right: -20,
+        width: 80,
+        height: 80,
+        borderRadius: '50%',
+        background: 'linear-gradient(135deg, rgba(255,140,0,0.05), rgba(255,107,53,0.05))',
+        pointerEvents: 'none'
+      }} />
     </Paper>
   );
 };
