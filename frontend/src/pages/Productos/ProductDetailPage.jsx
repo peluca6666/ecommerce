@@ -75,74 +75,64 @@ const ProductDetailPage = () => {
     );
 
     return (
-        <>
-            {/* Sección principal del producto - Centrada */}
-            <Container maxWidth="lg" sx={{ py: { xs: 2, md: 4 } }}> 
-                {/* Botón volver */}
-                <Box sx={{ mb: 3 }}>
-                    <Button 
-                        startIcon={<ArrowBack />} 
-                        onClick={() => navigate(-1)}
-                        variant="text"
-                        sx={{ 
-                            textTransform: 'none',
-                            color: '#6c757d',
-                            fontWeight: 500,
-                            '&:hover': {
-                                color: '#FF6B35',
-                                background: 'rgba(255,107,53,0.1)'
-                            }
-                        }}
-                    >
-                        Volver
-                    </Button>
-                </Box>
-
-                {/* Contenido principal del producto */}
-                <Paper 
-                    elevation={2}
+        <Container maxWidth="xl" sx={{ py: { xs: 2, md: 4 } }}>
+            {/* Botón volver */}
+            <Box sx={{ mb: 3 }}>
+                <Button 
+                    startIcon={<ArrowBack />} 
+                    onClick={() => navigate(-1)}
+                    variant="text"
                     sx={{ 
-                        p: { xs: 3, md: 6 },
-                        borderRadius: 4,
-                        background: 'white',
-                        border: '1px solid #f0f0f0'
+                        textTransform: 'none',
+                        color: '#6c757d',
+                        fontWeight: 500,
+                        '&:hover': {
+                            color: '#FF6B35',
+                            background: 'rgba(255,107,53,0.1)'
+                        }
                     }}
                 >
-                    <Grid container spacing={{ xs: 4, md: 6 }}> 
-                        {/* Galería de imágenes */}
-                        <Grid item xs={12} md={6}>
-                            <ProductImageGallery producto={producto} />
-                        </Grid>
+                    Volver
+                </Button>
+            </Box>
 
-                        {/* Información del producto */}
-                        <Grid item xs={12} md={6}> 
-                            <ProductInfo producto={producto} />
-                        </Grid>
+            {/* Sección del producto */}
+            <Paper 
+                elevation={2}
+                sx={{ 
+                    p: { xs: 3, md: 6 },
+                    borderRadius: 4,
+                    background: 'white',
+                    border: '1px solid #f0f0f0',
+                    mb: 4
+                }}
+            >
+                <Grid container spacing={{ xs: 4, md: 6 }}> 
+                    {/* Galería de imágenes */}
+                    <Grid item xs={12} md={6}>
+                        <ProductImageGallery producto={producto} />
                     </Grid>
-                </Paper>
-            </Container>
 
-            {/* Sección de descripción - Ancho completo */}
-            <Box sx={{ 
-                background: 'linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%)',
-                py: { xs: 4, md: 8 },
-                mt: { xs: 4, md: 6 }
-            }}>
-                <Container maxWidth="xl" sx={{ px: { xs: 2, md: 4 } }}>
+                    {/* Información del producto */}
+                    <Grid item xs={12} md={6}> 
+                        <ProductInfo producto={producto} />
+                    </Grid>
+                </Grid>
+            </Paper>
+
+            {/* Descripción y productos relacionados */}
+            <Grid container spacing={4}>
+                {/* Descripción */}
+                <Grid item xs={12} md={8}>
                     <ProductDescription descripcionLarga={producto.descripcion_larga} />
-                </Container>
-            </Box>
+                </Grid>
 
-            {/* Productos relacionados - Ancho extendido */}
-            <Box sx={{ 
-                py: { xs: 4, md: 6 },
-                background: 'white'
-            }}>
-                <Container maxWidth="xl" sx={{ px: { xs: 2, md: 4 } }}>
+                {/* Productos relacionados */}
+                <Grid item xs={12} md={4}>
                     <RelatedProducts productos={productosRelacionados} />
-                </Container>
-            </Box>
-        </>
+                </Grid>
+            </Grid>
+        </Container>
     );
 };
 
