@@ -44,7 +44,7 @@ const ProductListPage = () => {
             if (filtros.minPrice) params.append('minPrice', filtros.minPrice);
             if (filtros.maxPrice) params.append('maxPrice', filtros.maxPrice);
             if (filtros.sortBy) params.append('sortBy', filtros.sortBy);
-            if (filtros.es_oferta) params.append('es_oferta', filtros.es_oferta);
+            if (filtros.es_oferta !== '') params.append('es_oferta', filtros.es_oferta);
 
             try {
                 
@@ -94,7 +94,7 @@ const ProductListPage = () => {
         const { name, checked } = event.target;
         setFiltros(prev => ({
             ...prev,
-            [name]: checked ? 'true' : ''
+            [name]: checked ? 'true' : 'false'
         }));
         setPagina(1);
     };
