@@ -75,7 +75,7 @@ const ProductDetailPage = () => {
     );
 
     return (
-        <Container maxWidth="lg" sx={{ py: { xs: 2, md: 4 } }}> 
+        <Container maxWidth="xl" sx={{ py: { xs: 2, md: 4 } }}> 
             {/* Botón volver */}
             <Box sx={{ mb: 3 }}>
                 <Button 
@@ -96,36 +96,60 @@ const ProductDetailPage = () => {
                 </Button>
             </Box>
 
-            {/* Contenido principal */}
-            <Paper 
-                elevation={2}
-                sx={{ 
-                    p: { xs: 3, md: 6 },
-                    borderRadius: 4,
-                    background: 'white',
-                    border: '1px solid #f0f0f0'
-                }}
-            >
-                <Grid container spacing={{ xs: 4, md: 6 }}> 
-                    {/* Galería de imágenes */}
-                    <Grid item xs={12} md={6}>
+            {/* Layout principal con dos columnas */}
+            <Grid container spacing={4}>
+                {/* Columna izquierda - Producto e imágenes */}
+                <Grid item xs={12} lg={8}>
+                    {/* Contenedor del producto con imágenes */}
+                    <Paper 
+                        elevation={2}
+                        sx={{ 
+                            p: { xs: 3, md: 4 },
+                            borderRadius: 3,
+                            background: 'white',
+                            border: '1px solid #f0f0f0',
+                            mb: 4
+                        }}
+                    >
                         <ProductImageGallery producto={producto} />
-                    </Grid>
+                    </Paper>
 
-                    {/* Información del producto */}
-                    <Grid item xs={12} md={6}> 
-                        <ProductInfo producto={producto} />
-                    </Grid>
+                    {/* Descripción completa */}
+                    <Paper 
+                        elevation={2}
+                        sx={{ 
+                            p: { xs: 3, md: 4 },
+                            borderRadius: 3,
+                            background: 'white',
+                            border: '1px solid #f0f0f0'
+                        }}
+                    >
+                        <ProductDescription descripcionLarga={producto.descripcion_larga} />
+                    </Paper>
                 </Grid>
-            </Paper>
 
-            {/* Descripción completa */}
-            <Box sx={{ mt: { xs: 4, md: 6 } }}>
-                <ProductDescription descripcionLarga={producto.descripcion_larga} />
+                {/* Columna derecha - Información, precios y botones */}
+                <Grid item xs={12} lg={4}>
+                    <Box sx={{ position: 'sticky', top: 20 }}>
+                        <Paper 
+                            elevation={2}
+                            sx={{ 
+                                p: { xs: 3, md: 4 },
+                                borderRadius: 3,
+                                background: 'white',
+                                border: '1px solid #f0f0f0'
+                            }}
+                        >
+                            <ProductInfo producto={producto} />
+                        </Paper>
+                    </Box>
+                </Grid>
+            </Grid>
+
+            {/* Productos relacionados - Ancho completo */}
+            <Box sx={{ mt: 6 }}>
+                <RelatedProducts productos={productosRelacionados} />
             </Box>
-
-            {/* Productos relacionados */}
-            <RelatedProducts productos={productosRelacionados} />
         </Container>
     );
 };
