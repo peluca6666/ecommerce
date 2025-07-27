@@ -97,35 +97,36 @@ const ProductDetailPage = () => {
             </Box>
 
             {/* Layout principal con dos columnas */}
-            <Grid container spacing={4}>
+            <Grid container spacing={4} sx={{ alignItems: 'flex-start' }}>
                 {/* Columna izquierda - Producto e imágenes */}
                 <Grid item xs={12} lg={8}>
-                    {/* Contenedor de las imágenes */}
-                    <Paper 
-                        elevation={1}
-                        sx={{ 
-                            p: { xs: 3, md: 4 },
-                            borderRadius: 1,
-                            background: 'white',
-                            border: '1px solid #e0e0e0',
-                            mb: 4
-                        }}
-                    >
-                        <ProductImageGallery producto={producto} />
-                    </Paper>
+                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                        {/* Contenedor de las imágenes */}
+                        <Paper 
+                            elevation={1}
+                            sx={{ 
+                                p: { xs: 3, md: 4 },
+                                borderRadius: 1,
+                                background: 'white',
+                                border: '1px solid #e0e0e0'
+                            }}
+                        >
+                            <ProductImageGallery producto={producto} />
+                        </Paper>
 
-                    {/* Contenedor de la descripción */}
-                    <Paper 
-                        elevation={1}
-                        sx={{ 
-                            p: { xs: 3, md: 4 },
-                            borderRadius: 1,
-                            background: 'white',
-                            border: '1px solid #e0e0e0'
-                        }}
-                    >
-                        <ProductDescription descripcion={producto.descripcion_larga || producto.descripcion} />
-                    </Paper>
+                        {/* Contenedor de la descripción */}
+                        <Paper 
+                            elevation={1}
+                            sx={{ 
+                                p: { xs: 3, md: 4 },
+                                borderRadius: 1,
+                                background: 'white',
+                                border: '1px solid #e0e0e0'
+                            }}
+                        >
+                            <ProductDescription descripcion={producto.descripcion_larga || producto.descripcion} />
+                        </Paper>
+                    </Box>
                 </Grid>
 
                 {/* Columna derecha - Información, precios y botones */}
