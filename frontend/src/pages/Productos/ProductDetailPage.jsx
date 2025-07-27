@@ -97,9 +97,9 @@ const ProductDetailPage = () => {
             </Box>
 
             {/* Layout principal con dos columnas */}
-            <Grid container spacing={4} sx={{ alignItems: 'flex-start' }}>
+            <Box sx={{ display: 'flex', gap: 4, alignItems: 'flex-start', flexWrap: 'wrap' }}>
                 {/* Columna izquierda - Producto e imágenes */}
-                <Grid item xs={12} lg={8}>
+                <Box sx={{ flex: '1 1 65%', minWidth: { xs: '100%', lg: '65%' } }}>
                     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
                         {/* Contenedor de las imágenes */}
                         <Paper 
@@ -127,10 +127,10 @@ const ProductDetailPage = () => {
                             <ProductDescription descripcion={producto.descripcion_larga || producto.descripcion} />
                         </Paper>
                     </Box>
-                </Grid>
+                </Box>
 
                 {/* Columna derecha - Información, precios y botones */}
-                <Grid item xs={12} lg={4}>
+                <Box sx={{ flex: '1 1 30%', minWidth: { xs: '100%', lg: '30%' } }}>
                     <Box sx={{ position: 'sticky', top: 20 }}>
                         <Paper 
                             elevation={1}
@@ -144,8 +144,8 @@ const ProductDetailPage = () => {
                             <ProductInfo producto={producto} />
                         </Paper>
                     </Box>
-                </Grid>
-            </Grid>
+                </Box>
+            </Box>
 
             {/* Productos relacionados - Ancho completo */}
             <Box sx={{ mt: 6 }}>
