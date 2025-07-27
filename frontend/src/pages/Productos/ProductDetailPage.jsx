@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Container, Grid, Box, Button, Paper, Typography, IconButton } from '@mui/material'; 
-import { KeyboardBackspace as ArrowBack, ShoppingCart } from '@mui/icons-material'; 
+import { Add, KeyboardBackspace as ArrowBack, Remove, ShoppingCart } from '@mui/icons-material'; 
 import LoadingSpinner from '../../components/common/LoadingSpinner';
 import ProductImageGallery from '../../components/Product/ProductImageGallery';
 import ProductInfo from '../../components/Product/ProductInfo';
