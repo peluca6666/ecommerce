@@ -92,19 +92,7 @@ const ProductInfo = ({ producto }) => {
         </Typography>
       </Box>
 
-      {/* Descripción corta - Solo si existe y es diferente de la larga */}
-      {producto.descripcion && producto.descripcion !== producto.descripcion_larga && (
-        <Typography 
-          variant="body1" 
-          sx={{ 
-            color: '#6c757d',
-            lineHeight: 1.6,
-            fontSize: '0.95rem'
-          }}
-        >
-          {producto.descripcion}
-        </Typography>
-      )}
+
 
       {/* Stock */}
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
