@@ -1,10 +1,10 @@
-import { Paper, Typography, Box } from '@mui/material';
+import { Typography, Box } from '@mui/material';
 
 const ProductDescription = ({ descripcion }) => {
-  // Si no hay descripción, no renderizar nada (LÓGICA ORIGINAL)
+  // Si no hay descripción, no renderizar nada
   if (!descripcion) return null;
 
-  // Procesar texto para párrafos y listas (LÓGICA ORIGINAL)
+  // Procesar texto para párrafos y listas
   const processDescription = (text) => {
     const paragraphs = text.split(/\n\s*\n/);
     
@@ -22,7 +22,9 @@ const ProductDescription = ({ descripcion }) => {
             '& li': {
               mb: 0.5,
               color: '#495057',
-              lineHeight: 1.6
+              lineHeight: 1.6,
+              wordBreak: 'break-word',
+              overflowWrap: 'break-word'
             }
           }}>
             {lines.filter(line => line.trim()).map((line, lineIndex) => (
@@ -30,7 +32,11 @@ const ProductDescription = ({ descripcion }) => {
                 key={lineIndex} 
                 component="li" 
                 variant="body1"
-                sx={{ fontSize: '1.05rem' }}
+                sx={{ 
+                  fontSize: '1.05rem',
+                  wordBreak: 'break-word',
+                  overflowWrap: 'break-word'
+                }}
               >
                 {line.replace(/^\s*[-*•]\s*/, '').replace(/^\s*\d+\.\s*/, '')}
               </Typography>
@@ -49,6 +55,8 @@ const ProductDescription = ({ descripcion }) => {
             color: '#495057',
             fontSize: '1.05rem',
             mb: 2,
+            wordBreak: 'break-word',
+            overflowWrap: 'break-word',
             '&:last-child': { mb: 0 }
           }}
         >
@@ -59,16 +67,7 @@ const ProductDescription = ({ descripcion }) => {
   };
 
   return (
-    <Paper 
-      elevation={1}
-      sx={{ 
-        p: 4,
-        borderRadius: 3,
-        background: 'white',
-        border: '1px solid #e9ecef',
-        height: 'fit-content'
-      }}
-    >
+    <Box>
       <Typography 
         variant="h5" 
         component="h3" 
@@ -86,7 +85,7 @@ const ProductDescription = ({ descripcion }) => {
       <Box>
         {processDescription(descripcion)}
       </Box>
-    </Paper>
+    </Box>
   );
 };
 
