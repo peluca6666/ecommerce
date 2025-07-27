@@ -104,9 +104,9 @@ const ProductCard = ({ producto }) => {
                 <Typography 
                     variant="body2" 
                     sx={{
-                        fontWeight: 500,
+                        fontWeight: 600, // Aumenté de 500 a 600
                         mb: { xs: 1, md: 1.5 },
-                        color: '#424242',
+                        color: '#212121', // Cambié de #424242 a #212121 (más oscuro)
                         fontSize: { xs: '0.8rem', sm: '0.85rem', md: '0.9rem' },
                         lineHeight: 1.3,
                         display: '-webkit-box',
