@@ -7,12 +7,11 @@ import axios from 'axios';
 
 const ProductFilters = ({ filtros, onFilterChange, onCheckboxChange }) => {
     const [categorias, setCategorias] = useState([]);
-
+    
     // cargo categorías activas al montar para el filtro
     useEffect(() => {
         const fetchCategorias = async () => {
             try {
-                const response = await axios.get('http://localhost:3000/api/categoria?activo=true');
                 const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/api/categoria?activo=true`);
                 if (response.data.exito) {
                     setCategorias(response.data.datos);
