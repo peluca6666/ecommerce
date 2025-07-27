@@ -46,7 +46,7 @@ const ProductImageGallery = ({ producto }) => {
   return (
     <Box sx={{ 
       width: '100%', 
-      maxWidth: 600, 
+      maxWidth: 700, 
       mx: 'auto',
       '& .swiper': {
         borderRadius: 3,
@@ -87,124 +87,138 @@ const ProductImageGallery = ({ producto }) => {
         }
       }
     }}>
-      {/* Swiper principal */}
+      {/* Contenedor principal con layout horizontal */}
       <Box sx={{ 
-        position: 'relative',
-        mb: 3,
-        boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
-        borderRadius: 3,
-        overflow: 'hidden'
+        display: 'flex',
+        gap: 2,
+        alignItems: 'flex-start'
       }}>
-        <Swiper
-          modules={[Navigation, Pagination, Thumbs, Zoom]}
-          spaceBetween={10}
-          navigation={allImages.length > 1}
-          pagination={{
-            clickable: true,
-            dynamicBullets: true
-          }}
-          thumbs={{ swiper: thumbsSwiper && !thumbsSwiper.destroyed ? thumbsSwiper : null }}
-          zoom={true}
-          onSwiper={setMainSwiper}
-          style={{ 
-            height: '500px',
-            maxHeight: '60vh'
-          }}
-        >
-          {allImages.map((img, index) => (
-            <SwiperSlide key={index}>
-              <div className="swiper-zoom-container">
-                <Box
-                  component="img"
-                  src={img}
-                  alt={`${producto.nombre_producto} - Vista ${index + 1}`}
-                  onClick={() => openFullscreen(img)}
-                  sx={{
-                    maxWidth: '100%',
-                    maxHeight: '100%',
-                    objectFit: 'contain',
-                    cursor: 'pointer',
-                    transition: 'transform 0.3s ease'
-                  }}
-                />
-              </div>
-            </SwiperSlide>
-          ))}
-        </Swiper>
-        
-        {/* Botón fullscreen */}
-        <IconButton
-          onClick={() => {
-            const activeIndex = mainSwiper?.activeIndex || 0;
-            openFullscreen(allImages[activeIndex]);
-          }}
-          sx={{
-            position: 'absolute',
-            top: 16,
-            right: 16,
-            background: 'rgba(255,107,53,0.9)',
-            color: 'white',
-            width: 48,
-            height: 48,
-            zIndex: 10,
-            transition: 'all 0.3s ease',
-            '&:hover': {
-              background: 'rgba(255,107,53,1)',
-              transform: 'scale(1.1)'
+        {/* Swiper de thumbnails verticales a la izquierda */}
+        {allImages.length > 1 && (
+          <Box sx={{
+            width: 100,
+            flexShrink: 0,
+            '& .swiper': {
+              height: '500px',
+              maxHeight: '60vh'
+            },
+            '& .swiper-slide': {
+              height: 'auto !important',
+              cursor: 'pointer'
+            },
+            '& .swiper-slide-thumb-active img': {
+              borderColor: '#FF6B35 !important'
             }
-          }}
-        >
-          <Fullscreen />
-        </IconButton>
-      </Box>
+          }}>
+            <Swiper
+              modules={[Thumbs]}
+              onSwiper={setThumbsSwiper}
+              direction="vertical"
+              spaceBetween={12}
+              slidesPerView="auto"
+              watchSlidesProgress={true}
+              style={{
+                height: '100%',
+                padding: '0 8px'
+              }}
+            >
+              {allImages.map((img, index) => (
+                <SwiperSlide key={index} style={{ height: 'auto' }}>
+                  <Box
+                    component="img"
+                    src={img}
+                    alt={`Miniatura ${index + 1}`}
+                    sx={{
+                      width: 80,
+                      height: 80,
+                      objectFit: 'cover',
+                      borderRadius: 2,
+                      border: '2px solid #e9ecef',
+                      transition: 'all 0.3s ease',
+                      display: 'block',
+                      '&:hover': {
+                        transform: 'scale(1.05)',
+                        borderColor: '#FF8C00'
+                      }
+                    }}
+                  />
+                </SwiperSlide>
+              ))}
+            </Swiper>
+          </Box>
+        )}
 
-      {/* Swiper de thumbnails */}
-      {allImages.length > 1 && (
-        <Box sx={{
-          '& .swiper-slide': {
-            width: 'auto !important',
-            cursor: 'pointer'
-          },
-          '& .swiper-slide-thumb-active img': {
-            borderColor: '#FF6B35 !important'
-          }
+        {/* Swiper principal */}
+        <Box sx={{ 
+          position: 'relative',
+          flex: 1,
+          boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
+          borderRadius: 3,
+          overflow: 'hidden'
         }}>
           <Swiper
-            modules={[Thumbs]}
-            onSwiper={setThumbsSwiper}
-            spaceBetween={12}
-            slidesPerView="auto"
-            watchSlidesProgress={true}
-            centeredSlides={true}
-            style={{
-              padding: '8px 0'
+            modules={[Navigation, Pagination, Thumbs, Zoom]}
+            spaceBetween={10}
+            navigation={allImages.length > 1}
+            pagination={{
+              clickable: true,
+              dynamicBullets: true
+            }}
+            thumbs={{ swiper: thumbsSwiper && !thumbsSwiper.destroyed ? thumbsSwiper : null }}
+            zoom={true}
+            onSwiper={setMainSwiper}
+            style={{ 
+              height: '500px',
+              maxHeight: '60vh'
             }}
           >
             {allImages.map((img, index) => (
-              <SwiperSlide key={index} style={{ width: 'auto' }}>
-                <Box
-                  component="img"
-                  src={img}
-                  alt={`Miniatura ${index + 1}`}
-                  sx={{
-                    width: 80,
-                    height: 80,
-                    objectFit: 'cover',
-                    borderRadius: 2,
-                    border: '2px solid #e9ecef',
-                    transition: 'all 0.3s ease',
-                    display: 'block',
-                    '&:hover': {
-                      transform: 'scale(1.05)',
-                      borderColor: '#FF8C00'
-                    }
-                  }}
-                />
+              <SwiperSlide key={index}>
+                <div className="swiper-zoom-container">
+                  <Box
+                    component="img"
+                    src={img}
+                    alt={`${producto.nombre_producto} - Vista ${index + 1}`}
+                    onClick={() => openFullscreen(img)}
+                    sx={{
+                      maxWidth: '100%',
+                      maxHeight: '100%',
+                      objectFit: 'contain',
+                      cursor: 'pointer',
+                      transition: 'transform 0.3s ease'
+                    }}
+                  />
+                </div>
               </SwiperSlide>
             ))}
           </Swiper>
+          
+          {/* Botón fullscreen */}
+          <IconButton
+            onClick={() => {
+              const activeIndex = mainSwiper?.activeIndex || 0;
+              openFullscreen(allImages[activeIndex]);
+            }}
+            sx={{
+              position: 'absolute',
+              top: 16,
+              right: 16,
+              background: 'rgba(255,107,53,0.9)',
+              color: 'white',
+              width: 48,
+              height: 48,
+              zIndex: 10,
+              transition: 'all 0.3s ease',
+              '&:hover': {
+                background: 'rgba(255,107,53,1)',
+                transform: 'scale(1.1)'
+              }
+            }}
+          >
+            <Fullscreen />
+          </IconButton>
         </Box>
-      )}
+      </Box>
     </Box>
   );
 };
