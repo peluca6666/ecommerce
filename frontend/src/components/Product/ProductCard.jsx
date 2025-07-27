@@ -9,8 +9,8 @@ const ProductCard = ({ producto }) => {
         ? `${import.meta.env.VITE_API_BASE_URL}${producto.imagen}` 
         : 'https://via.placeholder.com/300x200';
 
-    const hasDiscount = producto.precio_anterior && producto.precio_anterior > producto.precio;
-    const discountPercentage = hasDiscount 
+    const hasDiscount = producto.es_oferta === 1 || producto.es_oferta === true; // Usar campo de BD
+    const discountPercentage = (producto.precio_anterior && producto.precio_anterior > producto.precio) 
         ? Math.round(((producto.precio_anterior - producto.precio) / producto.precio_anterior) * 100)
         : 0;
 
