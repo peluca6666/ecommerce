@@ -96,17 +96,18 @@ const ProductDetailPage = () => {
                 </Button>
             </Box>
 
-            {/* Layout principal - Desktop: dos columnas, Mobile: una columna */}
+            {/* Layout principal - Desktop: dos columnas, Mobile: optimizado y compacto */}
             <Box sx={{ 
                 display: 'flex', 
                 gap: 4, 
                 alignItems: 'flex-start', 
                 flexDirection: { xs: 'column', lg: 'row' }
             }}>
-                {/* Columna izquierda - Imágenes (y descripción en desktop) */}
+                {/* Desktop Layout - Columna izquierda */}
                 <Box sx={{ 
                     flex: { lg: '1 1 65%' }, 
-                    width: { xs: '100%', lg: 'auto' }
+                    width: { xs: '100%', lg: 'auto' },
+                    display: { xs: 'none', lg: 'block' }
                 }}>
                     {/* Contenedor de las imágenes */}
                     <Paper 
@@ -116,54 +117,13 @@ const ProductDetailPage = () => {
                             borderRadius: 1,
                             background: 'white',
                             border: '1px solid #e0e0e0',
-                            mb: { xs: 3, lg: 4 }
+                            mb: 4
                         }}
                     >
                         <ProductImageGallery producto={producto} />
                     </Paper>
 
-                    {/* Descripción - Solo visible en desktop */}
-                    <Box sx={{ display: { xs: 'none', lg: 'block' } }}>
-                        <Paper 
-                            elevation={1}
-                            sx={{ 
-                                p: { xs: 3, md: 4 },
-                                borderRadius: 1,
-                                background: 'white',
-                                border: '1px solid #e0e0e0'
-                            }}
-                        >
-                            <ProductDescription descripcion={producto.descripcion_larga || producto.descripcion} />
-                        </Paper>
-                    </Box>
-                </Box>
-
-                {/* Columna derecha - Información de compra */}
-                <Box sx={{ 
-                    flex: { lg: '1 1 30%' }, 
-                    width: { xs: '100%', lg: 'auto' },
-                    position: { lg: 'sticky' },
-                    top: { lg: 20 }
-                }}>
-                    <Paper 
-                        elevation={1}
-                        sx={{ 
-                            p: { xs: 3, md: 4 },
-                            borderRadius: 1,
-                            background: 'white',
-                            border: '1px solid #e0e0e0',
-                            mb: { xs: 3, lg: 0 }
-                        }}
-                    >
-                        <ProductInfo producto={producto} />
-                    </Paper>
-                </Box>
-
-                {/* Descripción - Solo visible en mobile, al final */}
-                <Box sx={{ 
-                    display: { xs: 'block', lg: 'none' }, 
-                    width: '100%' 
-                }}>
+                    {/* Descripción - Desktop */}
                     <Paper 
                         elevation={1}
                         sx={{ 
@@ -175,6 +135,162 @@ const ProductDetailPage = () => {
                     >
                         <ProductDescription descripcion={producto.descripcion_larga || producto.descripcion} />
                     </Paper>
+                </Box>
+
+                {/* Desktop - Columna derecha */}
+                <Box sx={{ 
+                    flex: { lg: '1 1 30%' }, 
+                    width: { xs: '100%', lg: 'auto' },
+                    position: { lg: 'sticky' },
+                    top: { lg: 20 },
+                    display: { xs: 'none', lg: 'block' }
+                }}>
+                    <Paper 
+                        elevation={1}
+                        sx={{ 
+                            p: { xs: 3, md: 4 },
+                            borderRadius: 1,
+                            background: 'white',
+                            border: '1px solid #e0e0e0'
+                        }}
+                    >
+                        <ProductInfo producto={producto} />
+                    </Paper>
+                </Box>
+
+                {/* Mobile Layout - Todo en una columna compacta */}
+                <Box sx={{ 
+                    display: { xs: 'block', lg: 'none' }, 
+                    width: '100%' 
+                }}>
+                    {/* Mobile: Contenedor único con imágenes + info de compra */}
+                    <Paper 
+                        elevation={1}
+                        sx={{ 
+                            borderRadius: 1,
+                            background: 'white',
+                            border: '1px solid #e0e0e0',
+                            overflow: 'hidden'
+                        }}
+                    >
+                        {/* Imágenes - Sin padding extra */}
+                        <Box sx={{ p: { xs: 2, md: 3 }, pb: 0 }}>
+                            <ProductImageGallery producto={producto} />
+                        </Box>
+
+                        {/* Info de compra compacta */}
+                        <Box sx={{ p: { xs: 2, md: 3 } }}>
+                            {/* Título compacto */}
+                            <Typography 
+                                variant="h5" 
+                                component="h1" 
+                                sx={{ 
+                                    fontWeight: 700,
+                                    lineHeight: 1.2, 
+                                    color: '#2c3e50',
+                                    fontSize: '1.4rem',
+                                    mb: 2
+                                }}
+                            >
+                                {producto.nombre_producto}
+                            </Typography>
+
+                            {/* Precio compacto */}
+                            <Box sx={{ mb: 2 }}>
+                                <Typography 
+                                    variant="h4"
+                                    sx={{ 
+                                        fontWeight: 800,
+                                        color: '#2c3e50',
+                                        lineHeight: 1,
+                                        fontSize: '1.8rem'
+                                    }}
+                                >
+                                    ${producto.precio?.toLocaleString('es-AR')}
+                                </Typography>
+                            </Box>
+
+                            {/* Cantidad y botón en una fila */}
+                            <Box sx={{ 
+                                display: 'flex', 
+                                alignItems: 'center', 
+                                gap: 2, 
+                                mb: 2 
+                            }}>
+                                {/* Selector de cantidad compacto */}
+                                <Box sx={{ 
+                                    display: 'flex', 
+                                    alignItems: 'center',
+                                    border: '1px solid #e0e0e0',
+                                    borderRadius: 1,
+                                    background: 'white'
+                                }}>
+                                    <IconButton 
+                                        size="small"
+                                        sx={{ p: 1 }}
+                                    >
+                                        <Remove fontSize="small" />
+                                    </IconButton>
+                                    
+                                    <Typography 
+                                        variant="body1" 
+                                        sx={{ 
+                                            minWidth: 35,
+                                            textAlign: 'center',
+                                            fontWeight: 600,
+                                            px: 1
+                                        }}
+                                    >
+                                        1
+                                    </Typography>
+                                    
+                                    <IconButton 
+                                        size="small"
+                                        sx={{ p: 1 }}
+                                    >
+                                        <Add fontSize="small" />
+                                    </IconButton>
+                                </Box>
+
+                                {/* Botón de compra que ocupa el resto del espacio */}
+                                <Button 
+                                    variant="contained" 
+                                    size="large"
+                                    fullWidth
+                                    startIcon={<ShoppingCart />}
+                                    sx={{
+                                        py: 1.5,
+                                        fontSize: '1rem',
+                                        fontWeight: 600,
+                                        borderRadius: 1,
+                                        textTransform: 'none',
+                                        background: 'linear-gradient(135deg, #FF8C00, #FF6B35)',
+                                        boxShadow: 'none',
+                                        '&:hover': {
+                                            background: 'linear-gradient(135deg, #FF6B35, #FF4500)',
+                                        }
+                                    }}
+                                >
+                                    Comprar Ahora
+                                </Button>
+                            </Box>
+                        </Box>
+                    </Paper>
+
+                    {/* Mobile: Descripción separada y colapsable */}
+                    <Box sx={{ mt: 3 }}>
+                        <Paper 
+                            elevation={1}
+                            sx={{ 
+                                p: { xs: 2, md: 3 },
+                                borderRadius: 1,
+                                background: 'white',
+                                border: '1px solid #e0e0e0'
+                            }}
+                        >
+                            <ProductDescription descripcion={producto.descripcion_larga || producto.descripcion} />
+                        </Paper>
+                    </Box>
                 </Box>
             </Box>
 
