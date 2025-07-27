@@ -5,6 +5,7 @@ import axios from 'axios';
 
 const ProductFilters = ({ filtros, onFilterChange, onCheckboxChange }) => {
     const [categorias, setCategorias] = useState([]);
+    const [searchInput, setSearchInput] = useState(filtros.busqueda || ''); // Estado local para el input
     
     const sortOptions = [
         { value: 'nombre_asc', label: 'Nombre (A-Z)' },
@@ -12,6 +13,11 @@ const ProductFilters = ({ filtros, onFilterChange, onCheckboxChange }) => {
         { value: 'precio_asc', label: 'Precio (Menor a Mayor)' },
         { value: 'precio_desc', label: 'Precio (Mayor a Menor)' }
     ];
+
+    // Sincronizar el input local cuando cambien los filtros externos
+    useEffect(() => {
+        setSearchInput(filtros.busqueda || '');
+    }, [filtros.busqueda]);
 
     useEffect(() => {
         const fetchCategorias = async () => {
@@ -54,6 +60,20 @@ const ProductFilters = ({ filtros, onFilterChange, onCheckboxChange }) => {
             target: {
                 name: 'categoria',
                 value: newValue?.value || ''
+            }
+        });
+    };
+
+    // Manejar cambios en el input de búsqueda
+    const handleSearchChange = (event) => {
+        const value = event.target.value;
+        setSearchInput(value); // Actualizar estado local inmediatamente
+        
+        // Propagar el cambio al componente padre
+        onFilterChange({
+            target: {
+                name: 'busqueda',
+                value: value
             }
         });
     };
@@ -109,9 +129,8 @@ const ProductFilters = ({ filtros, onFilterChange, onCheckboxChange }) => {
                 <FilterField label="Buscar producto" icon={Search}>
                     <TextField 
                         placeholder="¿Qué estás buscando?"
-                        name="busqueda"
-                        value={filtros.busqueda || ''}
-                        onChange={onFilterChange}
+                        value={searchInput} // Usar estado local
+                        onChange={handleSearchChange} // Usar handler personalizado
                         fullWidth
                         sx={inputStyles}
                         autoComplete="off"
