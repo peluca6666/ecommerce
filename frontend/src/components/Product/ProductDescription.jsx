@@ -1,17 +1,37 @@
 import { Paper, Typography, Box, Divider } from '@mui/material';
-import { InfoOutlined } from '@mui/icons-material';
+import { DescriptionOutlined } from '@mui/icons-material';
 
-const ProductDescription = ({ descripcionLarga }) => {
-  // Si no hay descripción larga, no renderizar nada
-  if (!descripcionLarga) return null;
+const ProductDescription = ({ descripcion }) => {
+  // Si no hay descripción, mostrar mensaje por defecto
+  if (!descripcion || descripcion.trim() === '') {
+    return (
+      <Paper 
+        elevation={2}
+        sx={{ 
+          p: 4,
+          borderRadius: 3,
+          background: 'background.paper',
+          border: '1px solid',
+          borderColor: 'divider',
+          height: 'fit-content',
+          textAlign: 'center'
+        }}
+      >
+        <Box sx={{ color: 'text.secondary' }}>
+          <DescriptionOutlined sx={{ fontSize: 48, mb: 2, opacity: 0.5 }} />
+          <Typography variant="body1">
+            No hay descripción disponible para este producto
+          </Typography>
+        </Box>
+      </Paper>
+    );
+  }
 
   // Procesar texto para párrafos y listas
   const processDescription = (text) => {
-    // Dividir por párrafos (doble salto de línea)
     const paragraphs = text.split(/\n\s*\n/);
     
     return paragraphs.map((paragraph, index) => {
-      // Detectar si es una lista (líneas que empiezan con -, *, •, o números)
       const lines = paragraph.split('\n');
       const isList = lines.some(line => 
         /^\s*[-*•]\s/.test(line) || /^\s*\d+\.\s/.test(line)
@@ -19,21 +39,35 @@ const ProductDescription = ({ descripcionLarga }) => {
 
       if (isList) {
         return (
-          <Box key={index} component="ul" sx={{ 
-            pl: 2, 
-            mb: 2,
-            '& li': {
-              mb: 0.5,
-              color: '#495057',
-              lineHeight: 1.6
-            }
-          }}>
+          <Box 
+            key={index} 
+            component="ul" 
+            sx={{ 
+              pl: 3, 
+              mb: 3,
+              listStyle: 'none',
+              '& li': {
+                mb: 1.5,
+                color: 'text.primary',
+                lineHeight: 1.7,
+                fontSize: '1rem',
+                position: 'relative',
+                '&::before': {
+                  content: '"•"',
+                  color: 'primary.main',
+                  fontWeight: 'bold',
+                  position: 'absolute',
+                  left: '-1.2em',
+                  fontSize: '1.2em'
+                }
+              }
+            }}
+          >
             {lines.filter(line => line.trim()).map((line, lineIndex) => (
               <Typography 
                 key={lineIndex} 
                 component="li" 
                 variant="body1"
-                sx={{ fontSize: '1.05rem' }}
               >
                 {line.replace(/^\s*[-*•]\s*/, '').replace(/^\s*\d+\.\s*/, '')}
               </Typography>
@@ -49,10 +83,11 @@ const ProductDescription = ({ descripcionLarga }) => {
           variant="body1" 
           paragraph
           sx={{ 
-            lineHeight: 1.7,
-            color: '#495057',
-            fontSize: '1.05rem',
-            mb: 2,
+            lineHeight: 1.8,
+            color: 'text.primary',
+            fontSize: '1rem',
+            mb: 3,
+            textAlign: 'justify',
             '&:last-child': { mb: 0 }
           }}
         >
@@ -64,34 +99,42 @@ const ProductDescription = ({ descripcionLarga }) => {
 
   return (
     <Paper 
-      elevation={0}
+      elevation={2}
       sx={{ 
-        p: { xs: 4, md: 5 },
-        borderRadius: 4,
-        background: 'linear-gradient(135deg, #ffffff 0%, #fafbfc 100%)',
-        border: '1px solid #e9ecef',
-        position: 'relative',
-        overflow: 'hidden'
+        p: { xs: 3, md: 4 },
+        borderRadius: 3,
+        background: 'background.paper',
+        border: '1px solid',
+        borderColor: 'divider',
+        height: 'fit-content',
+        transition: 'box-shadow 0.2s ease-in-out',
+        '&:hover': {
+          boxShadow: (theme) => theme.shadows[4]
+        }
       }}
     >
-      {/* Header con icono */}
+      {/* Header con icono y título */}
       <Box sx={{ 
         display: 'flex', 
         alignItems: 'center', 
-        gap: 2, 
-        mb: 4 
+        mb: 3,
+        pb: 2,
+        borderBottom: '2px solid',
+        borderColor: 'divider'
       }}>
         <Box sx={{
-          width: 48,
-          height: 48,
-          borderRadius: '50%',
-          background: 'linear-gradient(135deg, #FF8C00, #FF6B35)',
+          width: 40,
+          height: 40,
+          borderRadius: 2,
+          background: (theme) => `linear-gradient(135deg, ${theme.palette.primary.main}, ${theme.palette.primary.dark})`,
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          color: 'white'
+          color: 'white',
+          mr: 2,
+          boxShadow: (theme) => `0 4px 12px ${theme.palette.primary.main}25`
         }}>
-          <InfoOutlined />
+          <DescriptionOutlined sx={{ fontSize: 20 }} />
         </Box>
         
         <Box>
@@ -100,47 +143,72 @@ const ProductDescription = ({ descripcionLarga }) => {
             component="h3" 
             sx={{ 
               fontWeight: 700,
-              color: '#2c3e50',
-              mb: 0.5
+              color: 'text.primary',
+              fontSize: { xs: '1.25rem', md: '1.5rem' },
+              lineHeight: 1.2
             }}
           >
-            Descripción Detallada
+            Descripción del Producto
           </Typography>
-          <Typography variant="body2" sx={{ color: '#6c757d' }}>
-            Información completa sobre este producto
+          <Typography 
+            variant="body2" 
+            sx={{ 
+              color: 'text.secondary',
+              mt: 0.5
+            }}
+          >
+            Información detallada y características
           </Typography>
         </Box>
       </Box>
-
-      <Divider sx={{ 
-        mb: 4, 
-        background: 'linear-gradient(90deg, #FF8C00, #FF6B35)',
-        height: 2,
-        border: 'none'
-      }} />
       
-      {/* Contenido procesado */}
+      {/* Contenido de la descripción */}
       <Box sx={{
         '& p:first-of-type': {
-          fontSize: '1.15rem',
+          fontSize: '1.1rem',
           fontWeight: 500,
-          color: '#2c3e50'
+          color: 'text.primary',
+          background: (theme) => `linear-gradient(135deg, ${theme.palette.primary.main}08, ${theme.palette.primary.main}15)`,
+          p: 2.5,
+          borderRadius: 2,
+          border: '1px solid',
+          borderColor: (theme) => `${theme.palette.primary.main}25`,
+          mb: 3,
+          position: 'relative',
+          '&::before': {
+            content: '""',
+            position: 'absolute',
+            left: 0,
+            top: 0,
+            bottom: 0,
+            width: 4,
+            background: 'primary.main',
+            borderRadius: '0 2px 2px 0'
+          }
         }
       }}>
-        {processDescription(descripcionLarga)}
+        {processDescription(descripcion)}
       </Box>
 
-      {/* Decoración sutil */}
+      {/* Footer informativo */}
+      <Divider sx={{ my: 3 }} />
       <Box sx={{
-        position: 'absolute',
-        bottom: -20,
-        right: -20,
-        width: 80,
-        height: 80,
-        borderRadius: '50%',
-        background: 'linear-gradient(135deg, rgba(255,140,0,0.05), rgba(255,107,53,0.05))',
-        pointerEvents: 'none'
-      }} />
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: 1
+      }}>
+        <Typography 
+          variant="caption" 
+          sx={{ 
+            color: 'text.secondary',
+            fontStyle: 'italic',
+            textAlign: 'center'
+          }}
+        >
+          Información proporcionada por el fabricante
+        </Typography>
+      </Box>
     </Paper>
   );
 };
