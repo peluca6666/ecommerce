@@ -76,7 +76,7 @@ const ProductListPage = () => {
         if (filtros.minPrice) params.minPrice = filtros.minPrice;
         if (filtros.maxPrice) params.maxPrice = filtros.maxPrice;
         if (filtros.sortBy) params.sortBy = filtros.sortBy;
-        if (filtros.es_oferta) params.es_oferta = filtros.es_oferta;
+        if (filtros.es_oferta !== '') params.es_oferta = filtros.es_oferta;
         if (pagina > 1) params.pagina = pagina;
 
         setSearchParams(params, { replace: true });
