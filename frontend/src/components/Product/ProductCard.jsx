@@ -7,7 +7,7 @@ const ProductCard = ({ producto }) => {
 
     const imageUrl = producto.imagen 
         ? `${import.meta.env.VITE_API_BASE_URL}${producto.imagen}` 
-        : 'https://via.placeholder.com/200';
+        : 'https://via.placeholder.com/300x200';
 
     const hasDiscount = producto.precio_anterior && producto.precio_anterior > producto.precio;
     const discountPercentage = hasDiscount 
@@ -28,43 +28,50 @@ const ProductCard = ({ producto }) => {
                 display: 'flex', 
                 flexDirection: 'column',
                 textDecoration: 'none',
-                borderRadius: 2,
+                borderRadius: { xs: 1, md: 1.5 }, // Menos redondeado
                 border: '1px solid #e0e0e0',
                 cursor: 'pointer',
                 transition: 'all 0.3s ease',
                 position: 'relative',
                 overflow: 'hidden',
+                backgroundColor: 'white',
                 '&:hover': {
                     transform: 'translateY(-2px)',
-                    boxShadow: '0 6px 20px rgba(0,0,0,0.1)',
+                    boxShadow: { xs: '0 4px 12px rgba(0,0,0,0.08)', md: '0 6px 20px rgba(0,0,0,0.1)' },
                     borderColor: '#FF8C00',
                     '& .product-image': {
                         transform: 'scale(1.02)'
                     },
                     '& .action-buttons': {
-                        opacity: 1,
+                        opacity: { xs: 1, md: 1 }, // Siempre visible en mobile
                         transform: 'translateY(0)'
                     }
                 }
             }}
         >
-            <Box sx={{ position: 'relative', overflow: 'hidden' }}>
+            {/* Contenedor de imagen responsive */}
+            <Box sx={{ 
+                position: 'relative', 
+                overflow: 'hidden',
+                aspectRatio: { xs: '1', sm: '4/3', md: '3/2' }, // Responsive aspect ratio
+                width: '100%'
+            }}>
                 {hasDiscount && (
                     <Chip
                         label="OFERTA"
                         size="small"
                         sx={{
                             position: 'absolute',
-                            top: 6,
-                            right: 6,
+                            top: { xs: 4, md: 8 },
+                            right: { xs: 4, md: 8 },
                             zIndex: 2,
                             background: '#e53e3e',
                             color: 'white',
-                            fontSize: '0.7rem',
+                            fontSize: { xs: '0.65rem', md: '0.7rem' },
                             fontWeight: 700,
-                            height: 22,
+                            height: { xs: 18, md: 22 },
                             '& .MuiChip-label': {
-                                px: 0.8
+                                px: { xs: 0.6, md: 0.8 }
                             }
                         }}
                     />
@@ -72,43 +79,47 @@ const ProductCard = ({ producto }) => {
                 
                 <CardMedia
                     component="img"
-                    height="160"
                     image={imageUrl}
                     alt={producto.nombre_producto}
                     className="product-image"
                     sx={{ 
+                        width: '100%',
+                        height: '100%',
                         objectFit: 'cover',
                         transition: 'transform 0.3s ease'
                     }}
                 />
             </Box>
 
+            {/* Contenido responsive */}
             <CardContent sx={{ 
                 flexGrow: 1, 
-                p: 1.5,
-                pb: 1,
+                p: { xs: 1.5, sm: 2, md: 2.5 },
+                pb: { xs: 1, md: 1.5 },
                 display: 'flex',
                 flexDirection: 'column',
                 justifyContent: 'space-between'
             }}>
+                {/* Título del producto */}
                 <Typography 
                     variant="body2" 
                     sx={{
-                        fontWeight: 400,
-                        mb: 1.5,
+                        fontWeight: 500,
+                        mb: { xs: 1, md: 1.5 },
                         color: '#424242',
-                        fontSize: '0.85rem',
+                        fontSize: { xs: '0.8rem', sm: '0.85rem', md: '0.9rem' },
                         lineHeight: 1.3,
                         display: '-webkit-box',
                         WebkitLineClamp: 2,
                         WebkitBoxOrient: 'vertical',
                         overflow: 'hidden',
-                        minHeight: '2.2em'
+                        minHeight: { xs: '2em', md: '2.2em' }
                     }}
                 >
                     {producto.nombre_producto}
                 </Typography>
 
+                {/* Sección de precios */}
                 <Box>
                     {hasDiscount && (
                         <Typography 
@@ -116,7 +127,7 @@ const ProductCard = ({ producto }) => {
                             sx={{ 
                                 textDecoration: 'line-through', 
                                 color: '#9e9e9e',
-                                fontSize: '0.75rem',
+                                fontSize: { xs: '0.7rem', md: '0.75rem' },
                                 mb: 0.2
                             }}
                         >
@@ -124,13 +135,18 @@ const ProductCard = ({ producto }) => {
                         </Typography>
                     )}
                     
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.8, mb: 1 }}>
+                    <Box sx={{ 
+                        display: 'flex', 
+                        alignItems: 'center', 
+                        gap: { xs: 0.5, md: 0.8 }, 
+                        mb: { xs: 1, md: 1.5 }
+                    }}>
                         <Typography 
                             variant="h6" 
                             sx={{ 
                                 fontWeight: 700, 
                                 color: hasDiscount ? '#e53e3e' : '#424242',
-                                fontSize: '1.1rem'
+                                fontSize: { xs: '1rem', sm: '1.05rem', md: '1.1rem' }
                             }}
                         >
                             ${producto.precio?.toLocaleString()}
@@ -143,11 +159,11 @@ const ProductCard = ({ producto }) => {
                                 sx={{
                                     background: '#e53e3e',
                                     color: 'white',
-                                    fontSize: '0.65rem',
+                                    fontSize: { xs: '0.6rem', md: '0.65rem' },
                                     fontWeight: 600,
-                                    height: 20,
+                                    height: { xs: 18, md: 20 },
                                     '& .MuiChip-label': {
-                                        px: 0.5
+                                        px: { xs: 0.4, md: 0.5 }
                                     }
                                 }}
                             />
@@ -156,13 +172,14 @@ const ProductCard = ({ producto }) => {
                 </Box>
             </CardContent>
 
+            {/* Botones de acción responsive */}
             <Box 
                 className="action-buttons"
                 sx={{ 
-                    p: 1.5, 
+                    p: { xs: 1.5, md: 2 }, 
                     pt: 0,
-                    opacity: 0,
-                    transform: 'translateY(8px)',
+                    opacity: { xs: 1, md: 0 }, // Siempre visible en mobile, hover en desktop
+                    transform: { xs: 'translateY(0)', md: 'translateY(8px)' },
                     transition: 'all 0.3s ease'
                 }}
             >
@@ -175,14 +192,16 @@ const ProductCard = ({ producto }) => {
                         addToCart(producto.producto_id);
                     }}
                     sx={{
-                        py: 1,
-                        borderRadius: 1.5,
+                        py: { xs: 1, md: 1.2 },
+                        borderRadius: { xs: 1, md: 1.5 },
                         fontWeight: 700,
                         textTransform: 'none',
                         background: '#e53e3e',
-                        fontSize: '0.8rem',
+                        fontSize: { xs: '0.75rem', sm: '0.8rem', md: '0.85rem' },
+                        boxShadow: 'none',
                         '&:hover': {
                             background: '#d32f2f',
+                            boxShadow: '0 2px 8px rgba(211, 47, 47, 0.3)'
                         }
                     }}
                 >
