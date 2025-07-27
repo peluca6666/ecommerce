@@ -241,7 +241,14 @@ const CategoryList = ({ categories, onItemClick, mobile = false }) => (
                 onClick={onItemClick}
                 sx={mobile ? styles.mobile.listItem : styles.sidebar.listItem}
             >
-                <ListItemText primary={cat.nombre} primaryTypographyProps={{ fontWeight: 500, color: 'white' }} />
+                <ListItemText 
+                    primary={cat.nombre} 
+                    slotProps={{ 
+                        primary: { 
+                            style: { fontWeight: 500, color: 'white' } 
+                        } 
+                    }} 
+                />
             </ListItemButton>
         ))}
     </List>

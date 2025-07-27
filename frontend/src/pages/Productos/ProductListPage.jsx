@@ -67,9 +67,10 @@ const ProductListPage = () => {
     }, [pagina, debouncedBusqueda, filtros.categoria, filtros.minPrice, filtros.maxPrice, filtros.sortBy, filtros.es_oferta]);
 
     // Sincronizamos filtros y página en el estado con los parámetros de la URL
+    // PERO usamos debouncedBusqueda para evitar actualizar URL en cada keystroke
     useEffect(() => {
         const params = {};
-        if (filtros.busqueda) params.busqueda = filtros.busqueda;
+        if (debouncedBusqueda) params.busqueda = debouncedBusqueda; // <-- Usar debounced aquí
         if (filtros.categoria) params.categoria = filtros.categoria;
         if (filtros.minPrice) params.minPrice = filtros.minPrice;
         if (filtros.maxPrice) params.maxPrice = filtros.maxPrice;
@@ -78,7 +79,7 @@ const ProductListPage = () => {
         if (pagina > 1) params.pagina = pagina;
         
         setSearchParams(params, { replace: true });
-    }, [filtros, pagina, setSearchParams]);
+    }, [debouncedBusqueda, filtros.categoria, filtros.minPrice, filtros.maxPrice, filtros.sortBy, filtros.es_oferta, pagina, setSearchParams]);
 
     // Handlers simples sin memoización
     const handleFilterChange = (event) => {
