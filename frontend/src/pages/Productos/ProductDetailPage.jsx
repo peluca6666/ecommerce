@@ -102,29 +102,20 @@ const ProductDetailPage = () => {
                 <Grid item xs={12} lg={8}>
                     {/* Contenedor del producto con imágenes */}
                     <Paper 
-                        elevation={2}
+                        elevation={1}
                         sx={{ 
                             p: { xs: 3, md: 4 },
-                            borderRadius: 3,
+                            borderRadius: 1,
                             background: 'white',
-                            border: '1px solid #f0f0f0',
-                            mb: 4
+                            border: '1px solid #e0e0e0'
                         }}
                     >
                         <ProductImageGallery producto={producto} />
-                    </Paper>
-
-                    {/* Descripción completa */}
-                    <Paper 
-                        elevation={2}
-                        sx={{ 
-                            p: { xs: 3, md: 4 },
-                            borderRadius: 3,
-                            background: 'white',
-                            border: '1px solid #f0f0f0'
-                        }}
-                    >
-                        <ProductDescription descripcionLarga={producto.descripcion_larga} />
+                        
+                        {/* Descripción completa */}
+                        <Box sx={{ mt: 4 }}>
+                            <ProductDescription descripcionLarga={producto.descripcion_larga} />
+                        </Box>
                     </Paper>
                 </Grid>
 
@@ -132,12 +123,12 @@ const ProductDetailPage = () => {
                 <Grid item xs={12} lg={4}>
                     <Box sx={{ position: 'sticky', top: 20 }}>
                         <Paper 
-                            elevation={2}
+                            elevation={1}
                             sx={{ 
                                 p: { xs: 3, md: 4 },
-                                borderRadius: 3,
+                                borderRadius: 1,
                                 background: 'white',
-                                border: '1px solid #f0f0f0'
+                                border: '1px solid #e0e0e0'
                             }}
                         >
                             <ProductInfo producto={producto} />
