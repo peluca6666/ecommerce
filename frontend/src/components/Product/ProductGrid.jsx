@@ -5,13 +5,20 @@ const ProductGrid = ({ productos = [] }) => (
   <Box sx={{
     display: 'grid',
     gridTemplateColumns: {
-      xs: 'repeat(2, 1fr)',     // Móvil: 2 columnas
-      sm: 'repeat(3, 1fr)',     // Tablet: 3 columnas
-      md: 'repeat(4, 1fr)',     // Desktop: 4 columnas
-      lg: 'repeat(5, 1fr)'      // Large: 5 columnas
+      xs: 'repeat(2, 1fr)',     
+      sm: 'repeat(2, 1fr)',      
+      md: 'repeat(3, 1fr)',    
+      lg: 'repeat(4, 1fr)'      
     },
-    gap: { xs: 2, md: 3 },
-    gridAutoRows: '1fr'
+    gap: { 
+      xs: 2,   
+      sm: 3,   
+      md: 4   
+    },
+    gridAutoRows: '1fr',
+    '& > *': {
+      minHeight: { xs: '280px', md: '320px' }
+    }
   }}>
     {productos.map(producto => (
       <ProductCard 

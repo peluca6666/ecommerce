@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { Container, Grid, Typography, Box, Pagination } from '@mui/material';
+import { Container, Typography, Box, Pagination } from '@mui/material';
 import axios from 'axios';
 
 import ProductGrid from '../../components/Product/ProductGrid';
@@ -37,7 +37,7 @@ const ProductListPage = () => {
             setLoading(true);
             
             // Armamos parámetros para la API según filtros y página actual
-            const params = new URLSearchParams({ pagina, limite: 10 });
+            const params = new URLSearchParams({ pagina, limite: 12 }); // Cambié de 10 a 12 para mejor grid
             if (debouncedBusqueda) params.append('busqueda', debouncedBusqueda);
             if (filtros.categoria) params.append('categoria', filtros.categoria);
             if (filtros.minPrice) params.append('minPrice', filtros.minPrice);
@@ -107,7 +107,7 @@ const ProductListPage = () => {
 
     return (
         <Box>
-            <Container maxWidth="lg" sx={{ my: 4 }}>
+            <Container maxWidth="xl" sx={{ my: 4 }}> {/* Cambié de lg a xl para más espacio */}
                 <Typography variant="h4" component="h1" gutterBottom fontWeight="bold">
                     Nuestro Catálogo
                 </Typography>
@@ -116,7 +116,7 @@ const ProductListPage = () => {
                 <Box sx={{ display: 'flex', gap: 4, flexDirection: { xs: 'column', md: 'row' } }}>
                     {/* SIDEBAR DE FILTROS */}
                     <Box sx={{ 
-                        width: { xs: '100%', md: '300px' },
+                        width: { xs: '100%', md: '280px' }, // Reduje de 300px a 280px
                         flexShrink: 0
                     }}>
                         <ProductFilters 
@@ -130,7 +130,14 @@ const ProductListPage = () => {
                     <Box sx={{ flex: 1, minWidth: 0 }}>
                         {loading ? <LoadingSpinner /> : (
                             productos.length === 0 ? (
-                                <Typography>No se encontraron productos que coincidan con tu búsqueda.</Typography>
+                                <Box sx={{ textAlign: 'center', py: 6 }}>
+                                    <Typography variant="h6" color="text.secondary">
+                                        No se encontraron productos que coincidan con tu búsqueda.
+                                    </Typography>
+                                    <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+                                        Intenta ajustar los filtros o buscar con otros términos.
+                                    </Typography>
+                                </Box>
                             ) : (
                                 <ProductGrid productos={productos} />
                             )
@@ -139,7 +146,15 @@ const ProductListPage = () => {
                         {/* PAGINACIÓN */}
                         {totalPaginas > 1 && (
                             <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
-                                <Pagination count={totalPaginas} page={pagina} onChange={handlePageChange} color="primary" />
+                                <Pagination 
+                                    count={totalPaginas} 
+                                    page={pagina} 
+                                    onChange={handlePageChange} 
+                                    color="primary"
+                                    size="large"
+                                    showFirstButton 
+                                    showLastButton
+                                />
                             </Box>
                         )}
                     </Box>
