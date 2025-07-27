@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Container, Typography, Box, Pagination } from '@mui/material';
 import axios from 'axios';
@@ -80,27 +80,27 @@ const ProductListPage = () => {
         setSearchParams(params, { replace: true });
     }, [filtros, pagina, setSearchParams]);
 
-    // Actualizamos filtros al cambiar inputs de texto, reiniciando página a 1
-    const handleFilterChange = (event) => {
+    // Memoizamos los handlers para evitar re-renders innecesarios
+    const handleFilterChange = useCallback((event) => {
         const { name, value } = event.target;
         setFiltros(prev => ({ ...prev, [name]: value }));
         setPagina(1);
-    };
+    }, []);
 
     // Actualizamos filtros para checkboxes, usando 'true' o '' para controlar la URL
-    const handleCheckboxChange = (event) => {
+    const handleCheckboxChange = useCallback((event) => {
         const { name, checked } = event.target;
         setFiltros(prev => ({
             ...prev,
             [name]: checked ? 'true' : ''
         }));
         setPagina(1);
-    };
+    }, []);
 
     // Cambia la página en la paginación
-    const handlePageChange = (event, value) => {
+    const handlePageChange = useCallback((event, value) => {
         setPagina(value);
-    };
+    }, []);
 
     if (loading && productos.length === 0) return <LoadingSpinner />;
     if (error) return <Typography color="error">Error: {error}</Typography>;
