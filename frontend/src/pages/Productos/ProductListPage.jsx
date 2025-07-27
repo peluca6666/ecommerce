@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Container, Typography, Box, Pagination } from '@mui/material';
 import axios from 'axios';
@@ -37,7 +37,7 @@ const ProductListPage = () => {
             setLoading(true);
             
             // Armamos parámetros para la API según filtros y página actual
-            const params = new URLSearchParams({ pagina, limite: 12 }); // Cambié de 10 a 12 para mejor grid
+            const params = new URLSearchParams({ pagina, limite: 12 });
             if (debouncedBusqueda) params.append('busqueda', debouncedBusqueda);
             if (filtros.categoria) params.append('categoria', filtros.categoria);
             if (filtros.minPrice) params.append('minPrice', filtros.minPrice);
@@ -53,7 +53,7 @@ const ProductListPage = () => {
                 if (response.data.exito) {
                     setProductos(response.data.datos);
                     setTotalPaginas(response.data.paginacion.total_paginas);
-                    setError(null); // limpiamos error si todo salió bien
+                    setError(null);
                 } else {
                     setError('No se pudieron cargar los productos.');
                 }
@@ -66,7 +66,7 @@ const ProductListPage = () => {
         fetchProductos();
     }, [pagina, debouncedBusqueda, filtros.categoria, filtros.minPrice, filtros.maxPrice, filtros.sortBy, filtros.es_oferta]);
 
-    // Sincronizamos filtros y página en el estado con los parámetros de la URL para que se pueda compartir o refrescar manteniendo estado
+    // Sincronizamos filtros y página en el estado con los parámetros de la URL
     useEffect(() => {
         const params = {};
         if (filtros.busqueda) params.busqueda = filtros.busqueda;
@@ -80,57 +80,44 @@ const ProductListPage = () => {
         setSearchParams(params, { replace: true });
     }, [filtros, pagina, setSearchParams]);
 
-    // Memoizamos los filtros para evitar cambios de referencia innecesarios
-    const memoizedFiltros = useMemo(() => filtros, [
-        filtros.busqueda,
-        filtros.categoria, 
-        filtros.minPrice,
-        filtros.maxPrice,
-        filtros.sortBy,
-        filtros.es_oferta
-    ]);
-
-    // Memoizamos los handlers para evitar re-renders innecesarios
-    const handleFilterChange = useCallback((event) => {
+    // Handlers simples sin memoización
+    const handleFilterChange = (event) => {
         const { name, value } = event.target;
         setFiltros(prev => ({ ...prev, [name]: value }));
         setPagina(1);
-    }, []);
+    };
 
-    // Actualizamos filtros para checkboxes, usando 'true' o '' para controlar la URL
-    const handleCheckboxChange = useCallback((event) => {
+    const handleCheckboxChange = (event) => {
         const { name, checked } = event.target;
         setFiltros(prev => ({
             ...prev,
             [name]: checked ? 'true' : ''
         }));
         setPagina(1);
-    }, []);
+    };
 
-    // Cambia la página en la paginación
-    const handlePageChange = useCallback((event, value) => {
+    const handlePageChange = (event, value) => {
         setPagina(value);
-    }, []);
+    };
 
     if (loading && productos.length === 0) return <LoadingSpinner />;
     if (error) return <Typography color="error">Error: {error}</Typography>;
 
     return (
         <Box>
-            <Container maxWidth="xl" sx={{ my: 4 }}> {/* Cambié de lg a xl para más espacio */}
+            <Container maxWidth="xl" sx={{ my: 4 }}>
                 <Typography variant="h4" component="h1" gutterBottom fontWeight="bold">
                     Nuestro Catálogo
                 </Typography>
                 
-                {/* LAYOUT FIJO - Flex en lugar de Grid */}
                 <Box sx={{ display: 'flex', gap: 4, flexDirection: { xs: 'column', md: 'row' } }}>
                     {/* SIDEBAR DE FILTROS */}
                     <Box sx={{ 
-                        width: { xs: '100%', md: '280px' }, // Reduje de 300px a 280px
+                        width: { xs: '100%', md: '280px' },
                         flexShrink: 0
                     }}>
                         <ProductFilters 
-                            filtros={memoizedFiltros} 
+                            filtros={filtros} 
                             onFilterChange={handleFilterChange}
                             onCheckboxChange={handleCheckboxChange}
                         />
