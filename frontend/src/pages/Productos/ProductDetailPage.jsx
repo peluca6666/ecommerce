@@ -1,216 +1,149 @@
-import { Paper, Typography, Box, Divider } from '@mui/material';
-import { DescriptionOutlined } from '@mui/icons-material';
+import { useState, useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import { Container, Grid, Box, Button, Paper, Typography } from '@mui/material'; 
+import { KeyboardBackspace as ArrowBack } from '@mui/icons-material'; 
+import LoadingSpinner from '../../components/common/LoadingSpinner';
+import ProductImageGallery from '../../components/Product/ProductImageGallery';
+import ProductInfo from '../../components/Product/ProductInfo';
+import ProductDescription from '../../components/Product/ProductDescription';
+import RelatedProducts from '../../components/Product/RelatedProducts';
+import axios from 'axios';
 
-const ProductDescription = ({ descripcion }) => {
-  // Si no hay descripción, mostrar mensaje por defecto
-  if (!descripcion || descripcion.trim() === '') {
-    return (
-      <Paper 
-        elevation={2}
-        sx={{ 
-          p: 4,
-          borderRadius: 3,
-          background: 'background.paper',
-          border: '1px solid',
-          borderColor: 'divider',
-          height: 'fit-content',
-          textAlign: 'center'
-        }}
-      >
-        <Box sx={{ color: 'text.secondary' }}>
-          <DescriptionOutlined sx={{ fontSize: 48, mb: 2, opacity: 0.5 }} />
-          <Typography variant="body1">
-            No hay descripción disponible para este producto
-          </Typography>
-        </Box>
-      </Paper>
-    );
-  }
+const ProductDetailPage = () => {
+    const { id } = useParams();
+    const navigate = useNavigate();
+    const [producto, setProducto] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+    const [productosRelacionados, setProductosRelacionados] = useState([]);
 
-  // Procesar texto para párrafos y listas
-  const processDescription = (text) => {
-    const paragraphs = text.split(/\n\s*\n/);
-    
-    return paragraphs.map((paragraph, index) => {
-      const lines = paragraph.split('\n');
-      const isList = lines.some(line => 
-        /^\s*[-*•]\s/.test(line) || /^\s*\d+\.\s/.test(line)
-      );
+    useEffect(() => {
+        const fetchProductData = async () => {
+            try {
+                setLoading(true);
+                const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/api/producto/${id}`);
 
-      if (isList) {
-        return (
-          <Box 
-            key={index} 
-            component="ul" 
-            sx={{ 
-              pl: 3, 
-              mb: 3,
-              listStyle: 'none',
-              '& li': {
-                mb: 1.5,
-                color: 'text.primary',
-                lineHeight: 1.7,
-                fontSize: '1rem',
-                position: 'relative',
-                '&::before': {
-                  content: '"•"',
-                  color: 'primary.main',
-                  fontWeight: 'bold',
-                  position: 'absolute',
-                  left: '-1.2em',
-                  fontSize: '1.2em'
+                if (response.data.exito) {
+                    const productData = response.data.datos;
+
+                    // Parsear imágenes si es string
+                    if (typeof productData.imagenes === 'string') {
+                        try {
+                            productData.imagenes = JSON.parse(productData.imagenes);
+                        } catch (e) {
+                            productData.imagenes = [];
+                        }
+                    }
+                    setProducto(productData);
+
+                    // Cargar productos relacionados
+                    if (productData.categoria_id) {
+                        try {
+                            const relatedResponse = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/api/categoria/${productData.categoria_id}/producto`);
+                            if (relatedResponse.data.exito) {
+                                const related = relatedResponse.data.datos.filter(p => p.producto_id !== productData.producto_id);
+                                setProductosRelacionados(related);
+                            }
+                        } catch (relatedError) {
+                            console.error("Error al obtener productos relacionados:", relatedError);
+                        }
+                    }
+                } else {
+                    setError(response.data.mensaje);
                 }
-              }
-            }}
-          >
-            {lines.filter(line => line.trim()).map((line, lineIndex) => (
-              <Typography 
-                key={lineIndex} 
-                component="li" 
-                variant="body1"
-              >
-                {line.replace(/^\s*[-*•]\s*/, '').replace(/^\s*\d+\.\s*/, '')}
-              </Typography>
-            ))}
-          </Box>
-        );
-      }
+            } catch (err) {
+                setError('No se pudo cargar el producto.');
+                console.error('Error fetching product:', err);
+            } finally {
+                setLoading(false);
+            }
+        };
 
-      // Párrafo normal
-      return (
-        <Typography 
-          key={index}
-          variant="body1" 
-          component="p"
-          sx={{ 
-            lineHeight: 1.8,
-            color: 'text.primary',
-            fontSize: '1rem',
-            mb: 3,
-            textAlign: 'justify',
-            '&:last-child': { mb: 0 }
-          }}
-        >
-          {paragraph.trim()}
-        </Typography>
-      );
-    });
-  };
+        fetchProductData();
+    }, [id]);
 
-  return (
-    <Paper 
-      elevation={2}
-      sx={{ 
-        p: { xs: 3, md: 4 },
-        borderRadius: 3,
-        background: 'background.paper',
-        border: '1px solid',
-        borderColor: 'divider',
-        height: 'fit-content',
-        transition: 'box-shadow 0.2s ease-in-out',
-        '&:hover': {
-          boxShadow: (theme) => theme.shadows[4]
-        }
-      }}
-    >
-      {/* Header con icono y título */}
-      <Box sx={{ 
-        display: 'flex', 
-        alignItems: 'center', 
-        mb: 3,
-        pb: 2,
-        borderBottom: '2px solid',
-        borderColor: 'divider'
-      }}>
-        <Box sx={{
-          width: 40,
-          height: 40,
-          borderRadius: 2,
-          background: (theme) => `linear-gradient(135deg, ${theme.palette.primary.main}, ${theme.palette.primary.dark})`,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          color: 'white',
-          mr: 2,
-          boxShadow: (theme) => `0 4px 12px ${theme.palette.primary.main}25`
-        }}>
-          <DescriptionOutlined sx={{ fontSize: 20 }} />
-        </Box>
-        
-        <Box>
-          <Typography 
-            variant="h5" 
-            component="h3" 
-            sx={{ 
-              fontWeight: 700,
-              color: 'text.primary',
-              fontSize: { xs: '1.25rem', md: '1.5rem' },
-              lineHeight: 1.2
-            }}
-          >
-            Descripción del Producto
-          </Typography>
-          <Typography 
-            variant="body2" 
-            sx={{ 
-              color: 'text.secondary',
-              mt: 0.5
-            }}
-          >
-            Información detallada y características
-          </Typography>
-        </Box>
-      </Box>
-      
-      {/* Contenido de la descripción */}
-      <Box sx={{
-        '& p:first-of-type': {
-          fontSize: '1.1rem',
-          fontWeight: 500,
-          color: 'text.primary',
-          background: (theme) => `linear-gradient(135deg, ${theme.palette.primary.main}08, ${theme.palette.primary.main}15)`,
-          p: 2.5,
-          borderRadius: 2,
-          border: '1px solid',
-          borderColor: (theme) => `${theme.palette.primary.main}25`,
-          mb: 3,
-          position: 'relative',
-          '&::before': {
-            content: '""',
-            position: 'absolute',
-            left: 0,
-            top: 0,
-            bottom: 0,
-            width: 4,
-            background: 'primary.main',
-            borderRadius: '0 2px 2px 0'
-          }
-        }
-      }}>
-        {processDescription(descripcion)}
-      </Box>
+    if (loading) return <LoadingSpinner />;
+    if (error) return (
+        <Container maxWidth="lg" sx={{ mt: 4 }}>
+            <Typography color="error" align="center" variant="h6">{error}</Typography>
+        </Container>
+    );
+    if (!producto) return (
+        <Container maxWidth="lg" sx={{ mt: 4 }}>
+            <Typography align="center" variant="h6">Producto no encontrado.</Typography>
+        </Container>
+    );
 
-      {/* Footer informativo */}
-      <Divider sx={{ my: 3 }} />
-      <Box sx={{
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        gap: 1
-      }}>
-        <Typography 
-          variant="caption" 
-          sx={{ 
-            color: 'text.secondary',
-            fontStyle: 'italic',
-            textAlign: 'center'
-          }}
-        >
-          Información proporcionada por el fabricante
-        </Typography>
-      </Box>
-    </Paper>
-  );
+    return (
+        <>
+            {/* Sección principal del producto - Centrada */}
+            <Container maxWidth="lg" sx={{ py: { xs: 2, md: 4 } }}> 
+                {/* Botón volver */}
+                <Box sx={{ mb: 3 }}>
+                    <Button 
+                        startIcon={<ArrowBack />} 
+                        onClick={() => navigate(-1)}
+                        variant="text"
+                        sx={{ 
+                            textTransform: 'none',
+                            color: '#6c757d',
+                            fontWeight: 500,
+                            '&:hover': {
+                                color: '#FF6B35',
+                                background: 'rgba(255,107,53,0.1)'
+                            }
+                        }}
+                    >
+                        Volver
+                    </Button>
+                </Box>
+
+                {/* Contenido principal del producto */}
+                <Paper 
+                    elevation={2}
+                    sx={{ 
+                        p: { xs: 3, md: 6 },
+                        borderRadius: 4,
+                        background: 'white',
+                        border: '1px solid #f0f0f0'
+                    }}
+                >
+                    <Grid container spacing={{ xs: 4, md: 6 }}> 
+                        {/* Galería de imágenes */}
+                        <Grid item xs={12} md={6}>
+                            <ProductImageGallery producto={producto} />
+                        </Grid>
+
+                        {/* Información del producto */}
+                        <Grid item xs={12} md={6}> 
+                            <ProductInfo producto={producto} />
+                        </Grid>
+                    </Grid>
+                </Paper>
+            </Container>
+
+            {/* Sección inferior con fondo gris - Layout estilo Naldo */}
+            <Box sx={{ 
+                backgroundColor: '#f5f5f5',
+                py: { xs: 4, md: 6 },
+                mt: 0
+            }}>
+                <Container maxWidth="lg">
+                    <Grid container spacing={4}>
+                        {/* Descripción */}
+                        <Grid item xs={12} md={8}>
+                            <ProductDescription descripcion={producto.descripcion} />
+                        </Grid>
+
+                        {/* Productos relacionados */}
+                        <Grid item xs={12} md={4}>
+                            <RelatedProducts productos={productosRelacionados} />
+                        </Grid>
+                    </Grid>
+                </Container>
+            </Box>
+        </>
+    );
 };
 
-export default ProductDescription;
+export default ProductDetailPage;

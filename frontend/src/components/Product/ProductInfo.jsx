@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Box, Typography, Button, IconButton, Chip, Stack, Alert } from '@mui/material';
+import { Box, Typography, Button, IconButton, Chip, Stack } from '@mui/material';
 import { Add, Remove, ShoppingCart, FlashOn } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
@@ -8,8 +8,8 @@ const ProductInfo = ({ producto }) => {
   const navigate = useNavigate();
   const { addToCart } = useAuth();
   const [cantidad, setCantidad] = useState(1);
-  const [loading, setLoading] = useState(false);
 
+  // LÓGICA ORIGINAL EXACTA
   const handleCantidadChange = (change) => {
     setCantidad(prev => {
       const nuevaCantidad = prev + change;
@@ -20,43 +20,18 @@ const ProductInfo = ({ producto }) => {
   };
 
   const handleAddToCart = async () => {
-    try {
-      setLoading(true);
-      await addToCart(producto.producto_id, cantidad);
-    } catch (error) {
-      console.error('Error agregando al carrito:', error);
-    } finally {
-      setLoading(false);
-    }
+    await addToCart(producto.producto_id, cantidad);
   };
 
   const handleBuyNow = async () => {
-    try {
-      setLoading(true);
-      await addToCart(producto.producto_id, cantidad);
-      navigate('/carrito');
-    } catch (error) {
-      console.error('Error en compra directa:', error);
-      setLoading(false);
-    }
+    await addToCart(producto.producto_id, cantidad);
+    navigate('/carrito');
   };
 
-  // Cálculos
   const hasDiscount = producto.precio_original && producto.precio_original > producto.precio;
   const discountPercentage = hasDiscount 
     ? Math.round(((producto.precio_original - producto.precio) / producto.precio_original) * 100) 
     : 0;
-
-  const isOutOfStock = !producto.stock_actual || producto.stock_actual <= 0;
-  const isLowStock = producto.stock_actual > 0 && producto.stock_actual <= 5;
-
-  const formatPrice = (price) => {
-    return new Intl.NumberFormat('es-AR', {
-      style: 'currency',
-      currency: 'ARS',
-      minimumFractionDigits: 0
-    }).format(price);
-  };
 
   return (
     <Box sx={{ 
@@ -74,14 +49,14 @@ const ProductInfo = ({ producto }) => {
           sx={{ 
             fontWeight: 700,
             lineHeight: 1.2, 
-            color: 'text.primary',
+            color: '#2c3e50',
             fontSize: { xs: '1.5rem', md: '2rem' }
           }}
         >
           {producto.nombre_producto}
         </Typography>
 
-        {/* Precios */}
+        {/* Precios con badge */}
         <Box>
           {hasDiscount && (
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
@@ -99,11 +74,10 @@ const ProductInfo = ({ producto }) => {
                 variant="body2" 
                 sx={{ 
                   textDecoration: 'line-through', 
-                  color: 'text.disabled',
-                  fontWeight: 500
+                  color: '#999'
                 }}
               >
-                {formatPrice(producto.precio_original)}
+                ${producto.precio_original?.toLocaleString('es-AR')}
               </Typography>
             </Box>
           )}
@@ -112,12 +86,12 @@ const ProductInfo = ({ producto }) => {
             variant="h3"
             sx={{ 
               fontWeight: 800,
-              color: hasDiscount ? 'error.main' : 'text.primary',
+              color: hasDiscount ? '#FF4500' : '#2c3e50',
               lineHeight: 1,
               fontSize: { xs: '2rem', md: '2.5rem' }
             }}
           >
-            {formatPrice(producto.precio)}
+            ${producto.precio?.toLocaleString('es-AR')}
           </Typography>
         </Box>
 
@@ -125,7 +99,7 @@ const ProductInfo = ({ producto }) => {
         <Typography 
           variant="body1" 
           sx={{ 
-            color: 'text.secondary',
+            color: '#6c757d',
             lineHeight: 1.6,
             fontSize: '1rem'
           }}
@@ -135,57 +109,40 @@ const ProductInfo = ({ producto }) => {
 
         {/* Stock */}
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-          <Typography variant="body2" sx={{ color: 'text.primary', fontWeight: 500 }}>
+          <Typography variant="body2" sx={{ color: '#495057', fontWeight: 500 }}>
             Stock:
           </Typography>
           <Chip 
-            label={
-              isOutOfStock 
-                ? 'Sin Stock' 
-                : isLowStock 
-                  ? `¡Últimas ${producto.stock_actual} unidades!`
-                  : `${producto.stock_actual} disponibles`
-            } 
-            color={
-              isOutOfStock ? 'error' : isLowStock ? 'warning' : 'success'
-            } 
+            label={producto.stock_actual > 0 ? `${producto.stock_actual} disponibles` : 'Sin Stock'} 
+            color={producto.stock_actual > 0 ? 'success' : 'error'} 
             size="small"
             variant="outlined"
-            sx={{ fontWeight: 600 }}
           />
         </Box>
-
-        {/* Alerta de stock bajo */}
-        {isLowStock && (
-          <Alert severity="warning" sx={{ fontSize: '0.875rem' }}>
-            ¡Pocas unidades disponibles! Completa tu compra pronto.
-          </Alert>
-        )}
       </Stack>
 
       {/* Controles inferiores */}
       <Stack spacing={3} sx={{ mt: 4 }}>
         {/* Selector de cantidad */}
         <Box>
-          <Typography variant="body2" sx={{ fontWeight: 600, mb: 2, color: 'text.primary' }}>
+          <Typography variant="body2" sx={{ fontWeight: 600, mb: 2, color: '#495057' }}>
             Cantidad:
           </Typography>
           <Box sx={{ 
             display: 'inline-flex', 
             alignItems: 'center',
-            border: '2px solid',
-            borderColor: 'divider',
+            border: '2px solid #e9ecef',
             borderRadius: 3,
-            background: 'background.paper'
+            background: 'white'
           }}>
             <IconButton 
               onClick={() => handleCantidadChange(-1)} 
-              disabled={cantidad <= 1 || loading}
+              disabled={cantidad <= 1}
               size="small"
               sx={{ 
-                color: 'primary.main',
+                color: '#FF6B35',
                 '&:hover': { background: 'rgba(255,107,53,0.1)' },
-                '&:disabled': { color: 'text.disabled' }
+                '&:disabled': { color: '#ccc' }
               }}
             >
               <Remove />
@@ -197,7 +154,7 @@ const ProductInfo = ({ producto }) => {
                 minWidth: 50,
                 textAlign: 'center',
                 fontWeight: 600,
-                color: 'text.primary',
+                color: '#2c3e50',
                 py: 1,
                 px: 2
               }}
@@ -207,12 +164,12 @@ const ProductInfo = ({ producto }) => {
             
             <IconButton 
               onClick={() => handleCantidadChange(1)} 
-              disabled={cantidad >= producto.stock_actual || loading}
+              disabled={cantidad >= producto.stock_actual}
               size="small"
               sx={{ 
-                color: 'primary.main',
+                color: '#FF6B35',
                 '&:hover': { background: 'rgba(255,107,53,0.1)' },
-                '&:disabled': { color: 'text.disabled' }
+                '&:disabled': { color: '#ccc' }
               }}
             >
               <Add />
@@ -227,7 +184,7 @@ const ProductInfo = ({ producto }) => {
             size="large" 
             onClick={handleAddToCart} 
             startIcon={<ShoppingCart />}
-            disabled={isOutOfStock || loading}
+            disabled={producto.stock_actual <= 0}
             sx={{
               py: 2,
               fontSize: '1rem',
@@ -243,42 +200,42 @@ const ProductInfo = ({ producto }) => {
                 boxShadow: '0 4px 15px rgba(255,107,53,0.3)'
               },
               '&:disabled': {
-                background: 'action.disabledBackground',
-                color: 'action.disabled'
+                background: '#e9ecef',
+                color: '#6c757d'
               }
             }}
           >
-            {loading ? 'Agregando...' : 'Agregar al Carrito'}
+            Agregar al Carrito
           </Button>
           
           <Button 
             variant="outlined" 
             size="large" 
             onClick={handleBuyNow}
-            disabled={isOutOfStock || loading}
+            disabled={producto.stock_actual <= 0}
             sx={{
               py: 2,
               fontSize: '1rem',
               fontWeight: 600,
               borderRadius: 3,
               textTransform: 'none',
-              borderColor: 'divider',
-              color: 'text.primary',
+              borderColor: '#e9ecef',
+              color: '#495057',
               borderWidth: 2,
               transition: 'all 0.3s ease',
               '&:hover': {
-                background: 'action.hover',
-                borderColor: 'primary.main',
-                color: 'primary.main',
+                background: '#f8f9fa',
+                borderColor: '#FF6B35',
+                color: '#FF6B35',
                 transform: 'translateY(-1px)'
               },
               '&:disabled': {
-                borderColor: 'action.disabled',
-                color: 'action.disabled'
+                borderColor: '#e9ecef',
+                color: '#6c757d'
               }
             }}
           >
-            {loading ? 'Procesando...' : 'Comprar Ahora'}
+            Comprar Ahora
           </Button>
         </Stack>
       </Stack>
