@@ -1,8 +1,5 @@
 import { useState, useEffect } from 'react';
-import { 
-    Box, TextField, Select, MenuItem, FormControl, 
-    InputLabel, Paper, Typography, Checkbox, FormControlLabel, Stack
-} from '@mui/material';
+import { Box, TextField, Select, MenuItem, FormControl, InputLabel, Paper, Typography, Checkbox, FormControlLabel, Stack} from '@mui/material';
 import axios from 'axios';
 
 const ProductFilters = ({ filtros, onFilterChange, onCheckboxChange }) => {
@@ -77,7 +74,7 @@ const ProductFilters = ({ filtros, onFilterChange, onCheckboxChange }) => {
                             onChange={onFilterChange}
                             size="small"
                             sx={inputStyles}
-                            inputProps={{ min: 0 }}
+                            slotProps={{ input: { min: 0 } }}
                         />
                         <TextField 
                             label="Máximo"
@@ -87,7 +84,7 @@ const ProductFilters = ({ filtros, onFilterChange, onCheckboxChange }) => {
                             onChange={onFilterChange}
                             size="small"
                             sx={inputStyles}
-                            inputProps={{ min: 0 }}
+                            slotProps={{ input: { min: 0 } }}
                         />
                     </Stack>
                 </Box>
