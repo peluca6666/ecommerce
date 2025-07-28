@@ -125,20 +125,27 @@ const NavMenu = ({ mobile = false, onItemClick }) => {
                         ) : (
                             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
                                 <Button component={RouterLink} to="/productos" onClick={onItemClick} sx={{
-                                    justifyContent: 'flex-start', py: 1.25, px: 2, borderRadius: 2, color: 'white',
-                                    fontWeight: 500, fontSize: '0.85rem', textTransform: 'none', transition: 'all 0.2s ease',
-                                    '&:hover': { background: 'rgba(255,255,255,0.15)', transform: 'translateX(4px)' }
+                                    justifyContent: 'flex-start', py: 1.5, px: 2.5, borderRadius: 2, 
+                                    color: 'white', fontWeight: 600, fontSize: '0.95rem', textTransform: 'none', 
+                                    transition: 'all 0.2s ease', background: 'rgba(255,255,255,0.1)',
+                                    '&:hover': { background: 'rgba(255,255,255,0.2)', transform: 'translateX(4px)' }
                                 }}>
                                     📦 Ver todo el catálogo
                                 </Button>
                                 
-                                <Box sx={{ height: '1px', background: 'rgba(255,255,255,0.15)', mx: 2, my: 0.5 }} />
+                                <Box sx={{ height: '1px', background: 'rgba(255,255,255,0.3)', mx: 2, my: 1 }} />
                                 
                                 {categories.map((cat) => (
                                     <Button key={cat.categoria_id} component={RouterLink} to={`/categoria/${cat.categoria_id}/productos`} onClick={onItemClick} sx={{
-                                        justifyContent: 'flex-start', py: 1.25, px: 2, borderRadius: 2, color: 'white',
-                                        fontWeight: 500, fontSize: '0.85rem', textTransform: 'none', transition: 'all 0.2s ease',
-                                        '&:hover': { background: 'rgba(255,255,255,0.15)', transform: 'translateX(4px)' }
+                                        justifyContent: 'flex-start', py: 1.5, px: 2.5, borderRadius: 2, 
+                                        color: 'white', fontWeight: 600, fontSize: '0.95rem', textTransform: 'none', 
+                                        transition: 'all 0.2s ease', background: 'rgba(255,255,255,0.08)',
+                                        border: '1px solid rgba(255,255,255,0.15)',
+                                        '&:hover': { 
+                                            background: 'rgba(255,255,255,0.2)', 
+                                            transform: 'translateX(4px)',
+                                            borderColor: 'rgba(255,255,255,0.3)'
+                                        }
                                     }}>
                                         {cat.nombre}
                                     </Button>
