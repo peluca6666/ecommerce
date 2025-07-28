@@ -2,7 +2,8 @@ import { useState, useEffect } from 'react';
 import { DataGrid } from '@mui/x-data-grid';
 import {
   Box, Typography, IconButton, Dialog, DialogTitle, DialogContent, DialogActions,
-  Button, TextField, Switch, FormControlLabel, Snackbar, Alert, Chip, Avatar, Input
+  Button, TextField, Switch, FormControlLabel, Snackbar, Alert, Chip, Avatar, Input,
+  useTheme, useMediaQuery, Fab
 } from '@mui/material';
 import Title from './Title';
 import { ToggleOn, ToggleOff, Edit, Delete, Add, CloudUpload } from '@mui/icons-material';
@@ -56,6 +57,9 @@ export default function AdminBannersPage() {
   const [editingBanner, setEditingBanner] = useState(null);
   const [formData, setFormData] = useState(INITIAL_FORM);
   const [imagePreview, setImagePreview] = useState(null);
+
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
 
   const { apiCall } = useApiCall();
   const { snackbar, showNotification, closeNotification } = useNotification();
@@ -169,62 +173,104 @@ export default function AdminBannersPage() {
 
   useEffect(() => { fetchBanners(); }, []);
 
-  // Configuración de columnas
+  // Configuración de columnas - responsiva automáticamente con DataGrid
   const columns = [
-    { field: 'id', headerName: 'ID', width: 70 },
+    { field: 'id', headerName: 'ID', width: 70, hide: isMobile },
     {
-      field: 'imagen', headerName: 'Imagen', width: 100,
-      renderCell: ({ value }) => <Avatar src={`${import.meta.env.VITE_API_BASE_URL}${value}`} variant="rounded" sx={{ width: 60, height: 40 }} />
+      field: 'imagen', headerName: 'Imagen', width: isMobile ? 80 : 100,
+      renderCell: ({ value }) => <Avatar src={`${import.meta.env.VITE_API_BASE_URL}${value}`} variant="rounded" sx={{ width: isMobile ? 40 : 60, height: isMobile ? 30 : 40 }} />
     },
-    { field: 'titulo', headerName: 'Título', width: 200 },
-    { field: 'descripcion', headerName: 'Descripción', width: 250 },
-    { field: 'boton_texto', headerName: 'Botón', width: 120 },
-    { field: 'orden', headerName: 'Orden', width: 80 },
+    { field: 'titulo', headerName: 'Título', flex: 1, minWidth: 150 },
+    { field: 'descripcion', headerName: 'Descripción', flex: 1, minWidth: 200, hide: isMobile },
+    { field: 'boton_texto', headerName: 'Botón', width: 120, hide: isMobile },
+    { field: 'orden', headerName: 'Orden', width: 80, hide: isMobile },
     {
-      field: 'activo', headerName: 'Estado', width: 120,
+      field: 'activo', headerName: 'Estado', width: isMobile ? 100 : 140,
       renderCell: ({ row }) => (
-        <Box sx={{ display: 'flex', alignItems: 'center' }} onClick={e => e.stopPropagation()}>
-          <IconButton onClick={() => handleToggleStatus(row.id, row.activo)}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }} onClick={e => e.stopPropagation()}>
+          <IconButton onClick={() => handleToggleStatus(row.id, row.activo)} size="small">
             {row.activo ? <ToggleOn color="success" /> : <ToggleOff color="error" />}
           </IconButton>
-          <Chip label={row.activo ? 'Activo' : 'Inactivo'} color={row.activo ? 'success' : 'default'} size="small" />
+          {!isMobile && <Chip label={row.activo ? 'Activo' : 'Inactivo'} color={row.activo ? 'success' : 'default'} size="small" />}
         </Box>
       )
     },
     {
-      field: 'acciones', headerName: 'Acciones', width: 120, sortable: false,
+      field: 'acciones', headerName: 'Acciones', width: isMobile ? 80 : 120, sortable: false,
       renderCell: ({ row }) => (
         <Box onClick={e => e.stopPropagation()}>
-          <IconButton onClick={() => openDialog(row)} color="primary"><Edit /></IconButton>
-          <IconButton onClick={() => handleDelete(row.id)} color="error"><Delete /></IconButton>
+          <IconButton onClick={() => openDialog(row)} color="primary" size="small"><Edit /></IconButton>
+          <IconButton onClick={() => handleDelete(row.id)} color="error" size="small"><Delete /></IconButton>
         </Box>
       )
     }
   ];
 
-  if (loading) return <Typography>Cargando banners...</Typography>;
-  if (error) return <Typography color="error">Error: {error}</Typography>;
+  if (loading) return <Typography sx={{ textAlign: 'center', mt: 4 }}>Cargando banners...</Typography>;
+  if (error) return <Typography color="error" sx={{ textAlign: 'center', mt: 4 }}>Error: {error}</Typography>;
 
   return (
-    <Box sx={{ height: '80vh', width: '100%' }}>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+    <Box sx={{ height: '80vh', width: '100%', p: { xs: 1, sm: 2 } }}>
+      {/* Header responsive */}
+      <Box sx={{ 
+        display: 'flex', 
+        justifyContent: 'space-between', 
+        alignItems: 'center', 
+        mb: 2,
+        flexDirection: { xs: 'column', sm: 'row' },
+        gap: { xs: 2, sm: 0 }
+      }}>
         <Title>Gestión de Banners</Title>
-        <Button variant="contained" startIcon={<Add />} onClick={() => openDialog()} 
-          sx={{ bgcolor: '#FF6B35', '&:hover': { bgcolor: '#FF5722' } }}>
-          Agregar Banner
-        </Button>
+        {!isMobile && (
+          <Button variant="contained" startIcon={<Add />} onClick={() => openDialog()} 
+            sx={{ bgcolor: '#FF6B35', '&:hover': { bgcolor: '#FF5722' } }}>
+            Agregar Banner
+          </Button>
+        )}
       </Box>
 
-      <DataGrid rows={banners} columns={columns} pageSize={10} disableSelectionOnClick 
-        sx={{ '& .MuiDataGrid-cell': { display: 'flex', alignItems: 'center' } }} />
+      {/* DataGrid con configuración responsive automática */}
+      <DataGrid 
+        rows={banners} 
+        columns={columns} 
+        pageSize={isMobile ? 5 : 10}
+        rowsPerPageOptions={isMobile ? [5, 10] : [10, 25, 50]}
+        disableSelectionOnClick 
+        autoHeight={isMobile}
+        density={isMobile ? 'compact' : 'standard'}
+        sx={{ 
+          '& .MuiDataGrid-cell': { display: 'flex', alignItems: 'center' },
+          '& .MuiDataGrid-columnHeaders': { backgroundColor: '#f5f5f5' },
+          borderRadius: 2,
+          boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
+        }} 
+      />
 
-      <Dialog open={isDialogOpen} onClose={closeDialog} maxWidth="sm" fullWidth>
+      {/* FAB solo para móvil */}
+      {isMobile && (
+        <Fab
+          color="primary"
+          onClick={() => openDialog()}
+          sx={{
+            position: 'fixed',
+            bottom: 24,
+            right: 24,
+            bgcolor: '#FF6B35',
+            '&:hover': { bgcolor: '#FF5722' }
+          }}
+        >
+          <Add />
+        </Fab>
+      )}
+
+      {/* Dialog responsive */}
+      <Dialog open={isDialogOpen} onClose={closeDialog} maxWidth="sm" fullWidth fullScreen={isMobile}>
         <DialogTitle>{editingBanner ? 'Editar Banner' : 'Crear Nuevo Banner'}</DialogTitle>
         <form onSubmit={handleSubmit}>
           <DialogContent>
             {FORM_FIELDS.map(({ name, label, ...props }) => (
               <TextField key={name} fullWidth label={label} name={name} margin="normal"
-                value={formData[name]} onChange={handleInputChange} {...props} />
+                value={formData[name]} onChange={handleInputChange} size={isMobile ? "small" : "medium"} {...props} />
             ))}
             
             <FormControlLabel
@@ -246,15 +292,18 @@ export default function AdminBannersPage() {
             </Box>
           </DialogContent>
           
-          <DialogActions>
-            <Button onClick={closeDialog}>Cancelar</Button>
-            <Button type="submit" variant="contained">{editingBanner ? 'Actualizar' : 'Crear'}</Button>
+          <DialogActions sx={{ flexDirection: { xs: 'column', sm: 'row' }, gap: 1, p: 2 }}>
+            <Button onClick={closeDialog} fullWidth={isMobile}>Cancelar</Button>
+            <Button type="submit" variant="contained" fullWidth={isMobile}
+              sx={{ bgcolor: '#FF6B35', '&:hover': { bgcolor: '#FF5722' } }}>
+              {editingBanner ? 'Actualizar' : 'Crear'}
+            </Button>
           </DialogActions>
         </form>
       </Dialog>
 
       <Snackbar open={snackbar.open} autoHideDuration={6000} onClose={closeNotification}
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}>
+        anchorOrigin={{ vertical: 'bottom', horizontal: isMobile ? 'center' : 'right' }}>
         <Alert onClose={closeNotification} severity={snackbar.severity}>{snackbar.message}</Alert>
       </Snackbar>
 

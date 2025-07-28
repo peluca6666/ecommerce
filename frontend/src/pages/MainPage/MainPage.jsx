@@ -172,7 +172,7 @@ const MainPage = () => {
           <Box sx={{ mt: { xs: 1, md: 1.5 }, textAlign: 'center' }}>
             <Button
               component={Link}
-              to="/productos?es_oferta=true"
+              to="/productos"
               variant="contained"
               size="large"
               sx={{
