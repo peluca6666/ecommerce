@@ -1,168 +1,63 @@
 import * as React from 'react';
-import { Outlet, Link as RouterLink } from 'react-router-dom'; // Link renombrado para evitar conflictos
-import Link from '@mui/material/Link';
-import { styled, createTheme, ThemeProvider } from '@mui/material/styles';
-import CssBaseline from '@mui/material/CssBaseline';
-import MuiDrawer from '@mui/material/Drawer';
-import Box from '@mui/material/Box';
-import MuiAppBar from '@mui/material/AppBar';
-import Toolbar from '@mui/material/Toolbar';
-import List from '@mui/material/List';
-import Typography from '@mui/material/Typography';
-import Divider from '@mui/material/Divider';
-import IconButton from '@mui/material/IconButton';
-import Container from '@mui/material/Container';
+import { Link as RouterLink } from 'react-router-dom';
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
-import HomeIcon from '@mui/icons-material/Home';
-import MenuIcon from '@mui/icons-material/Menu';
-import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
-import { mainListItems } from './listItems';
+import DashboardIcon from '@mui/icons-material/Dashboard';
+import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
+import PeopleIcon from '@mui/icons-material/People';
+import InventoryIcon from '@mui/icons-material/Inventory';
+import CategoryIcon from '@mui/icons-material/Category';
+import ViewCarouselIcon from '@mui/icons-material/ViewCarousel'; // NUEVO: Icono para banners
 
-// componente para el copyright en el footer
-function Copyright(props) {
-  return (
-    <Typography variant="body2" color="text.secondary" align="center" {...props}>
-      {'Copyright © '}
-      <Link color="inherit" href="https://mui.com/">
-        Your Website
-      </Link>{' '}
-      {new Date().getFullYear()}
-      {'.'}
-    </Typography>
-  );
-}
+export const mainListItems = (
+    <React.Fragment>
+        {/* Dashboard Principal */}
+        <ListItemButton component={RouterLink} to="/admin">
+            <ListItemIcon>
+                <DashboardIcon />
+            </ListItemIcon>
+            <ListItemText primary="Dashboard" />
+        </ListItemButton>
 
-const drawerWidth = 240;
+        {/* Gestión de Usuarios */}
+        <ListItemButton component={RouterLink} to="/admin/usuarios">
+            <ListItemIcon>
+                <PeopleIcon />
+            </ListItemIcon>
+            <ListItemText primary="Usuarios" />
+        </ListItemButton>
 
-// appbar personalizado que se ajusta según estado del drawer
-const AppBar = styled(MuiAppBar, {
-  shouldForwardProp: (prop) => prop !== 'open',
-})(({ theme, open }) => ({
-  zIndex: theme.zIndex.drawer + 1,
-  transition: theme.transitions.create(['width', 'margin'], {
-    easing: theme.transitions.easing.sharp,
-    duration: theme.transitions.duration.leavingScreen,
-  }),
-  ...(open && {
-    marginLeft: drawerWidth,
-    width: `calc(100% - ${drawerWidth}px)`,
-    transition: theme.transitions.create(['width', 'margin'], {
-      easing: theme.transitions.easing.sharp,
-      duration: theme.transitions.duration.enteringScreen,
-    }),
-  }),
-}));
+        {/* Gestión de Productos */}
+        <ListItemButton component={RouterLink} to="/admin/productos">
+            <ListItemIcon>
+                <InventoryIcon />
+            </ListItemIcon>
+            <ListItemText primary="Productos" />
+        </ListItemButton>
 
-// drawer personalizado para el menú lateral
-const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' })(
-  ({ theme, open }) => ({
-    '& .MuiDrawer-paper': {
-      position: 'relative',
-      whiteSpace: 'nowrap',
-      width: drawerWidth,
-      transition: theme.transitions.create('width', {
-        easing: theme.transitions.easing.sharp,
-        duration: theme.transitions.duration.enteringScreen,
-      }),
-      boxSizing: 'border-box',
-      ...(!open && {
-        overflowX: 'hidden',
-        transition: theme.transitions.create('width', {
-          easing: theme.transitions.easing.sharp,
-          duration: theme.transitions.duration.leavingScreen,
-        }),
-        width: theme.spacing(7),
-        [theme.breakpoints.up('sm')]: {
-          width: theme.spacing(9),
-        },
-      }),
-    },
-  }),
+        {/* Gestión de Categorías */}
+        <ListItemButton component={RouterLink} to="/admin/categorias">
+            <ListItemIcon>
+                <CategoryIcon />
+            </ListItemIcon>
+            <ListItemText primary="Categorías" />
+        </ListItemButton>
+
+        {/* NUEVO: Gestión de Banners */}
+        <ListItemButton component={RouterLink} to="/admin/banners">
+            <ListItemIcon>
+                <ViewCarouselIcon />
+            </ListItemIcon>
+            <ListItemText primary="Banners" />
+        </ListItemButton>
+
+        {/* Gestión de Ventas */}
+        <ListItemButton component={RouterLink} to="/admin/ventas">
+            <ListItemIcon>
+                <ShoppingCartIcon />
+            </ListItemIcon>
+            <ListItemText primary="Ventas" />
+        </ListItemButton>
+    </React.Fragment>
 );
-
-const defaultTheme = createTheme();
-
-export default function AdminDashboardPage() {
-  // estado para controlar si el drawer está abierto
-  const [open, setOpen] = React.useState(true);
-
-  // cambia el estado del drawer (abre/cierra)
-  const toggleDrawer = () => {
-    setOpen(!open);
-  };
-
-  return (
-    <ThemeProvider theme={defaultTheme}>
-      <Box sx={{ display: 'flex' }}>
-        <CssBaseline />
-        <AppBar position="absolute" open={open}>
-          <Toolbar sx={{ pr: '24px' }}>
-            {/* botón para abrir drawer, oculto si drawer está abierto */}
-            <IconButton
-              edge="start"
-              color="inherit"
-              aria-label="open drawer"
-              onClick={toggleDrawer}
-              sx={{ marginRight: '36px', ...(open && { display: 'none' }) }}
-            >
-              <MenuIcon />
-            </IconButton>
-            <Typography component="h1" variant="h6" color="inherit" noWrap sx={{ flexGrow: 1 }}>
-              Panel de Administrador
-            </Typography>
-          </Toolbar>
-        </AppBar>
-
-        {/* menú lateral */}
-        <Drawer variant="permanent" open={open}>
-          <Toolbar
-            sx={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'flex-end',
-              px: [1],
-            }}
-          >
-            {/* botón para cerrar drawer */}
-            <IconButton onClick={toggleDrawer}>
-              <ChevronLeftIcon />
-            </IconButton>
-          </Toolbar>
-          <Divider />
-          <List component="nav">
-            {mainListItems}
-            <Divider sx={{ my: 1 }} />
-            {/* link para volver a la página main */}
-            <ListItemButton component={RouterLink} to="/main">
-              <ListItemIcon>
-                <HomeIcon />
-              </ListItemIcon>
-              <ListItemText primary="Volver a Main" />
-            </ListItemButton>
-          </List>
-        </Drawer>
-
-        <Box
-          component="main"
-          sx={{
-            backgroundColor: (theme) =>
-              theme.palette.mode === 'light'
-                ? theme.palette.grey[100]
-                : theme.palette.grey[900],
-            flexGrow: 1,
-            height: '100vh',
-            overflow: 'auto',
-          }}
-        >
-          <Toolbar />
-          <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
-            <Outlet />
-            <Copyright sx={{ pt: 4 }} />
-          </Container>
-        </Box>
-      </Box>
-    </ThemeProvider>
-  );
-}

@@ -22,6 +22,7 @@ import AdminProductsPage from './pages/Admin/AdminProductsPage';
 import AdminSalesPage from './pages/Admin/AdminSalesPage';
 import AdminUsersPage from './pages/Admin/AdminUsersPage';
 import AdminCategoriesPage from './pages/Admin/AdminCategoriesPage.jsx';
+import AdminBannersPage from './pages/Admin/AdminBannersPage.jsx';
 
 function App() {
   return (
@@ -59,6 +60,7 @@ function App() {
               <Route path="ventas" element={<AdminSalesPage />} />
               <Route path="usuarios" element={<AdminUsersPage />} />
               <Route path="categorias" element={<AdminCategoriesPage />} />
+              <Route path="banners" element={<AdminBannersPage />} /> 
             </Route>
           </Route>
           

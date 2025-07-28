@@ -4,6 +4,7 @@ import { verifyToken, autorizarPorRol } from '../middleware/auth.js';
 import { schemaRegistro, schemaLogin } from '../validations/authValidation.js';
 import { validarBody } from '../middleware/validar.js';
 
+// Controladores existentes
 import {
   registrarUsuario,
   loginUsuario,
@@ -54,9 +55,22 @@ import {
   obtenerVentasPorUsuarioAdmin
 } from '../controllers/ventaController.js';
 
+// NUEVO: Controlador de banners
+import {
+  obtenerBannersPublicos,
+  obtenerBannersAdmin,
+  obtenerBannerPorId,
+  crearBanner,
+  actualizarBanner,
+  eliminarBanner,
+  toggleActivoBanner
+} from '../controllers/bannerController.js';
+
 import { manejarFormularioContacto } from '../controllers/contactoController.js';
 import { upload } from '../middleware/upload.js';
 import { uploadCategoria } from '../middleware/uploadCategoria.js';
+// NUEVO: Middleware de upload para banners
+import { uploadBanner, handleUploadError } from '../middleware/uploadBanner.js';
 
 import { createOrder, receiveWebhook } from '../controllers/paymentController.js';
 
@@ -83,6 +97,9 @@ router.get('/producto/ofertas', obtenerProductosEnOferta);
 router.get('/producto/:id', obtenerProductoPorId);
 router.get('/categoria', obtenerCategorias);
 router.get('/categoria/:id/producto', obtenerProductosPorCategoria);
+
+// NUEVO: Banners públicos
+router.get('/banners', obtenerBannersPublicos);
 
 // --- Rutas protegidas para usuarios logueados ---
 
@@ -154,6 +171,31 @@ router.put(
 );
 
 router.put('/admin/categorias/:id/toggle-activo', verifyToken, autorizarPorRol('admin'), cambiarEstadoCategoria);
+
+// NUEVO: Banners admin
+router.get('/admin/banners', verifyToken, autorizarPorRol('admin'), obtenerBannersAdmin);
+router.get('/admin/banners/:id', verifyToken, autorizarPorRol('admin'), obtenerBannerPorId);
+
+router.post(
+  '/admin/banners',
+  verifyToken,
+  autorizarPorRol('admin'),
+  uploadBanner.single('imagen'),
+  handleUploadError,
+  crearBanner
+);
+
+router.put(
+  '/admin/banners/:id',
+  verifyToken,
+  autorizarPorRol('admin'),
+  uploadBanner.single('imagen'),
+  handleUploadError,
+  actualizarBanner
+);
+
+router.delete('/admin/banners/:id', verifyToken, autorizarPorRol('admin'), eliminarBanner);
+router.put('/admin/banners/:id/toggle-activo', verifyToken, autorizarPorRol('admin'), toggleActivoBanner);
 
 // Ventas
 router.get('/admin/ventas', verifyToken, autorizarPorRol('admin'), listarTodasLasVentas);
