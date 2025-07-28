@@ -17,10 +17,10 @@ import CartPage from './pages/Carrito/CartPage.jsx';
 import ProfilePage from './pages/Profile/ProfilePage.jsx';
 import CheckoutPage from './pages/Checkout/CheckoutPage.jsx';
 import OrderConfirmationPage from './pages/OrderConfirmation/OrderConfirmationPage.jsx';
-import AdminDashboardPage from './pages/Admin/AdminDashboardPage';
-import AdminProductsPage from './pages/Admin/AdminProductsPage';
-import AdminSalesPage from './pages/Admin/AdminSalesPage';
-import AdminUsersPage from './pages/Admin/AdminUsersPage';
+import AdminDashboardPage from './pages/Admin/AdminDashboardPage.jsx';
+import AdminProductsPage from './pages/Admin/AdminProductsPage.jsx';
+import AdminSalesPage from './pages/Admin/AdminSalesPage.jsx';
+import AdminUsersPage from './pages/Admin/AdminUsersPage.jsx';
 import AdminCategoriesPage from './pages/Admin/AdminCategoriesPage.jsx';
 import AdminBannersPage from './pages/Admin/AdminBannersPage.jsx';
 
