@@ -7,10 +7,19 @@ import InventoryIcon from '@mui/icons-material/Inventory';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import CategoryIcon from '@mui/icons-material/Category';
 import PeopleIcon from '@mui/icons-material/People';
+import ViewCarouselIcon from '@mui/icons-material/ViewCarousel';
 
 // ítems del menú lateral para el panel de admin
 export const mainListItems = (
   <React.Fragment>
+
+    {/* Gestión de Banners */}
+<ListItemButton component={RouterLink} to="/admin/banners">
+    <ListItemIcon>
+        <ViewCarouselIcon />
+    </ListItemIcon>
+    <ListItemText primary="Banners" />
+</ListItemButton>
 
     {/* productos */}
     <Link to="/admin/productos" style={{ textDecoration: 'none', color: 'inherit' }}>
