@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
-
-import { Container, Grid, Typography, Box, Pagination } from '@mui/material';
+import { Container, Typography, Box, Pagination } from '@mui/material';
 import axios from 'axios';
 
 import ProductGrid from '../../components/Product/ProductGrid';
@@ -36,18 +35,17 @@ const ProductListPage = () => {
     useEffect(() => {
         const fetchProductos = async () => {
             setLoading(true);
-
+            
             // Armamos parámetros para la API según filtros y página actual
-            const params = new URLSearchParams({ pagina, limite: 10 });
+            const params = new URLSearchParams({ pagina, limite: 12 });
             if (debouncedBusqueda) params.append('busqueda', debouncedBusqueda);
             if (filtros.categoria) params.append('categoria', filtros.categoria);
             if (filtros.minPrice) params.append('minPrice', filtros.minPrice);
             if (filtros.maxPrice) params.append('maxPrice', filtros.maxPrice);
             if (filtros.sortBy) params.append('sortBy', filtros.sortBy);
-            if (filtros.es_oferta !== '') params.append('es_oferta', filtros.es_oferta);
+            if (filtros.es_oferta) params.append('es_oferta', filtros.es_oferta);
 
             try {
-                
                 const apiUrl = `${import.meta.env.VITE_API_BASE_URL}/api/producto?${params.toString()}`;
                 console.log("Enviando petición a la API:", apiUrl); 
 
@@ -55,7 +53,7 @@ const ProductListPage = () => {
                 if (response.data.exito) {
                     setProductos(response.data.datos);
                     setTotalPaginas(response.data.paginacion.total_paginas);
-                    setError(null); // limpiamos error si todo salió bien
+                    setError(null);
                 } else {
                     setError('No se pudieron cargar los productos.');
                 }
@@ -68,38 +66,37 @@ const ProductListPage = () => {
         fetchProductos();
     }, [pagina, debouncedBusqueda, filtros.categoria, filtros.minPrice, filtros.maxPrice, filtros.sortBy, filtros.es_oferta]);
 
-    // Sincronizamos filtros y página en el estado con los parámetros de la URL para que se pueda compartir o refrescar manteniendo estado
+    // Sincronizamos filtros y página en el estado con los parámetros de la URL
+    // PERO usamos debouncedBusqueda para evitar actualizar URL en cada keystroke
     useEffect(() => {
         const params = {};
-        if (filtros.busqueda) params.busqueda = filtros.busqueda;
+        if (debouncedBusqueda) params.busqueda = debouncedBusqueda; // <-- Usar debounced aquí
         if (filtros.categoria) params.categoria = filtros.categoria;
         if (filtros.minPrice) params.minPrice = filtros.minPrice;
         if (filtros.maxPrice) params.maxPrice = filtros.maxPrice;
         if (filtros.sortBy) params.sortBy = filtros.sortBy;
-        if (filtros.es_oferta !== '') params.es_oferta = filtros.es_oferta;
+        if (filtros.es_oferta) params.es_oferta = filtros.es_oferta;
         if (pagina > 1) params.pagina = pagina;
-
+        
         setSearchParams(params, { replace: true });
-    }, [filtros, pagina, setSearchParams]);
+    }, [debouncedBusqueda, filtros.categoria, filtros.minPrice, filtros.maxPrice, filtros.sortBy, filtros.es_oferta, pagina, setSearchParams]);
 
-    // Actualizamos filtros al cambiar inputs de texto, reiniciando página a 1
+    // Handlers simples sin memoización
     const handleFilterChange = (event) => {
         const { name, value } = event.target;
         setFiltros(prev => ({ ...prev, [name]: value }));
         setPagina(1);
     };
 
-    // Actualizamos filtros para checkboxes, usando 'true' o '' para controlar la URL
     const handleCheckboxChange = (event) => {
         const { name, checked } = event.target;
         setFiltros(prev => ({
             ...prev,
-            [name]: checked ? 'true' : 'false'
+            [name]: checked ? 'true' : ''
         }));
         setPagina(1);
     };
 
-    // Cambia la página en la paginación
     const handlePageChange = (event, value) => {
         setPagina(value);
     };
@@ -109,33 +106,57 @@ const ProductListPage = () => {
 
     return (
         <Box>
-            <Container maxWidth="lg" sx={{ my: 4 }}>
+            <Container maxWidth="xl" sx={{ my: 4 }}>
                 <Typography variant="h4" component="h1" gutterBottom fontWeight="bold">
                     Nuestro Catálogo
                 </Typography>
-                <Grid container spacing={4}>
-                    <Grid item xs={12} md={3}>
+                
+                <Box sx={{ display: 'flex', gap: 4, flexDirection: { xs: 'column', md: 'row' } }}>
+                    {/* SIDEBAR DE FILTROS */}
+                    <Box sx={{ 
+                        width: { xs: '100%', md: '280px' },
+                        flexShrink: 0
+                    }}>
                         <ProductFilters 
                             filtros={filtros} 
                             onFilterChange={handleFilterChange}
                             onCheckboxChange={handleCheckboxChange}
                         />
-                    </Grid>
-                    <Grid item xs={12} md={9}>
+                    </Box>
+                    
+                    {/* ÁREA DE PRODUCTOS */}
+                    <Box sx={{ flex: 1, minWidth: 0 }}>
                         {loading ? <LoadingSpinner /> : (
                             productos.length === 0 ? (
-                                <Typography>No se encontraron productos que coincidan con tu búsqueda.</Typography>
+                                <Box sx={{ textAlign: 'center', py: 6 }}>
+                                    <Typography variant="h6" color="text.secondary">
+                                        No se encontraron productos que coincidan con tu búsqueda.
+                                    </Typography>
+                                    <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+                                        Intenta ajustar los filtros o buscar con otros términos.
+                                    </Typography>
+                                </Box>
                             ) : (
                                 <ProductGrid productos={productos} />
                             )
                         )}
-                        <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
-                            {totalPaginas > 1 && (
-                                <Pagination count={totalPaginas} page={pagina} onChange={handlePageChange} color="primary" />
-                            )}
-                        </Box>
-                    </Grid>
-                </Grid>
+                        
+                        {/* PAGINACIÓN */}
+                        {totalPaginas > 1 && (
+                            <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
+                                <Pagination 
+                                    count={totalPaginas} 
+                                    page={pagina} 
+                                    onChange={handlePageChange} 
+                                    color="primary"
+                                    size="large"
+                                    showFirstButton 
+                                    showLastButton
+                                />
+                            </Box>
+                        )}
+                    </Box>
+                </Box>
             </Container>
         </Box>
     );
