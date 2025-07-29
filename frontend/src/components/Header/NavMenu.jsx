@@ -98,13 +98,12 @@ const NavMenu = ({ mobile = false, onItemClick }) => {
         textTransform: 'none',
         backgroundColor: 'transparent',
         borderRadius: 2,
-        transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)', // Transición más suave
+        transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
         '&:hover': { 
-            backgroundColor: 'rgba(255, 107, 53, 0.08)', // Fondo naranja muy sutil
+            backgroundColor: 'rgba(255, 107, 53, 0.08)',
             color: '#FF6B35',
-            transform: 'translateX(6px)', // Movimiento más sutil
             fontWeight: 600,
-            boxShadow: '0 2px 8px rgba(255, 107, 53, 0.15)' // Sombra suave
+            boxShadow: '0 2px 8px rgba(255, 107, 53, 0.15)'
         }
     };
 
@@ -223,13 +222,13 @@ const NavMenu = ({ mobile = false, onItemClick }) => {
             ))}
 
             <Drawer anchor="left" open={sidebarOpen} onClose={() => setSidebarOpen(false)} slotProps={{
-                paper: { sx: { backgroundColor: 'white', color: '#333' } }
+                paper: { sx: { backgroundColor: 'white', color: '#333', width: 280 } }
             }}>
                 <Box sx={{ 
                     display: 'flex', 
                     justifyContent: 'space-between', 
                     alignItems: 'center', 
-                    p: 4,
+                    p: 2,
                     background: 'linear-gradient(135deg, #FF6B35 0%, #FF4500 100%)',
                     color: 'white'
                 }}>
@@ -251,7 +250,6 @@ const NavMenu = ({ mobile = false, onItemClick }) => {
                         textTransform: 'none',
                         '&:hover': { 
                             backgroundColor: '#eeeeee',
-                            transform: 'translateY(-1px)',
                             boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
                         }
                     }}>
@@ -269,7 +267,15 @@ const NavMenu = ({ mobile = false, onItemClick }) => {
                         <Box>
                             {categories.map((cat, index) => (
                                 <Box key={cat.categoria_id}>
-                                    <Button component={RouterLink} to={`/categoria/${cat.categoria_id}/productos`} onClick={handleClose} sx={categoryButton}>
+                                    <Button component={RouterLink} to={`/categoria/${cat.categoria_id}/productos`} onClick={handleClose} sx={{
+                                        ...categoryButton,
+                                        '&:hover': { 
+                                            backgroundColor: 'rgba(255, 107, 53, 0.08)',
+                                            color: '#FF6B35',
+                                            fontWeight: 600,
+                                            boxShadow: '0 2px 8px rgba(255, 107, 53, 0.15)'
+                                        }
+                                    }}>
                                         {cat.nombre}
                                     </Button>
                                     {index < categories.length - 1 && (
