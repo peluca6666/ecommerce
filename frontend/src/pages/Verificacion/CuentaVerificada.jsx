@@ -11,14 +11,13 @@ const CuentaVerificada = () => {
   const navigate = useNavigate();
   const theme = useTheme(); 
 
-  const [estado, setEstado] = useState('cargando'); // 'cargando', 'exito', 'error'
+  const [estado, setEstado] = useState('cargando');
   const [mensajePrincipal, setMensajePrincipal] = useState(''); 
   const [detalleMensaje, setDetalleMensaje] = useState(''); 
 
   useEffect(() => {
     const token = searchParams.get('token');
     
-    // Resetear estados al inicio
     setEstado('cargando');
     setMensajePrincipal('');
     setDetalleMensaje('');
@@ -30,7 +29,6 @@ const CuentaVerificada = () => {
       return;
     }
 
-    // Debugging: Log para ver qué está pasando
     console.log('Iniciando verificación con token:', token);
 
     axios.get(`${import.meta.env.VITE_API_BASE_URL}/api/verify?token=${token}`)
@@ -38,7 +36,6 @@ const CuentaVerificada = () => {
         console.log('Respuesta de la API:', response.data);
         console.log('Status de la respuesta:', response.status);
         
-        // Verificar diferentes formatos de respuesta exitosa
         const isSuccess = 
           response.status === 200 && (
             response.data?.exito === true ||
@@ -47,7 +44,6 @@ const CuentaVerificada = () => {
             response.data?.verified === true ||
             (response.data?.message && response.data.message.toLowerCase().includes('verificad')) ||
             (response.data?.mensaje && response.data.mensaje.toLowerCase().includes('verificad')) ||
-            // Si no hay mensaje de error específico y el status es 200, asumir éxito
             (!response.data?.error && !response.data?.mensaje?.toLowerCase().includes('error'))
           );
 
@@ -70,7 +66,6 @@ const CuentaVerificada = () => {
         console.error('Error en la verificación:', err);
         console.error('Respuesta del error:', err.response?.data);
         
-        // Verificar si es un error 404 o 400 que podría indicar token inválido
         if (err.response?.status === 404) {
           setEstado('error');
           setMensajePrincipal('Token no encontrado');
@@ -97,7 +92,6 @@ const CuentaVerificada = () => {
   }, [searchParams]);
 
   const handleReintento = () => {
-    // Recargar la página para reintentar la verificación
     window.location.reload();
   };
 
@@ -117,11 +111,11 @@ const CuentaVerificada = () => {
                 mx: 'auto'
             }}
           >
-            <HourglassEmptyIcon sx={{ fontSize: 60, color: 'primary.main', mb: 2 }} />
+            <HourglassEmptyIcon sx={{ fontSize: 60, color: '#FF9800', mb: 2 }} />
             <Typography variant="h5" gutterBottom color="text.primary" fontWeight="medium">
               Verificando tu cuenta...
             </Typography>
-            <CircularProgress size={40} color="primary" sx={{ mt: 2 }} />
+            <CircularProgress size={40} sx={{ color: '#FF9800', mt: 2 }} />
             <Typography variant="body2" color="text.secondary" sx={{ mt: 2 }}>
               Esto puede tomar unos segundos
             </Typography>
@@ -151,19 +145,30 @@ const CuentaVerificada = () => {
             <Box sx={{ display: 'flex', gap: 2, flexDirection: { xs: 'column', sm: 'row' } }}>
               <Button 
                   variant="outlined" 
-                  color="primary" 
                   onClick={handleReintento}
                   size="large"
-                  sx={{ borderRadius: '8px', py: 1.5, fontWeight: 'bold' }}
+                  sx={{ 
+                    borderRadius: '8px', 
+                    py: 1.5, 
+                    fontWeight: 'bold',
+                    borderColor: '#FF9800',
+                    color: '#FF9800',
+                    '&:hover': { borderColor: '#F57C00', backgroundColor: 'rgba(255, 152, 0, 0.1)' }
+                  }}
               >
                 Reintentar
               </Button>
               <Button 
                   variant="contained" 
-                  color="primary" 
                   onClick={() => navigate('/login')}
                   size="large"
-                  sx={{ borderRadius: '8px', py: 1.5, fontWeight: 'bold' }}
+                  sx={{ 
+                    borderRadius: '8px', 
+                    py: 1.5, 
+                    fontWeight: 'bold',
+                    bgcolor: '#FF9800',
+                    '&:hover': { bgcolor: '#F57C00' }
+                  }}
               >
                 Ir a Iniciar Sesión
               </Button>
@@ -193,10 +198,15 @@ const CuentaVerificada = () => {
             </Typography>
             <Button 
                 variant="contained" 
-                color="primary" 
                 onClick={() => navigate('/login')}
                 size="large"
-                sx={{ borderRadius: '8px', py: 1.5, fontWeight: 'bold' }}
+                sx={{ 
+                  borderRadius: '8px', 
+                  py: 1.5, 
+                  fontWeight: 'bold',
+                  bgcolor: '#FF9800',
+                  '&:hover': { bgcolor: '#F57C00' }
+                }}
             >
                 Iniciar sesión
             </Button>
@@ -214,9 +224,9 @@ const CuentaVerificada = () => {
             justifyContent: 'center', 
             alignItems: 'center', 
             minHeight: '100vh', 
-            background: `linear-gradient(135deg, ${theme.palette.primary.light} 30%, ${theme.palette.background.default} 90%)`,
+            background: `linear-gradient(135deg, #FFF3E0 30%, #FFFFFF 90%)`,
             [theme.breakpoints.down('sm')]: { 
-                background: theme.palette.background.default, 
+                background: '#FFFFFF', 
             },
             p: 2 
         }}

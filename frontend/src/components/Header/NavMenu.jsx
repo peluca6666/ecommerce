@@ -93,7 +93,7 @@ const NavMenu = ({ mobile = false, onItemClick }) => {
                 p: 2.5
             }}>
                 {user?.rol === 'admin' && (
-                    <Button component={RouterLink} to="/admin" onClick={onItemClick} startIcon={<AdminPanelSettings />} sx={mobileButton}>
+                    <Button component={RouterLink} to="/admin/productos" onClick={onItemClick} startIcon={<AdminPanelSettings />} sx={mobileButton}>
                         Panel Admin
                     </Button>
                 )}
@@ -159,7 +159,7 @@ const NavMenu = ({ mobile = false, onItemClick }) => {
     return (
         <Box>
             {user?.rol === 'admin' && (
-                <Button component={RouterLink} to="/admin" variant="outlined" sx={{
+                <Button component={RouterLink} to="/admin/productos" variant="outlined" sx={{
                     ...navButton,
                     borderColor: 'rgba(255,255,255,0.3)',
                     '&:hover': { backgroundColor: 'rgba(255,255,255,0.1)', borderColor: 'white' }
