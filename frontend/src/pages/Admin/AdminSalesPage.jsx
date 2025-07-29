@@ -10,76 +10,52 @@ import { Link as RouterLink } from 'react-router-dom';
 import Title from './Title';
 import { Visibility } from '@mui/icons-material';
 
+const STATUS_COLORS = {
+  'Completado': 'success', 'Cancelado': 'error', 
+  'Procesando': 'warning', 'Enviado': 'info'
+};
+
+const STATUS_OPTIONS = ['Procesando', 'Enviado', 'Completado', 'Cancelado'];
+const PAGE_SIZES = [5, 10, 15, 20];
+
 export default function AdminSalesPage() {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   
-  // Estados para ventas, carga, error, modal detalle, venta seleccionada y nuevo estado
   const [sales, setSales] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [isDetailModalOpen, setDetailModalOpen] = useState(false);
   const [selectedSale, setSelectedSale] = useState(null);
   const [detailLoading, setDetailLoading] = useState(false);
   const [newStatus, setNewStatus] = useState('');
-
-  // Estados para paginación móvil
   const [currentPage, setCurrentPage] = useState(0);
   const [pageSize, setPageSize] = useState(10);
+  const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' });
+  const [confirmDialog, setConfirmDialog] = useState({ open: false, message: '', action: null });
 
-  // Estados para alertas (snackbar)
-  const [snackbarOpen, setSnackbarOpen] = useState(false);
-  const [snackbarMessage, setSnackbarMessage] = useState('');
-  const [snackbarSeverity, setSnackbarSeverity] = useState('success');
-
-  // Estados para diálogo de confirmación
-  const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
-  const [confirmDialogMessage, setConfirmDialogMessage] = useState('');
-  const [confirmAction, setConfirmAction] = useState(null);
-
-  // Muestra snackbar con mensaje y tipo
-  const showSnackbar = (message, severity) => {
-    setSnackbarMessage(message);
-    setSnackbarSeverity(severity);
-    setSnackbarOpen(true);
+  const apiCall = async (endpoint, options = {}) => {
+    const token = localStorage.getItem('token');
+    const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}${endpoint}`, {
+      headers: { Authorization: `Bearer ${token}`, ...options.headers },
+      ...options
+    });
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.mensaje || 'Error en la solicitud');
+    }
+    return response.json();
   };
 
-  // Cierra snackbar excepto si es clickaway
-  const handleCloseSnackbar = (event, reason) => {
-    if (reason === 'clickaway') return;
-    setSnackbarOpen(false);
-  };
+  const showSnackbar = (message, severity = 'success') => 
+    setSnackbar({ open: true, message, severity });
 
-  // Abre diálogo de confirmación con mensaje y acción a ejecutar
-  const handleOpenConfirmDialog = (message, action) => {
-    setConfirmDialogMessage(message);
-    setConfirmAction(() => action);
-    setConfirmDialogOpen(true);
-  };
+  const showConfirmDialog = (message, action) => 
+    setConfirmDialog({ open: true, message, action });
 
-  // Confirma acción y cierra diálogo
-  const handleConfirmAction = () => {
-    if (confirmAction) confirmAction();
-    setConfirmDialogOpen(false);
-    setConfirmAction(null);
-  };
-
-  // Cancela y cierra diálogo de confirmación
-  const handleCancelConfirmDialog = () => {
-    setConfirmDialogOpen(false);
-    setConfirmAction(null);
-  };
-
-  // Obtiene todas las ventas usando token y actualiza estados
   const fetchSales = async () => {
     try {
       setLoading(true);
-      const token = localStorage.getItem('token');
-      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/admin/ventas`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      if (!response.ok) throw new Error('No se pudieron cargar las ventas');
-      const data = await response.json();
+      const data = await apiCall('/api/admin/ventas');
       setSales(data.datos || []);
     } catch (err) {
       setError(err.message);
@@ -89,61 +65,34 @@ export default function AdminSalesPage() {
     }
   };
 
-  // Carga ventas cuando el componente se monta
-  useEffect(() => {
-    fetchSales();
-  }, []);
+  useEffect(() => { fetchSales(); }, []);
 
-  // Abre modal y carga detalle de venta específica
   const handleViewDetails = async (sale) => {
-    setDetailModalOpen(true);
+    setSelectedSale(sale);
     setDetailLoading(true);
     try {
-      const token = localStorage.getItem('token');
-      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/admin/ventas/${sale.venta_id}`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      if (!response.ok) throw new Error('No se pudo cargar el detalle de la venta');
-      const data = await response.json();
+      const data = await apiCall(`/api/admin/ventas/${sale.venta_id}`);
       setSelectedSale(data.datos);
       setNewStatus(data.datos.estado);
     } catch (err) {
-      console.error(err);
-      showSnackbar(`Error al cargar el detalle de la venta: ${err.message}`, 'error');
+      showSnackbar(`Error al cargar el detalle: ${err.message}`, 'error');
     } finally {
       setDetailLoading(false);
     }
   };
 
-  // Cierra modal y limpia venta seleccionada
-  const handleCloseDetailModal = () => {
-    setDetailModalOpen(false);
-    setSelectedSale(null);
-  };
-
-  // Actualiza estado de venta tras confirmación y refresca lista
-  const handleStatusChange = async () => {
-    handleOpenConfirmDialog(
+  const handleStatusChange = () => {
+    showConfirmDialog(
       `¿Estás seguro de que querés cambiar el estado a "${newStatus}"?`,
       async () => {
         try {
-          const token = localStorage.getItem('token');
-          const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/admin/ventas/${selectedSale.venta_id}/status`, {
+          await apiCall(`/api/admin/ventas/${selectedSale.venta_id}/status`, {
             method: 'PUT',
-            headers: {
-              'Content-Type': 'application/json',
-              Authorization: `Bearer ${token}`
-            },
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ estado: newStatus })
           });
-
-          if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(errorData.mensaje || 'Falló la actualización del estado');
-          }
-
-          showSnackbar('¡Estado actualizado con éxito!', 'success');
-          handleCloseDetailModal();
+          showSnackbar('¡Estado actualizado con éxito!');
+          setSelectedSale(null);
           fetchSales();
         } catch (err) {
           showSnackbar(`Error: ${err.message}`, 'error');
@@ -152,59 +101,27 @@ export default function AdminSalesPage() {
     );
   };
 
-  // Funciones de paginación móvil
+  const closeDialog = () => setSelectedSale(null);
+  const closeSnackbar = (_, reason) => reason !== 'clickaway' && setSnackbar(prev => ({ ...prev, open: false }));
+  const closeConfirmDialog = () => setConfirmDialog({ open: false, message: '', action: null });
+
+  // Paginación móvil
   const totalPages = Math.ceil(sales.length / pageSize);
-  const startIndex = currentPage * pageSize;
-  const endIndex = startIndex + pageSize;
-  const currentSales = sales.slice(startIndex, endIndex);
+  const currentSales = sales.slice(currentPage * pageSize, (currentPage + 1) * pageSize);
 
-  const handlePageChange = (newPage) => {
-    setCurrentPage(newPage);
-  };
-
-  const handlePageSizeChange = (newSize) => {
-    setPageSize(newSize);
-    setCurrentPage(0); // Reset to first page when changing page size
-  };
-  const getStatusColor = (status) => {
-    switch (status) {
-      case 'Completado': return 'success';
-      case 'Cancelado': return 'error';
-      case 'Procesando': return 'warning';
-      case 'Enviado': return 'info';
-      default: return 'default';
-    }
-  };
-
-  // Componente para vista móvil con cards
-  const MobileVentaCard = ({ venta }) => (
-    <Card 
-      sx={{ 
-        mb: 2, 
-        cursor: 'pointer',
-        '&:hover': { boxShadow: 3 },
-        borderRadius: 2
-      }}
-      onClick={() => handleViewDetails(venta)}
-    >
+  const MobileCard = ({ venta }) => (
+    <Card sx={{ mb: 2, cursor: 'pointer', '&:hover': { boxShadow: 3 } }} onClick={() => handleViewDetails(venta)}>
       <CardContent sx={{ p: 2 }}>
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 1 }}>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
           <Typography variant="h6" sx={{ fontSize: '1rem', fontWeight: 600 }}>
             Venta #{venta.venta_id}
           </Typography>
-          <Chip 
-            label={venta.estado} 
-            color={getStatusColor(venta.estado)} 
-            size="small"
-            sx={{ fontSize: '0.7rem' }}
-          />
+          <Chip label={venta.estado} color={STATUS_COLORS[venta.estado] || 'default'} size="small" />
         </Box>
-        
         <Typography variant="body2" color="text.secondary" sx={{ mb: 0.5 }}>
           {venta.email}
         </Typography>
-        
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
           <Typography variant="body2" color="text.secondary">
             {new Date(venta.fecha_venta).toLocaleDateString('es-AR')}
           </Typography>
@@ -216,66 +133,27 @@ export default function AdminSalesPage() {
     </Card>
   );
 
-  // Columnas para la tabla de ventas (solo desktop)
   const columns = [
-    { 
-      field: 'venta_id', 
-      headerName: 'ID', 
-      width: 70,
-      minWidth: 60
-    },
+    { field: 'venta_id', headerName: 'ID', width: 70 },
     {
-      field: 'fecha_venta',
-      headerName: 'Fecha',
-      width: 140,
-      minWidth: 120,
-      valueGetter: (value) => (value ? new Date(value).toLocaleDateString('es-AR') : '')
+      field: 'fecha_venta', headerName: 'Fecha', width: 140,
+      valueGetter: (value) => value ? new Date(value).toLocaleDateString('es-AR') : ''
     },
-    { 
-      field: 'email', 
-      headerName: 'Cliente', 
-      flex: 1,
-      minWidth: 200,
-      maxWidth: 300
-    },
+    { field: 'email', headerName: 'Cliente', flex: 1, minWidth: 200, maxWidth: 300 },
     {
-      field: 'total',
-      headerName: 'Total',
-      type: 'number',
-      width: 110,
-      minWidth: 90,
+      field: 'total', headerName: 'Total', type: 'number', width: 110,
       valueFormatter: (value) => `$${Number(value || 0).toLocaleString('es-AR')}`
     },
     {
-      field: 'estado',
-      headerName: 'Estado',
-      width: 120,
-      minWidth: 100,
-      renderCell: ({ value }) => (
-        <Chip 
-          label={value} 
-          color={getStatusColor(value)} 
-          size="small"
-          variant="filled"
-        />
-      )
+      field: 'estado', headerName: 'Estado', width: 120,
+      renderCell: ({ value }) => <Chip label={value} color={STATUS_COLORS[value] || 'default'} size="small" />
     },
     {
-      field: 'acciones',
-      headerName: 'Ver',
-      width: 80,
-      minWidth: 60,
-      sortable: false,
+      field: 'acciones', headerName: 'Ver', width: 80, sortable: false,
       renderCell: ({ row }) => (
-        <Box onClick={e => e.stopPropagation()}>
-          <IconButton 
-            onClick={() => handleViewDetails(row)} 
-            color="primary"
-            size="small"
-          >
-            <Visibility fontSize="small" />
-          </IconButton>
-        </Box>
+        <IconButton onClick={(e) => { e.stopPropagation(); handleViewDetails(row); }} color="primary" size="small">
+          <Visibility fontSize="small" />
+        </IconButton>
       )
     }
   ];
@@ -285,328 +163,163 @@ export default function AdminSalesPage() {
 
   return (
     <>
-      <Box sx={{ 
-        display: 'flex', 
-        justifyContent: 'space-between', 
-        alignItems: 'center', 
-        mb: 3
-      }}>
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 3 }}>
         <Title>Gestión de Ventas</Title>
       </Box>
 
       {isMobile ? (
-        // Vista móvil con cards y paginación
         <Box>
-          {/* Controles de paginación arriba */}
-          <Box sx={{ 
-            display: 'flex', 
-            justifyContent: 'space-between', 
-            alignItems: 'center', 
-            mb: 2,
-            px: 1
-          }}>
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2, px: 1 }}>
             <FormControl size="small" sx={{ minWidth: 120 }}>
               <InputLabel>Filas por página</InputLabel>
-              <Select
-                value={pageSize}
-                label="Filas por página"
-                onChange={(e) => handlePageSizeChange(e.target.value)}
-              >
-                <MenuItem value={5}>5</MenuItem>
-                <MenuItem value={10}>10</MenuItem>
-                <MenuItem value={15}>15</MenuItem>
-                <MenuItem value={20}>20</MenuItem>
+              <Select value={pageSize} label="Filas por página" onChange={(e) => { setPageSize(e.target.value); setCurrentPage(0); }}>
+                {PAGE_SIZES.map(size => <MenuItem key={size} value={size}>{size}</MenuItem>)}
               </Select>
             </FormControl>
-            
             <Typography variant="body2" color="text.secondary">
-              {startIndex + 1}-{Math.min(endIndex, sales.length)} de {sales.length}
+              {currentPage * pageSize + 1}-{Math.min((currentPage + 1) * pageSize, sales.length)} de {sales.length}
             </Typography>
           </Box>
 
-          {/* Cards de ventas */}
           <Box sx={{ px: 1 }}>
             {sales.length === 0 ? (
-              <Typography variant="body1" sx={{ textAlign: 'center', py: 4 }}>
-                No hay ventas para mostrar
-              </Typography>
+              <Typography sx={{ textAlign: 'center', py: 4 }}>No hay ventas para mostrar</Typography>
             ) : (
-              currentSales.map((venta) => (
-                <MobileVentaCard key={venta.venta_id} venta={venta} />
-              ))
+              currentSales.map(venta => <MobileCard key={venta.venta_id} venta={venta} />)
             )}
           </Box>
 
-          {/* Controles de navegación de páginas */}
           {totalPages > 1 && (
-            <Box sx={{ 
-              display: 'flex', 
-              justifyContent: 'center', 
-              alignItems: 'center', 
-              mt: 3,
-              gap: 1
-            }}>
-              <Button 
-                size="small" 
-                disabled={currentPage === 0}
-                onClick={() => handlePageChange(currentPage - 1)}
-              >
+            <Box sx={{ display: 'flex', justifyContent: 'center', mt: 3, gap: 1 }}>
+              <Button size="small" disabled={currentPage === 0} onClick={() => setCurrentPage(currentPage - 1)}>
                 Anterior
               </Button>
-              
-              <Box sx={{ display: 'flex', gap: 0.5 }}>
-                {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-                  let pageNum;
-                  if (totalPages <= 5) {
-                    pageNum = i;
-                  } else if (currentPage < 3) {
-                    pageNum = i;
-                  } else if (currentPage >= totalPages - 3) {
-                    pageNum = totalPages - 5 + i;
-                  } else {
-                    pageNum = currentPage - 2 + i;
-                  }
-                  
-                  return (
-                    <Button
-                      key={pageNum}
-                      size="small"
-                      variant={currentPage === pageNum ? "contained" : "text"}
-                      onClick={() => handlePageChange(pageNum)}
-                      sx={{ minWidth: 32, height: 32 }}
-                    >
-                      {pageNum + 1}
-                    </Button>
-                  );
-                })}
-              </Box>
-              
-              <Button 
-                size="small" 
-                disabled={currentPage === totalPages - 1}
-                onClick={() => handlePageChange(currentPage + 1)}
-              >
+              {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                const pageNum = totalPages <= 5 ? i : 
+                  currentPage < 3 ? i : 
+                  currentPage >= totalPages - 3 ? totalPages - 5 + i : 
+                  currentPage - 2 + i;
+                return (
+                  <Button
+                    key={pageNum} size="small"
+                    variant={currentPage === pageNum ? "contained" : "text"}
+                    onClick={() => setCurrentPage(pageNum)}
+                    sx={{ minWidth: 32, height: 32 }}
+                  >
+                    {pageNum + 1}
+                  </Button>
+                );
+              })}
+              <Button size="small" disabled={currentPage === totalPages - 1} onClick={() => setCurrentPage(currentPage + 1)}>
                 Siguiente
               </Button>
             </Box>
           )}
         </Box>
       ) : (
-        // Vista desktop con DataGrid
         <DataGrid
-          rows={sales}
-          columns={columns}
-          getRowId={(row) => row.venta_id}
+          rows={sales} columns={columns} getRowId={(row) => row.venta_id}
           initialState={{ 
             sorting: { sortModel: [{ field: 'venta_id', sort: 'desc' }] },
             pagination: { paginationModel: { pageSize: 15 } }
           }}
-          pageSizeOptions={[10, 15, 25, 50]}
-          disableSelectionOnClick
-          autoHeight
+          pageSizeOptions={[10, 15, 25, 50]} disableSelectionOnClick autoHeight
           sx={{
-            '& .MuiDataGrid-main': {
-              borderRadius: 2,
-            },
-            '& .MuiDataGrid-cell': {
-              borderBottom: '1px solid rgba(224, 224, 224, 0.5)',
-            },
-            '& .MuiDataGrid-columnHeaders': {
-              backgroundColor: '#f8fafc',
-              borderBottom: '2px solid #e5e5e5',
-              '& .MuiDataGrid-columnHeaderTitle': {
-                fontWeight: 600,
-              }
-            },
-            '& .MuiDataGrid-virtualScroller': {
-              overflow: 'visible !important',
-            },
-            '& .MuiDataGrid-footerContainer': {
-              borderTop: '2px solid #e5e5e5',
-              backgroundColor: '#f8fafc',
-            }
+            '& .MuiDataGrid-columnHeaders': { backgroundColor: '#f8fafc', '& .MuiDataGrid-columnHeaderTitle': { fontWeight: 600 } },
+            '& .MuiDataGrid-footerContainer': { backgroundColor: '#f8fafc' }
           }}
         />
       )}
 
-      {/* Modal para detalles y gestión de estado */}
-      <Dialog 
-        open={isDetailModalOpen} 
-        onClose={handleCloseDetailModal} 
-        fullWidth 
-        maxWidth="md"
-        fullScreen={isMobile}
-        sx={{
-          '& .MuiDialog-paper': {
-            margin: { xs: 0, sm: 2 },
-            maxHeight: { xs: '100%', sm: 'calc(100% - 64px)' }
-          }
-        }}
-      >
-        <DialogTitle sx={{ 
-          fontSize: { xs: '1.1rem', sm: '1.25rem' },
-          padding: { xs: '12px 16px', sm: '16px 24px' }
-        }}>
-          Detalle de Venta #{selectedSale?.venta_id}
-        </DialogTitle>
-        <DialogContent sx={{ 
-          padding: { xs: '8px 16px', sm: '16px 24px' }
-        }}>
+      <Dialog open={!!selectedSale} onClose={closeDialog} fullWidth maxWidth="md" fullScreen={isMobile}>
+        <DialogTitle>Detalle de Venta #{selectedSale?.venta_id}</DialogTitle>
+        <DialogContent>
           {detailLoading ? (
-            <Box sx={{ display: 'flex', justifyContent: 'center', my: 4 }}>
-              <CircularProgress />
-            </Box>
+            <Box sx={{ display: 'flex', justifyContent: 'center', my: 4 }}><CircularProgress /></Box>
           ) : selectedSale ? (
-            <Box sx={{ pt: 1 }}>
-              <Grid container spacing={{ xs: 2, sm: 3 }}>
-                <Grid item xs={12} md={6}>
-                  <Paper sx={{ p: { xs: 1.5, sm: 2 }, mb: 2 }}>
-                    <Typography variant="h6" gutterBottom sx={{ fontSize: { xs: '1rem', sm: '1.25rem' } }}>
-                      Detalles del Cliente
-                    </Typography>
-                    <Box sx={{ '& > *': { fontSize: { xs: '0.875rem', sm: '1rem' }, mb: 0.5 } }}>
-                      <Typography><strong>Nombre:</strong> {selectedSale.nombre} {selectedSale.apellido}</Typography>
-                      <Typography><strong>Email:</strong> {selectedSale.email}</Typography>
-                      <Typography><strong>DNI:</strong> {selectedSale.dni || 'No provisto'}</Typography>
-                      <Typography><strong>Teléfono:</strong> {selectedSale.telefono || 'No provisto'}</Typography>
-                    </Box>
-                    <Divider sx={{ my: 2 }} />
-                    <Box sx={{ '& > *': { fontSize: { xs: '0.875rem', sm: '1rem' }, mb: 0.5 } }}>
-                      <Typography><strong>Fecha:</strong> {new Date(selectedSale.fecha_venta).toLocaleString('es-AR')}</Typography>
-                      <Typography><strong>Método de Pago:</strong> {selectedSale.metodo_pago}</Typography>
-                    </Box>
-                    <Typography variant="h6" sx={{ mt: 2, fontSize: { xs: '1rem', sm: '1.25rem' } }} gutterBottom>
-                      Dirección de Envío
-                    </Typography>
-                    <Typography sx={{ fontSize: { xs: '0.875rem', sm: '1rem' } }}>
-                      {selectedSale.direccion_envio}
-                    </Typography>
-                  </Paper>
+            <Grid container spacing={3} sx={{ pt: 1 }}>
+              <Grid item xs={12} md={6}>
+                <Paper sx={{ p: 2, mb: 2 }}>
+                  <Typography variant="h6" gutterBottom>Detalles del Cliente</Typography>
+                  <Typography><strong>Nombre:</strong> {selectedSale.nombre} {selectedSale.apellido}</Typography>
+                  <Typography><strong>Email:</strong> {selectedSale.email}</Typography>
+                  <Typography><strong>DNI:</strong> {selectedSale.dni || 'No provisto'}</Typography>
+                  <Typography><strong>Teléfono:</strong> {selectedSale.telefono || 'No provisto'}</Typography>
+                  <Divider sx={{ my: 2 }} />
+                  <Typography><strong>Fecha:</strong> {new Date(selectedSale.fecha_venta).toLocaleString('es-AR')}</Typography>
+                  <Typography><strong>Método de Pago:</strong> {selectedSale.metodo_pago}</Typography>
+                  <Typography variant="h6" sx={{ mt: 2 }} gutterBottom>Dirección de Envío</Typography>
+                  <Typography>{selectedSale.direccion_envio}</Typography>
+                </Paper>
 
-                  {/* Panel para cambiar estado de la venta */}
-                  <Paper sx={{ p: { xs: 1.5, sm: 2 } }}>
-                    <Typography variant="h6" gutterBottom sx={{ fontSize: { xs: '1rem', sm: '1.25rem' } }}>
-                      Gestionar Estado
-                    </Typography>
-                    <FormControl fullWidth sx={{ mb: 2 }}>
-                      <InputLabel>Estado</InputLabel>
-                      <Select
-                        value={newStatus}
-                        label="Estado"
-                        onChange={(e) => setNewStatus(e.target.value)}
-                        size={isMobile ? 'small' : 'medium'}
-                      >
-                        <MenuItem value="Procesando">Procesando</MenuItem>
-                        <MenuItem value="Enviado">Enviado</MenuItem>
-                        <MenuItem value="Completado">Completado</MenuItem>
-                        <MenuItem value="Cancelado">Cancelado</MenuItem>
-                      </Select>
-                    </FormControl>
-                    <Button 
-                      variant="contained" 
-                      fullWidth 
-                      onClick={handleStatusChange}
-                      size={isMobile ? 'medium' : 'large'}
-                    >
-                      Actualizar Estado
-                    </Button>
-                  </Paper>
-                </Grid>
-                <Grid item xs={12} md={6}>
-                  <Paper sx={{ p: { xs: 1.5, sm: 2 } }}>
-                    <Typography variant="h6" gutterBottom sx={{ fontSize: { xs: '1rem', sm: '1.25rem' } }}>
-                      Productos Comprados
-                    </Typography>
-                    <List disablePadding>
-                      {selectedSale.productos.map((item) => (
-                        <ListItem key={item.detalle_id} sx={{ py: 1, px: 0 }}>
-                          <ListItemText
-                            primary={
-                              <MuiLink
-                                component={RouterLink}
-                                to={`/producto/${item.producto_id}`}
-                                color="primary"
-                                sx={{ 
-                                  textDecoration: 'none',
-                                  fontSize: { xs: '0.875rem', sm: '1rem' }
-                                }}
-                              >
-                                {item.nombre_producto}
-                              </MuiLink>
-                            }
-                            secondary={`Cantidad: ${item.cantidad}`}
-                            secondaryTypographyProps={{
-                              sx: { fontSize: { xs: '0.75rem', sm: '0.875rem' } }
-                            }}
-                          />
-                          <Typography variant="body2" sx={{ fontSize: { xs: '0.75rem', sm: '0.875rem' } }}>
-                            $ {(item.cantidad * item.precio_unitario).toLocaleString('es-AR')}
-                          </Typography>
-                        </ListItem>
-                      ))}
-                      <Divider />
-                      <ListItem sx={{ py: 1, px: 0 }}>
-                        <ListItemText 
-                          primary="Total" 
-                          primaryTypographyProps={{
-                            sx: { fontSize: { xs: '1rem', sm: '1.125rem' } }
-                          }}
+                <Paper sx={{ p: 2 }}>
+                  <Typography variant="h6" gutterBottom>Gestionar Estado</Typography>
+                  <FormControl fullWidth sx={{ mb: 2 }}>
+                    <InputLabel>Estado</InputLabel>
+                    <Select value={newStatus} label="Estado" onChange={(e) => setNewStatus(e.target.value)}>
+                      {STATUS_OPTIONS.map(status => <MenuItem key={status} value={status}>{status}</MenuItem>)}
+                    </Select>
+                  </FormControl>
+                  <Button variant="contained" fullWidth onClick={handleStatusChange}>
+                    Actualizar Estado
+                  </Button>
+                </Paper>
+              </Grid>
+              
+              <Grid item xs={12} md={6}>
+                <Paper sx={{ p: 2 }}>
+                  <Typography variant="h6" gutterBottom>Productos Comprados</Typography>
+                  <List disablePadding>
+                    {selectedSale.productos?.map((item) => (
+                      <ListItem key={item.detalle_id} sx={{ py: 1, px: 0 }}>
+                        <ListItemText
+                          primary={
+                            <MuiLink component={RouterLink} to={`/producto/${item.producto_id}`} color="primary" sx={{ textDecoration: 'none' }}>
+                              {item.nombre_producto}
+                            </MuiLink>
+                          }
+                          secondary={`Cantidad: ${item.cantidad}`}
                         />
-                        <Typography 
-                          variant="subtitle1" 
-                          sx={{ 
-                            fontWeight: 700,
-                            fontSize: { xs: '1rem', sm: '1.125rem' }
-                          }}
-                        >
-                          $ {Number(selectedSale.total).toLocaleString('es-AR')}
+                        <Typography variant="body2">
+                          $ {(item.cantidad * item.precio_unitario).toLocaleString('es-AR')}
                         </Typography>
                       </ListItem>
-                    </List>
-                  </Paper>
-                </Grid>
+                    ))}
+                    <Divider />
+                    <ListItem sx={{ py: 1, px: 0 }}>
+                      <ListItemText primary="Total" />
+                      <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>
+                        $ {Number(selectedSale.total).toLocaleString('es-AR')}
+                      </Typography>
+                    </ListItem>
+                  </List>
+                </Paper>
               </Grid>
-            </Box>
+            </Grid>
           ) : (
             <Typography>No se pudo cargar el detalle.</Typography>
           )}
         </DialogContent>
-        <DialogActions sx={{ 
-          padding: { xs: '8px 16px 16px', sm: '8px 24px 24px' }
-        }}>
-          <Button onClick={handleCloseDetailModal}>Cerrar</Button>
+        <DialogActions>
+          <Button onClick={closeDialog}>Cerrar</Button>
         </DialogActions>
       </Dialog>
 
-      {/* Snackbar para mensajes de éxito o error */}
       <Snackbar
-        open={snackbarOpen}
-        autoHideDuration={6000}
-        onClose={handleCloseSnackbar}
+        open={snackbar.open} autoHideDuration={6000} onClose={closeSnackbar}
         anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
       >
-        <Alert onClose={handleCloseSnackbar} severity={snackbarSeverity} sx={{ width: '100%' }}>
-          {snackbarMessage}
+        <Alert onClose={() => setSnackbar(prev => ({ ...prev, open: false }))} severity={snackbar.severity}>
+          {snackbar.message}
         </Alert>
       </Snackbar>
 
-      {/* Diálogo de confirmación personalizado */}
-      <Dialog
-        open={confirmDialogOpen}
-        onClose={handleCancelConfirmDialog}
-        aria-labelledby="confirm-dialog-title"
-        aria-describedby="confirm-dialog-description"
-        disableRestoreFocus
-      >
-        <DialogTitle id="confirm-dialog-title">Confirmación</DialogTitle>
-        <DialogContent>
-          <Typography id="confirm-dialog-description">{confirmDialogMessage}</Typography>
-        </DialogContent>
+      <Dialog open={confirmDialog.open} onClose={closeConfirmDialog}>
+        <DialogTitle>Confirmación</DialogTitle>
+        <DialogContent><Typography>{confirmDialog.message}</Typography></DialogContent>
         <DialogActions>
-          <Button onClick={handleCancelConfirmDialog} color="primary">
-            Cancelar
-          </Button>
-          <Button onClick={handleConfirmAction} color="primary" autoFocus>
+          <Button onClick={closeConfirmDialog}>Cancelar</Button>
+          <Button onClick={() => { confirmDialog.action?.(); closeConfirmDialog(); }} autoFocus>
             Confirmar
           </Button>
         </DialogActions>
