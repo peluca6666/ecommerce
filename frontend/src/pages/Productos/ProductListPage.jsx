@@ -4,7 +4,7 @@ import { Container, Typography, Box, Pagination } from '@mui/material';
 import axios from 'axios';
 
 import ProductGrid from '../../components/Product/ProductGrid';
-import LoadingSpinner from '../../components/common/LoadingSpinner';
+import LoadingSpinner from '../../components/Common/LoadingSpinner';
 import ProductFilters from '../../components/Product/ProductFilters';
 import { useDebounce } from '../../hooks/useDebounce';
 

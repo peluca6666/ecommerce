@@ -3,7 +3,7 @@ import { Container, Paper, Typography, Box, Button } from "@mui/material";
 import MainBanner from "../../components/Banner/MainBanner";
 import CategorySlider from "../../components/Category/CategorySlider";
 import ProductGrid from "../../components/Product/ProductGrid";
-import LoadingSpinner from "../../components/common/LoadingSpinner";
+import LoadingSpinner from "../../components/Common/LoadingSpinner";
 import { useAuth } from "../../context/AuthContext";
 import { Link } from "react-router-dom";
 

@@ -8,7 +8,7 @@ import ProfileHeader from '../../components/Profile/ProfileHeader';
 import ProfileInfoTab from '../../components/Profile/ProfileInfoTab';
 import SecurityTab from '../../components/Profile/SecurityTab';
 import PurchaseHistoryTab from '../../components/Profile/PurchaseHistoryTab';
-import LoadingSpinner from '../../components/common/LoadingSpinner';
+import LoadingSpinner from '../../components/Common/LoadingSpinner';
 
 const ProfilePage = () => {
   const { user, getToken, showNotification } = useAuth();

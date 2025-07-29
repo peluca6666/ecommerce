@@ -4,7 +4,7 @@ import { Container, Box, Typography, Paper, Button, Stack } from '@mui/material'
 import { CheckCircleOutline, ArrowBack } from '@mui/icons-material';
 import { useAuth } from '../../context/AuthContext';
 import axios from 'axios';
-import LoadingSpinner from '../../components/common/LoadingSpinner';
+import LoadingSpinner from '../../components/Common/LoadingSpinner';
 
 const OrderConfirmationPage = () => {
   const { id: orderId } = useParams();

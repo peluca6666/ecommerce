@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Typography, Empty } from 'antd';
 import { useAuth } from '../../context/AuthContext';
 import axios from 'axios';
-import LoadingSpinner from '../common/LoadingSpinner';
+import LoadingSpinner from '../Common/LoadingSpinner';
 import OrderItem from './OrderItem';
 
 const { Title, Text } = Typography;

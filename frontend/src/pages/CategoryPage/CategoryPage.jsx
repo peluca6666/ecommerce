@@ -2,7 +2,7 @@ import { useParams } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import { Container, Typography, Paper} from '@mui/material';
 import ProductGrid from '../../components/Product/ProductGrid';
-import LoadingSpinner from '../../components/common/LoadingSpinner';
+import LoadingSpinner from '../../components/Common/LoadingSpinner';
 
 const CategoryPage = () => {
   const { id } = useParams(); 
