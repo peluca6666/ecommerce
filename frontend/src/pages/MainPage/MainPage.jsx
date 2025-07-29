@@ -120,7 +120,12 @@ const MainPage = () => {
         <CategorySlider categoria={state.categoria} />
       </Box>
 
-      <Container maxWidth="xl" sx={{ px: { xs: 2, md: 4 } }}>
+   <Box sx={{ 
+  width: '100%',
+  px: { xs: 1, sm: 2, md: 3, lg: 4 },
+  maxWidth: '100vw',
+  overflow: 'hidden'
+}}>
         <Paper elevation={2} sx={{ 
           p: { xs: 1.5, md: 2 },
           mt: 0,
@@ -197,7 +202,7 @@ const MainPage = () => {
             </Button>
           </Box>
         </Paper>
-      </Container>
+      </Box>
     </Box>
   );
 };

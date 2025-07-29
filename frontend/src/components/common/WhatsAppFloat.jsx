@@ -7,7 +7,7 @@ const WhatsAppFloat = () => {
  const phoneNumber = "5493585182894"; //numero de WhatsApp
   
   useEffect(() => {
-    const timer = setTimeout(() => setVisible(true), 2000);
+    const timer = setTimeout(() => setVisible(true), 1000);
     return () => clearTimeout(timer);
   }, []);
 
