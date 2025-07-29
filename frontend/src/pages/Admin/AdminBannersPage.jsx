@@ -107,16 +107,22 @@ export default function AdminBannersPage() {
     }
   };
 
-  // Manejadores de eventos
+  // Manejadores de eventos - FIX: Manejar foco correctamente
   const handleToggleStatus = (id, estadoActual) => {
-    showConfirmation(
-      `¿Seguro que querés ${estadoActual ? 'desactivar' : 'activar'} este banner?`,
-      () => toggleBannerStatus(id)
-    );
+    // FIX: Forzar blur del botón antes de mostrar confirmación
+    setTimeout(() => {
+      showConfirmation(
+        `¿Seguro que querés ${estadoActual ? 'desactivar' : 'activar'} este banner?`,
+        () => toggleBannerStatus(id)
+      );
+    }, 0);
   };
 
   const handleDelete = (id) => {
-    showConfirmation('¿Eliminar este banner?', () => deleteBanner(id));
+    // FIX: Forzar blur del botón antes de mostrar confirmación
+    setTimeout(() => {
+      showConfirmation('¿Eliminar este banner?', () => deleteBanner(id));
+    }, 0);
   };
 
   const openDialog = (banner = null) => {
@@ -169,7 +175,7 @@ export default function AdminBannersPage() {
 
   useEffect(() => { fetchBanners(); }, []);
 
-  // Configuración de columnas
+  // Configuración de columnas - FIX: Mejorar manejo de eventos
   const columns = [
     { field: 'id', headerName: 'ID', width: 70 },
     {
@@ -184,7 +190,16 @@ export default function AdminBannersPage() {
       field: 'activo', headerName: 'Estado', width: 120,
       renderCell: ({ row }) => (
         <Box sx={{ display: 'flex', alignItems: 'center' }} onClick={e => e.stopPropagation()}>
-          <IconButton onClick={() => handleToggleStatus(row.id, row.activo)}>
+          <IconButton 
+            onClick={(e) => {
+              e.stopPropagation();
+              // FIX: Hacer blur del botón inmediatamente
+              e.currentTarget.blur();
+              handleToggleStatus(row.id, row.activo);
+            }}
+            // FIX: Evitar que el botón mantenga foco
+            onMouseLeave={(e) => e.currentTarget.blur()}
+          >
             {row.activo ? <ToggleOn color="success" /> : <ToggleOff color="error" />}
           </IconButton>
           <Chip label={row.activo ? 'Activo' : 'Inactivo'} color={row.activo ? 'success' : 'default'} size="small" />
@@ -195,8 +210,28 @@ export default function AdminBannersPage() {
       field: 'acciones', headerName: 'Acciones', width: 120, sortable: false,
       renderCell: ({ row }) => (
         <Box onClick={e => e.stopPropagation()}>
-          <IconButton onClick={() => openDialog(row)} color="primary"><Edit /></IconButton>
-          <IconButton onClick={() => handleDelete(row.id)} color="error"><Delete /></IconButton>
+          <IconButton 
+            onClick={(e) => {
+              e.stopPropagation();
+              e.currentTarget.blur();
+              openDialog(row);
+            }} 
+            color="primary"
+            onMouseLeave={(e) => e.currentTarget.blur()}
+          >
+            <Edit />
+          </IconButton>
+          <IconButton 
+            onClick={(e) => {
+              e.stopPropagation();
+              e.currentTarget.blur();
+              handleDelete(row.id);
+            }} 
+            color="error"
+            onMouseLeave={(e) => e.currentTarget.blur()}
+          >
+            <Delete />
+          </IconButton>
         </Box>
       )
     }
@@ -258,7 +293,8 @@ export default function AdminBannersPage() {
         <Alert onClose={closeNotification} severity={snackbar.severity}>{snackbar.message}</Alert>
       </Snackbar>
 
-      <Dialog open={confirm.open} onClose={closeConfirmation}>
+      {/* FIX: Agregar disableRestoreFocus para evitar conflictos de foco */}
+      <Dialog open={confirm.open} onClose={closeConfirmation} disableRestoreFocus>
         <DialogTitle>Confirmación</DialogTitle>
         <DialogContent><Typography>{confirm.message}</Typography></DialogContent>
         <DialogActions>
