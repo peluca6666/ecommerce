@@ -22,11 +22,34 @@ const INITIAL_FORM = { titulo: '', descripcion: '', boton_texto: '', boton_link:
 const useApiCall = () => {
   const apiCall = async (endpoint, options = {}) => {
     const token = localStorage.getItem('token');
-    const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/admin/banners${endpoint}`, {
-      headers: { 'Authorization': `Bearer ${token}`, ...options.headers }, ...options
+    const url = `${import.meta.env.VITE_API_BASE_URL}/api/admin/banners${endpoint}`;
+    
+    console.log('🌐 API Call:', {
+      url,
+      method: options.method || 'GET',
+      hasToken: !!token
     });
-    if (!response.ok) throw new Error(options.errorMessage || 'Error en la operación');
-    return response.json();
+    
+    const response = await fetch(url, {
+      headers: { 
+        'Authorization': `Bearer ${token}`, 
+        'Content-Type': 'application/json',
+        ...options.headers 
+      }, 
+      ...options
+    });
+    
+    console.log('📡 Response status:', response.status);
+    
+    if (!response.ok) {
+      const errorData = await response.text();
+      console.error('❌ API Error:', errorData);
+      throw new Error(options.errorMessage || `Error ${response.status}: ${errorData}`);
+    }
+    
+    const data = await response.json();
+    console.log('📦 Response data:', data);
+    return data;
   };
   return { apiCall };
 };
@@ -110,13 +133,17 @@ export default function AdminBannersPage() {
     }
   };
 
-  // Manejadores de eventos - FIX: Manejar foco correctamente
+  // Manejadores de eventos - FIX: Manejar foco correctamente + Debug
   const handleToggleStatus = (id, estadoActual) => {
+    console.log('🎯 Toggle status clicked:', { id, estadoActual });
     // FIX: Forzar blur del botón antes de mostrar confirmación
     setTimeout(() => {
       showConfirmation(
         `¿Seguro que querés ${estadoActual ? 'desactivar' : 'activar'} este banner?`,
-        () => toggleBannerStatus(id)
+        () => {
+          console.log('✅ Confirmación aceptada, ejecutando toggle...');
+          toggleBannerStatus(id);
+        }
       );
     }, 0);
   };
@@ -191,23 +218,41 @@ export default function AdminBannersPage() {
     { field: 'orden', headerName: 'Orden', width: 80 },
     {
       field: 'activo', headerName: 'Estado', width: 120,
-      renderCell: ({ row }) => (
-        <Box sx={{ display: 'flex', alignItems: 'center' }} onClick={e => e.stopPropagation()}>
-          <IconButton 
-            onClick={(e) => {
-              e.stopPropagation();
-              // FIX: Hacer blur del botón inmediatamente
-              e.currentTarget.blur();
-              handleToggleStatus(row.id, row.activo);
-            }}
-            // FIX: Evitar que el botón mantenga foco
-            onMouseLeave={(e) => e.currentTarget.blur()}
-          >
-            {row.activo ? <ToggleOn color="success" /> : <ToggleOff color="error" />}
-          </IconButton>
-          <Chip label={row.activo ? 'Activo' : 'Inactivo'} color={row.activo ? 'success' : 'default'} size="small" />
-        </Box>
-      )
+      renderCell: ({ row }) => {
+        console.log('🔄 Renderizando celda Estado para banner:', row.id, 'activo:', row.activo);
+        
+        return (
+          <Box sx={{ display: 'flex', alignItems: 'center' }}>
+            <IconButton 
+              onClick={(e) => {
+                console.log('🖱️ CLICK DETECTADO en botón toggle, banner ID:', row.id);
+                e.preventDefault();
+                e.stopPropagation();
+                e.currentTarget.blur();
+                handleToggleStatus(row.id, row.activo);
+              }}
+              onMouseDown={(e) => {
+                console.log('👆 MouseDown en botón toggle');
+                e.stopPropagation();
+              }}
+              sx={{ 
+                zIndex: 1,
+                position: 'relative',
+                '&:hover': {
+                  backgroundColor: 'rgba(0, 0, 0, 0.04)'
+                }
+              }}
+            >
+              {row.activo ? <ToggleOn color="success" /> : <ToggleOff color="error" />}
+            </IconButton>
+            <Chip 
+              label={row.activo ? 'Activo' : 'Inactivo'} 
+              color={row.activo ? 'success' : 'default'} 
+              size="small" 
+            />
+          </Box>
+        );
+      }
     },
     {
       field: 'acciones', headerName: 'Acciones', width: 120, sortable: false,
@@ -253,8 +298,25 @@ export default function AdminBannersPage() {
         </Button>
       </Box>
 
-      <DataGrid rows={banners} columns={columns} pageSize={10} disableSelectionOnClick 
-        sx={{ '& .MuiDataGrid-cell': { display: 'flex', alignItems: 'center' } }} />
+      <DataGrid 
+        rows={banners} 
+        columns={columns} 
+        pageSize={10} 
+        disableSelectionOnClick
+        disableRowSelectionOnClick
+        sx={{ 
+          '& .MuiDataGrid-cell': { 
+            display: 'flex', 
+            alignItems: 'center' 
+          },
+          '& .MuiDataGrid-cell:focus': {
+            outline: 'none'
+          },
+          '& .MuiDataGrid-cell:focus-within': {
+            outline: 'none'
+          }
+        }} 
+      />
 
       <Dialog open={isDialogOpen} onClose={closeDialog} maxWidth="sm" fullWidth>
         <DialogTitle>{editingBanner ? 'Editar Banner' : 'Crear Nuevo Banner'}</DialogTitle>
