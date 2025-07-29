@@ -62,12 +62,32 @@ const useNotification = () => {
   return { snackbar, showNotification, closeNotification };
 };
 
-// Hook para confirmaciones
+// Hook para confirmaciones - FIX: Evitar re-renders infinitos
 const useConfirmation = () => {
   const [confirm, setConfirm] = useState({ open: false, message: '', action: null });
-  const showConfirmation = (message, action) => setConfirm({ open: true, message, action: () => action });
-  const handleConfirm = () => { confirm.action(); closeConfirmation(); };
-  const closeConfirmation = () => setConfirm({ open: false, message: '', action: null });
+  
+  const showConfirmation = (message, action) => {
+    console.log('🔔 Mostrando confirmación:', message);
+    setConfirm({ 
+      open: true, 
+      message, 
+      action: action // Guardar la función directamente sin wrapper
+    });
+  };
+  
+  const handleConfirm = () => { 
+    console.log('✅ Confirmación aceptada, ejecutando acción...');
+    if (confirm.action) {
+      confirm.action(); 
+    }
+    closeConfirmation(); 
+  };
+  
+  const closeConfirmation = () => {
+    console.log('❌ Cerrando confirmación');
+    setConfirm({ open: false, message: '', action: null });
+  };
+  
   return { confirm, showConfirmation, handleConfirm, closeConfirmation };
 };
 
@@ -133,26 +153,22 @@ export default function AdminBannersPage() {
     }
   };
 
-  // Manejadores de eventos - FIX: Manejar foco correctamente + Debug
+  // Manejadores de eventos - FIX: Simplificar manejo de confirmación
   const handleToggleStatus = (id, estadoActual) => {
     console.log('🎯 Toggle status clicked:', { id, estadoActual });
-    // FIX: Forzar blur del botón antes de mostrar confirmación
-    setTimeout(() => {
-      showConfirmation(
-        `¿Seguro que querés ${estadoActual ? 'desactivar' : 'activar'} este banner?`,
-        () => {
-          console.log('✅ Confirmación aceptada, ejecutando toggle...');
-          toggleBannerStatus(id);
-        }
-      );
-    }, 0);
+    
+    showConfirmation(
+      `¿Seguro que querés ${estadoActual ? 'desactivar' : 'activar'} este banner?`,
+      () => {
+        console.log('✅ Confirmación aceptada, ejecutando toggle...');
+        toggleBannerStatus(id);
+      }
+    );
   };
 
   const handleDelete = (id) => {
-    // FIX: Forzar blur del botón antes de mostrar confirmación
-    setTimeout(() => {
-      showConfirmation('¿Eliminar este banner?', () => deleteBanner(id));
-    }, 0);
+    console.log('🗑️ Delete clicked for banner:', id);
+    showConfirmation('¿Eliminar este banner?', () => deleteBanner(id));
   };
 
   const openDialog = (banner = null) => {
