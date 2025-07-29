@@ -2,22 +2,25 @@ import { useState, useEffect } from 'react';
 import { Box, TextField, Select, MenuItem, FormControl, InputLabel, Paper, Typography, Checkbox, FormControlLabel, Stack} from '@mui/material';
 import axios from 'axios';
 
-const ProductFilters = ({ filtros, onFilterChange, onCheckboxChange }) => {
+const ProductFilters = ({ filtros, onFilterChange, onCheckboxChange, hideCategory = false }) => {
     const [categorias, setCategorias] = useState([]);
     
     useEffect(() => {
-        const fetchCategorias = async () => {
-            try {
-                const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/api/categoria?activo=true`);
-                if (response.data.exito) {
-                    setCategorias(response.data.datos);
+        // Solo cargar categorías si no están ocultas
+        if (!hideCategory) {
+            const fetchCategorias = async () => {
+                try {
+                    const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/api/categoria?activo=true`);
+                    if (response.data.exito) {
+                        setCategorias(response.data.datos);
+                    }
+                } catch (error) {
+                    console.error("error al cargar categorías para filtros:", error);
                 }
-            } catch (error) {
-                console.error("error al cargar categorías para filtros:", error);
-            }
-        };
-        fetchCategorias();
-    }, []);
+            };
+            fetchCategorias();
+        }
+    }, [hideCategory]);
 
     const inputStyles = {
         '& .MuiOutlinedInput-root': {
@@ -44,22 +47,25 @@ const ProductFilters = ({ filtros, onFilterChange, onCheckboxChange }) => {
                     sx={inputStyles}
                 />
 
-                <FormControl fullWidth size="small" sx={inputStyles}>
-                    <InputLabel>Categoría</InputLabel>
-                    <Select
-                        name="categoria"
-                        value={filtros.categoria}
-                        label="Categoría"
-                        onChange={onFilterChange}
-                    >
-                        <MenuItem value="">Todas</MenuItem>
-                        {categorias.map(cat => (
-                            <MenuItem key={cat.categoria_id} value={cat.categoria_id}>
-                                {cat.nombre}
-                            </MenuItem>
-                        ))}
-                    </Select>
-                </FormControl>
+                {/* Filtro de categoría - solo si no está oculto */}
+                {!hideCategory && (
+                    <FormControl fullWidth size="small" sx={inputStyles}>
+                        <InputLabel>Categoría</InputLabel>
+                        <Select
+                            name="categoria"
+                            value={filtros.categoria || ''}
+                            label="Categoría"
+                            onChange={onFilterChange}
+                        >
+                            <MenuItem value="">Todas</MenuItem>
+                            {categorias.map(cat => (
+                                <MenuItem key={cat.categoria_id} value={cat.categoria_id}>
+                                    {cat.nombre}
+                                </MenuItem>
+                            ))}
+                        </Select>
+                    </FormControl>
+                )}
 
                 <Box>
                     <Typography variant="body2" sx={{ mb: 1.5, fontWeight: 500, color: '#6b7280' }}>

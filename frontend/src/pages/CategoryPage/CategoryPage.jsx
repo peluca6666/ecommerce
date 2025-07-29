@@ -1,7 +1,8 @@
 import { useParams } from 'react-router-dom';
 import { useState, useEffect } from 'react';
-import { Container, Typography, Paper} from '@mui/material';
+import { Container, Typography, Paper, Grid } from '@mui/material';
 import ProductGrid from '../../components/Product/ProductGrid';
+import ProductFilters from '../../components/Product/ProductFilters';
 import LoadingSpinner from '../../components/Common/LoadingSpinner';
 
 const CategoryPage = () => {
@@ -37,34 +38,52 @@ const CategoryPage = () => {
     };
 
     fetchProductosPorCategoria();
-  }, [id]); // vuelve a buscar si cambia la categoría
+  }, [id]);
 
   if (loading) return <LoadingSpinner />;
 
   return (
-    <>
-      <Container maxWidth="lg" sx={{ my: 4 }}>
-        {error ? (
-          <Paper elevation={1} sx={{ p: 3, textAlign: 'center' }}>
-            <Typography variant="h6" color="error">{error}</Typography>
-          </Paper>
-        ) : (
-          <>
-            <Typography variant="h4" sx={{ mb: 2, fontWeight: 'bold' }}>
-              {nombreCategoria}
-            </Typography>
+    <Container maxWidth="xl" sx={{ my: 4 }}>
+      {error ? (
+        <Paper elevation={1} sx={{ p: 3, textAlign: 'center' }}>
+          <Typography variant="h6" color="error">{error}</Typography>
+        </Paper>
+      ) : (
+        <>
+          <Typography variant="h4" sx={{ mb: 4, fontWeight: 'bold' }}>
+            {nombreCategoria}
+          </Typography>
 
-            {productos.length === 0 ? (
-              <Typography variant="body1">
-                No hay productos disponibles en esta categoría.
-              </Typography>
-            ) : (
-              <ProductGrid productos={productos} />
-            )}
-          </>
-        )}
-      </Container>
-    </>
+          {productos.length === 0 ? (
+            <Typography variant="body1">
+              No hay productos disponibles en esta categoría.
+            </Typography>
+          ) : (
+            <Grid container spacing={3}>
+              {/* Filtros */}
+              <Grid item xs={12} md={3}>
+                <ProductFilters 
+                  productos={productos}
+                  hideCategory={true}
+                  renderProducts={(productosFiltrados) => (
+                    <div style={{ display: 'none' }} /> // Los filtros solo filtran
+                  )}
+                  onProductsFiltered={(productosFiltrados) => {
+                    // Aquí recibirías los productos filtrados
+                    // Por ahora solo Grid simple
+                  }}
+                />
+              </Grid>
+              
+              {/* Productos */}
+              <Grid item xs={12} md={9}>
+                <ProductGrid productos={productos} />
+              </Grid>
+            </Grid>
+          )}
+        </>
+      )}
+    </Container>
   );
 };
 
