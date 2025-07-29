@@ -17,9 +17,9 @@ const MainLayout = () => {
             <Outlet />
           </Box>
         ) : (
-          <Container component="main" maxWidth="xl" sx={{ py: 0 }}>
-            <Outlet />
-          </Container>
+         <Box component="main" sx={{ width: '100%', py: 0 }}>
+  <Outlet />
+</Box>
         )}
       </main>
       <Footer />
