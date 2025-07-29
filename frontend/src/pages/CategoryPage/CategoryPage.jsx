@@ -82,8 +82,8 @@ const CategoryPage = () => {
             </Typography>
           ) : (
             <Grid container spacing={3}>
-              {/* Filtros */}
-              <Grid item xs={12} md={3}>
+              {/* Filtros - Siempre a la izquierda */}
+              <Grid item xs={12} sm={4} md={3}>
                 <ProductFilters 
                   filtros={filtros}
                   onFilterChange={handleFilterChange}
@@ -93,7 +93,7 @@ const CategoryPage = () => {
               </Grid>
               
               {/* Productos */}
-              <Grid item xs={12} md={9}>
+              <Grid item xs={12} sm={8} md={9}>
                 <ProductGrid productos={productos} />
               </Grid>
             </Grid>
