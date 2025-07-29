@@ -187,45 +187,122 @@ const NavMenu = ({ mobile = false, onItemClick }) => {
                 </Button>
             ))}
 
+            {/* SIDEBAR BLANCO - Aquí están los cambios principales */}
             <Drawer anchor="left" open={sidebarOpen} onClose={() => setSidebarOpen(false)} slotProps={{
-                paper: { sx: { background: 'linear-gradient(135deg, #FF6B35 0%, #FF4500 100%)', color: 'white' } }
+                paper: { 
+                    sx: { 
+                        backgroundColor: 'white',
+                        color: '#333',
+                        boxShadow: '2px 0 10px rgba(0,0,0,0.1)'
+                    } 
+                }
             }}>
-                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', p: 2, background: 'linear-gradient(135deg, #FF6B35 0%, #FF4500 100%)', color: 'white' }}>
+                {/* Header del sidebar - mantiene un toque de color */}
+                <Box sx={{ 
+                    display: 'flex', 
+                    justifyContent: 'space-between', 
+                    alignItems: 'center', 
+                    p: 2,
+                    background: 'linear-gradient(135deg, #FF6B35 0%, #FF4500 100%)',
+                    color: 'white',
+                    boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+                }}>
                     <Typography variant="h6" fontWeight={700}>Categorías</Typography>
-                    <IconButton onClick={() => setSidebarOpen(false)} sx={{ color: 'white' }}><Close /></IconButton>
+                    <IconButton onClick={() => setSidebarOpen(false)} sx={{ color: 'white' }}>
+                        <Close />
+                    </IconButton>
                 </Box>
 
-                <Box sx={{ p: 1.5, height: '100%', overflowY: 'auto' }}>
-                    <Button fullWidth component={RouterLink} to="/productos" onClick={handleClose} sx={{
-                        background: 'rgba(255,255,255,0.15)', color: 'white', py: 1.5, borderRadius: 2, fontWeight: 600,
-                        border: '1px solid rgba(255,255,255,0.3)',
-                        '&:hover': { background: 'rgba(255,255,255,0.25)', transform: 'translateY(-2px)' }
-                    }}>
-                        Ver Todo el Catálogo
+                {/* Contenido del sidebar - fondo blanco */}
+                <Box sx={{ p: 2, height: '100%', overflowY: 'auto', backgroundColor: 'white' }}>
+                    {/* Botón "Ver Todo" */}
+                    <Button 
+                        fullWidth 
+                        component={RouterLink} 
+                        to="/productos" 
+                        onClick={handleClose} 
+                        sx={{
+                            backgroundColor: '#f5f5f5',
+                            color: '#333',
+                            py: 1.5,
+                            borderRadius: 2,
+                            fontWeight: 600,
+                            fontSize: '0.95rem',
+                            border: '1px solid #e0e0e0',
+                            textTransform: 'none',
+                            mb: 2,
+                            '&:hover': { 
+                                backgroundColor: '#eeeeee',
+                                borderColor: '#d0d0d0',
+                                transform: 'translateY(-1px)',
+                                boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+                            }
+                        }}
+                    >
+                        📦 Ver Todo el Catálogo
                     </Button>
 
-                    <Box sx={{ height: '1px', background: 'rgba(255,255,255,0.2)', my: 2 }} />
+                    {/* Separador */}
+                    <Box sx={{ 
+                        height: '1px', 
+                        backgroundColor: '#e0e0e0',
+                        my: 2 
+                    }} />
 
                     {loading ? (
-                        <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', py: 5, gap: 2 }}>
-                            <CircularProgress size={30} sx={{ color: 'white' }} />
-                            <Typography variant="body2" color="white">Cargando...</Typography>
+                        <Box sx={{ 
+                            display: 'flex', 
+                            flexDirection: 'column', 
+                            alignItems: 'center', 
+                            py: 4,
+                            gap: 2 
+                        }}>
+                            <CircularProgress size={30} sx={{ color: '#FF6B35' }} />
+                            <Typography variant="body2" color="#666">
+                                Cargando categorías...
+                            </Typography>
                         </Box>
                     ) : (
-                        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
-                            {categories.map((cat) => (
-                                <Button key={cat.categoria_id} component={RouterLink} to={`/categoria/${cat.categoria_id}/productos`} onClick={handleClose} sx={{
-                                    justifyContent: 'flex-start', py: 1.5, px: 2.5, borderRadius: 2, color: 'white', mb: 0.5,
-                                    fontWeight: 600, fontSize: '0.95rem', textTransform: 'none', transition: 'all 0.2s ease',
-                                    background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.15)',
-                                    '&:hover': { 
-                                        background: 'rgba(255,255,255,0.2)', 
-                                        transform: 'translateX(4px)',
-                                        borderColor: 'rgba(255,255,255,0.3)'
-                                    }
-                                }}>
-                                    {cat.nombre}
-                                </Button>
+                        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                            {categories.map((cat, index) => (
+                                <Box key={cat.categoria_id}>
+                                    <Button 
+                                        component={RouterLink} 
+                                        to={`/categoria/${cat.categoria_id}/productos`} 
+                                        onClick={handleClose} 
+                                        sx={{
+                                            width: '100%',
+                                            justifyContent: 'flex-start',
+                                            py: 1.5,
+                                            px: 2,
+                                            borderRadius: 2,
+                                            color: '#333',
+                                            fontWeight: 500,
+                                            fontSize: '0.95rem',
+                                            textTransform: 'none',
+                                            transition: 'all 0.2s ease',
+                                            backgroundColor: 'transparent',
+                                            '&:hover': { 
+                                                backgroundColor: '#f8f8f8',
+                                                color: '#FF6B35',
+                                                transform: 'translateX(8px)',
+                                                fontWeight: 600
+                                            }
+                                        }}
+                                    >
+                                        {cat.nombre}
+                                    </Button>
+                                    
+                                    {/* Separador entre categorías (excepto la última) */}
+                                    {index < categories.length - 1 && (
+                                        <Box sx={{ 
+                                            height: '1px', 
+                                            backgroundColor: '#f0f0f0',
+                                            mx: 2,
+                                            my: 0.5
+                                        }} />
+                                    )}
+                                </Box>
                             ))}
                         </Box>
                     )}
