@@ -158,43 +158,68 @@ export default function AdminSalesPage() {
 
   // columnas para la tabla de ventas
   const columns = [
-    { field: 'venta_id', headerName: 'ID Venta', width: 90 },
+    { 
+      field: 'venta_id', 
+      headerName: 'ID', 
+      width: 70,
+      minWidth: 60
+    },
     {
       field: 'fecha_venta',
       headerName: 'Fecha',
-      width: 180,
-      valueGetter: (value) => (value ? new Date(value).toLocaleString('es-AR') : '')
+      width: 140,
+      minWidth: 120,
+      valueGetter: (value) => (value ? new Date(value).toLocaleDateString('es-AR') : ''),
+      // Ocultar en móvil
+      hide: window.innerWidth < 768
     },
-    { field: 'email', headerName: 'Cliente', width: 250 },
+    { 
+      field: 'email', 
+      headerName: 'Cliente', 
+      flex: 1,
+      minWidth: 200,
+      maxWidth: 300
+    },
     {
       field: 'total',
       headerName: 'Total',
       type: 'number',
-      width: 130,
-      valueFormatter: (value) => `$ ${Number(value || 0).toLocaleString('es-AR')}`
+      width: 110,
+      minWidth: 90,
+      valueFormatter: (value) => `${Number(value || 0).toLocaleString('es-AR')}`
     },
     {
       field: 'estado',
       headerName: 'Estado',
-      width: 150,
+      width: 120,
+      minWidth: 100,
       renderCell: ({ value }) => (
         <Chip 
           label={value} 
           color={getStatusColor(value)} 
           size="small"
           variant="filled"
+          sx={{ 
+            fontSize: { xs: '0.65rem', sm: '0.75rem' },
+            height: { xs: 20, sm: 24 }
+          }}
         />
       )
     },
     {
       field: 'acciones',
-      headerName: 'Acciones',
-      width: 120,
+      headerName: 'Ver',
+      width: 80,
+      minWidth: 60,
       sortable: false,
       renderCell: ({ row }) => (
         <Box onClick={e => e.stopPropagation()}>
-          <IconButton onClick={() => handleViewDetails(row)} color="primary">
-            <Visibility />
+          <IconButton 
+            onClick={() => handleViewDetails(row)} 
+            color="primary"
+            size="small"
+          >
+            <Visibility fontSize="small" />
           </IconButton>
         </Box>
       )
@@ -206,7 +231,14 @@ export default function AdminSalesPage() {
 
   return (
     <>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+      <Box sx={{ 
+        display: 'flex', 
+        justifyContent: 'space-between', 
+        alignItems: 'center', 
+        mb: { xs: 2, sm: 3 },
+        flexDirection: { xs: 'column', sm: 'row' },
+        gap: { xs: 1, sm: 0 }
+      }}>
         <Title>Gestión de Ventas</Title>
       </Box>
 
@@ -216,21 +248,28 @@ export default function AdminSalesPage() {
         getRowId={(row) => row.venta_id}
         initialState={{ 
           sorting: { sortModel: [{ field: 'venta_id', sort: 'desc' }] },
-          pagination: { paginationModel: { pageSize: 10 } }
+          pagination: { paginationModel: { pageSize: window.innerWidth < 768 ? 5 : 10 } }
         }}
-        pageSizeOptions={[5, 10, 15, 20]}
+        pageSizeOptions={window.innerWidth < 768 ? [5, 10] : [5, 10, 15, 20]}
         disableSelectionOnClick
         autoHeight
+        density={window.innerWidth < 768 ? 'compact' : 'standard'}
         sx={{
           '& .MuiDataGrid-main': {
-            borderRadius: 2,
+            borderRadius: { xs: 1, sm: 2 },
           },
           '& .MuiDataGrid-cell': {
             borderBottom: '1px solid rgba(224, 224, 224, 0.5)',
+            padding: { xs: '4px 8px', sm: '8px 16px' },
+            fontSize: { xs: '0.75rem', sm: '0.875rem' }
           },
           '& .MuiDataGrid-columnHeaders': {
             backgroundColor: '#f8fafc',
             borderBottom: '2px solid #e5e5e5',
+            fontSize: { xs: '0.75rem', sm: '0.875rem' },
+            '& .MuiDataGrid-columnHeaderTitle': {
+              fontWeight: 600,
+            }
           },
           '& .MuiDataGrid-virtualScroller': {
             overflow: 'visible !important',
@@ -238,44 +277,84 @@ export default function AdminSalesPage() {
           '& .MuiDataGrid-footerContainer': {
             borderTop: '2px solid #e5e5e5',
             backgroundColor: '#f8fafc',
+            minHeight: { xs: 40, sm: 52 }
+          },
+          '& .MuiDataGrid-toolbar': {
+            padding: { xs: '8px', sm: '16px' }
+          },
+          // Responsive: ocultar scrollbar horizontal en móvil
+          '& .MuiDataGrid-virtualScrollerContent': {
+            width: '100% !important'
           }
         }}
       />
 
       {/* modal para detalles y gestión de estado */}
-      <Dialog open={isDetailModalOpen} onClose={handleCloseDetailModal} fullWidth maxWidth="md">
-        <DialogTitle>Detalle de Venta #{selectedSale?.venta_id}</DialogTitle>
-        <DialogContent>
+      <Dialog 
+        open={isDetailModalOpen} 
+        onClose={handleCloseDetailModal} 
+        fullWidth 
+        maxWidth="md"
+        fullScreen={window.innerWidth < 768}
+        sx={{
+          '& .MuiDialog-paper': {
+            margin: { xs: 0, sm: 2 },
+            maxHeight: { xs: '100%', sm: 'calc(100% - 64px)' }
+          }
+        }}
+      >
+        <DialogTitle sx={{ 
+          fontSize: { xs: '1.1rem', sm: '1.25rem' },
+          padding: { xs: '12px 16px', sm: '16px 24px' }
+        }}>
+          Detalle de Venta #{selectedSale?.venta_id}
+        </DialogTitle>
+        <DialogContent sx={{ 
+          padding: { xs: '8px 16px', sm: '16px 24px' }
+        }}>
           {detailLoading ? (
             <Box sx={{ display: 'flex', justifyContent: 'center', my: 4 }}>
               <CircularProgress />
             </Box>
           ) : selectedSale ? (
             <Box sx={{ pt: 1 }}>
-              <Grid container spacing={3}>
+              <Grid container spacing={{ xs: 2, sm: 3 }}>
                 <Grid item xs={12} md={6}>
-                  <Paper sx={{ p: 2, mb: 2 }}>
-                    <Typography variant="h6" gutterBottom>Detalles del Cliente</Typography>
-                    <Typography><strong>Nombre:</strong> {selectedSale.nombre} {selectedSale.apellido}</Typography>
-                    <Typography><strong>Email:</strong> {selectedSale.email}</Typography>
-                    <Typography><strong>DNI:</strong> {selectedSale.dni || 'No provisto'}</Typography>
-                    <Typography><strong>Teléfono:</strong> {selectedSale.telefono || 'No provisto'}</Typography>
+                  <Paper sx={{ p: { xs: 1.5, sm: 2 }, mb: 2 }}>
+                    <Typography variant="h6" gutterBottom sx={{ fontSize: { xs: '1rem', sm: '1.25rem' } }}>
+                      Detalles del Cliente
+                    </Typography>
+                    <Box sx={{ '& > *': { fontSize: { xs: '0.875rem', sm: '1rem' }, mb: 0.5 } }}>
+                      <Typography><strong>Nombre:</strong> {selectedSale.nombre} {selectedSale.apellido}</Typography>
+                      <Typography><strong>Email:</strong> {selectedSale.email}</Typography>
+                      <Typography><strong>DNI:</strong> {selectedSale.dni || 'No provisto'}</Typography>
+                      <Typography><strong>Teléfono:</strong> {selectedSale.telefono || 'No provisto'}</Typography>
+                    </Box>
                     <Divider sx={{ my: 2 }} />
-                    <Typography><strong>Fecha:</strong> {new Date(selectedSale.fecha_venta).toLocaleString('es-AR')}</Typography>
-                    <Typography><strong>Método de Pago:</strong> {selectedSale.metodo_pago}</Typography>
-                    <Typography variant="h6" sx={{ mt: 2 }} gutterBottom>Dirección de Envío</Typography>
-                    <Typography>{selectedSale.direccion_envio}</Typography>
+                    <Box sx={{ '& > *': { fontSize: { xs: '0.875rem', sm: '1rem' }, mb: 0.5 } }}>
+                      <Typography><strong>Fecha:</strong> {new Date(selectedSale.fecha_venta).toLocaleString('es-AR')}</Typography>
+                      <Typography><strong>Método de Pago:</strong> {selectedSale.metodo_pago}</Typography>
+                    </Box>
+                    <Typography variant="h6" sx={{ mt: 2, fontSize: { xs: '1rem', sm: '1.25rem' } }} gutterBottom>
+                      Dirección de Envío
+                    </Typography>
+                    <Typography sx={{ fontSize: { xs: '0.875rem', sm: '1rem' } }}>
+                      {selectedSale.direccion_envio}
+                    </Typography>
                   </Paper>
 
                   {/* panel para cambiar estado de la venta */}
-                  <Paper sx={{ p: 2 }}>
-                    <Typography variant="h6" gutterBottom>Gestionar Estado</Typography>
+                  <Paper sx={{ p: { xs: 1.5, sm: 2 } }}>
+                    <Typography variant="h6" gutterBottom sx={{ fontSize: { xs: '1rem', sm: '1.25rem' } }}>
+                      Gestionar Estado
+                    </Typography>
                     <FormControl fullWidth sx={{ mb: 2 }}>
                       <InputLabel>Estado</InputLabel>
                       <Select
                         value={newStatus}
                         label="Estado"
                         onChange={(e) => setNewStatus(e.target.value)}
+                        size={window.innerWidth < 768 ? 'small' : 'medium'}
                       >
                         <MenuItem value="Procesando">Procesando</MenuItem>
                         <MenuItem value="Enviado">Enviado</MenuItem>
@@ -283,14 +362,21 @@ export default function AdminSalesPage() {
                         <MenuItem value="Cancelado">Cancelado</MenuItem>
                       </Select>
                     </FormControl>
-                    <Button variant="contained" fullWidth onClick={handleStatusChange}>
+                    <Button 
+                      variant="contained" 
+                      fullWidth 
+                      onClick={handleStatusChange}
+                      size={window.innerWidth < 768 ? 'medium' : 'large'}
+                    >
                       Actualizar Estado
                     </Button>
                   </Paper>
                 </Grid>
                 <Grid item xs={12} md={6}>
-                  <Paper sx={{ p: 2 }}>
-                    <Typography variant="h6" gutterBottom>Productos Comprados</Typography>
+                  <Paper sx={{ p: { xs: 1.5, sm: 2 } }}>
+                    <Typography variant="h6" gutterBottom sx={{ fontSize: { xs: '1rem', sm: '1.25rem' } }}>
+                      Productos Comprados
+                    </Typography>
                     <List disablePadding>
                       {selectedSale.productos.map((item) => (
                         <ListItem key={item.detalle_id} sx={{ py: 1, px: 0 }}>
@@ -300,22 +386,39 @@ export default function AdminSalesPage() {
                                 component={RouterLink}
                                 to={`/producto/${item.producto_id}`}
                                 color="primary"
-                                sx={{ textDecoration: 'none' }}
+                                sx={{ 
+                                  textDecoration: 'none',
+                                  fontSize: { xs: '0.875rem', sm: '1rem' }
+                                }}
                               >
                                 {item.nombre_producto}
                               </MuiLink>
                             }
                             secondary={`Cantidad: ${item.cantidad}`}
+                            secondaryTypographyProps={{
+                              sx: { fontSize: { xs: '0.75rem', sm: '0.875rem' } }
+                            }}
                           />
-                          <Typography variant="body2">
+                          <Typography variant="body2" sx={{ fontSize: { xs: '0.75rem', sm: '0.875rem' } }}>
                             $ {(item.cantidad * item.precio_unitario).toLocaleString('es-AR')}
                           </Typography>
                         </ListItem>
                       ))}
                       <Divider />
                       <ListItem sx={{ py: 1, px: 0 }}>
-                        <ListItemText primary="Total" />
-                        <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>
+                        <ListItemText 
+                          primary="Total" 
+                          primaryTypographyProps={{
+                            sx: { fontSize: { xs: '1rem', sm: '1.125rem' } }
+                          }}
+                        />
+                        <Typography 
+                          variant="subtitle1" 
+                          sx={{ 
+                            fontWeight: 700,
+                            fontSize: { xs: '1rem', sm: '1.125rem' }
+                          }}
+                        >
                           $ {Number(selectedSale.total).toLocaleString('es-AR')}
                         </Typography>
                       </ListItem>
@@ -328,7 +431,9 @@ export default function AdminSalesPage() {
             <Typography>No se pudo cargar el detalle.</Typography>
           )}
         </DialogContent>
-        <DialogActions>
+        <DialogActions sx={{ 
+          padding: { xs: '8px 16px 16px', sm: '8px 24px 24px' }
+        }}>
           <Button onClick={handleCloseDetailModal}>Cerrar</Button>
         </DialogActions>
       </Dialog>
