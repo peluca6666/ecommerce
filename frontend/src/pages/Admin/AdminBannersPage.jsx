@@ -76,10 +76,13 @@ export default function AdminBannersPage() {
 
   const toggleBannerStatus = async (id) => {
     try {
-      await apiCall(`/${id}/toggle-activo`, { method: 'PUT' });
+      console.log('🔄 Intentando cambiar estado del banner:', id);
+      const response = await apiCall(`/${id}/toggle-activo`, { method: 'PUT' });
+      console.log('✅ Respuesta del servidor:', response);
       showNotification('Estado cambiado exitosamente.');
       fetchBanners();
     } catch (err) {
+      console.error('❌ Error al cambiar estado:', err);
       showNotification(`Error: ${err.message}`, 'error');
     }
   };
