@@ -1,67 +1,47 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef } from 'react';
 import { Box, Typography, Button, IconButton, useTheme } from "@mui/material";
 import Slider from "react-slick";
 import FiberManualRecordIcon from '@mui/icons-material/FiberManualRecord';
 import FiberManualRecordOutlinedIcon from '@mui/icons-material/FiberManualRecordOutlined';
 import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos';
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
-import axios from 'axios';
 import 'slick-carousel/slick/slick.css';
 import 'slick-carousel/slick/slick-theme.css';
 
+// Datos para cada banner
+const bannerData = [
+  {
+    imagen: "/assets_staticos/auricularesv2.jpg",
+    titulo: "Sonido Premium",
+    descripcion: "Descubre auriculares de alta calidad",
+    boton: "Ver Ofertas",
+    link: ""
+  },
+  {
+    imagen: "/assets_staticos/hornov2.jpg",
+    titulo: "Cocina Inteligente",
+    descripcion: "Electrodomésticos que facilitan tu día",
+    boton: "Explorar",
+    link: ""
+  },
+  {
+    imagen: "/assets_staticos/utilesv2.jpg",
+    titulo: "Vuelta a Clases",
+    descripcion: "Todo lo esencial para el nuevo período",
+    boton: "Comprar",
+    link: ""
+  }
+];
+
 const BannerCarousel = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
-  const [bannerData, setBannerData] = useState([]);
-  const [loading, setLoading] = useState(true);
   const sliderRef = useRef(null);
   const theme = useTheme();
-
-  // Cargar banners desde la API
-  useEffect(() => {
-    const fetchBanners = async () => {
-      try {
-        const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/api/banners`);
-        if (response.data.exito) {
-          setBannerData(response.data.datos);
-        }
-      } catch (error) {
-        console.error('Error al cargar banners:', error);
-        // Mantener banners por defecto en caso de error
-        setBannerData([
-          {
-            imagen: "/assets_staticos/auricularesv2.jpg",
-            titulo: "Sonido Premium",
-            descripcion: "Descubre auriculares de alta calidad",
-            boton_texto: "Ver Ofertas",
-            boton_link: ""
-          },
-          {
-            imagen: "/assets_staticos/hornov2.jpg",
-            titulo: "Cocina Inteligente",
-            descripcion: "Electrodomésticos que facilitan tu día",
-            boton_texto: "Explorar",
-            boton_link: ""
-          },
-          {
-            imagen: "/assets_staticos/utilesv2.jpg",
-            titulo: "Vuelta a Clases",
-            descripcion: "Todo lo esencial para el nuevo período",
-            boton_texto: "Comprar",
-            boton_link: ""
-          }
-        ]);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchBanners();
-  }, []);
 
   const settings = {
     dots: false,
     infinite: true,
-    autoplay: bannerData.length > 1, // Solo autoplay si hay más de un banner
+    autoplay: true,
     autoplaySpeed: 5000,
     speed: 800,
     slidesToShow: 1,
@@ -73,52 +53,23 @@ const BannerCarousel = () => {
   };
 
   const goToSlide = (index) => {
-    if (sliderRef.current) {
-      sliderRef.current.slickGoTo(index);
-    }
+    sliderRef.current.slickGoTo(index);
   };
 
   const nextSlide = () => {
-    if (sliderRef.current) {
-      sliderRef.current.slickNext();
-    }
+    sliderRef.current.slickNext();
   };
 
   const prevSlide = () => {
-    if (sliderRef.current) {
-      sliderRef.current.slickPrev();
-    }
+    sliderRef.current.slickPrev();
   };
-
-  if (loading) {
-    return (
-      <Box sx={{
-        width: '100vw',
-        height: { xs: 260, sm: 300, md: 300 },
-        position: 'relative',
-        ml: 'calc(-50vw + 50%)',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        backgroundColor: '#f5f5f5',
-        my: 3,
-        mt: 2
-      }}>
-        <Typography>Cargando banners...</Typography>
-      </Box>
-    );
-  }
-
-  if (bannerData.length === 0) {
-    return null; // No mostrar nada si no hay banners
-  }
 
   return (
     <Box sx={{
-      width: '100vw',
+      width: '100vw',                // Ancho completo del viewport
       height: { xs: 260, sm: 300, md: 300 },
       position: 'relative',
-      ml: 'calc(-50vw + 50%)',
+      ml: 'calc(-50vw + 50%)',      // Centra el elemento que sale del contenedor
       borderRadius: 0,        
       overflow: 'hidden',
       boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
@@ -129,14 +80,14 @@ const BannerCarousel = () => {
       <Slider ref={sliderRef} {...settings}>
         {bannerData.map((banner, index) => (
           <Box
-            key={banner.id || index}
+            key={index}
             sx={{
               position: 'relative',
               height: { xs: 280, sm: 320, md: 320 },
-              display: 'flex !important',
+              display: 'flex !important', // Importante para que funcione con slick
               alignItems: 'center',
-              // Imagen de fondo - construir URL completa
-              backgroundImage: `url(${import.meta.env.VITE_API_BASE_URL}${banner.imagen})`,
+              // Imagen de fondo
+              backgroundImage: `url(${banner.imagen})`,
               backgroundSize: 'cover',
               backgroundPosition: 'center',
               // Overlay oscuro para mejor legibilidad
@@ -189,121 +140,114 @@ const BannerCarousel = () => {
                 {banner.descripcion}
               </Typography>
 
-              {banner.boton_texto && (
-                <Button
-                  variant="contained"
-                  color="primary"
-                  href={banner.boton_link || '#'}
-                  component="a"
-                  sx={{
-                    px: 3,
-                    py: 1.5,
-                    borderRadius: '8px',
-                    fontWeight: '600',
-                    textTransform: 'none',
-                    fontSize: '0.95rem',
-                    boxShadow: '0 2px 8px rgba(0,0,0,0.2)',
-                    '&:hover': {
-                      transform: 'translateY(-1px)',
-                      boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
-                    },
-                    transition: 'all 0.2s ease',
-                  }}
-                >
-                  {banner.boton_texto}
-                </Button>
-              )}
+              <Button
+                variant="contained"
+                color="primary"
+                href={banner.link || '#'}
+                component="a"
+                sx={{
+                  px: 3,
+                  py: 1.5,
+                  borderRadius: '8px',
+                  fontWeight: '600',
+                  textTransform: 'none',
+                  fontSize: '0.95rem',
+                  boxShadow: '0 2px 8px rgba(0,0,0,0.2)',
+                  '&:hover': {
+                    transform: 'translateY(-1px)',
+                    boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
+                  },
+                  transition: 'all 0.2s ease',
+                }}
+              >
+                {banner.boton}
+              </Button>
             </Box>
           </Box>
         ))}
       </Slider>
 
-      {/* Mostrar controles solo si hay más de un banner */}
-      {bannerData.length > 1 && (
-        <>
-          {/* Flecha anterior */}
+      {/* Flecha anterior */}
+      <IconButton
+        onClick={prevSlide}
+        sx={{
+          position: 'absolute',
+          left: 15,
+          top: '50%',
+          transform: 'translateY(-50%)',
+          zIndex: 3,
+          backgroundColor: 'rgba(255,255,255,0.15)',
+          color: 'white',
+          backdropFilter: 'blur(8px)',
+          width: 20,
+          height: 20,
+          '&:hover': {
+            backgroundColor: 'rgba(255,255,255,0.25)',
+            transform: 'translateY(-50%) scale(1.05)',
+          },
+          transition: 'all 0.2s ease',
+        }}
+      >
+        <ArrowBackIosIcon sx={{ fontSize: '1.5 rem' }} />
+      </IconButton>
+
+      {/* Flecha siguiente */}
+      <IconButton
+        onClick={nextSlide}
+        sx={{
+          position: 'absolute',
+          right: 15,
+          top: '50%',
+          transform: 'translateY(-50%)',
+          zIndex: 3,
+          backgroundColor: 'rgba(255,255,255,0.15)',
+          color: 'white',
+          backdropFilter: 'blur(8px)',
+          width: 20,
+          height: 20,
+          '&:hover': {
+            backgroundColor: 'rgba(255,255,255,0.25)',
+            transform: 'translateY(-50%) scale(1.05)',
+          },
+          transition: 'all 0.2s ease',
+        }}
+      >
+        <ArrowForwardIosIcon sx={{ fontSize: '1.5  rem' }} />
+      </IconButton>
+
+      {/* Indicadores (dots) */}
+      <Box sx={{
+        display: 'flex',
+        justifyContent: 'center',
+        gap: 1,
+        position: 'absolute',
+        bottom: 20,
+        left: '50%',
+        transform: 'translateX(-50%)',
+        zIndex: 3
+      }}>
+        {bannerData.map((_, index) => (
           <IconButton
-            onClick={prevSlide}
+            key={index}
+            size="small"
+            onClick={() => goToSlide(index)}
             sx={{
-              position: 'absolute',
-              left: 15,
-              top: '50%',
-              transform: 'translateY(-50%)',
-              zIndex: 3,
-              backgroundColor: 'rgba(255,255,255,0.15)',
-              color: 'white',
-              backdropFilter: 'blur(8px)',
-              width: 40,
-              height: 40,
-              '&:hover': {
-                backgroundColor: 'rgba(255,255,255,0.25)',
-                transform: 'translateY(-50%) scale(1.05)',
-              },
+              p: 0.5,
+              color: currentSlide === index ? 'white' : 'rgba(255,255,255,0.5)',
               transition: 'all 0.2s ease',
+              '&:hover': {
+                color: 'rgba(255,255,255,0.8)',
+                transform: 'scale(1.1)',
+              }
             }}
           >
-            <ArrowBackIosIcon sx={{ fontSize: '1.5rem' }} />
+            {currentSlide === index ?
+              <FiberManualRecordIcon sx={{ fontSize: '0.7rem' }} /> :
+              <FiberManualRecordOutlinedIcon sx={{ fontSize: '0.7rem' }} />
+            }
           </IconButton>
-
-          {/* Flecha siguiente */}
-          <IconButton
-            onClick={nextSlide}
-            sx={{
-              position: 'absolute',
-              right: 15,
-              top: '50%',
-              transform: 'translateY(-50%)',
-              zIndex: 3,
-              backgroundColor: 'rgba(255,255,255,0.15)',
-              color: 'white',
-              backdropFilter: 'blur(8px)',
-              width: 40,
-              height: 40,
-              '&:hover': {
-                backgroundColor: 'rgba(255,255,255,0.25)',
-                transform: 'translateY(-50%) scale(1.05)',
-              },
-              transition: 'all 0.2s ease',
-            }}
-          >
-            <ArrowForwardIosIcon sx={{ fontSize: '1.5rem' }} />
-          </IconButton>
-
-          {/* Indicadores (dots) */}
-          <Box sx={{
-            display: 'flex',
-            justifyContent: 'center',
-            gap: 1,
-            position: 'absolute',
-            bottom: 20,
-            left: '50%',
-            transform: 'translateX(-50%)',
-            zIndex: 3
-          }}>
-            {bannerData.map((_, index) => (
-              <IconButton
-                key={index}
-                size="small"
-                onClick={() => goToSlide(index)}
-                sx={{
-                  p: 0.5,
-                  color: currentSlide === index ? 'white' : 'rgba(255,255,255,0.5)',
-                  transition: 'all 0.2s ease',
-                  '&:hover': {
-                    color: 'rgba(255,255,255,0.8)',
-                    transform: 'scale(1.1)',
-                  }
-                }}
-              >
-                {currentSlide === index ?
-                  <FiberManualRecordIcon sx={{ fontSize: '0.7rem' }} /> :
-                  <FiberManualRecordOutlinedIcon sx={{ fontSize: '0.7rem' }} />
-                }
-              </IconButton>
-            ))}
-          </Box>
-        </>
-      )}
+        ))}
+      </Box>
     </Box>
   );
 };
