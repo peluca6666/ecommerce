@@ -18,6 +18,10 @@ const CartDropdown = () => {
   const navigate = useNavigate();
   const [anchorEl, setAnchorEl] = useState(null);
 
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   const handleClick = (event) => {
     if (!isAuthenticated) {
       showNotification('debes estar logueado para acceder al carrito', 'warning');
@@ -32,6 +36,12 @@ const CartDropdown = () => {
   const handleProductClick = (productoId) => {
     handleClose();
     navigate(`/producto/${productoId}`);
+    scrollToTop();
+  };
+
+  const handleCartClick = () => {
+    handleClose();
+    scrollToTop();
   };
 
   const handleRemove = (e, productoId) => {
@@ -182,7 +192,7 @@ const CartDropdown = () => {
                 to="/carrito"
                 variant="contained"
                 fullWidth
-                onClick={handleClose}
+                onClick={handleCartClick}
                 sx={{
                   py: 1.2,
                   fontWeight: 700,

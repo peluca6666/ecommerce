@@ -6,6 +6,10 @@ import { useAuth } from '../../context/AuthContext';
 const CartItem = ({ item }) => {
   const { updateCartItemQuantity, removeFromCart } = useAuth();
 
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   // URL de imagen con fallback
   const imageUrl = item.imagen 
     ? `${import.meta.env.VITE_API_BASE_URL}${item.imagen}` 
@@ -59,6 +63,7 @@ const CartItem = ({ item }) => {
               variant="h6"
               component={RouterLink}
               to={`/producto/${item.producto_id}`}
+              onClick={scrollToTop}
               sx={{
                 color: '#2c3e50',
                 textDecoration: 'none',
