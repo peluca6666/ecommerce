@@ -113,54 +113,41 @@ const MainPage = () => {
   return (
     <Box sx={{ 
       width: '100%',
-      maxWidth: '100vw',
       overflowX: 'hidden'
     }}>
-      {/* Banner Section - Revertido al original */}
+      {/* Banner Section */}
       <Container maxWidth="lg" sx={{ py: 0 }}>
         <MainBanner />
       </Container>
 
-      {/* Category Slider - Con control estricto de overflow */}
+      {/* Category Slider */}
       <Box sx={{ 
         py: 0,
         width: '100%',
-        maxWidth: '100vw',
-        overflowX: 'hidden',
-        position: 'relative'
+        overflowX: 'hidden'
       }}>
         <CategorySlider categoria={state.categoria} />
       </Box>
 
       {/* Offers Section */}
-      <Box sx={{ 
-        width: '100%',
-        maxWidth: '100vw',
-        px: { xs: 1, sm: 2, md: 3, lg: 4 },
-        py: { xs: 2, md: 3 },
-        boxSizing: 'border-box'
-      }}>
+      <Container maxWidth="xl" sx={{ px: { xs: 1, sm: 2, md: 3, lg: 4 } }}>
         <Paper elevation={2} sx={{ 
-          p: { xs: 1.5, md: 2 },
+          p: { xs: 1, md: 2 },
+          mt: 0,
+          mb: { xs: 1, md: 3 },
           borderRadius: 3,
           background: 'linear-gradient(135deg, #ffffff 0%, #fafbfc 100%)',
-          border: '1px solid #f1f3f4',
-          width: '100%',
-          maxWidth: '100%',
-          boxSizing: 'border-box',
-          overflow: 'hidden'
+          border: '1px solid #f1f3f4'
         }}>
-          {/* Título destacado con rectángulo de color */}
+          {/* Título destacado - más compacto en móvil */}
           <Box sx={{
             background: 'linear-gradient(135deg, #FF4500 0%, #FF6B35 50%, #FF8C00 100%)',
             borderRadius: 3,
-            py: { xs: 2, md: 2.5 },
-            mb: { xs: 2, md: 3 },
+            py: { xs: 1.2, md: 2.5 },
+            mb: { xs: 1.5, md: 3 },
             boxShadow: '0 4px 20px rgba(255, 69, 0, 0.3)',
             position: 'relative',
             overflow: 'hidden',
-            width: '100%',
-            boxSizing: 'border-box',
             '&::before': {
               content: '""',
               position: 'absolute',
@@ -179,31 +166,23 @@ const MainPage = () => {
             <Typography variant="h4" sx={{
               color: 'white',
               fontWeight: 700,
-              fontSize: { xs: '1.3rem', sm: '1.5rem', md: '2rem' },
+              fontSize: { xs: '1.1rem', sm: '1.3rem', md: '2rem' },
               textShadow: '0 2px 4px rgba(0,0,0,0.3)',
-              letterSpacing: { xs: '0.5px', md: '1px' },
+              letterSpacing: { xs: '0.3px', md: '1px' },
               position: 'relative',
               zIndex: 1,
               textAlign: 'center',
-              px: { xs: 1, sm: 2 }
+              px: { xs: 0.5, sm: 1, md: 2 }
             }}>
               OFERTAS IMPERDIBLES
             </Typography>
           </Box>
           
-          {/* ProductGrid con control de overflow */}
-          <Box sx={{ 
-            width: '100%',
-            maxWidth: '100%',
-            overflow: 'hidden'
-          }}>
-            <ProductGrid productos={state.ofertas} />
-          </Box>
+          <ProductGrid productos={state.ofertas} />
           
           <Box sx={{ 
-            mt: { xs: 2, md: 2.5 }, 
-            textAlign: 'center',
-            px: { xs: 1, sm: 2 }
+            mt: { xs: 1, md: 2.5 }, 
+            textAlign: 'center'
           }}>
             <Button
               component={Link}
@@ -211,16 +190,15 @@ const MainPage = () => {
               variant="contained"
               size="large"
               sx={{
-                px: { xs: 3, md: 4 },
-                py: { xs: 1.2, md: 1.5 },
+                px: { xs: 2.5, md: 4 },
+                py: { xs: 1, md: 1.5 },
                 borderRadius: 3,
                 fontWeight: 600,
                 textTransform: 'none',
                 background: 'linear-gradient(135deg, #FF8C00, #FF6B35)',
                 color: 'white',
-                fontSize: { xs: '1rem', md: '1.1rem' },
+                fontSize: { xs: '0.9rem', md: '1.1rem' },
                 transition: 'all 0.3s ease',
-                maxWidth: '100%',
                 '&:hover': {
                   background: 'linear-gradient(135deg, #FF6B35, #FF4500)',
                   transform: 'translateY(-2px)',
@@ -233,7 +211,7 @@ const MainPage = () => {
             </Button>
           </Box>
         </Paper>
-      </Box>
+      </Container>
     </Box>
   );
 };
