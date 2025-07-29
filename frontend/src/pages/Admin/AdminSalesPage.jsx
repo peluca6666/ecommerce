@@ -205,19 +205,36 @@ export default function AdminSalesPage() {
   if (error) return <Typography color="error">Error: {error}</Typography>;
 
   return (
-    <Box sx={{ height: '80vh', width: '100%' }}>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+    <Box sx={{ width: '100%' }}>
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
         <Title>Gestión de Ventas</Title>
       </Box>
 
-      <DataGrid
-        rows={sales}
-        columns={columns}
-        getRowId={(row) => row.venta_id}
-        initialState={{ sorting: { sortModel: [{ field: 'venta_id', sort: 'desc' }] } }}
-        pageSize={10}
-        disableSelectionOnClick
-      />
+      <Box sx={{ height: 600, width: '100%' }}>
+        <DataGrid
+          rows={sales}
+          columns={columns}
+          getRowId={(row) => row.venta_id}
+          initialState={{ 
+            sorting: { sortModel: [{ field: 'venta_id', sort: 'desc' }] },
+            pagination: { paginationModel: { pageSize: 25 } }
+          }}
+          pageSizeOptions={[10, 25, 50, 100]}
+          disableSelectionOnClick
+          sx={{
+            '& .MuiDataGrid-main': {
+              borderRadius: 2,
+            },
+            '& .MuiDataGrid-cell': {
+              borderBottom: '1px solid rgba(224, 224, 224, 0.5)',
+            },
+            '& .MuiDataGrid-columnHeaders': {
+              backgroundColor: '#f8fafc',
+              borderBottom: '2px solid #e5e5e5',
+            }
+          }}
+        />
+      </Box>
 
       {/* modal para detalles y gestión de estado */}
       <Dialog open={isDetailModalOpen} onClose={handleCloseDetailModal} fullWidth maxWidth="md">
