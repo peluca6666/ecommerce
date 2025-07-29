@@ -4,18 +4,18 @@ import { useState, useEffect } from 'react';
 
 const WhatsAppFloat = () => {
   const [visible, setVisible] = useState(false);
-  const phoneNumber = "5435851822894"; 
+ const phoneNumber = "+5493585182894";
   
   useEffect(() => {
     const timer = setTimeout(() => setVisible(true), 2000);
     return () => clearTimeout(timer);
   }, []);
 
-  const handleWhatsAppClick = () => {
-    const message = "¡Hola! Me interesa conocer más sobre sus productos. ¿Podrían ayudarme?";
-    const url = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
-    window.open(url, '_blank');
-  };
+ const handleWhatsAppClick = () => {
+  const message = "¡Hola! Me interesa conocer más sobre sus productos. ¿Podrían ayudarme?";
+  const url = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
+  window.open(url, '_blank');
+};
 
   return (
     <Zoom in={visible}>
