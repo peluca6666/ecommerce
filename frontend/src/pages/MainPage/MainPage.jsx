@@ -111,28 +111,44 @@ const MainPage = () => {
   }
 
   return (
-    <Box>
-      <Container maxWidth="lg" sx={{ py: 0 }}>
+    <Box sx={{ 
+      width: '100%',
+      maxWidth: '100vw',
+      overflowX: 'hidden'
+    }}>
+      {/* Banner Section */}
+      <Container maxWidth="lg" sx={{ py: 0, px: { xs: 2, sm: 3 } }}>
         <MainBanner />
       </Container>
 
-      <Box sx={{ py: 0 }}>
+      {/* Category Slider - Con control estricto de overflow */}
+      <Box sx={{ 
+        py: 0,
+        width: '100%',
+        maxWidth: '100vw',
+        overflowX: 'hidden',
+        position: 'relative'
+      }}>
         <CategorySlider categoria={state.categoria} />
       </Box>
 
-   <Box sx={{ 
-  width: '100%',
-  px: { xs: 1, sm: 2, md: 3, lg: 4 },
-  maxWidth: '100vw',
-  overflow: 'hidden'
-}}>
+      {/* Offers Section */}
+      <Box sx={{ 
+        width: '100%',
+        maxWidth: '100vw',
+        px: { xs: 1, sm: 2, md: 3, lg: 4 },
+        py: { xs: 2, md: 3 },
+        boxSizing: 'border-box'
+      }}>
         <Paper elevation={2} sx={{ 
           p: { xs: 1.5, md: 2 },
-          mt: 0,
-          mb: { xs: 2, md: 3 },
           borderRadius: 3,
           background: 'linear-gradient(135deg, #ffffff 0%, #fafbfc 100%)',
-          border: '1px solid #f1f3f4'
+          border: '1px solid #f1f3f4',
+          width: '100%',
+          maxWidth: '100%',
+          boxSizing: 'border-box',
+          overflow: 'hidden'
         }}>
           {/* Título destacado con rectángulo de color */}
           <Box sx={{
@@ -143,6 +159,8 @@ const MainPage = () => {
             boxShadow: '0 4px 20px rgba(255, 69, 0, 0.3)',
             position: 'relative',
             overflow: 'hidden',
+            width: '100%',
+            boxSizing: 'border-box',
             '&::before': {
               content: '""',
               position: 'absolute',
@@ -161,35 +179,48 @@ const MainPage = () => {
             <Typography variant="h4" sx={{
               color: 'white',
               fontWeight: 700,
-              fontSize: { xs: '1.5rem', md: '2rem' },
+              fontSize: { xs: '1.3rem', sm: '1.5rem', md: '2rem' },
               textShadow: '0 2px 4px rgba(0,0,0,0.3)',
-              letterSpacing: '1px',
+              letterSpacing: { xs: '0.5px', md: '1px' },
               position: 'relative',
               zIndex: 1,
-              textAlign: 'center'
+              textAlign: 'center',
+              px: { xs: 1, sm: 2 }
             }}>
               OFERTAS IMPERDIBLES
             </Typography>
           </Box>
           
-          <ProductGrid productos={state.ofertas} />
+          {/* ProductGrid con control de overflow */}
+          <Box sx={{ 
+            width: '100%',
+            maxWidth: '100%',
+            overflow: 'hidden'
+          }}>
+            <ProductGrid productos={state.ofertas} />
+          </Box>
           
-          <Box sx={{ mt: { xs: 1, md: 1.5 }, textAlign: 'center' }}>
+          <Box sx={{ 
+            mt: { xs: 2, md: 2.5 }, 
+            textAlign: 'center',
+            px: { xs: 1, sm: 2 }
+          }}>
             <Button
               component={Link}
               to="/productos"
               variant="contained"
               size="large"
               sx={{
-                px: 4,
-                py: 1.5,
+                px: { xs: 3, md: 4 },
+                py: { xs: 1.2, md: 1.5 },
                 borderRadius: 3,
                 fontWeight: 600,
                 textTransform: 'none',
                 background: 'linear-gradient(135deg, #FF8C00, #FF6B35)',
                 color: 'white',
-                fontSize: '1.1rem',
+                fontSize: { xs: '1rem', md: '1.1rem' },
                 transition: 'all 0.3s ease',
+                maxWidth: '100%',
                 '&:hover': {
                   background: 'linear-gradient(135deg, #FF6B35, #FF4500)',
                   transform: 'translateY(-2px)',
