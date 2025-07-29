@@ -23,6 +23,10 @@ export default function AdminSalesPage() {
   const [detailLoading, setDetailLoading] = useState(false);
   const [newStatus, setNewStatus] = useState('');
 
+  // Estados para paginación móvil
+  const [currentPage, setCurrentPage] = useState(0);
+  const [pageSize, setPageSize] = useState(10);
+
   // Estados para alertas (snackbar)
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState('');
@@ -148,7 +152,20 @@ export default function AdminSalesPage() {
     );
   };
 
-  // Helper function para obtener el color del chip según el estado
+  // Funciones de paginación móvil
+  const totalPages = Math.ceil(sales.length / pageSize);
+  const startIndex = currentPage * pageSize;
+  const endIndex = startIndex + pageSize;
+  const currentSales = sales.slice(startIndex, endIndex);
+
+  const handlePageChange = (newPage) => {
+    setCurrentPage(newPage);
+  };
+
+  const handlePageSizeChange = (newSize) => {
+    setPageSize(newSize);
+    setCurrentPage(0); // Reset to first page when changing page size
+  };
   const getStatusColor = (status) => {
     switch (status) {
       case 'Completado': return 'success';
@@ -278,25 +295,100 @@ export default function AdminSalesPage() {
       </Box>
 
       {isMobile ? (
-        // Vista móvil con cards
-        <Box sx={{ px: 1 }}>
-          {sales.length === 0 ? (
-            <Typography variant="body1" sx={{ textAlign: 'center', py: 4 }}>
-              No hay ventas para mostrar
+        // Vista móvil con cards y paginación
+        <Box>
+          {/* Controles de paginación arriba */}
+          <Box sx={{ 
+            display: 'flex', 
+            justifyContent: 'space-between', 
+            alignItems: 'center', 
+            mb: 2,
+            px: 1
+          }}>
+            <FormControl size="small" sx={{ minWidth: 120 }}>
+              <InputLabel>Filas por página</InputLabel>
+              <Select
+                value={pageSize}
+                label="Filas por página"
+                onChange={(e) => handlePageSizeChange(e.target.value)}
+              >
+                <MenuItem value={5}>5</MenuItem>
+                <MenuItem value={10}>10</MenuItem>
+                <MenuItem value={15}>15</MenuItem>
+                <MenuItem value={20}>20</MenuItem>
+              </Select>
+            </FormControl>
+            
+            <Typography variant="body2" color="text.secondary">
+              {startIndex + 1}-{Math.min(endIndex, sales.length)} de {sales.length}
             </Typography>
-          ) : (
-            <>
-              {sales.slice(0, 20).map((venta) => (
+          </Box>
+
+          {/* Cards de ventas */}
+          <Box sx={{ px: 1 }}>
+            {sales.length === 0 ? (
+              <Typography variant="body1" sx={{ textAlign: 'center', py: 4 }}>
+                No hay ventas para mostrar
+              </Typography>
+            ) : (
+              currentSales.map((venta) => (
                 <MobileVentaCard key={venta.venta_id} venta={venta} />
-              ))}
-              {sales.length > 20 && (
-                <Box sx={{ textAlign: 'center', mt: 2 }}>
-                  <Typography variant="body2" color="text.secondary">
-                    Mostrando las primeras 20 ventas
-                  </Typography>
-                </Box>
-              )}
-            </>
+              ))
+            )}
+          </Box>
+
+          {/* Controles de navegación de páginas */}
+          {totalPages > 1 && (
+            <Box sx={{ 
+              display: 'flex', 
+              justifyContent: 'center', 
+              alignItems: 'center', 
+              mt: 3,
+              gap: 1
+            }}>
+              <Button 
+                size="small" 
+                disabled={currentPage === 0}
+                onClick={() => handlePageChange(currentPage - 1)}
+              >
+                Anterior
+              </Button>
+              
+              <Box sx={{ display: 'flex', gap: 0.5 }}>
+                {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                  let pageNum;
+                  if (totalPages <= 5) {
+                    pageNum = i;
+                  } else if (currentPage < 3) {
+                    pageNum = i;
+                  } else if (currentPage >= totalPages - 3) {
+                    pageNum = totalPages - 5 + i;
+                  } else {
+                    pageNum = currentPage - 2 + i;
+                  }
+                  
+                  return (
+                    <Button
+                      key={pageNum}
+                      size="small"
+                      variant={currentPage === pageNum ? "contained" : "text"}
+                      onClick={() => handlePageChange(pageNum)}
+                      sx={{ minWidth: 32, height: 32 }}
+                    >
+                      {pageNum + 1}
+                    </Button>
+                  );
+                })}
+              </Box>
+              
+              <Button 
+                size="small" 
+                disabled={currentPage === totalPages - 1}
+                onClick={() => handlePageChange(currentPage + 1)}
+              >
+                Siguiente
+              </Button>
+            </Box>
           )}
         </Box>
       ) : (
