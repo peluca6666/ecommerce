@@ -40,7 +40,7 @@ const NavMenu = ({ mobile = false, onItemClick }) => {
         px: 1.5,
         pb: 1.25,
         position: 'relative',
-        transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)', // Transición más suave
+        transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
         '&::after': {
             content: '""',
             position: 'absolute',
@@ -49,18 +49,18 @@ const NavMenu = ({ mobile = false, onItemClick }) => {
             width: '0%',
             height: '2px',
             backgroundColor: 'white',
-            transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)', // Más suave
+            transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
             transform: 'translateX(-50%)',
             boxShadow: '0 0 6px rgba(255, 255, 255, 0.8)'
         },
         '&:hover': {
-            transform: 'translateY(-2px)', // Movimiento más sutil
-            backgroundColor: 'rgba(255,255,255,0.08)', // Fondo más sutil
-            color: '#FFF8DC', // Color más suave
+            transform: 'translateY(-2px)',
+            backgroundColor: 'rgba(255,255,255,0.08)',
+            color: '#FFF8DC',
             textShadow: '0 2px 4px rgba(0, 0, 0, 0.2)',
             '&::after': { 
                 width: '100%',
-                boxShadow: '0 0 12px rgba(255, 255, 255, 0.6)' // Glow más suave
+                boxShadow: '0 0 12px rgba(255, 255, 255, 0.6)'
             }
         }
     };
@@ -71,11 +71,11 @@ const NavMenu = ({ mobile = false, onItemClick }) => {
         py: 1.5,
         px: 2.5,
         mb: 1,
-        color: '#333', // Texto negro
-        background: '#f5f5f5', // Fondo gris claro
+        color: '#333',
+        background: '#f5f5f5',
         fontWeight: 600,
         fontSize: '0.9rem',
-        border: '1px solid #e0e0e0', // Borde gris
+        border: '1px solid #e0e0e0',
         borderRadius: 2,
         textTransform: 'none',
         transition: 'all 0.2s ease',
@@ -107,16 +107,16 @@ const NavMenu = ({ mobile = false, onItemClick }) => {
         }
     };
 
-    // Vista móvil - Sidebar completamente blanco
+    // Vista móvil
     if (mobile) {
         return (
             <Box sx={{
                 width: '100%',
-                backgroundColor: 'white', // Fondo blanco
+                backgroundColor: 'white',
                 borderRadius: '0 0 16px 16px',
                 boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
                 p: 2.5,
-                border: '1px solid #e0e0e0' // Borde para definir
+                border: '1px solid #e0e0e0'
             }}>
                 {user?.rol === 'admin' && (
                     <Button component={RouterLink} to="/admin/productos" onClick={onItemClick} startIcon={<AdminPanelSettings />} sx={mobileButton}>
@@ -185,7 +185,7 @@ const NavMenu = ({ mobile = false, onItemClick }) => {
     return (
         <Box>
             {user?.rol === 'admin' && (
-                <Button component={RouterLink} to="/admin/productos" variant="outlined" sx={{
+                <Button component={RouterLink} to="/admin/productos" onClick={onItemClick} variant="outlined" sx={{
                     ...navButton,
                     borderColor: 'rgba(255,255,255,0.3)',
                     '&:hover': { 
@@ -198,9 +198,9 @@ const NavMenu = ({ mobile = false, onItemClick }) => {
                 </Button>
             )}
 
-            <Button component={RouterLink} to="/" sx={navButton}>INICIO</Button>
+            <Button component={RouterLink} to="/" onClick={onItemClick} sx={navButton}>INICIO</Button>
             <Button onClick={() => setSidebarOpen(true)} startIcon={<MenuIcon />} sx={navButton}>Categorías</Button>
-            <Button component={RouterLink} to="/productos?es_oferta=true" startIcon={<LocalOffer />} sx={{
+            <Button component={RouterLink} to="/productos?es_oferta=true" onClick={onItemClick} startIcon={<LocalOffer />} sx={{
                 ...navButton,
                 backgroundColor: 'rgba(255,255,255,0.1)',
                 border: '1px solid rgba(255,255,255,0.3)',
@@ -214,7 +214,7 @@ const NavMenu = ({ mobile = false, onItemClick }) => {
             </Button>
 
             {!loading && categories.map((cat) => (
-                <Button key={cat.categoria_id} component={RouterLink} to={`/categoria/${cat.categoria_id}/productos`} sx={{
+                <Button key={cat.categoria_id} component={RouterLink} to={`/categoria/${cat.categoria_id}/productos`} onClick={onItemClick} sx={{
                     ...navButton, whiteSpace: 'nowrap', minWidth: 'auto'
                 }}>
                     {cat.nombre}

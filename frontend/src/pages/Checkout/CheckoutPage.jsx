@@ -24,7 +24,7 @@ const CheckoutPage = () => {
     }                                                                              
                                                                                     
     return (                                                                       
-        <Box sx={{ bgcolor: 'grey.50', minHeight: '100vh' }}>                 
+        <Box sx={{ bgcolor: 'white', minHeight: '100vh' }}>                 
             <Box sx={{ py: 4 }}>                                                
                                                                                  
                 {/* Header */}                                                  

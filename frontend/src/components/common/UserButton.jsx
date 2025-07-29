@@ -14,25 +14,33 @@ const UserButton = () => {
   const handleOpenMenu = (e) => setAnchorEl(e.currentTarget);
   const handleCloseMenu = () => setAnchorEl(null);
 
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   const handleLogin = () => {
     handleCloseMenu();
     navigate("/login");
+    scrollToTop();
   };
 
   const handleRegister = () => {
     handleCloseMenu();
     navigate("/register");
+    scrollToTop();
   };
 
   const handleLogout = () => {
     logout();
     handleCloseMenu();
     navigate("/");
+    scrollToTop();
   };
 
   const handleProfile = () => {
     handleCloseMenu();
     navigate("/profile");
+    scrollToTop();
   };
 
   // Estilos para botones con línea hover
