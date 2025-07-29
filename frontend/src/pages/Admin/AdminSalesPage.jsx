@@ -4,13 +4,11 @@ import {
   Box, Typography, IconButton, Dialog, DialogTitle, DialogContent,
   Paper, Grid, List, ListItem, ListItemText, Divider, CircularProgress,
   Link as MuiLink, FormControl, InputLabel, Select, MenuItem, Button,
-  DialogActions,
-  Snackbar,
-  Alert
+  DialogActions, Snackbar, Alert, Chip
 } from '@mui/material';
 import { Link as RouterLink } from 'react-router-dom';
 import Title from './Title';
-import VisibilityIcon from '@mui/icons-material/Visibility';
+import { Visibility } from '@mui/icons-material';
 
 export default function AdminSalesPage() {
   // estados para ventas, carga, error, modal detalle, venta seleccionada y nuevo estado
@@ -147,6 +145,17 @@ export default function AdminSalesPage() {
     );
   };
 
+  // Helper function para obtener el color del chip según el estado
+  const getStatusColor = (status) => {
+    switch (status) {
+      case 'Completado': return 'success';
+      case 'Cancelado': return 'error';
+      case 'Procesando': return 'warning';
+      case 'Enviado': return 'info';
+      default: return 'default';
+    }
+  };
+
   // columnas para la tabla de ventas
   const columns = [
     { field: 'venta_id', headerName: 'ID Venta', width: 90 },
@@ -168,27 +177,26 @@ export default function AdminSalesPage() {
       field: 'estado',
       headerName: 'Estado',
       width: 150,
-      renderCell: (params) => {
-        let color = 'default';
-        if (params.value === 'Completado') color = 'success';
-        if (params.value === 'Cancelado') color = 'error';
-        if (params.value === 'Procesando') color = 'warning';
-        return (
-          <Typography color={`${color}.main`} sx={{ fontWeight: 'bold' }}>
-            {params.value}
-          </Typography>
-        );
-      }
+      renderCell: ({ value }) => (
+        <Chip 
+          label={value} 
+          color={getStatusColor(value)} 
+          size="small"
+          variant="filled"
+        />
+      )
     },
     {
       field: 'acciones',
       headerName: 'Acciones',
-      width: 100,
+      width: 120,
       sortable: false,
-      renderCell: (params) => (
-        <IconButton onClick={() => handleViewDetails(params.row)}>
-          <VisibilityIcon />
-        </IconButton>
+      renderCell: ({ row }) => (
+        <Box onClick={e => e.stopPropagation()}>
+          <IconButton onClick={() => handleViewDetails(row)} color="primary">
+            <Visibility />
+          </IconButton>
+        </Box>
       )
     }
   ];
@@ -198,12 +206,17 @@ export default function AdminSalesPage() {
 
   return (
     <Box sx={{ height: '80vh', width: '100%' }}>
-      <Title>Gestión de Ventas</Title>
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+        <Title>Gestión de Ventas</Title>
+      </Box>
+
       <DataGrid
         rows={sales}
         columns={columns}
         getRowId={(row) => row.venta_id}
         initialState={{ sorting: { sortModel: [{ field: 'venta_id', sort: 'desc' }] } }}
+        pageSize={10}
+        disableSelectionOnClick
       />
 
       {/* modal para detalles y gestión de estado */}
@@ -234,7 +247,7 @@ export default function AdminSalesPage() {
                   {/* panel para cambiar estado de la venta */}
                   <Paper sx={{ p: 2 }}>
                     <Typography variant="h6" gutterBottom>Gestionar Estado</Typography>
-                    <FormControl fullWidth>
+                    <FormControl fullWidth sx={{ mb: 2 }}>
                       <InputLabel>Estado</InputLabel>
                       <Select
                         value={newStatus}
@@ -247,7 +260,7 @@ export default function AdminSalesPage() {
                         <MenuItem value="Cancelado">Cancelado</MenuItem>
                       </Select>
                     </FormControl>
-                    <Button variant="contained" sx={{ mt: 2 }} onClick={handleStatusChange}>
+                    <Button variant="contained" fullWidth onClick={handleStatusChange}>
                       Actualizar Estado
                     </Button>
                   </Paper>
@@ -292,6 +305,9 @@ export default function AdminSalesPage() {
             <Typography>No se pudo cargar el detalle.</Typography>
           )}
         </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseDetailModal}>Cerrar</Button>
+        </DialogActions>
       </Dialog>
 
       {/* snackbar para mensajes de éxito o error */}
@@ -312,6 +328,7 @@ export default function AdminSalesPage() {
         onClose={handleCancelConfirmDialog}
         aria-labelledby="confirm-dialog-title"
         aria-describedby="confirm-dialog-description"
+        disableRestoreFocus
       >
         <DialogTitle id="confirm-dialog-title">Confirmación</DialogTitle>
         <DialogContent>
