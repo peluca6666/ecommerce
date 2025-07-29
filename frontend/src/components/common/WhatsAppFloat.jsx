@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 
 const WhatsAppFloat = () => {
   const [visible, setVisible] = useState(false);
-  const phoneNumber = "5435851822894"; 
+  const phoneNumber = "54935851822894"; 
   
   useEffect(() => {
     const timer = setTimeout(() => setVisible(true), 2000);
