@@ -4,13 +4,16 @@ import {
   Box, Typography, IconButton, Dialog, DialogTitle, DialogContent,
   Paper, Grid, List, ListItem, ListItemText, Divider, CircularProgress,
   Link as MuiLink, FormControl, InputLabel, Select, MenuItem, Button,
-  DialogActions, Snackbar, Alert, Chip
+  DialogActions, Snackbar, Alert, Chip, Card, CardContent, useMediaQuery, useTheme
 } from '@mui/material';
 import { Link as RouterLink } from 'react-router-dom';
 import Title from './Title';
 import { Visibility } from '@mui/icons-material';
 
 export default function AdminSalesPage() {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+  
   // estados para ventas, carga, error, modal detalle, venta seleccionada y nuevo estado
   const [sales, setSales] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -235,59 +238,74 @@ export default function AdminSalesPage() {
         display: 'flex', 
         justifyContent: 'space-between', 
         alignItems: 'center', 
-        mb: { xs: 2, sm: 3 },
-        flexDirection: { xs: 'column', sm: 'row' },
-        gap: { xs: 1, sm: 0 }
+        mb: 3
       }}>
         <Title>Gestión de Ventas</Title>
       </Box>
 
-      <DataGrid
-        rows={sales}
-        columns={columns}
-        getRowId={(row) => row.venta_id}
-        initialState={{ 
-          sorting: { sortModel: [{ field: 'venta_id', sort: 'desc' }] },
-          pagination: { paginationModel: { pageSize: window.innerWidth < 768 ? 5 : 10 } }
-        }}
-        pageSizeOptions={window.innerWidth < 768 ? [5, 10] : [5, 10, 15, 20]}
-        disableSelectionOnClick
-        autoHeight
-        density={window.innerWidth < 768 ? 'compact' : 'standard'}
-        sx={{
-          '& .MuiDataGrid-main': {
-            borderRadius: { xs: 1, sm: 2 },
-          },
-          '& .MuiDataGrid-cell': {
-            borderBottom: '1px solid rgba(224, 224, 224, 0.5)',
-            padding: { xs: '4px 8px', sm: '8px 16px' },
-            fontSize: { xs: '0.75rem', sm: '0.875rem' }
-          },
-          '& .MuiDataGrid-columnHeaders': {
-            backgroundColor: '#f8fafc',
-            borderBottom: '2px solid #e5e5e5',
-            fontSize: { xs: '0.75rem', sm: '0.875rem' },
-            '& .MuiDataGrid-columnHeaderTitle': {
-              fontWeight: 600,
+      {isMobile ? (
+        // Vista móvil con cards
+        <Box sx={{ px: 1 }}>
+          {loading ? (
+            <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
+              <CircularProgress />
+            </Box>
+          ) : sales.length === 0 ? (
+            <Typography variant="body1" sx={{ textAlign: 'center', py: 4 }}>
+              No hay ventas para mostrar
+            </Typography>
+          ) : (
+            <>
+              {sales.slice(0, 20).map((venta) => (
+                <MobileVentaCard key={venta.venta_id} venta={venta} />
+              ))}
+              {sales.length > 20 && (
+                <Box sx={{ textAlign: 'center', mt: 2 }}>
+                  <Typography variant="body2" color="text.secondary">
+                    Mostrando las primeras 20 ventas
+                  </Typography>
+                </Box>
+              )}
+            </>
+          )}
+        </Box>
+      ) : (
+        // Vista desktop con DataGrid
+        <DataGrid
+          rows={sales}
+          columns={columns}
+          getRowId={(row) => row.venta_id}
+          initialState={{ 
+            sorting: { sortModel: [{ field: 'venta_id', sort: 'desc' }] },
+            pagination: { paginationModel: { pageSize: 15 } }
+          }}
+          pageSizeOptions={[10, 15, 25, 50]}
+          disableSelectionOnClick
+          autoHeight
+          sx={{
+            '& .MuiDataGrid-main': {
+              borderRadius: 2,
+            },
+            '& .MuiDataGrid-cell': {
+              borderBottom: '1px solid rgba(224, 224, 224, 0.5)',
+            },
+            '& .MuiDataGrid-columnHeaders': {
+              backgroundColor: '#f8fafc',
+              borderBottom: '2px solid #e5e5e5',
+              '& .MuiDataGrid-columnHeaderTitle': {
+                fontWeight: 600,
+              }
+            },
+            '& .MuiDataGrid-virtualScroller': {
+              overflow: 'visible !important',
+            },
+            '& .MuiDataGrid-footerContainer': {
+              borderTop: '2px solid #e5e5e5',
+              backgroundColor: '#f8fafc',
             }
-          },
-          '& .MuiDataGrid-virtualScroller': {
-            overflow: 'visible !important',
-          },
-          '& .MuiDataGrid-footerContainer': {
-            borderTop: '2px solid #e5e5e5',
-            backgroundColor: '#f8fafc',
-            minHeight: { xs: 40, sm: 52 }
-          },
-          '& .MuiDataGrid-toolbar': {
-            padding: { xs: '8px', sm: '16px' }
-          },
-          // Responsive: ocultar scrollbar horizontal en móvil
-          '& .MuiDataGrid-virtualScrollerContent': {
-            width: '100% !important'
-          }
-        }}
-      />
+          }}
+        />
+      )}
 
       {/* modal para detalles y gestión de estado */}
       <Dialog 
@@ -295,7 +313,7 @@ export default function AdminSalesPage() {
         onClose={handleCloseDetailModal} 
         fullWidth 
         maxWidth="md"
-        fullScreen={window.innerWidth < 768}
+        fullScreen={isMobile}
         sx={{
           '& .MuiDialog-paper': {
             margin: { xs: 0, sm: 2 },
@@ -354,7 +372,7 @@ export default function AdminSalesPage() {
                         value={newStatus}
                         label="Estado"
                         onChange={(e) => setNewStatus(e.target.value)}
-                        size={window.innerWidth < 768 ? 'small' : 'medium'}
+                        size={isMobile ? 'small' : 'medium'}
                       >
                         <MenuItem value="Procesando">Procesando</MenuItem>
                         <MenuItem value="Enviado">Enviado</MenuItem>
@@ -366,7 +384,7 @@ export default function AdminSalesPage() {
                       variant="contained" 
                       fullWidth 
                       onClick={handleStatusChange}
-                      size={window.innerWidth < 768 ? 'medium' : 'large'}
+                      size={isMobile ? 'medium' : 'large'}
                     >
                       Actualizar Estado
                     </Button>
