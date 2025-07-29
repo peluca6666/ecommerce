@@ -116,8 +116,8 @@ const MainPage = () => {
       maxWidth: '100vw',
       overflowX: 'hidden'
     }}>
-      {/* Banner Section */}
-      <Container maxWidth="lg" sx={{ py: 0, px: { xs: 2, sm: 3 } }}>
+      {/* Banner Section - Revertido al original */}
+      <Container maxWidth="lg" sx={{ py: 0 }}>
         <MainBanner />
       </Container>
 
