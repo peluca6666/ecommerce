@@ -1,12 +1,13 @@
 import { useState, useEffect } from 'react';
 import { DataGrid } from '@mui/x-data-grid';
-import {Box, Typography, IconButton, Select, MenuItem, Dialog, DialogTitle,DialogContent, List, ListItem, ListItemText, Divider, 
-CircularProgress, Link as MuiLink, Button, DialogActions,Snackbar,Alert} from '@mui/material';
+import {
+  Box, Typography, IconButton, Select, MenuItem, Dialog, DialogTitle, DialogContent, 
+  List, ListItem, ListItemText, Divider, CircularProgress, Link as MuiLink, Button, 
+  DialogActions, Snackbar, Alert, Chip
+} from '@mui/material';
 import { Link as RouterLink } from 'react-router-dom';
 import Title from './Title';
-import ToggleOnIcon from '@mui/icons-material/ToggleOn';
-import ToggleOffIcon from '@mui/icons-material/ToggleOff';
-import VisibilityIcon from '@mui/icons-material/Visibility';
+import { ToggleOn, ToggleOff, Visibility } from '@mui/icons-material';
 
 export default function AdminUsersPage() {
   // estados de usuarios y carga
@@ -177,27 +178,27 @@ export default function AdminUsersPage() {
     {
       field: 'activo',
       headerName: 'Estado',
-      width: 120,
-      renderCell: (params) => (
-        <Box sx={{ display: 'flex', alignItems: 'center', width: '100%' }} onClick={(e) => e.stopPropagation()}>
-          <IconButton onClick={() => handleToggleStatus(params.row.usuario_id, params.row.activo)}>
-            {params.row.activo ? <ToggleOnIcon color="success" /> : <ToggleOffIcon color="error" />}
+      width: 130,
+      renderCell: ({ row }) => (
+        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+          <IconButton onClick={(e) => { e.stopPropagation(); handleToggleStatus(row.usuario_id, row.activo); }}>
+            {row.activo ? <ToggleOn color="success" /> : <ToggleOff color="error" />}
           </IconButton>
-          <Typography sx={{ ml: 1 }} color={params.row.activo ? 'green' : 'red'}>
-            {params.row.activo ? 'Activo' : 'Inactivo'}
-          </Typography>
+          <Chip label={row.activo ? 'Activo' : 'Inactivo'} color={row.activo ? 'success' : 'default'} size="small" />
         </Box>
       )
     },
     {
       field: 'acciones',
-      headerName: 'Detalle',
-      width: 80,
+      headerName: 'Acciones',
+      width: 120,
       sortable: false,
-      renderCell: (params) => (
-        <IconButton onClick={() => handleViewDetails(params.row)}>
-          <VisibilityIcon />
-        </IconButton>
+      renderCell: ({ row }) => (
+        <Box onClick={e => e.stopPropagation()}>
+          <IconButton onClick={() => handleViewDetails(row)} color="primary">
+            <Visibility />
+          </IconButton>
+        </Box>
       )
     }
   ];
@@ -207,12 +208,18 @@ export default function AdminUsersPage() {
 
   return (
     <Box sx={{ height: '80vh', width: '100%' }}>
-      <Title>Gestión de Usuarios</Title>
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+        <Title>Gestión de Usuarios</Title>
+      </Box>
+
       <DataGrid
         rows={users}
         columns={columns}
         getRowId={(row) => row.usuario_id}
+        pageSize={10}
+        disableSelectionOnClick
       />
+
       <Dialog open={isDetailModalOpen} onClose={handleCloseDetailModal} fullWidth maxWidth="sm">
         {selectedUser && (
           <>
@@ -254,6 +261,9 @@ export default function AdminUsersPage() {
                 ) : (<Typography>Este usuario no ha realizado ninguna compra.</Typography>)
               )}
             </DialogContent>
+            <DialogActions>
+              <Button onClick={handleCloseDetailModal}>Cerrar</Button>
+            </DialogActions>
           </>
         )}
       </Dialog>
@@ -272,6 +282,7 @@ export default function AdminUsersPage() {
         onClose={handleCancelConfirmDialog}
         aria-labelledby="confirm-dialog-title"
         aria-describedby="confirm-dialog-description"
+        disableRestoreFocus
       >
         <DialogTitle id="confirm-dialog-title">Confirmación</DialogTitle>
         <DialogContent>
