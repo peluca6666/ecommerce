@@ -136,7 +136,8 @@ export const verificarCuenta = async (req, res) => {
 
 export async function obtenerTodosLosUsuarios(req, res) {
   try {
-    const usuarios = await usuarioService.obtenerTodosLosUsuarios();
+     const incluirInactivos = req.query.incluir_inactivos !== 'false'; 
+    const usuarios = await usuarioService.obtenerTodosLosUsuarios(incluirInactivos);
     res.json({ exito: true, datos: usuarios });
   } catch (error) {
     console.error("ERROR GRAVE EN EL CONTROLADOR DE USUARIOS:", error);

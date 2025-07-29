@@ -204,15 +204,18 @@ export async function cambiarContraseñaUsuario(userId, contraseniaActual, nueva
  * Trae todos los usuarios activos (sin contraseña)
  * @returns {Array} Lista de usuarios
  */
-export async function obtenerTodosLosUsuarios() {
+export async function obtenerTodosLosUsuarios(incluirInactivos = true) {
   try {
+    const whereClause = incluirInactivos ? '' : 'WHERE activo = TRUE';
+    
     const sql = `
       SELECT usuario_id, nombre, apellido, email, dni, direccion, telefono, 
-      provincia, localidad, codigo_postal, rol, activo 
+      provincia as Provincia, localidad as Localidad, codigo_postal, rol, activo 
       FROM usuario 
-      WHERE activo = TRUE 
-      ORDER BY usuario_id DESC
+      ${whereClause}
+      ORDER BY activo DESC, usuario_id DESC
     `;
+    
     const [rows] = await pool.query(sql);
     return rows;
   } catch (error) {
