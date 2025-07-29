@@ -1,17 +1,9 @@
-import { pool } from '../database/connectionMySQL.js';
-import fs from 'fs';
-import path from 'path';
-import { fileURLToPath } from 'url';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+import { BannerService } from '../services/bannerService.js';
 
 // GET - Obtener todos los banners activos (público)
 export const obtenerBannersPublicos = async (req, res) => {
   try {
-    const [banners] = await pool.execute(
-      'SELECT * FROM banners WHERE activo = 1 ORDER BY orden ASC'
-    );
+    const banners = await BannerService.obtenerBannersPublicos();
     res.json({
       exito: true,
       datos: banners
@@ -29,9 +21,7 @@ export const obtenerBannersPublicos = async (req, res) => {
 // GET - Obtener todos los banners para admin
 export const obtenerBannersAdmin = async (req, res) => {
   try {
-    const [banners] = await pool.execute(
-      'SELECT * FROM banners ORDER BY orden ASC'
-    );
+    const banners = await BannerService.obtenerBannersAdmin();
     res.json({
       exito: true,
       datos: banners
@@ -50,12 +40,9 @@ export const obtenerBannersAdmin = async (req, res) => {
 export const obtenerBannerPorId = async (req, res) => {
   try {
     const { id } = req.params;
-    const [banner] = await pool.execute(
-      'SELECT * FROM banners WHERE id = ?',
-      [id]
-    );
+    const banner = await BannerService.obtenerBannerPorId(id);
     
-    if (banner.length === 0) {
+    if (!banner) {
       return res.status(404).json({
         exito: false,
         mensaje: 'Banner no encontrado'
@@ -64,7 +51,7 @@ export const obtenerBannerPorId = async (req, res) => {
 
     res.json({
       exito: true,
-      datos: banner[0]
+      datos: banner
     });
   } catch (error) {
     console.error('Error al obtener banner:', error);
@@ -79,42 +66,24 @@ export const obtenerBannerPorId = async (req, res) => {
 // POST - Crear nuevo banner
 export const crearBanner = async (req, res) => {
   try {
-    const { titulo, descripcion, boton_texto, boton_link, orden, activo } = req.body;
-    
-    if (!req.file) {
-      return res.status(400).json({
-        exito: false,
-        mensaje: 'La imagen es obligatoria'
-      });
-    }
-
-    if (!titulo) {
-      return res.status(400).json({
-        exito: false,
-        mensaje: 'El título es obligatorio'
-      });
-    }
-
-    // ✅ CAMBIO: Usar /images/banners/ como productos y categorías
-    const imagen = `/images/banners/${req.file.filename}`;
-    
-    const [result] = await pool.execute(
-      'INSERT INTO banners (titulo, descripcion, imagen, boton_texto, boton_link, orden, activo) VALUES (?, ?, ?, ?, ?, ?, ?)',
-      [titulo, descripcion, imagen, boton_texto || '', boton_link || '', orden || 0, activo !== 'false']
-    );
-
-    const [newBanner] = await pool.execute(
-      'SELECT * FROM banners WHERE id = ?',
-      [result.insertId]
-    );
+    const newBanner = await BannerService.crearBanner(req.body, req.file);
 
     res.status(201).json({
       exito: true,
       mensaje: 'Banner creado exitosamente',
-      datos: newBanner[0]
+      datos: newBanner
     });
   } catch (error) {
     console.error('Error al crear banner:', error);
+    
+    // Manejar errores de validación específicos
+    if (error.message === 'La imagen es obligatoria' || error.message === 'El título es obligatorio') {
+      return res.status(400).json({
+        exito: false,
+        mensaje: error.message
+      });
+    }
+    
     res.status(500).json({
       exito: false,
       mensaje: 'Error interno del servidor',
@@ -127,53 +96,31 @@ export const crearBanner = async (req, res) => {
 export const actualizarBanner = async (req, res) => {
   try {
     const { id } = req.params;
-    const { titulo, descripcion, boton_texto, boton_link, orden, activo } = req.body;
-    
-    // Obtener banner actual
-    const [currentBanner] = await pool.execute('SELECT * FROM banners WHERE id = ?', [id]);
-    if (currentBanner.length === 0) {
-      return res.status(404).json({
-        exito: false,
-        mensaje: 'Banner no encontrado'
-      });
-    }
-
-    let imagen = currentBanner[0].imagen;
-    
-    // Si hay nueva imagen, eliminar la anterior y usar la nueva
-    if (req.file) {
-      // ✅ CAMBIO: Verificar que sea una imagen de banners antes de eliminar
-      if (currentBanner[0].imagen && currentBanner[0].imagen.startsWith('/images/banners/')) {
-        const oldImagePath = path.join(__dirname, '../public', currentBanner[0].imagen);
-        if (fs.existsSync(oldImagePath)) {
-          fs.unlinkSync(oldImagePath);
-        }
-      }
-      // ✅ CAMBIO: Usar /images/banners/
-      imagen = `/images/banners/${req.file.filename}`;
-    }
-
-    if (!titulo) {
-      return res.status(400).json({
-        exito: false,
-        mensaje: 'El título es obligatorio'
-      });
-    }
-
-    await pool.execute(
-      'UPDATE banners SET titulo = ?, descripcion = ?, imagen = ?, boton_texto = ?, boton_link = ?, orden = ?, activo = ? WHERE id = ?',
-      [titulo, descripcion, imagen, boton_texto || '', boton_link || '', orden || 0, activo !== 'false', id]
-    );
-
-    const [updatedBanner] = await pool.execute('SELECT * FROM banners WHERE id = ?', [id]);
+    const updatedBanner = await BannerService.actualizarBanner(id, req.body, req.file);
     
     res.json({
       exito: true,
       mensaje: 'Banner actualizado exitosamente',
-      datos: updatedBanner[0]
+      datos: updatedBanner
     });
   } catch (error) {
     console.error('Error al actualizar banner:', error);
+    
+    // Manejar errores específicos
+    if (error.message === 'Banner no encontrado') {
+      return res.status(404).json({
+        exito: false,
+        mensaje: error.message
+      });
+    }
+    
+    if (error.message === 'El título es obligatorio') {
+      return res.status(400).json({
+        exito: false,
+        mensaje: error.message
+      });
+    }
+    
     res.status(500).json({
       exito: false,
       mensaje: 'Error interno del servidor',
@@ -186,25 +133,7 @@ export const actualizarBanner = async (req, res) => {
 export const eliminarBanner = async (req, res) => {
   try {
     const { id } = req.params;
-
-    // Obtener banner para eliminar imagen
-    const [banner] = await pool.execute('SELECT * FROM banners WHERE id = ?', [id]);
-    if (banner.length === 0) {
-      return res.status(404).json({
-        exito: false,
-        mensaje: 'Banner no encontrado'
-      });
-    }
-
-    // ✅ CAMBIO: Verificar que sea una imagen de banners antes de eliminar
-    if (banner[0].imagen && banner[0].imagen.startsWith('/images/banners/')) {
-      const imagePath = path.join(__dirname, '../public', banner[0].imagen);
-      if (fs.existsSync(imagePath)) {
-        fs.unlinkSync(imagePath);
-      }
-    }
-
-    await pool.execute('DELETE FROM banners WHERE id = ?', [id]);
+    await BannerService.eliminarBanner(id);
     
     res.json({
       exito: true,
@@ -212,6 +141,14 @@ export const eliminarBanner = async (req, res) => {
     });
   } catch (error) {
     console.error('Error al eliminar banner:', error);
+    
+    if (error.message === 'Banner no encontrado') {
+      return res.status(404).json({
+        exito: false,
+        mensaje: error.message
+      });
+    }
+    
     res.status(500).json({
       exito: false,
       mensaje: 'Error interno del servidor',
@@ -224,32 +161,23 @@ export const eliminarBanner = async (req, res) => {
 export const toggleActivoBanner = async (req, res) => {
   try {
     const { id } = req.params;
-
-    // Verificar que el banner existe
-    const [banner] = await pool.execute('SELECT * FROM banners WHERE id = ?', [id]);
-    if (banner.length === 0) {
-      return res.status(404).json({
-        exito: false,
-        mensaje: 'Banner no encontrado'
-      });
-    }
-
-    const nuevoEstado = !banner[0].activo;
-
-    await pool.execute(
-      'UPDATE banners SET activo = ? WHERE id = ?',
-      [nuevoEstado, id]
-    );
-
-    const [bannerActualizado] = await pool.execute('SELECT * FROM banners WHERE id = ?', [id]);
+    const resultado = await BannerService.toggleActivoBanner(id);
 
     res.json({
       exito: true,
-      mensaje: `Banner ${nuevoEstado ? 'activado' : 'desactivado'} correctamente`,
-      datos: bannerActualizado[0]
+      mensaje: `Banner ${resultado.nuevoEstado ? 'activado' : 'desactivado'} correctamente`,
+      datos: resultado.banner
     });
   } catch (error) {
     console.error('Error al cambiar estado del banner:', error);
+    
+    if (error.message === 'Banner no encontrado') {
+      return res.status(404).json({
+        exito: false,
+        mensaje: error.message
+      });
+    }
+    
     res.status(500).json({
       exito: false,
       mensaje: 'Error interno del servidor',
