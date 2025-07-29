@@ -6,10 +6,10 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Configuración de almacenamiento
+// Configuración de almacenamiento - CORREGIDO para seguir el patrón de productos
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    const uploadPath = path.join(__dirname, '../public/assets_staticos');
+    const uploadPath = path.join(__dirname, '../public/images/banners'); // ✅ CAMBIO AQUÍ
     
     // Crear directorio si no existe
     if (!fs.existsSync(uploadPath)) {

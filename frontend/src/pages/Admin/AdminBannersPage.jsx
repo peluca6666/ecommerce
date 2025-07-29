@@ -18,20 +18,12 @@ const FORM_FIELDS = [
 
 const INITIAL_FORM = { titulo: '', descripcion: '', boton_texto: '', boton_link: '', orden: 0, activo: true, imagen: null };
 
-// Hook para API - ARREGLADO para manejar FormData correctamente
+// Hook para API
 const useApiCall = () => {
   const apiCall = async (endpoint, options = {}) => {
     const token = localStorage.getItem('token');
-    const headers = { 'Authorization': `Bearer ${token}` };
-    
-    // NO agregar Content-Type si es FormData (el navegador lo maneja automáticamente)
-    if (!(options.body instanceof FormData)) {
-      headers['Content-Type'] = 'application/json';
-    }
-    
     const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/admin/banners${endpoint}`, {
-      headers: { ...headers, ...options.headers }, 
-      ...options
+      headers: { 'Authorization': `Bearer ${token}`, ...options.headers }, ...options
     });
     if (!response.ok) throw new Error(options.errorMessage || 'Error en la operación');
     return response.json();
@@ -162,7 +154,6 @@ export default function AdminBannersPage() {
     }
   };
 
-  // ARREGLADO - Mejor manejo del FormData
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!formData.titulo.trim()) return showNotification('El título es obligatorio', 'error');
@@ -170,18 +161,9 @@ export default function AdminBannersPage() {
 
     const data = new FormData();
     Object.entries(formData).forEach(([key, value]) => {
-      if (key === 'imagen') {
-        // Solo agregar imagen si hay una nueva seleccionada
-        if (value instanceof File) {
-          data.append(key, value);
-        }
-      } else {
-        // Convertir todos los valores a string para FormData
-        data.append(key, String(value));
-      }
+      if (key === 'imagen' && value) data.append(key, value);
+      else if (key !== 'imagen') data.append(key, value);
     });
-    
-    console.log('Enviando FormData:', [...data.entries()]); // Para debug
     await saveBanner(data);
   };
 

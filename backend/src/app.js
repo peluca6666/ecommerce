@@ -41,6 +41,7 @@ app.use(express.static(path.join(__dirname, '../public')));
 
 // Ruta específica para imágenes, para asegurarnos que se puedan acceder bien
 app.use('/images', express.static(path.join(__dirname, '../public/images')));
+app.use('/assets_staticos', express.static(path.join(__dirname, '../public/assets_staticos')));
 
 // Rutas de la API
 app.use('/api', routes);

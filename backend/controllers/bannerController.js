@@ -95,7 +95,8 @@ export const crearBanner = async (req, res) => {
       });
     }
 
-    const imagen = `/assets_staticos/${req.file.filename}`;
+    // ✅ CAMBIO: Usar /images/banners/ como productos y categorías
+    const imagen = `/images/banners/${req.file.filename}`;
     
     const [result] = await pool.execute(
       'INSERT INTO banners (titulo, descripcion, imagen, boton_texto, boton_link, orden, activo) VALUES (?, ?, ?, ?, ?, ?, ?)',
@@ -141,14 +142,15 @@ export const actualizarBanner = async (req, res) => {
     
     // Si hay nueva imagen, eliminar la anterior y usar la nueva
     if (req.file) {
-      // Eliminar imagen anterior si no es una imagen por defecto
-      if (currentBanner[0].imagen && !currentBanner[0].imagen.includes('v2.jpg')) {
+      // ✅ CAMBIO: Verificar que sea una imagen de banners antes de eliminar
+      if (currentBanner[0].imagen && currentBanner[0].imagen.startsWith('/images/banners/')) {
         const oldImagePath = path.join(__dirname, '../public', currentBanner[0].imagen);
         if (fs.existsSync(oldImagePath)) {
           fs.unlinkSync(oldImagePath);
         }
       }
-      imagen = `/assets_staticos/${req.file.filename}`;
+      // ✅ CAMBIO: Usar /images/banners/
+      imagen = `/images/banners/${req.file.filename}`;
     }
 
     if (!titulo) {
@@ -194,8 +196,8 @@ export const eliminarBanner = async (req, res) => {
       });
     }
 
-    // Eliminar imagen si no es una imagen por defecto
-    if (banner[0].imagen && !banner[0].imagen.includes('v2.jpg')) {
+    // ✅ CAMBIO: Verificar que sea una imagen de banners antes de eliminar
+    if (banner[0].imagen && banner[0].imagen.startsWith('/images/banners/')) {
       const imagePath = path.join(__dirname, '../public', banner[0].imagen);
       if (fs.existsSync(imagePath)) {
         fs.unlinkSync(imagePath);
