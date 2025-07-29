@@ -1,101 +1,51 @@
 import { useState, useEffect } from 'react';
 import { DataGrid } from '@mui/x-data-grid';
 import {
-  Box, Button, Typography, Dialog, DialogActions, DialogContent,
-  DialogTitle, TextField, Select, MenuItem, InputLabel, FormControl,
-  styled, Grid, IconButton,
-  Snackbar, Alert, Chip, Avatar, Input
+  Box, Button, Typography, Dialog, DialogActions, DialogContent, DialogTitle, 
+  TextField, Select, MenuItem, InputLabel, FormControl, Grid, IconButton,
+  Snackbar, Alert, Chip, Input, Card, CardContent, CardActions, useMediaQuery, 
+  useTheme
 } from '@mui/material';
 import Title from './Title';
 import { ToggleOn, ToggleOff, Edit, Add, CloudUpload } from '@mui/icons-material';
 
-// estado inicial para crear o editar producto
-const initialProductState = {
-  nombre_producto: '',
-  descripcion: '',
-  precio: '',
-  precio_anterior: '',
-  stock_actual: '',
-  categoria_id: '',
+const INITIAL_STATE = {
+  nombre_producto: '', descripcion: '', precio: '', precio_anterior: '', 
+  stock_actual: '', categoria_id: ''
 };
 
-// input invisible para estilizar botones de subir archivos
-const VisuallyHiddenInput = styled('input')({
-  clip: 'rect(0 0 0 0)',
-  clipPath: 'inset(50%)',
-  height: 1,
-  overflow: 'hidden',
-  position: 'absolute',
-  bottom: 0,
-  left: 0,
-  whiteSpace: 'nowrap',
-  width: 1,
-});
-
 export default function AdminProductsPage() {
-  // --- estados del componente ---
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+  
   const [products, setProducts] = useState([]);
+  const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [open, setOpen] = useState(false);
-  const [newProduct, setNewProduct] = useState(initialProductState);
-  const [categories, setCategories] = useState([]);
-  const [editingProduct, setEditingProduct] = useState(null);
+  const [dialog, setDialog] = useState({ open: false, product: null });
+  const [formData, setFormData] = useState(INITIAL_STATE);
   const [mainImageFile, setMainImageFile] = useState(null);
   const [secondaryImageFiles, setSecondaryImageFiles] = useState([]);
+  const [currentPage, setCurrentPage] = useState(0);
+  const [pageSize, setPageSize] = useState(10);
+  const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' });
+  const [confirm, setConfirm] = useState({ open: false, message: '', action: null });
 
-  // estados para snackbar (alertas)
-  const [snackbarOpen, setSnackbarOpen] = useState(false);
-  const [snackbarMessage, setSnackbarMessage] = useState('');
-  const [snackbarSeverity, setSnackbarSeverity] = useState('success');
-
-  // estados para diálogo de confirmación
-  const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
-  const [confirmDialogMessage, setConfirmDialogMessage] = useState('');
-  const [confirmAction, setConfirmAction] = useState(null);
-
-  // muestra snackbar con mensaje y severidad
-  const showSnackbar = (message, severity) => {
-    setSnackbarMessage(message);
-    setSnackbarSeverity(severity);
-    setSnackbarOpen(true);
+  const apiCall = async (endpoint, options = {}) => {
+    const token = localStorage.getItem('token');
+    const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/producto${endpoint}`, {
+      headers: { 'Authorization': `Bearer ${token}`, ...options.headers }, ...options
+    });
+    if (!response.ok) throw new Error(`Error ${response.status}`);
+    return response.json();
   };
 
-  // cierra snackbar
-  const handleCloseSnackbar = (event, reason) => {
-    if (reason === 'clickaway') return;
-    setSnackbarOpen(false);
-  };
+  const showSnackbar = (message, severity = 'success') => setSnackbar({ open: true, message, severity });
+  const closeSnackbar = (_, reason) => reason !== 'clickaway' && setSnackbar(prev => ({ ...prev, open: false }));
 
-  // abre diálogo de confirmación con mensaje y acción a ejecutar
-  const handleOpenConfirmDialog = (message, action) => {
-    setConfirmDialogMessage(message);
-    setConfirmAction(() => action);
-    setConfirmDialogOpen(true);
-  };
-
-  // confirma acción del diálogo
-  const handleConfirmAction = () => {
-    if (confirmAction) confirmAction();
-    setConfirmDialogOpen(false);
-    setConfirmAction(null);
-  };
-
-  // cancela diálogo
-  const handleCancelConfirmDialog = () => {
-    setConfirmDialogOpen(false);
-    setConfirmAction(null);
-  };
-
-  // --- fetch de productos desde API ---
   const fetchProducts = async () => {
     try {
-      const token = localStorage.getItem('token');
-      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/producto?incluirInactivos=true`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      if (!response.ok) throw new Error('no se pudo conectar con la API de productos');
-      const data = await response.json();
+      const data = await apiCall('?incluirInactivos=true');
       setProducts(data.datos || []);
     } catch (err) {
       setError(err.message);
@@ -105,294 +55,292 @@ export default function AdminProductsPage() {
     }
   };
 
-  // --- useEffect para cargar categorías y productos al montar ---
-  useEffect(() => {
-    const fetchCategories = async () => {
-      try {
-        const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/categoria`);
-        if (!response.ok) throw new Error('no se pudieron cargar las categorías');
-        const data = await response.json();
-        setCategories(data.datos || []);
-      } catch (catError) {
-        console.error("Error fetching categories:", catError);
-        showSnackbar(`Error al cargar categorías: ${catError.message}`, 'error');
-      }
-    };
-    fetchCategories();
-    fetchProducts();
-  }, []);
+  const fetchCategories = async () => {
+    try {
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/categoria`);
+      if (!response.ok) throw new Error('Error al cargar categorías');
+      const data = await response.json();
+      setCategories(data.datos || []);
+    } catch (err) {
+      showSnackbar(`Error al cargar categorías: ${err.message}`, 'error');
+    }
+  };
 
-  // --- manejadores de eventos ---
+  const executeAction = async (action, successMsg) => {
+    try {
+      await action();
+      showSnackbar(successMsg);
+      fetchProducts();
+    } catch (err) {
+      showSnackbar(`Error: ${err.message}`, 'error');
+    }
+  };
 
-  // cierra modal y resetea estados
-  const handleClose = () => {
-    setOpen(false);
-    setNewProduct(initialProductState);
-    setEditingProduct(null);
+  const handleToggleActivo = (id, estadoActual) => {
+    setConfirm({
+      open: true,
+      message: `¿${estadoActual ? 'Desactivar' : 'Activar'} producto?`,
+      action: () => executeAction(
+        () => apiCall(`/${id}/toggle-activo`, { method: 'PUT' }),
+        'Estado actualizado exitosamente'
+      )
+    });
+  };
+
+  const openDialog = (product = null) => {
+    if (product) {
+      setDialog({ open: true, product });
+      setFormData({ ...product });
+    } else {
+      setDialog({ open: true, product: null });
+      setFormData(INITIAL_STATE);
+    }
     setMainImageFile(null);
     setSecondaryImageFiles([]);
   };
 
-  // abre modal para editar producto
-  const handleEditClick = (product) => {
-    setEditingProduct(product);
-    setNewProduct({ ...product });
-    setOpen(true);
+  const closeDialog = () => {
+    setDialog({ open: false, product: null });
+    setFormData(INITIAL_STATE);
+    setMainImageFile(null);
+    setSecondaryImageFiles([]);
   };
 
-  // actualiza campos del formulario
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setNewProduct({ ...newProduct, [name]: value });
-  };
+  const handleInputChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
+  const handleFileChange = (e) => e.target.files[0] && setMainImageFile(e.target.files[0]);
+  const handleMultipleFileChange = (e) => e.target.files && setSecondaryImageFiles(Array.from(e.target.files));
 
-  // selecciona imagen principal
-  const handleFileChange = (e) => {
-    if (e.target.files[0]) setMainImageFile(e.target.files[0]);
-  };
-
-  // selecciona imágenes secundarias
-  const handleMultipleFileChange = (e) => {
-    if (e.target.files) setSecondaryImageFiles(Array.from(e.target.files));
-  };
-
-  // cambia estado activo/inactivo con confirmación
-  const handleToggleActivo = async (id, estadoActual) => {
-    handleOpenConfirmDialog(
-      `¿Estás seguro de que querés ${estadoActual ? 'desactivar' : 'activar'} este producto?`,
-      async () => {
-        try {
-          const token = localStorage.getItem('token');
-          const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/producto/${id}/toggle-activo`, {
-            method: 'PUT',
-            headers: { Authorization: `Bearer ${token}` },
-          });
-          if (!response.ok) throw new Error('Falló al cambiar el estado del producto');
-          showSnackbar('Estado del producto actualizado con éxito', 'success');
-          fetchProducts();
-        } catch (err) {
-          showSnackbar(`Error: ${err.message}`, 'error');
-        }
-      }
-    );
-  };
-
-  // crea un producto enviando formulario con archivos
-  const handleCreateProduct = async () => {
-    const formData = new FormData();
-    Object.keys(newProduct).forEach(key => formData.append(key, newProduct[key]));
-    if (mainImageFile) formData.append('imagen', mainImageFile);
-    if (secondaryImageFiles.length > 0)
-      secondaryImageFiles.forEach(file => formData.append('imagenes', file));
-
-    try {
-      const token = localStorage.getItem('token');
-      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/producto`, {
-        method: 'POST',
-        headers: { Authorization: `Bearer ${token}` },
-        body: formData,
-      });
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.mensaje || 'falló la creación del producto');
-      }
-      showSnackbar('¡Producto creado con éxito!', 'success');
-      handleClose();
-      fetchProducts();
-    } catch (err) {
-      setError(err.message);
-      showSnackbar(`Error: ${err.message}`, 'error');
-    }
-  };
-
-  // actualiza producto existente
-  const handleUpdateProduct = async () => {
-    const formData = new FormData();
-    Object.keys(newProduct).forEach(key => {
-      if (newProduct[key] !== null && newProduct[key] !== undefined) {
-        formData.append(key, newProduct[key]);
+  const handleSubmit = async () => {
+    const data = new FormData();
+    Object.keys(formData).forEach(key => {
+      if (formData[key] !== null && formData[key] !== undefined) {
+        data.append(key, formData[key]);
       }
     });
-    if (mainImageFile) formData.append('imagen', mainImageFile);
-    if (secondaryImageFiles.length > 0)
-      secondaryImageFiles.forEach(file => formData.append('imagenes', file));
-
-    try {
-      const token = localStorage.getItem('token');
-      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/producto/${editingProduct.producto_id}`, {
-        method: 'PUT',
-        headers: { Authorization: `Bearer ${token}` },
-        body: formData,
-      });
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.mensaje || 'falló la actualización del producto');
-      }
-      showSnackbar('¡Producto actualizado con éxito!', 'success');
-      handleClose();
-      fetchProducts();
-    } catch (err) {
-      showSnackbar(`Error: ${err.message}`, 'error');
+    if (mainImageFile) data.append('imagen', mainImageFile);
+    if (secondaryImageFiles.length > 0) {
+      secondaryImageFiles.forEach(file => data.append('imagenes', file));
     }
+
+    const endpoint = dialog.product ? `/${dialog.product.producto_id}` : '';
+    const method = dialog.product ? 'PUT' : 'POST';
+    
+    await executeAction(
+      () => apiCall(endpoint, { method, body: data }),
+      `Producto ${dialog.product ? 'actualizado' : 'creado'} correctamente`
+    );
+    closeDialog();
   };
 
-  // --- definición de columnas para la tabla ---
+  useEffect(() => {
+    fetchCategories();
+    fetchProducts();
+  }, []);
+
+  // Paginación móvil
+  const totalPages = Math.ceil(products.length / pageSize);
+  const currentProducts = products.slice(currentPage * pageSize, (currentPage + 1) * pageSize);
+
+  const MobileCard = ({ product }) => (
+    <Card sx={{ mb: 2, opacity: product.activo ? 1 : 0.6 }}>
+      <CardContent sx={{ p: 2 }}>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 1 }}>
+          <Box sx={{ flex: 1 }}>
+            <Typography variant="h6" sx={{ fontSize: '1rem', fontWeight: 600, mb: 0.5 }}>
+              {product.nombre_producto}
+            </Typography>
+            <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+              {product.nombre_categoria}
+            </Typography>
+            <Box sx={{ display: 'flex', gap: 1, alignItems: 'center', mb: 1 }}>
+              <Typography variant="h6" sx={{ fontSize: '1rem', color: 'primary.main', fontWeight: 600 }}>
+                ${Number(product.precio).toLocaleString('es-AR')}
+              </Typography>
+              {product.precio_anterior && (
+                <Typography variant="body2" sx={{ textDecoration: 'line-through', color: 'text.secondary' }}>
+                  ${Number(product.precio_anterior).toLocaleString('es-AR')}
+                </Typography>
+              )}
+            </Box>
+            <Box sx={{ display: 'flex', gap: 1 }}>
+              <Chip label={`Stock: ${product.stock_actual}`} size="small" variant="outlined" />
+              <Chip 
+                label={product.activo ? 'Activo' : 'Inactivo'} 
+                color={product.activo ? 'success' : 'error'} 
+                size="small" 
+              />
+            </Box>
+          </Box>
+        </Box>
+      </CardContent>
+      
+      <CardActions sx={{ px: 2, pb: 2, pt: 0, justifyContent: 'space-between' }}>
+        <Box>
+          <IconButton onClick={() => handleToggleActivo(product.producto_id, product.activo)} size="small">
+            {product.activo ? <ToggleOn color="success" /> : <ToggleOff color="error" />}
+          </IconButton>
+          <IconButton onClick={() => openDialog(product)} color="primary" size="small">
+            <Edit />
+          </IconButton>
+        </Box>
+        <Typography variant="body2" color="text.secondary">
+          ID: {product.producto_id}
+        </Typography>
+      </CardActions>
+    </Card>
+  );
+
   const columns = [
     { field: 'producto_id', headerName: 'ID', width: 70 },
     { field: 'nombre_producto', headerName: 'Nombre', width: 250 },
     { field: 'nombre_categoria', headerName: 'Categoría', width: 150 },
-    { field: 'precio', headerName: 'Precio', type: 'number', width: 100 },
+    { 
+      field: 'precio', headerName: 'Precio', type: 'number', width: 100,
+      valueFormatter: (value) => `$${Number(value).toLocaleString('es-AR')}`
+    },
     { field: 'stock_actual', headerName: 'Stock', type: 'number', width: 90 },
     {
-      field: 'activo',
-      headerName: 'Estado',
-      width: 130,
+      field: 'activo', headerName: 'Estado', width: 130,
       renderCell: ({ row }) => (
         <Box sx={{ display: 'flex', alignItems: 'center' }}>
           <IconButton onClick={(e) => { e.stopPropagation(); handleToggleActivo(row.producto_id, row.activo); }}>
             {row.activo ? <ToggleOn color="success" /> : <ToggleOff color="error" />}
           </IconButton>
-          <Chip label={row.activo ? 'Activo' : 'Inactivo'} color={row.activo ? 'success' : 'default'} size="small" />
+          <Chip label={row.activo ? 'Activo' : 'Inactivo'} color={row.activo ? 'success' : 'error'} size="small" />
         </Box>
       ),
     },
     {
-      field: 'acciones',
-      headerName: 'Acciones',
-      width: 120,
-      sortable: false,
+      field: 'acciones', headerName: 'Acciones', width: 120, sortable: false,
       renderCell: ({ row }) => (
-        <Box onClick={e => e.stopPropagation()}>
-          <IconButton onClick={() => handleEditClick(row)} color="primary"><Edit /></IconButton>
-        </Box>
+        <IconButton onClick={(e) => { e.stopPropagation(); openDialog(row); }} color="primary">
+          <Edit />
+        </IconButton>
       ),
     },
   ];
-
-  // --- renderizado ---
 
   if (loading) return <Typography>Cargando productos...</Typography>;
   if (error) return <Typography color="error">Error: {error}</Typography>;
 
   return (
-    <Box sx={{ height: '80vh', width: '100%' }}>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+    <Box sx={{ width: '100%', minHeight: '80vh' }}>
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
         <Title>Gestión de Productos</Title>
-        <Button 
-          variant="contained" 
-          startIcon={<Add />} 
-          onClick={() => { setEditingProduct(null); setNewProduct(initialProductState); setOpen(true); }}
-          sx={{ bgcolor: '#FF6B35', '&:hover': { bgcolor: '#FF5722' } }}
-        >
-          Agregar Producto
+        <Button variant="contained" startIcon={<Add />} onClick={() => openDialog()} 
+          sx={{ bgcolor: '#FF6B35', '&:hover': { bgcolor: '#FF5722' } }}>
+          {isMobile ? 'Agregar' : 'Agregar Producto'}
         </Button>
       </Box>
 
-      {/* tabla de productos */}
-      <DataGrid
-        rows={products}
-        columns={columns}
-        getRowId={(row) => row.producto_id}
-        pageSize={10}
-        disableSelectionOnClick
-      />
+      {isMobile ? (
+        <Box>
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2, px: 1 }}>
+            <FormControl size="small" sx={{ minWidth: 120 }}>
+              <InputLabel>Por página</InputLabel>
+              <Select value={pageSize} label="Por página" onChange={(e) => { setPageSize(e.target.value); setCurrentPage(0); }}>
+                {[5, 10, 15, 20].map(size => <MenuItem key={size} value={size}>{size}</MenuItem>)}
+              </Select>
+            </FormControl>
+            <Typography variant="body2" color="text.secondary">
+              {currentPage * pageSize + 1}-{Math.min((currentPage + 1) * pageSize, products.length)} de {products.length}
+            </Typography>
+          </Box>
 
-      {/* modal para creación/edición */}
-      <Dialog open={open} onClose={handleClose} maxWidth="md" fullWidth>
-        <DialogTitle>{editingProduct ? 'Editar Producto' : 'Crear Nuevo Producto'}</DialogTitle>
+          <Box sx={{ px: 1 }}>
+            {products.length === 0 ? (
+              <Typography sx={{ textAlign: 'center', py: 4 }}>No hay productos</Typography>
+            ) : (
+              currentProducts.map(product => <MobileCard key={product.producto_id} product={product} />)
+            )}
+          </Box>
+
+          {totalPages > 1 && (
+            <Box sx={{ display: 'flex', justifyContent: 'center', mt: 3, gap: 1 }}>
+              <Button size="small" disabled={currentPage === 0} onClick={() => setCurrentPage(currentPage - 1)}>
+                Anterior
+              </Button>
+              {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                const pageNum = totalPages <= 5 ? i : 
+                  currentPage < 3 ? i : 
+                  currentPage >= totalPages - 3 ? totalPages - 5 + i : 
+                  currentPage - 2 + i;
+                return (
+                  <Button key={pageNum} size="small" variant={currentPage === pageNum ? "contained" : "text"}
+                    onClick={() => setCurrentPage(pageNum)} sx={{ minWidth: 32, height: 32 }}>
+                    {pageNum + 1}
+                  </Button>
+                );
+              })}
+              <Button size="small" disabled={currentPage === totalPages - 1} onClick={() => setCurrentPage(currentPage + 1)}>
+                Siguiente
+              </Button>
+            </Box>
+          )}
+        </Box>
+      ) : (
+        <DataGrid rows={products} columns={columns} getRowId={(row) => row.producto_id}
+          initialState={{ pagination: { paginationModel: { pageSize: 10 } } }}
+          pageSizeOptions={[5, 10, 25, 50]} disableSelectionOnClick autoHeight
+          getRowClassName={(params) => params.row.activo ? '' : 'product-inactive'}
+          sx={{
+            '& .MuiDataGrid-columnHeaders': { backgroundColor: '#f8fafc', '& .MuiDataGrid-columnHeaderTitle': { fontWeight: 600 } },
+            '& .MuiDataGrid-footerContainer': { backgroundColor: '#f8fafc' },
+            '& .product-inactive': { opacity: 0.6, backgroundColor: '#fafafa' }
+          }}
+        />
+      )}
+
+      <Dialog open={dialog.open} onClose={closeDialog} maxWidth="md" fullWidth fullScreen={isMobile}>
+        <DialogTitle>{dialog.product ? 'Editar Producto' : 'Crear Nuevo Producto'}</DialogTitle>
         <DialogContent>
           <Grid container spacing={2} sx={{ mt: 1 }}>
-            {/* campos de texto y select para datos */}
             <Grid item xs={12}>
-              <TextField
-                name="nombre_producto"
-                label="Nombre del Producto"
-                fullWidth
-                variant="outlined"
-                value={newProduct.nombre_producto}
-                onChange={handleInputChange}
-              />
+              <TextField name="nombre_producto" label="Nombre del Producto" fullWidth
+                value={formData.nombre_producto} onChange={handleInputChange} size={isMobile ? 'small' : 'medium'} />
             </Grid>
             <Grid item xs={12}>
-              <TextField
-                name="descripcion"
-                label="Descripción"
-                fullWidth
-                multiline
-                rows={4}
-                variant="outlined"
-                value={newProduct.descripcion}
-                onChange={handleInputChange}
-              />
+              <TextField name="descripcion" label="Descripción" fullWidth multiline rows={isMobile ? 3 : 4}
+                value={formData.descripcion} onChange={handleInputChange} size={isMobile ? 'small' : 'medium'} />
             </Grid>
             <Grid item xs={12} sm={6}>
-              <TextField
-                name="precio"
-                label="Precio"
-                type="number"
-                fullWidth
-                variant="outlined"
-                value={newProduct.precio}
-                onChange={handleInputChange}
-              />
+              <TextField name="precio" label="Precio" type="number" fullWidth
+                value={formData.precio} onChange={handleInputChange} size={isMobile ? 'small' : 'medium'} />
             </Grid>
             <Grid item xs={12} sm={6}>
-              <TextField
-                name="precio_anterior"
-                label="Precio anterior (Oferta)"
-                type="number"
-                fullWidth
-                variant="outlined"
-                value={newProduct.precio_anterior}
-                onChange={handleInputChange}
-              />
+              <TextField name="precio_anterior" label="Precio anterior (Oferta)" type="number" fullWidth
+                value={formData.precio_anterior} onChange={handleInputChange} size={isMobile ? 'small' : 'medium'} />
             </Grid>
             <Grid item xs={12} sm={6}>
-              <TextField
-                name="stock_actual"
-                label="Stock Actual"
-                type="number"
-                fullWidth
-                variant="outlined"
-                value={newProduct.stock_actual}
-                onChange={handleInputChange}
-              />
+              <TextField name="stock_actual" label="Stock Actual" type="number" fullWidth
+                value={formData.stock_actual} onChange={handleInputChange} size={isMobile ? 'small' : 'medium'} />
             </Grid>
             <Grid item xs={12} sm={6}>
-              <FormControl fullWidth>
+              <FormControl fullWidth size={isMobile ? 'small' : 'medium'}>
                 <InputLabel>Categoría</InputLabel>
-                <Select
-                  name="categoria_id"
-                  value={newProduct.categoria_id}
-                  label="Categoría"
-                  onChange={handleInputChange}
-                >
+                <Select name="categoria_id" value={formData.categoria_id} label="Categoría" onChange={handleInputChange}>
                   {categories.map((cat) => (
-                    <MenuItem key={cat.categoria_id} value={cat.categoria_id}>
-                      {cat.nombre}
-                    </MenuItem>
+                    <MenuItem key={cat.categoria_id} value={cat.categoria_id}>{cat.nombre}</MenuItem>
                   ))}
                 </Select>
               </FormControl>
             </Grid>
 
-            {/* botón para seleccionar imagen principal */}
             <Grid item xs={12}>
-              <Button variant="outlined" component="label" startIcon={<CloudUpload />} fullWidth>
-                Seleccionar imagen principal
+              <Button variant="outlined" component="label" startIcon={<CloudUpload />} fullWidth size={isMobile ? 'small' : 'medium'}>
+                Imagen principal
                 <Input type="file" onChange={handleFileChange} sx={{ display: 'none' }} />
               </Button>
               {mainImageFile && (
                 <Typography variant="body2" sx={{ mt: 1, color: 'text.secondary' }}>
-                  Archivo: {mainImageFile.name}
+                  {mainImageFile.name}
                 </Typography>
               )}
             </Grid>
 
-            {/* botón para seleccionar imágenes secundarias */}
             <Grid item xs={12}>
-              <Button variant="outlined" component="label" startIcon={<CloudUpload />} fullWidth>
-                Seleccionar imágenes secundarias
+              <Button variant="outlined" component="label" startIcon={<CloudUpload />} fullWidth size={isMobile ? 'small' : 'medium'}>
+                Imágenes secundarias
                 <Input type="file" multiple onChange={handleMultipleFileChange} sx={{ display: 'none' }} />
               </Button>
               {secondaryImageFiles.length > 0 && (
@@ -404,47 +352,27 @@ export default function AdminProductsPage() {
           </Grid>
         </DialogContent>
 
-        {/* botones cancelar y guardar */}
-        <DialogActions>
-          <Button onClick={handleClose}>Cancelar</Button>
-          <Button 
-            onClick={editingProduct ? handleUpdateProduct : handleCreateProduct}
-            variant="contained"
-          >
-            {editingProduct ? 'Actualizar' : 'Crear'}
+        <DialogActions sx={{ p: isMobile ? 2 : 3 }}>
+          <Button onClick={closeDialog} size={isMobile ? 'small' : 'medium'}>Cancelar</Button>
+          <Button onClick={handleSubmit} variant="contained" size={isMobile ? 'small' : 'medium'}>
+            {dialog.product ? 'Actualizar' : 'Crear'}
           </Button>
         </DialogActions>
       </Dialog>
 
-      {/* snackbar para mensajes */}
-      <Snackbar
-        open={snackbarOpen}
-        autoHideDuration={6000}
-        onClose={handleCloseSnackbar}
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-      >
-        <Alert onClose={handleCloseSnackbar} severity={snackbarSeverity} sx={{ width: '100%' }}>
-          {snackbarMessage}
+      <Snackbar open={snackbar.open} autoHideDuration={6000} onClose={closeSnackbar}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}>
+        <Alert onClose={() => setSnackbar(prev => ({ ...prev, open: false }))} severity={snackbar.severity}>
+          {snackbar.message}
         </Alert>
       </Snackbar>
 
-      {/* diálogo de confirmación */}
-      <Dialog
-        open={confirmDialogOpen}
-        onClose={handleCancelConfirmDialog}
-        aria-labelledby="confirm-dialog-title"
-        aria-describedby="confirm-dialog-description"
-        disableRestoreFocus
-      >
-        <DialogTitle id="confirm-dialog-title">Confirmación</DialogTitle>
-        <DialogContent>
-          <Typography id="confirm-dialog-description">{confirmDialogMessage}</Typography>
-        </DialogContent>
+      <Dialog open={confirm.open} onClose={() => setConfirm({ open: false, message: '', action: null })}>
+        <DialogTitle>Confirmación</DialogTitle>
+        <DialogContent><Typography>{confirm.message}</Typography></DialogContent>
         <DialogActions>
-          <Button onClick={handleCancelConfirmDialog} color="primary">
-            Cancelar
-          </Button>
-          <Button onClick={handleConfirmAction} color="primary" autoFocus>
+          <Button onClick={() => setConfirm({ open: false, message: '', action: null })}>Cancelar</Button>
+          <Button onClick={() => { confirm.action?.(); setConfirm({ open: false, message: '', action: null }); }} autoFocus>
             Confirmar
           </Button>
         </DialogActions>
