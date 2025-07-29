@@ -14,7 +14,7 @@ export default function AdminSalesPage() {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   
-  // estados para ventas, carga, error, modal detalle, venta seleccionada y nuevo estado
+  // Estados para ventas, carga, error, modal detalle, venta seleccionada y nuevo estado
   const [sales, setSales] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -23,50 +23,50 @@ export default function AdminSalesPage() {
   const [detailLoading, setDetailLoading] = useState(false);
   const [newStatus, setNewStatus] = useState('');
 
-  // estados para alertas (snackbar)
+  // Estados para alertas (snackbar)
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState('');
   const [snackbarSeverity, setSnackbarSeverity] = useState('success');
 
-  // estados para diálogo de confirmación
+  // Estados para diálogo de confirmación
   const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
   const [confirmDialogMessage, setConfirmDialogMessage] = useState('');
   const [confirmAction, setConfirmAction] = useState(null);
 
-  // muestra snackbar con mensaje y tipo
+  // Muestra snackbar con mensaje y tipo
   const showSnackbar = (message, severity) => {
     setSnackbarMessage(message);
     setSnackbarSeverity(severity);
     setSnackbarOpen(true);
   };
 
-  // cierra snackbar excepto si es clickaway
+  // Cierra snackbar excepto si es clickaway
   const handleCloseSnackbar = (event, reason) => {
     if (reason === 'clickaway') return;
     setSnackbarOpen(false);
   };
 
-  // abre diálogo de confirmación con mensaje y acción a ejecutar
+  // Abre diálogo de confirmación con mensaje y acción a ejecutar
   const handleOpenConfirmDialog = (message, action) => {
     setConfirmDialogMessage(message);
     setConfirmAction(() => action);
     setConfirmDialogOpen(true);
   };
 
-  // confirma acción y cierra diálogo
+  // Confirma acción y cierra diálogo
   const handleConfirmAction = () => {
     if (confirmAction) confirmAction();
     setConfirmDialogOpen(false);
     setConfirmAction(null);
   };
 
-  // cancela y cierra diálogo de confirmación
+  // Cancela y cierra diálogo de confirmación
   const handleCancelConfirmDialog = () => {
     setConfirmDialogOpen(false);
     setConfirmAction(null);
   };
 
-  // obtiene todas las ventas usando token y actualiza estados
+  // Obtiene todas las ventas usando token y actualiza estados
   const fetchSales = async () => {
     try {
       setLoading(true);
@@ -85,12 +85,12 @@ export default function AdminSalesPage() {
     }
   };
 
-  // carga ventas cuando el componente se monta
+  // Carga ventas cuando el componente se monta
   useEffect(() => {
     fetchSales();
   }, []);
 
-  // abre modal y carga detalle de venta específica
+  // Abre modal y carga detalle de venta específica
   const handleViewDetails = async (sale) => {
     setDetailModalOpen(true);
     setDetailLoading(true);
@@ -111,13 +111,13 @@ export default function AdminSalesPage() {
     }
   };
 
-  // cierra modal y limpia venta seleccionada
+  // Cierra modal y limpia venta seleccionada
   const handleCloseDetailModal = () => {
     setDetailModalOpen(false);
     setSelectedSale(null);
   };
 
-  // actualiza estado de venta tras confirmación y refresca lista
+  // Actualiza estado de venta tras confirmación y refresca lista
   const handleStatusChange = async () => {
     handleOpenConfirmDialog(
       `¿Estás seguro de que querés cambiar el estado a "${newStatus}"?`,
@@ -159,7 +159,47 @@ export default function AdminSalesPage() {
     }
   };
 
-  // columnas para la tabla de ventas
+  // Componente para vista móvil con cards
+  const MobileVentaCard = ({ venta }) => (
+    <Card 
+      sx={{ 
+        mb: 2, 
+        cursor: 'pointer',
+        '&:hover': { boxShadow: 3 },
+        borderRadius: 2
+      }}
+      onClick={() => handleViewDetails(venta)}
+    >
+      <CardContent sx={{ p: 2 }}>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 1 }}>
+          <Typography variant="h6" sx={{ fontSize: '1rem', fontWeight: 600 }}>
+            Venta #{venta.venta_id}
+          </Typography>
+          <Chip 
+            label={venta.estado} 
+            color={getStatusColor(venta.estado)} 
+            size="small"
+            sx={{ fontSize: '0.7rem' }}
+          />
+        </Box>
+        
+        <Typography variant="body2" color="text.secondary" sx={{ mb: 0.5 }}>
+          {venta.email}
+        </Typography>
+        
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <Typography variant="body2" color="text.secondary">
+            {new Date(venta.fecha_venta).toLocaleDateString('es-AR')}
+          </Typography>
+          <Typography variant="h6" sx={{ fontSize: '1rem', fontWeight: 600, color: 'primary.main' }}>
+            ${Number(venta.total || 0).toLocaleString('es-AR')}
+          </Typography>
+        </Box>
+      </CardContent>
+    </Card>
+  );
+
+  // Columnas para la tabla de ventas (solo desktop)
   const columns = [
     { 
       field: 'venta_id', 
@@ -172,9 +212,7 @@ export default function AdminSalesPage() {
       headerName: 'Fecha',
       width: 140,
       minWidth: 120,
-      valueGetter: (value) => (value ? new Date(value).toLocaleDateString('es-AR') : ''),
-      // Ocultar en móvil
-      hide: window.innerWidth < 768
+      valueGetter: (value) => (value ? new Date(value).toLocaleDateString('es-AR') : '')
     },
     { 
       field: 'email', 
@@ -189,7 +227,7 @@ export default function AdminSalesPage() {
       type: 'number',
       width: 110,
       minWidth: 90,
-      valueFormatter: (value) => `${Number(value || 0).toLocaleString('es-AR')}`
+      valueFormatter: (value) => `$${Number(value || 0).toLocaleString('es-AR')}`
     },
     {
       field: 'estado',
@@ -202,10 +240,6 @@ export default function AdminSalesPage() {
           color={getStatusColor(value)} 
           size="small"
           variant="filled"
-          sx={{ 
-            fontSize: { xs: '0.65rem', sm: '0.75rem' },
-            height: { xs: 20, sm: 24 }
-          }}
         />
       )
     },
@@ -246,11 +280,7 @@ export default function AdminSalesPage() {
       {isMobile ? (
         // Vista móvil con cards
         <Box sx={{ px: 1 }}>
-          {loading ? (
-            <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
-              <CircularProgress />
-            </Box>
-          ) : sales.length === 0 ? (
+          {sales.length === 0 ? (
             <Typography variant="body1" sx={{ textAlign: 'center', py: 4 }}>
               No hay ventas para mostrar
             </Typography>
@@ -307,7 +337,7 @@ export default function AdminSalesPage() {
         />
       )}
 
-      {/* modal para detalles y gestión de estado */}
+      {/* Modal para detalles y gestión de estado */}
       <Dialog 
         open={isDetailModalOpen} 
         onClose={handleCloseDetailModal} 
@@ -361,7 +391,7 @@ export default function AdminSalesPage() {
                     </Typography>
                   </Paper>
 
-                  {/* panel para cambiar estado de la venta */}
+                  {/* Panel para cambiar estado de la venta */}
                   <Paper sx={{ p: { xs: 1.5, sm: 2 } }}>
                     <Typography variant="h6" gutterBottom sx={{ fontSize: { xs: '1rem', sm: '1.25rem' } }}>
                       Gestionar Estado
@@ -456,7 +486,7 @@ export default function AdminSalesPage() {
         </DialogActions>
       </Dialog>
 
-      {/* snackbar para mensajes de éxito o error */}
+      {/* Snackbar para mensajes de éxito o error */}
       <Snackbar
         open={snackbarOpen}
         autoHideDuration={6000}
@@ -468,7 +498,7 @@ export default function AdminSalesPage() {
         </Alert>
       </Snackbar>
 
-      {/* diálogo de confirmación personalizado */}
+      {/* Diálogo de confirmación personalizado */}
       <Dialog
         open={confirmDialogOpen}
         onClose={handleCancelConfirmDialog}
