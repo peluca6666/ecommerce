@@ -1,7 +1,6 @@
 import { Grid, TextField, Alert, Stack, Box, Typography, Autocomplete, Paper } from '@mui/material';
 import { LocalShipping, Person, Home, LocationOn, Phone, Badge } from '@mui/icons-material';
 
-// Lista básica de principales ciudades argentinas
 const MAIN_CITIES = [
   'Buenos Aires', 'Córdoba', 'Rosario', 'La Plata', 'Mar del Plata',
   'San Miguel de Tucumán', 'Salta', 'Santa Fe', 'Corrientes', 'Resistencia',
@@ -11,14 +10,17 @@ const MAIN_CITIES = [
   'La Cumbrecita', 'Villa Berna', 'Los Reartes', 'Villa Alpina'
 ];
 
-const ShippingForm = ({ data, onChange, shipping }) => {
+const ShippingForm = ({ data, onChange, shipping, errors = {} }) => {
   const handleAutocompleteChange = (event, newValue) => {
     onChange({
-      target: {
-        name: 'localidad',
-        value: newValue || ''
-      }
+      target: { name: 'localidad', value: newValue || '' }
     });
+  };
+
+  // Helper para DNI - solo números, max 8
+  const handleDNIChange = (event) => {
+    const value = event.target.value.replace(/\D/g, '').slice(0, 8);
+    onChange({ target: { name: 'dni', value } });
   };
 
   return (
@@ -27,9 +29,7 @@ const ShippingForm = ({ data, onChange, shipping }) => {
       <Paper elevation={0} sx={{ p: 2.5, bgcolor: '#fafbfc', border: '1px solid #f0f0f0', borderRadius: 2 }}>
         <Stack direction="row" alignItems="center" spacing={1} sx={{ mb: 2 }}>
           <Person sx={{ color: '#FF6B35', fontSize: 20 }} />
-          <Typography variant="subtitle1" fontWeight={600} color="text.primary">
-            Datos Personales
-          </Typography>
+          <Typography variant="subtitle1" fontWeight={600}>Datos Personales</Typography>
         </Stack>
         
         <Grid container spacing={2}>
@@ -41,13 +41,8 @@ const ShippingForm = ({ data, onChange, shipping }) => {
               onChange={onChange} 
               fullWidth 
               required
-              sx={{
-                '& .MuiOutlinedInput-root': {
-                  bgcolor: 'white',
-                  '&:hover fieldset': { borderColor: '#FF8C00' },
-                  '&.Mui-focused fieldset': { borderColor: '#FF6B35' }
-                }
-              }}
+              error={!!errors.nombre}
+              helperText={errors.nombre}
             />
           </Grid>
           <Grid item xs={12} sm={6}>
@@ -58,13 +53,8 @@ const ShippingForm = ({ data, onChange, shipping }) => {
               onChange={onChange} 
               fullWidth 
               required
-              sx={{
-                '& .MuiOutlinedInput-root': {
-                  bgcolor: 'white',
-                  '&:hover fieldset': { borderColor: '#FF8C00' },
-                  '&.Mui-focused fieldset': { borderColor: '#FF6B35' }
-                }
-              }}
+              error={!!errors.apellido}
+              helperText={errors.apellido}
             />
           </Grid>
           
@@ -73,23 +63,14 @@ const ShippingForm = ({ data, onChange, shipping }) => {
               name="dni" 
               label="DNI" 
               value={data.dni} 
-              onChange={onChange} 
+              onChange={handleDNIChange}
               fullWidth 
               required
-              placeholder="Ej: 12345678"
-              inputProps={{ 
-                maxLength: 8,
-                pattern: '[0-9]*'
-              }}
+              error={!!errors.dni}
+              helperText={errors.dni || '8 dígitos (ej: 43231922)'}
+              placeholder="43231922"
               InputProps={{
                 startAdornment: <Badge sx={{ color: '#95a5a6', fontSize: 18, mr: 1 }} />
-              }}
-              sx={{
-                '& .MuiOutlinedInput-root': {
-                  bgcolor: 'white',
-                  '&:hover fieldset': { borderColor: '#FF8C00' },
-                  '&.Mui-focused fieldset': { borderColor: '#FF6B35' }
-                }
               }}
             />
           </Grid>
@@ -97,20 +78,15 @@ const ShippingForm = ({ data, onChange, shipping }) => {
           <Grid item xs={12} sm={6}>
             <TextField 
               name="telefono" 
-              label="Teléfono" 
+              label="Teléfono (opcional)" 
               value={data.telefono} 
-              onChange={onChange} 
+              onChange={onChange}
               fullWidth
-              placeholder="Ej: 11-1234-5678"
+              error={!!errors.telefono}
+              helperText={errors.telefono || 'Ej: 3456 417985'}
+              placeholder="3456 417985"
               InputProps={{
                 startAdornment: <Phone sx={{ color: '#95a5a6', fontSize: 18, mr: 1 }} />
-              }}
-              sx={{
-                '& .MuiOutlinedInput-root': {
-                  bgcolor: 'white',
-                  '&:hover fieldset': { borderColor: '#FF8C00' },
-                  '&.Mui-focused fieldset': { borderColor: '#FF6B35' }
-                }
               }}
             />
           </Grid>
@@ -121,9 +97,7 @@ const ShippingForm = ({ data, onChange, shipping }) => {
       <Paper elevation={0} sx={{ p: 2.5, bgcolor: '#f8fffe', border: '1px solid #e8f5f3', borderRadius: 2 }}>
         <Stack direction="row" alignItems="center" spacing={1} sx={{ mb: 2 }}>
           <Home sx={{ color: '#FF6B35', fontSize: 20 }} />
-          <Typography variant="subtitle1" fontWeight={600} color="text.primary">
-            Dirección de Envío
-          </Typography>
+          <Typography variant="subtitle1" fontWeight={600}>Dirección de Envío</Typography>
         </Stack>
         
         <Grid container spacing={2}>
@@ -135,16 +109,11 @@ const ShippingForm = ({ data, onChange, shipping }) => {
               onChange={onChange} 
               fullWidth 
               required
+              error={!!errors.direccion}
+              helperText={errors.direccion}
               placeholder="Ej: Av. Corrientes 1234, Piso 5, Depto B"
               InputProps={{
                 startAdornment: <LocationOn sx={{ color: '#95a5a6', fontSize: 18, mr: 1 }} />
-              }}
-              sx={{
-                '& .MuiOutlinedInput-root': {
-                  bgcolor: 'white',
-                  '&:hover fieldset': { borderColor: '#FF8C00' },
-                  '&.Mui-focused fieldset': { borderColor: '#FF6B35' }
-                }
               }}
             />
           </Grid>
@@ -156,12 +125,7 @@ const ShippingForm = ({ data, onChange, shipping }) => {
               value={data.localidad}
               onChange={handleAutocompleteChange}
               onInputChange={(event, newInputValue) => {
-                onChange({
-                  target: {
-                    name: 'localidad',
-                    value: newInputValue
-                  }
-                });
+                onChange({ target: { name: 'localidad', value: newInputValue } });
               }}
               renderInput={(params) => (
                 <TextField 
@@ -169,26 +133,11 @@ const ShippingForm = ({ data, onChange, shipping }) => {
                   name="localidad"
                   label="Localidad / Ciudad" 
                   required
+                  error={!!errors.localidad}
+                  helperText={errors.localidad || '💡 El costo de envío se calcula según la localidad'}
                   placeholder="Escribe o selecciona..."
-                  helperText="💡 El costo de envío se calcula según la localidad"
-                  sx={{
-                    '& .MuiOutlinedInput-root': {
-                      bgcolor: 'white',
-                      '&:hover fieldset': { borderColor: '#FF8C00' },
-                      '&.Mui-focused fieldset': { borderColor: '#FF6B35' }
-                    },
-                    '& .MuiFormHelperText-root': {
-                      color: '#7f8c8d',
-                      fontSize: '0.75rem'
-                    }
-                  }}
                 />
               )}
-              sx={{ 
-                '& .MuiAutocomplete-listbox': {
-                  maxHeight: 200
-                }
-              }}
             />
           </Grid>
           
@@ -200,14 +149,9 @@ const ShippingForm = ({ data, onChange, shipping }) => {
               onChange={onChange} 
               fullWidth 
               required
+              error={!!errors.codigo_postal}
+              helperText={errors.codigo_postal}
               placeholder="Ej: 1430"
-              sx={{
-                '& .MuiOutlinedInput-root': {
-                  bgcolor: 'white',
-                  '&:hover fieldset': { borderColor: '#FF8C00' },
-                  '&.Mui-focused fieldset': { borderColor: '#FF6B35' }
-                }
-              }}
             />
           </Grid>
           
@@ -219,31 +163,17 @@ const ShippingForm = ({ data, onChange, shipping }) => {
               onChange={onChange} 
               fullWidth 
               required
+              error={!!errors.provincia}
+              helperText={errors.provincia}
               placeholder="Ej: Buenos Aires"
-              sx={{
-                '& .MuiOutlinedInput-root': {
-                  bgcolor: 'white',
-                  '&:hover fieldset': { borderColor: '#FF8C00' },
-                  '&.Mui-focused fieldset': { borderColor: '#FF6B35' }
-                }
-              }}
             />
           </Grid>
         </Grid>
       </Paper>
 
-      {/* Información de envío mejorada */}
+      {/* Información de envío */}
       {data.localidad && (
-        <Alert 
-          severity={shipping.isLocal ? 'success' : 'info'} 
-          sx={{ 
-            borderRadius: 3,
-            border: `1px solid ${shipping.isLocal ? '#4caf50' : '#2196f3'}20`,
-            '& .MuiAlert-icon': {
-              fontSize: '1.2rem'
-            }
-          }}
-        >
+        <Alert severity={shipping.isLocal ? 'success' : 'info'} sx={{ borderRadius: 3 }}>
           <Stack direction="row" alignItems="center" justifyContent="space-between">
             <Box>
               <Typography variant="body2" fontWeight={700} sx={{ mb: 0.5 }}>
@@ -257,13 +187,7 @@ const ShippingForm = ({ data, onChange, shipping }) => {
               </Typography>
             </Box>
             <Box sx={{ textAlign: 'right' }}>
-              <Typography 
-                variant="h6" 
-                fontWeight={700}
-                sx={{ 
-                  color: shipping.isLocal ? '#2e7d32' : '#1565c0'
-                }}
-              >
+              <Typography variant="h6" fontWeight={700} sx={{ color: shipping.isLocal ? '#2e7d32' : '#1565c0' }}>
                 ${shipping.cost.toLocaleString('es-AR')}
               </Typography>
               <Typography variant="caption" sx={{ color: 'text.secondary' }}>
