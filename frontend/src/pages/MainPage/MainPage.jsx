@@ -115,10 +115,10 @@ const MainPage = () => {
       width: '100%',
       overflowX: 'hidden'
     }}>
-      {/* Banner Section */}
-      <Container maxWidth="lg" sx={{ py: 0 }}>
+      {/* Banner Section - Sin Container para ancho completo */}
+      <Box sx={{ width: '100%' }}>
         <MainBanner />
-      </Container>
+      </Box>
 
       {/* Category Slider */}
       <Box sx={{ 
