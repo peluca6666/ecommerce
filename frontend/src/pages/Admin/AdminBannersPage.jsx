@@ -7,7 +7,6 @@ import {
 import Title from './Title';
 import { ToggleOn, ToggleOff, Edit, Delete, Add, CloudUpload } from '@mui/icons-material';
 
-// Configuraciones
 const FORM_FIELDS = [
   { name: 'titulo', label: 'Título', required: true },
   { name: 'descripcion', label: 'Descripción', multiline: true, rows: 3 },
@@ -18,99 +17,34 @@ const FORM_FIELDS = [
 
 const INITIAL_FORM = { titulo: '', descripcion: '', boton_texto: '', boton_link: '', orden: 0, activo: true, imagen: null };
 
-// Hook para API
-const useApiCall = () => {
-  const apiCall = async (endpoint, options = {}) => {
-    const token = localStorage.getItem('token');
-    const url = `${import.meta.env.VITE_API_BASE_URL}/api/admin/banners${endpoint}`;
-    
-    console.log('🌐 API Call:', {
-      url,
-      method: options.method || 'GET',
-      hasToken: !!token
-    });
-    
-    const response = await fetch(url, {
-      headers: { 
-        'Authorization': `Bearer ${token}`, 
-        'Content-Type': 'application/json',
-        ...options.headers 
-      }, 
-      ...options
-    });
-    
-    console.log('📡 Response status:', response.status);
-    
-    if (!response.ok) {
-      const errorData = await response.text();
-      console.error('❌ API Error:', errorData);
-      throw new Error(options.errorMessage || `Error ${response.status}: ${errorData}`);
-    }
-    
-    const data = await response.json();
-    console.log('📦 Response data:', data);
-    return data;
-  };
-  return { apiCall };
-};
-
-// Hook para notificaciones
-const useNotification = () => {
-  const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' });
-  const showNotification = (message, severity = 'success') => setSnackbar({ open: true, message, severity });
-  const closeNotification = (_, reason) => reason !== 'clickaway' && setSnackbar(prev => ({ ...prev, open: false }));
-  return { snackbar, showNotification, closeNotification };
-};
-
-// Hook para confirmaciones - FIX: Evitar re-renders infinitos
-const useConfirmation = () => {
-  const [confirm, setConfirm] = useState({ open: false, message: '', action: null });
-  
-  const showConfirmation = (message, action) => {
-    console.log('🔔 Mostrando confirmación:', message);
-    setConfirm({ 
-      open: true, 
-      message, 
-      action: action // Guardar la función directamente sin wrapper
-    });
-  };
-  
-  const handleConfirm = () => { 
-    console.log('✅ Confirmación aceptada, ejecutando acción...');
-    if (confirm.action) {
-      confirm.action(); 
-    }
-    closeConfirmation(); 
-  };
-  
-  const closeConfirmation = () => {
-    console.log('❌ Cerrando confirmación');
-    setConfirm({ open: false, message: '', action: null });
-  };
-  
-  return { confirm, showConfirmation, handleConfirm, closeConfirmation };
-};
-
 export default function AdminBannersPage() {
   const [banners, setBanners] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
   const [isDialogOpen, setDialogOpen] = useState(false);
   const [editingBanner, setEditingBanner] = useState(null);
   const [formData, setFormData] = useState(INITIAL_FORM);
   const [imagePreview, setImagePreview] = useState(null);
+  const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' });
+  const [confirm, setConfirm] = useState({ open: false, message: '', action: null });
 
-  const { apiCall } = useApiCall();
-  const { snackbar, showNotification, closeNotification } = useNotification();
-  const { confirm, showConfirmation, handleConfirm, closeConfirmation } = useConfirmation();
+  // API call helper
+  const apiCall = async (endpoint, options = {}) => {
+    const token = localStorage.getItem('token');
+    const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/admin/banners${endpoint}`, {
+      headers: { 'Authorization': `Bearer ${token}`, ...options.headers }, ...options
+    });
+    if (!response.ok) throw new Error(`Error ${response.status}`);
+    return response.json();
+  };
 
-  // Funciones de API
+  const showNotification = (message, severity = 'success') => setSnackbar({ open: true, message, severity });
+
+  // API functions
   const fetchBanners = async () => {
     try {
       const data = await apiCall('');
       setBanners(data.datos || []);
     } catch (err) {
-      setError(err.message);
       showNotification(`Error al cargar banners: ${err.message}`, 'error');
     } finally {
       setLoading(false);
@@ -119,13 +53,10 @@ export default function AdminBannersPage() {
 
   const toggleBannerStatus = async (id) => {
     try {
-      console.log('🔄 Intentando cambiar estado del banner:', id);
-      const response = await apiCall(`/${id}/toggle-activo`, { method: 'PUT' });
-      console.log('✅ Respuesta del servidor:', response);
+      await apiCall(`/${id}/toggle-activo`, { method: 'PUT' });
       showNotification('Estado cambiado exitosamente.');
       fetchBanners();
     } catch (err) {
-      console.error('❌ Error al cambiar estado:', err);
       showNotification(`Error: ${err.message}`, 'error');
     }
   };
@@ -153,22 +84,17 @@ export default function AdminBannersPage() {
     }
   };
 
-  // Manejadores de eventos - FIX: Simplificar manejo de confirmación
+  // Event handlers
   const handleToggleStatus = (id, estadoActual) => {
-    console.log('🎯 Toggle status clicked:', { id, estadoActual });
-    
-    showConfirmation(
-      `¿Seguro que querés ${estadoActual ? 'desactivar' : 'activar'} este banner?`,
-      () => {
-        console.log('✅ Confirmación aceptada, ejecutando toggle...');
-        toggleBannerStatus(id);
-      }
-    );
+    setConfirm({
+      open: true,
+      message: `¿Seguro que querés ${estadoActual ? 'desactivar' : 'activar'} este banner?`,
+      action: () => toggleBannerStatus(id)
+    });
   };
 
   const handleDelete = (id) => {
-    console.log('🗑️ Delete clicked for banner:', id);
-    showConfirmation('¿Eliminar este banner?', () => deleteBanner(id));
+    setConfirm({ open: true, message: '¿Eliminar este banner?', action: () => deleteBanner(id) });
   };
 
   const openDialog = (banner = null) => {
@@ -219,9 +145,13 @@ export default function AdminBannersPage() {
     await saveBanner(data);
   };
 
+  const handleConfirm = () => {
+    if (confirm.action) confirm.action();
+    setConfirm({ open: false, message: '', action: null });
+  };
+
   useEffect(() => { fetchBanners(); }, []);
 
-  // Configuración de columnas - FIX: Mejorar manejo de eventos
   const columns = [
     { field: 'id', headerName: 'ID', width: 70 },
     {
@@ -234,75 +164,27 @@ export default function AdminBannersPage() {
     { field: 'orden', headerName: 'Orden', width: 80 },
     {
       field: 'activo', headerName: 'Estado', width: 120,
-      renderCell: ({ row }) => {
-        console.log('🔄 Renderizando celda Estado para banner:', row.id, 'activo:', row.activo);
-        
-        return (
-          <Box sx={{ display: 'flex', alignItems: 'center' }}>
-            <IconButton 
-              onClick={(e) => {
-                console.log('🖱️ CLICK DETECTADO en botón toggle, banner ID:', row.id);
-                e.preventDefault();
-                e.stopPropagation();
-                e.currentTarget.blur();
-                handleToggleStatus(row.id, row.activo);
-              }}
-              onMouseDown={(e) => {
-                console.log('👆 MouseDown en botón toggle');
-                e.stopPropagation();
-              }}
-              sx={{ 
-                zIndex: 1,
-                position: 'relative',
-                '&:hover': {
-                  backgroundColor: 'rgba(0, 0, 0, 0.04)'
-                }
-              }}
-            >
-              {row.activo ? <ToggleOn color="success" /> : <ToggleOff color="error" />}
-            </IconButton>
-            <Chip 
-              label={row.activo ? 'Activo' : 'Inactivo'} 
-              color={row.activo ? 'success' : 'default'} 
-              size="small" 
-            />
-          </Box>
-        );
-      }
+      renderCell: ({ row }) => (
+        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+          <IconButton onClick={(e) => { e.stopPropagation(); handleToggleStatus(row.id, row.activo); }}>
+            {row.activo ? <ToggleOn color="success" /> : <ToggleOff color="error" />}
+          </IconButton>
+          <Chip label={row.activo ? 'Activo' : 'Inactivo'} color={row.activo ? 'success' : 'default'} size="small" />
+        </Box>
+      )
     },
     {
       field: 'acciones', headerName: 'Acciones', width: 120, sortable: false,
       renderCell: ({ row }) => (
         <Box onClick={e => e.stopPropagation()}>
-          <IconButton 
-            onClick={(e) => {
-              e.stopPropagation();
-              e.currentTarget.blur();
-              openDialog(row);
-            }} 
-            color="primary"
-            onMouseLeave={(e) => e.currentTarget.blur()}
-          >
-            <Edit />
-          </IconButton>
-          <IconButton 
-            onClick={(e) => {
-              e.stopPropagation();
-              e.currentTarget.blur();
-              handleDelete(row.id);
-            }} 
-            color="error"
-            onMouseLeave={(e) => e.currentTarget.blur()}
-          >
-            <Delete />
-          </IconButton>
+          <IconButton onClick={() => openDialog(row)} color="primary"><Edit /></IconButton>
+          <IconButton onClick={() => handleDelete(row.id)} color="error"><Delete /></IconButton>
         </Box>
       )
     }
   ];
 
   if (loading) return <Typography>Cargando banners...</Typography>;
-  if (error) return <Typography color="error">Error: {error}</Typography>;
 
   return (
     <Box sx={{ height: '80vh', width: '100%' }}>
@@ -314,25 +196,7 @@ export default function AdminBannersPage() {
         </Button>
       </Box>
 
-      <DataGrid 
-        rows={banners} 
-        columns={columns} 
-        pageSize={10} 
-        disableSelectionOnClick
-        disableRowSelectionOnClick
-        sx={{ 
-          '& .MuiDataGrid-cell': { 
-            display: 'flex', 
-            alignItems: 'center' 
-          },
-          '& .MuiDataGrid-cell:focus': {
-            outline: 'none'
-          },
-          '& .MuiDataGrid-cell:focus-within': {
-            outline: 'none'
-          }
-        }} 
-      />
+      <DataGrid rows={banners} columns={columns} pageSize={10} disableSelectionOnClick />
 
       <Dialog open={isDialogOpen} onClose={closeDialog} maxWidth="sm" fullWidth>
         <DialogTitle>{editingBanner ? 'Editar Banner' : 'Crear Nuevo Banner'}</DialogTitle>
@@ -369,17 +233,16 @@ export default function AdminBannersPage() {
         </form>
       </Dialog>
 
-      <Snackbar open={snackbar.open} autoHideDuration={6000} onClose={closeNotification}
+      <Snackbar open={snackbar.open} autoHideDuration={6000} onClose={() => setSnackbar(prev => ({ ...prev, open: false }))}
         anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}>
-        <Alert onClose={closeNotification} severity={snackbar.severity}>{snackbar.message}</Alert>
+        <Alert onClose={() => setSnackbar(prev => ({ ...prev, open: false }))} severity={snackbar.severity}>{snackbar.message}</Alert>
       </Snackbar>
 
-      {/* FIX: Agregar disableRestoreFocus para evitar conflictos de foco */}
-      <Dialog open={confirm.open} onClose={closeConfirmation} disableRestoreFocus>
+      <Dialog open={confirm.open} onClose={() => setConfirm({ open: false, message: '', action: null })} disableRestoreFocus>
         <DialogTitle>Confirmación</DialogTitle>
         <DialogContent><Typography>{confirm.message}</Typography></DialogContent>
         <DialogActions>
-          <Button onClick={closeConfirmation}>Cancelar</Button>
+          <Button onClick={() => setConfirm({ open: false, message: '', action: null })}>Cancelar</Button>
           <Button onClick={handleConfirm} color="primary" autoFocus>Confirmar</Button>
         </DialogActions>
       </Dialog>
