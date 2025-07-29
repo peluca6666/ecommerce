@@ -8,9 +8,19 @@ import LoadingSpinner from '../../components/Common/LoadingSpinner';
 const CategoryPage = () => {
   const { id } = useParams(); 
   const [productos, setProductos] = useState([]);
+  const [productosFiltrados, setProductosFiltrados] = useState([]);
   const [nombreCategoria, setNombreCategoria] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+
+  // Estado de filtros
+  const [filtros, setFiltros] = useState({
+    busqueda: '',
+    minPrice: '',
+    maxPrice: '',
+    sortBy: '',
+    es_oferta: ''
+  });
 
   useEffect(() => {
     const fetchProductosPorCategoria = async () => {
@@ -24,7 +34,9 @@ const CategoryPage = () => {
         const data = await res.json();
 
         if (data.exito) {
-          setProductos(data.datos || []);
+          const productosData = data.datos || [];
+          setProductos(productosData);
+          setProductosFiltrados(productosData); // Inicialmente sin filtros
           setNombreCategoria(data.categoria || 'Categoría');
         } else {
           throw new Error(data.mensaje || 'Error al cargar los datos');
@@ -39,6 +51,16 @@ const CategoryPage = () => {
 
     fetchProductosPorCategoria();
   }, [id]);
+
+  const handleFilterChange = (event) => {
+    const { name, value } = event.target;
+    setFiltros(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleCheckboxChange = (event) => {
+    const { name, checked } = event.target;
+    setFiltros(prev => ({ ...prev, [name]: checked ? 'true' : '' }));
+  };
 
   if (loading) return <LoadingSpinner />;
 
@@ -63,15 +85,10 @@ const CategoryPage = () => {
               {/* Filtros */}
               <Grid item xs={12} md={3}>
                 <ProductFilters 
-                  productos={productos}
+                  filtros={filtros}
+                  onFilterChange={handleFilterChange}
+                  onCheckboxChange={handleCheckboxChange}
                   hideCategory={true}
-                  renderProducts={(productosFiltrados) => (
-                    <div style={{ display: 'none' }} /> // Los filtros solo filtran
-                  )}
-                  onProductsFiltered={(productosFiltrados) => {
-                    // Aquí recibirías los productos filtrados
-                    // Por ahora solo Grid simple
-                  }}
                 />
               </Grid>
               
