@@ -28,8 +28,8 @@ const Header = () => {
                     boxSizing: 'border-box', 
                     width: 240, 
                     pt: 2,
-                    background: 'linear-gradient(135deg, #FF8C00 0%, #FF6B35 100%)',
-                    color: 'white'
+                    background: 'white', // Fondo blanco
+                    color: '#333' // Texto negro  
                 },
             }}
         >

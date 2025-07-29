@@ -32,20 +32,15 @@ const NavMenu = ({ mobile = false, onItemClick }) => {
         else setSidebarOpen(false);
     };
 
-    // Estilos base reutilizables
-    const baseButton = {
+    const navButton = {
         color: 'white',
         textTransform: 'none',
         borderRadius: 2,
-        transition: 'all 0.2s ease'
-    };
-
-    const navButton = {
-        ...baseButton,
         py: 0.75,
         px: 1.5,
         pb: 1.25,
         position: 'relative',
+        transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)', // Transición más suave
         '&::after': {
             content: '""',
             position: 'absolute',
@@ -54,35 +49,44 @@ const NavMenu = ({ mobile = false, onItemClick }) => {
             width: '0%',
             height: '2px',
             backgroundColor: 'white',
-            transition: 'all 0.3s ease',
+            transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)', // Más suave
             transform: 'translateX(-50%)',
             boxShadow: '0 0 6px rgba(255, 255, 255, 0.8)'
         },
         '&:hover': {
-            transform: 'translateY(-1px)',
-            backgroundColor: 'rgba(255,255,255,0.1)',
-            '&::after': { width: '100%' }
+            transform: 'translateY(-2px)', // Movimiento más sutil
+            backgroundColor: 'rgba(255,255,255,0.08)', // Fondo más sutil
+            color: '#FFF8DC', // Color más suave
+            textShadow: '0 2px 4px rgba(0, 0, 0, 0.2)',
+            '&::after': { 
+                width: '100%',
+                boxShadow: '0 0 12px rgba(255, 255, 255, 0.6)' // Glow más suave
+            }
         }
     };
 
     const mobileButton = {
-        ...baseButton,
         width: '100%',
         justifyContent: 'flex-start',
         py: 1.5,
         px: 2.5,
         mb: 1,
-        background: 'rgba(255,255,255,0.15)',
+        color: '#333', // Texto negro
+        background: '#f5f5f5', // Fondo gris claro
         fontWeight: 600,
         fontSize: '0.9rem',
-        border: '1px solid rgba(255,255,255,0.25)',
+        border: '1px solid #e0e0e0', // Borde gris
+        borderRadius: 2,
+        textTransform: 'none',
+        transition: 'all 0.2s ease',
         '&:hover': {
-            background: 'rgba(255,255,255,0.25)',
-            transform: 'translateY(-1px)'
+            background: '#eeeeee',
+            color: '#FF6B35',
+            transform: 'translateY(-1px)',
+            borderColor: '#d0d0d0'
         }
     };
 
-    // Estilos para categorías (tanto móvil como desktop)
     const categoryButton = {
         width: '100%',
         justifyContent: 'flex-start',
@@ -93,23 +97,27 @@ const NavMenu = ({ mobile = false, onItemClick }) => {
         fontSize: '0.95rem',
         textTransform: 'none',
         backgroundColor: 'transparent',
+        borderRadius: 2,
+        transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)', // Transición más suave
         '&:hover': { 
-            backgroundColor: '#f8f8f8',
+            backgroundColor: 'rgba(255, 107, 53, 0.08)', // Fondo naranja muy sutil
             color: '#FF6B35',
-            transform: 'translateX(8px)',
-            fontWeight: 600
+            transform: 'translateX(6px)', // Movimiento más sutil
+            fontWeight: 600,
+            boxShadow: '0 2px 8px rgba(255, 107, 53, 0.15)' // Sombra suave
         }
     };
 
-    // Vista móvil
+    // Vista móvil - Sidebar completamente blanco
     if (mobile) {
         return (
             <Box sx={{
                 width: '100%',
-                background: 'linear-gradient(135deg, #FF6B35 0%, #FF4500 100%)',
+                backgroundColor: 'white', // Fondo blanco
                 borderRadius: '0 0 16px 16px',
                 boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
-                p: 2.5
+                p: 2.5,
+                border: '1px solid #e0e0e0' // Borde para definir
             }}>
                 {user?.rol === 'admin' && (
                     <Button component={RouterLink} to="/admin/productos" onClick={onItemClick} startIcon={<AdminPanelSettings />} sx={mobileButton}>
@@ -124,23 +132,19 @@ const NavMenu = ({ mobile = false, onItemClick }) => {
                     sx={{
                         ...mobileButton,
                         justifyContent: 'space-between',
-                        background: 'rgba(255,255,255,0.1)',
-                        border: 'none',
-                        '&:hover': { background: 'rgba(255,255,255,0.2)' }
+                        background: '#f8f8f8',
+                        border: '1px solid #d0d0d0',
+                        '&:hover': { 
+                            background: '#e8e8e8',
+                            color: '#FF6B35'
+                        }
                     }}
                 >
                     Categorías
                 </Button>
 
                 <Collapse in={openMobileCategories} timeout="auto" unmountOnExit>
-                    {/* Fondo blanco para categorías móviles */}
-                    <Box sx={{ 
-                        backgroundColor: 'white', 
-                        borderRadius: 2, 
-                        mt: 1, 
-                        p: 1.5,
-                        boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
-                    }}>
+                    <Box sx={{ pl: 1, pt: 1, pb: 1 }}>
                         {loading ? (
                             <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', py: 2 }}>
                                 <CircularProgress size={18} sx={{ color: '#FF6B35' }} />
@@ -185,7 +189,11 @@ const NavMenu = ({ mobile = false, onItemClick }) => {
                 <Button component={RouterLink} to="/admin/productos" variant="outlined" sx={{
                     ...navButton,
                     borderColor: 'rgba(255,255,255,0.3)',
-                    '&:hover': { backgroundColor: 'rgba(255,255,255,0.1)', borderColor: 'white' }
+                    '&:hover': { 
+                        backgroundColor: 'rgba(255,255,255,0.08)', 
+                        borderColor: 'rgba(255,255,255,0.6)',
+                        boxShadow: '0 4px 12px rgba(255, 255, 255, 0.2)'
+                    }
                 }}>
                     Admin
                 </Button>
@@ -197,7 +205,11 @@ const NavMenu = ({ mobile = false, onItemClick }) => {
                 ...navButton,
                 backgroundColor: 'rgba(255,255,255,0.1)',
                 border: '1px solid rgba(255,255,255,0.3)',
-                '&:hover': { backgroundColor: 'rgba(255,255,255,0.2)' }
+                '&:hover': { 
+                    backgroundColor: 'rgba(255,255,255,0.15)',
+                    borderColor: 'rgba(255,255,255,0.5)',
+                    boxShadow: '0 4px 12px rgba(255, 255, 255, 0.3)'
+                }
             }}>
                 OFERTAS
             </Button>
@@ -235,7 +247,13 @@ const NavMenu = ({ mobile = false, onItemClick }) => {
                         fontWeight: 600,
                         border: '1px solid #e0e0e0',
                         mb: 2,
-                        '&:hover': { backgroundColor: '#eeeeee' }
+                        borderRadius: 2,
+                        textTransform: 'none',
+                        '&:hover': { 
+                            backgroundColor: '#eeeeee',
+                            transform: 'translateY(-1px)',
+                            boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
+                        }
                     }}>
                         Ver Todo el Catálogo
                     </Button>
