@@ -54,7 +54,11 @@ const ProductCard = ({ producto }) => {
                 position: 'relative', 
                 overflow: 'hidden',
                 aspectRatio: { xs: '1', sm: '4/3', md: '3/2' }, // Responsive aspect ratio
-                width: '100%'
+                width: '100%',
+                backgroundColor: '#f5f5f5', // Fondo gris claro para rellenar espacios vacíos
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center'
             }}>
                 {hasDiscount && (
                     <Chip
@@ -85,7 +89,7 @@ const ProductCard = ({ producto }) => {
                     sx={{ 
                         width: '100%',
                         height: '100%',
-                        objectFit: 'cover',
+                        objectFit: 'contain', // Cambio principal: de 'cover' a 'contain'
                         transition: 'transform 0.3s ease'
                     }}
                 />
