@@ -1,6 +1,7 @@
 import { Outlet, useLocation } from 'react-router-dom';
 import Header from '../Header/Header'; 
 import Footer from '../Footer/Footer'; 
+import WhatsAppFloat from '/../common/WhatsAppFloat'; 
 import { Container, Box } from '@mui/material';
 
 const MainLayout = () => {
@@ -22,6 +23,9 @@ const MainLayout = () => {
         )}
       </main>
       <Footer />
+      
+
+      <WhatsAppFloat />
     </>
   );
 };
