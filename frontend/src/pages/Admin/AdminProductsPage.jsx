@@ -3,12 +3,16 @@ import { DataGrid } from '@mui/x-data-grid';
 import {
   Box, Button, Typography, Dialog, DialogActions, DialogContent, DialogTitle, 
   TextField, Select, MenuItem, InputLabel, FormControl, Grid, IconButton,
-  Snackbar, Alert, Chip, Input, Card, CardContent, CardActions, useMediaQuery, useTheme
+  Snackbar, Alert, Chip, Input, Card, CardContent, CardActions, useMediaQuery, 
+  useTheme
 } from '@mui/material';
 import Title from './Title';
 import { ToggleOn, ToggleOff, Edit, Add, CloudUpload } from '@mui/icons-material';
 
-const INITIAL_STATE = { nombre_producto: '', descripcion: '', precio: '', precio_anterior: '', stock_actual: '', categoria_id: '' };
+const INITIAL_STATE = {
+  nombre_producto: '', descripcion: '', precio: '', precio_anterior: '', 
+  stock_actual: '', categoria_id: ''
+};
 
 export default function AdminProductsPage() {
   const theme = useTheme();
@@ -17,6 +21,7 @@ export default function AdminProductsPage() {
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [dialog, setDialog] = useState({ open: false, product: null });
   const [formData, setFormData] = useState(INITIAL_STATE);
   const [mainImageFile, setMainImageFile] = useState(null);
@@ -36,22 +41,28 @@ export default function AdminProductsPage() {
   };
 
   const showSnackbar = (message, severity = 'success') => setSnackbar({ open: true, message, severity });
+  const closeSnackbar = (_, reason) => reason !== 'clickaway' && setSnackbar(prev => ({ ...prev, open: false }));
 
-  const fetchData = async () => {
+  const fetchProducts = async () => {
     try {
-      const [productsData, categoriesRes] = await Promise.all([
-        apiCall('?incluirInactivos=true'),
-        fetch(`${import.meta.env.VITE_API_BASE_URL}/api/categoria`)
-      ]);
-      setProducts(productsData.datos || []);
-      if (categoriesRes.ok) {
-        const categoriesData = await categoriesRes.json();
-        setCategories(categoriesData.datos || []);
-      }
+      const data = await apiCall('?incluirInactivos=true');
+      setProducts(data.datos || []);
     } catch (err) {
-      showSnackbar(`Error: ${err.message}`, 'error');
+      setError(err.message);
+      showSnackbar(`Error al cargar productos: ${err.message}`, 'error');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchCategories = async () => {
+    try {
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/categoria`);
+      if (!response.ok) throw new Error('Error al cargar categorías');
+      const data = await response.json();
+      setCategories(data.datos || []);
+    } catch (err) {
+      showSnackbar(`Error al cargar categorías: ${err.message}`, 'error');
     }
   };
 
@@ -59,7 +70,7 @@ export default function AdminProductsPage() {
     try {
       await action();
       showSnackbar(successMsg);
-      fetchData();
+      fetchProducts();
     } catch (err) {
       showSnackbar(`Error: ${err.message}`, 'error');
     }
@@ -69,13 +80,21 @@ export default function AdminProductsPage() {
     setConfirm({
       open: true,
       message: `¿${estadoActual ? 'Desactivar' : 'Activar'} producto?`,
-      action: () => executeAction(() => apiCall(`/${id}/toggle-activo`, { method: 'PUT' }), 'Estado actualizado')
+      action: () => executeAction(
+        () => apiCall(`/${id}/toggle-activo`, { method: 'PUT' }),
+        'Estado actualizado exitosamente'
+      )
     });
   };
 
   const openDialog = (product = null) => {
-    setDialog({ open: true, product });
-    setFormData(product ? { ...product } : INITIAL_STATE);
+    if (product) {
+      setDialog({ open: true, product });
+      setFormData({ ...product });
+    } else {
+      setDialog({ open: true, product: null });
+      setFormData(INITIAL_STATE);
+    }
     setMainImageFile(null);
     setSecondaryImageFiles([]);
   };
@@ -87,48 +106,74 @@ export default function AdminProductsPage() {
     setSecondaryImageFiles([]);
   };
 
+  const handleInputChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
+  const handleFileChange = (e) => e.target.files[0] && setMainImageFile(e.target.files[0]);
+  const handleMultipleFileChange = (e) => e.target.files && setSecondaryImageFiles(Array.from(e.target.files));
+
   const handleSubmit = async () => {
     const data = new FormData();
-    Object.entries(formData).forEach(([key, value]) => value && data.append(key, value));
+    Object.keys(formData).forEach(key => {
+      if (formData[key] !== null && formData[key] !== undefined) {
+        data.append(key, formData[key]);
+      }
+    });
     if (mainImageFile) data.append('imagen', mainImageFile);
-    secondaryImageFiles.forEach(file => data.append('imagenes', file));
+    if (secondaryImageFiles.length > 0) {
+      secondaryImageFiles.forEach(file => data.append('imagenes', file));
+    }
 
     const endpoint = dialog.product ? `/${dialog.product.producto_id}` : '';
     const method = dialog.product ? 'PUT' : 'POST';
     
-    await executeAction(() => apiCall(endpoint, { method, body: data }), `Producto ${dialog.product ? 'actualizado' : 'creado'}`);
+    await executeAction(
+      () => apiCall(endpoint, { method, body: data }),
+      `Producto ${dialog.product ? 'actualizado' : 'creado'} correctamente`
+    );
     closeDialog();
   };
 
-  useEffect(() => { fetchData(); }, []);
+  useEffect(() => {
+    fetchCategories();
+    fetchProducts();
+  }, []);
 
+  // Paginación móvil
   const totalPages = Math.ceil(products.length / pageSize);
   const currentProducts = products.slice(currentPage * pageSize, (currentPage + 1) * pageSize);
 
   const MobileCard = ({ product }) => (
     <Card sx={{ mb: 2, opacity: product.activo ? 1 : 0.6 }}>
       <CardContent sx={{ p: 2 }}>
-        <Typography variant="h6" sx={{ fontSize: '1rem', fontWeight: 600, mb: 0.5 }}>
-          {product.nombre_producto}
-        </Typography>
-        <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
-          {product.nombre_categoria}
-        </Typography>
-        <Box sx={{ display: 'flex', gap: 1, alignItems: 'center', mb: 1 }}>
-          <Typography variant="h6" sx={{ fontSize: '1rem', color: 'primary.main', fontWeight: 600 }}>
-            ${Number(product.precio).toLocaleString('es-AR')}
-          </Typography>
-          {product.precio_anterior && (
-            <Typography variant="body2" sx={{ textDecoration: 'line-through', color: 'text.secondary' }}>
-              ${Number(product.precio_anterior).toLocaleString('es-AR')}
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 1 }}>
+          <Box sx={{ flex: 1 }}>
+            <Typography variant="h6" sx={{ fontSize: '1rem', fontWeight: 600, mb: 0.5 }}>
+              {product.nombre_producto}
             </Typography>
-          )}
-        </Box>
-        <Box sx={{ display: 'flex', gap: 1 }}>
-          <Chip label={`Stock: ${product.stock_actual}`} size="small" variant="outlined" />
-          <Chip label={product.activo ? 'Activo' : 'Inactivo'} color={product.activo ? 'success' : 'error'} size="small" />
+            <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+              {product.nombre_categoria}
+            </Typography>
+            <Box sx={{ display: 'flex', gap: 1, alignItems: 'center', mb: 1 }}>
+              <Typography variant="h6" sx={{ fontSize: '1rem', color: 'primary.main', fontWeight: 600 }}>
+                ${Number(product.precio).toLocaleString('es-AR')}
+              </Typography>
+              {product.precio_anterior && (
+                <Typography variant="body2" sx={{ textDecoration: 'line-through', color: 'text.secondary' }}>
+                  ${Number(product.precio_anterior).toLocaleString('es-AR')}
+                </Typography>
+              )}
+            </Box>
+            <Box sx={{ display: 'flex', gap: 1 }}>
+              <Chip label={`Stock: ${product.stock_actual}`} size="small" variant="outlined" />
+              <Chip 
+                label={product.activo ? 'Activo' : 'Inactivo'} 
+                color={product.activo ? 'success' : 'error'} 
+                size="small" 
+              />
+            </Box>
+          </Box>
         </Box>
       </CardContent>
+      
       <CardActions sx={{ px: 2, pb: 2, pt: 0, justifyContent: 'space-between' }}>
         <Box>
           <IconButton onClick={() => handleToggleActivo(product.producto_id, product.activo)} size="small">
@@ -138,37 +183,22 @@ export default function AdminProductsPage() {
             <Edit />
           </IconButton>
         </Box>
-        <Typography variant="body2" color="text.secondary">ID: {product.producto_id}</Typography>
+        <Typography variant="body2" color="text.secondary">
+          ID: {product.producto_id}
+        </Typography>
       </CardActions>
     </Card>
-  );
-
-  const FormSection = ({ title, emoji, children }) => (
-    <Box sx={{ mb: 3 }}>
-      <Typography variant="h6" sx={{ mb: 2, color: 'primary.main', fontWeight: 600 }}>
-        {emoji} {title}
-      </Typography>
-      {children}
-    </Box>
-  );
-
-  const FileUpload = ({ label, multiple, onChange, file, files }) => (
-    <Box sx={{ border: '2px dashed #e0e0e0', borderRadius: 2, p: 2, textAlign: 'center', backgroundColor: '#fafafa' }}>
-      <Button variant="outlined" component="label" startIcon={<CloudUpload />} fullWidth size={isMobile ? 'small' : 'medium'}>
-        {label}
-        <Input type="file" accept="image/*" multiple={multiple} onChange={onChange} sx={{ display: 'none' }} />
-      </Button>
-      {file && <Typography variant="body2" sx={{ color: 'success.main', mt: 1 }}>✓ {file.name}</Typography>}
-      {files?.length > 0 && <Typography variant="body2" sx={{ color: 'success.main', mt: 1 }}>✓ {files.length} imagen{files.length > 1 ? 'es' : ''}</Typography>}
-    </Box>
   );
 
   const columns = [
     { field: 'producto_id', headerName: 'ID', width: 70 },
     { field: 'nombre_producto', headerName: 'Nombre', width: 250 },
     { field: 'nombre_categoria', headerName: 'Categoría', width: 150 },
-    { field: 'precio', headerName: 'Precio', width: 100, valueFormatter: (value) => `$${Number(value).toLocaleString('es-AR')}` },
-    { field: 'stock_actual', headerName: 'Stock', width: 90 },
+    { 
+      field: 'precio', headerName: 'Precio', type: 'number', width: 100,
+      valueFormatter: (value) => `$${Number(value).toLocaleString('es-AR')}`
+    },
+    { field: 'stock_actual', headerName: 'Stock', type: 'number', width: 90 },
     {
       field: 'activo', headerName: 'Estado', width: 130,
       renderCell: ({ row }) => (
@@ -183,12 +213,15 @@ export default function AdminProductsPage() {
     {
       field: 'acciones', headerName: 'Acciones', width: 120, sortable: false,
       renderCell: ({ row }) => (
-        <IconButton onClick={(e) => { e.stopPropagation(); openDialog(row); }} color="primary"><Edit /></IconButton>
+        <IconButton onClick={(e) => { e.stopPropagation(); openDialog(row); }} color="primary">
+          <Edit />
+        </IconButton>
       ),
     },
   ];
 
   if (loading) return <Typography>Cargando productos...</Typography>;
+  if (error) return <Typography color="error">Error: {error}</Typography>;
 
   return (
     <Box sx={{ width: '100%', minHeight: '80vh' }}>
@@ -205,7 +238,7 @@ export default function AdminProductsPage() {
           <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2, px: 1 }}>
             <FormControl size="small" sx={{ minWidth: 120 }}>
               <InputLabel>Por página</InputLabel>
-              <Select value={pageSize} onChange={(e) => { setPageSize(e.target.value); setCurrentPage(0); }}>
+              <Select value={pageSize} label="Por página" onChange={(e) => { setPageSize(e.target.value); setCurrentPage(0); }}>
                 {[5, 10, 15, 20].map(size => <MenuItem key={size} value={size}>{size}</MenuItem>)}
               </Select>
             </FormControl>
@@ -224,9 +257,14 @@ export default function AdminProductsPage() {
 
           {totalPages > 1 && (
             <Box sx={{ display: 'flex', justifyContent: 'center', mt: 3, gap: 1 }}>
-              <Button size="small" disabled={currentPage === 0} onClick={() => setCurrentPage(currentPage - 1)}>Anterior</Button>
+              <Button size="small" disabled={currentPage === 0} onClick={() => setCurrentPage(currentPage - 1)}>
+                Anterior
+              </Button>
               {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-                const pageNum = totalPages <= 5 ? i : currentPage < 3 ? i : currentPage >= totalPages - 3 ? totalPages - 5 + i : currentPage - 2 + i;
+                const pageNum = totalPages <= 5 ? i : 
+                  currentPage < 3 ? i : 
+                  currentPage >= totalPages - 3 ? totalPages - 5 + i : 
+                  currentPage - 2 + i;
                 return (
                   <Button key={pageNum} size="small" variant={currentPage === pageNum ? "contained" : "text"}
                     onClick={() => setCurrentPage(pageNum)} sx={{ minWidth: 32, height: 32 }}>
@@ -234,7 +272,9 @@ export default function AdminProductsPage() {
                   </Button>
                 );
               })}
-              <Button size="small" disabled={currentPage === totalPages - 1} onClick={() => setCurrentPage(currentPage + 1)}>Siguiente</Button>
+              <Button size="small" disabled={currentPage === totalPages - 1} onClick={() => setCurrentPage(currentPage + 1)}>
+                Siguiente
+              </Button>
             </Box>
           )}
         </Box>
@@ -242,84 +282,89 @@ export default function AdminProductsPage() {
         <DataGrid rows={products} columns={columns} getRowId={(row) => row.producto_id}
           initialState={{ pagination: { paginationModel: { pageSize: 10 } } }}
           pageSizeOptions={[5, 10, 25, 50]} disableSelectionOnClick autoHeight
+          getRowClassName={(params) => params.row.activo ? '' : 'product-inactive'}
           sx={{
             '& .MuiDataGrid-columnHeaders': { backgroundColor: '#f8fafc', '& .MuiDataGrid-columnHeaderTitle': { fontWeight: 600 } },
             '& .MuiDataGrid-footerContainer': { backgroundColor: '#f8fafc' },
-            '& .MuiDataGrid-row:not(.Mui-selected):hover': { opacity: 0.8 }
+            '& .product-inactive': { opacity: 0.6, backgroundColor: '#fafafa' }
           }}
         />
       )}
 
       <Dialog open={dialog.open} onClose={closeDialog} maxWidth="md" fullWidth fullScreen={isMobile}>
-        <DialogTitle sx={{ borderBottom: '1px solid #e0e0e0' }}>
-          {dialog.product ? 'Editar Producto' : 'Crear Nuevo Producto'}
-        </DialogTitle>
-        <DialogContent sx={{ p: 3 }}>
-          <FormSection title="Información Básica" emoji="📝">
-            <Grid container spacing={2}>
-              <Grid item xs={12}>
-                <TextField name="nombre_producto" label="Nombre del Producto *" fullWidth required
-                  value={formData.nombre_producto} onChange={(e) => setFormData({...formData, [e.target.name]: e.target.value})} />
-              </Grid>
-              <Grid item xs={12}>
-                <TextField name="descripcion" label="Descripción" fullWidth multiline rows={3}
-                  value={formData.descripcion} onChange={(e) => setFormData({...formData, [e.target.name]: e.target.value})} />
-              </Grid>
-              <Grid item xs={12}>
-                <FormControl fullWidth>
-                  <InputLabel>Categoría *</InputLabel>
-                  <Select name="categoria_id" value={formData.categoria_id} onChange={(e) => setFormData({...formData, [e.target.name]: e.target.value})}>
-                    {categories.map(cat => <MenuItem key={cat.categoria_id} value={cat.categoria_id}>{cat.nombre}</MenuItem>)}
-                  </Select>
-                </FormControl>
-              </Grid>
+        <DialogTitle>{dialog.product ? 'Editar Producto' : 'Crear Nuevo Producto'}</DialogTitle>
+        <DialogContent>
+          <Grid container spacing={2} sx={{ mt: 1 }}>
+            <Grid item xs={12}>
+              <TextField name="nombre_producto" label="Nombre del Producto" fullWidth
+                value={formData.nombre_producto} onChange={handleInputChange} size={isMobile ? 'small' : 'medium'} />
             </Grid>
-          </FormSection>
+            <Grid item xs={12}>
+              <TextField name="descripcion" label="Descripción" fullWidth multiline rows={isMobile ? 3 : 4}
+                value={formData.descripcion} onChange={handleInputChange} size={isMobile ? 'small' : 'medium'} />
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <TextField name="precio" label="Precio" type="number" fullWidth
+                value={formData.precio} onChange={handleInputChange} size={isMobile ? 'small' : 'medium'} />
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <TextField name="precio_anterior" label="Precio anterior (Oferta)" type="number" fullWidth
+                value={formData.precio_anterior} onChange={handleInputChange} size={isMobile ? 'small' : 'medium'} />
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <TextField name="stock_actual" label="Stock Actual" type="number" fullWidth
+                value={formData.stock_actual} onChange={handleInputChange} size={isMobile ? 'small' : 'medium'} />
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <FormControl fullWidth size={isMobile ? 'small' : 'medium'}>
+                <InputLabel>Categoría</InputLabel>
+                <Select name="categoria_id" value={formData.categoria_id} label="Categoría" onChange={handleInputChange}>
+                  {categories.map((cat) => (
+                    <MenuItem key={cat.categoria_id} value={cat.categoria_id}>{cat.nombre}</MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </Grid>
 
-          <FormSection title="Precios y Stock" emoji="💰">
-            <Grid container spacing={2}>
-              <Grid item xs={12} sm={4}>
-                <TextField name="precio" label="Precio *" type="number" fullWidth required
-                  value={formData.precio} onChange={(e) => setFormData({...formData, [e.target.name]: e.target.value})}
-                  InputProps={{ startAdornment: <Typography sx={{ mr: 1 }}>$</Typography> }} />
-              </Grid>
-              <Grid item xs={12} sm={4}>
-                <TextField name="precio_anterior" label="Precio Anterior" type="number" fullWidth
-                  value={formData.precio_anterior} onChange={(e) => setFormData({...formData, [e.target.name]: e.target.value})}
-                  InputProps={{ startAdornment: <Typography sx={{ mr: 1 }}>$</Typography> }} helperText="Solo si está en oferta" />
-              </Grid>
-              <Grid item xs={12} sm={4}>
-                <TextField name="stock_actual" label="Stock *" type="number" fullWidth required
-                  value={formData.stock_actual} onChange={(e) => setFormData({...formData, [e.target.name]: e.target.value})} />
-              </Grid>
+            <Grid item xs={12}>
+              <Button variant="outlined" component="label" startIcon={<CloudUpload />} fullWidth size={isMobile ? 'small' : 'medium'}>
+                Imagen principal
+                <Input type="file" onChange={handleFileChange} sx={{ display: 'none' }} />
+              </Button>
+              {mainImageFile && (
+                <Typography variant="body2" sx={{ mt: 1, color: 'text.secondary' }}>
+                  {mainImageFile.name}
+                </Typography>
+              )}
             </Grid>
-          </FormSection>
 
-          <FormSection title="Imágenes" emoji="🖼️">
-            <Grid container spacing={2}>
-              <Grid item xs={12} sm={6}>
-                <FileUpload label="Imagen Principal *" file={mainImageFile} 
-                  onChange={(e) => e.target.files[0] && setMainImageFile(e.target.files[0])} />
-              </Grid>
-              <Grid item xs={12} sm={6}>
-                <FileUpload label="Imágenes Adicionales" multiple files={secondaryImageFiles}
-                  onChange={(e) => e.target.files && setSecondaryImageFiles(Array.from(e.target.files))} />
-              </Grid>
+            <Grid item xs={12}>
+              <Button variant="outlined" component="label" startIcon={<CloudUpload />} fullWidth size={isMobile ? 'small' : 'medium'}>
+                Imágenes secundarias
+                <Input type="file" multiple onChange={handleMultipleFileChange} sx={{ display: 'none' }} />
+              </Button>
+              {secondaryImageFiles.length > 0 && (
+                <Typography variant="body2" sx={{ mt: 1, color: 'text.secondary' }}>
+                  {secondaryImageFiles.length} archivos seleccionados
+                </Typography>
+              )}
             </Grid>
-          </FormSection>
+          </Grid>
         </DialogContent>
 
-        <DialogActions sx={{ p: 3, borderTop: '1px solid #e0e0e0' }}>
-          <Button onClick={closeDialog}>Cancelar</Button>
-          <Button onClick={handleSubmit} variant="contained">
+        <DialogActions sx={{ p: isMobile ? 2 : 3 }}>
+          <Button onClick={closeDialog} size={isMobile ? 'small' : 'medium'}>Cancelar</Button>
+          <Button onClick={handleSubmit} variant="contained" size={isMobile ? 'small' : 'medium'}>
             {dialog.product ? 'Actualizar' : 'Crear'}
           </Button>
         </DialogActions>
       </Dialog>
 
-      <Snackbar open={snackbar.open} autoHideDuration={6000} onClose={() => setSnackbar(prev => ({ ...prev, open: false }))}
+      <Snackbar open={snackbar.open} autoHideDuration={6000} onClose={closeSnackbar}
         anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}>
-        <Alert severity={snackbar.severity}>{snackbar.message}</Alert>
+        <Alert onClose={() => setSnackbar(prev => ({ ...prev, open: false }))} severity={snackbar.severity}>
+          {snackbar.message}
+        </Alert>
       </Snackbar>
 
       <Dialog open={confirm.open} onClose={() => setConfirm({ open: false, message: '', action: null })}>
@@ -327,7 +372,9 @@ export default function AdminProductsPage() {
         <DialogContent><Typography>{confirm.message}</Typography></DialogContent>
         <DialogActions>
           <Button onClick={() => setConfirm({ open: false, message: '', action: null })}>Cancelar</Button>
-          <Button onClick={() => { confirm.action?.(); setConfirm({ open: false, message: '', action: null }); }} autoFocus>Confirmar</Button>
+          <Button onClick={() => { confirm.action?.(); setConfirm({ open: false, message: '', action: null }); }} autoFocus>
+            Confirmar
+          </Button>
         </DialogActions>
       </Dialog>
     </Box>
