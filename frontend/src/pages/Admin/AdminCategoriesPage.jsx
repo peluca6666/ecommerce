@@ -1,93 +1,50 @@
 import { useState, useEffect } from 'react';
 import { DataGrid } from '@mui/x-data-grid';
-import { Box, Button, Typography, Dialog, DialogActions, DialogContent, DialogTitle, TextField, styled, IconButton, Snackbar, Alert, Chip, Avatar, Input} from '@mui/material';
+import { 
+  Box, Button, Typography, Dialog, DialogActions, DialogContent, DialogTitle, 
+  TextField, IconButton, Snackbar, Alert, Chip, Avatar, Input, Card, CardContent, 
+  CardActions, useMediaQuery, useTheme, FormControl, InputLabel, Select, MenuItem
+} from '@mui/material';
 import Title from './Title';
 import { ToggleOn, ToggleOff, Edit, Add, CloudUpload } from '@mui/icons-material';
 
-// input oculto para subir archivo, queda escondido visualmente
-const VisuallyHiddenInput = styled('input')({
-  clip: 'rect(0 0 0 0)',
-  clipPath: 'inset(50%)',
-  height: 1,
-  overflow: 'hidden',
-  position: 'absolute',
-  bottom: 0,
-  left: 0,
-  whiteSpace: 'nowrap',
-  width: 1,
-});
-
-// estado inicial para crear o editar categoría
-const initialCategoryState = { nombre: '', imagen: '', activo: true };
+const INITIAL_STATE = { nombre: '', imagen: '', activo: true };
 
 export default function AdminCategoriesPage() {
-  // estados para las categorías, carga, modales y formularios
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+  
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [open, setOpen] = useState(false);
-  const [editingCategory, setEditingCategory] = useState(null);
-  const [newCategory, setNewCategory] = useState(initialCategoryState);
+  const [dialog, setDialog] = useState({ open: false, category: null });
+  const [formData, setFormData] = useState(INITIAL_STATE);
   const [imageFile, setImageFile] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
   const [error, setError] = useState(null);
+  const [currentPage, setCurrentPage] = useState(0);
+  const [pageSize, setPageSize] = useState(10);
+  const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' });
+  const [confirm, setConfirm] = useState({ open: false, message: '', action: null });
 
-  // estados para snackbar (alertas)
-  const [snackbarOpen, setSnackbarOpen] = useState(false);
-  const [snackbarMessage, setSnackbarMessage] = useState('');
-  const [snackbarSeverity, setSnackbarSeverity] = useState('success');
-
-  // estados para diálogo de confirmación
-  const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
-  const [confirmDialogMessage, setConfirmDialogMessage] = useState('');
-  const [confirmAction, setConfirmAction] = useState(null); // guarda función a ejecutar
-
-  // muestra snackbar con mensaje y tipo
-  const showSnackbar = (message, severity) => {
-    setSnackbarMessage(message);
-    setSnackbarSeverity(severity);
-    setSnackbarOpen(true);
+  const apiCall = async (endpoint, options = {}) => {
+    const token = localStorage.getItem('token');
+    const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/admin/categorias${endpoint}`, {
+      headers: { 'Authorization': `Bearer ${token}`, ...options.headers }, ...options
+    });
+    if (!response.ok) throw new Error(`Error ${response.status}`);
+    return response.json();
   };
 
-  // cierra snackbar salvo que se haga click fuera
-  const handleCloseSnackbar = (event, reason) => {
-    if (reason === 'clickaway') return;
-    setSnackbarOpen(false);
-  };
+  const showSnackbar = (message, severity = 'success') => setSnackbar({ open: true, message, severity });
+  const closeSnackbar = (_, reason) => reason !== 'clickaway' && setSnackbar(prev => ({ ...prev, open: false }));
 
-  // abre confirm dialog con mensaje y acción
-  const handleOpenConfirmDialog = (message, action) => {
-    setConfirmDialogMessage(message);
-    setConfirmAction(() => action);
-    setConfirmDialogOpen(true);
-  };
-
-  // confirma la acción guardada y cierra diálogo
-  const handleConfirmAction = () => {
-    if (confirmAction) confirmAction();
-    setConfirmDialogOpen(false);
-    setConfirmAction(null);
-  };
-
-  // cancela confirm dialog
-  const handleCancelConfirmDialog = () => {
-    setConfirmDialogOpen(false);
-    setConfirmAction(null);
-  };
-
-  // trae categorías desde el backend
   const fetchCategories = async () => {
     setLoading(true);
     setError(null);
     try {
-      const token = localStorage.getItem('token');
-      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/admin/categorias`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      if (!response.ok) throw new Error('No se pudieron cargar las categorías');
-      const data = await response.json();
+      const data = await apiCall('');
       setCategories(data.datos || []);
     } catch (err) {
-      console.error("Error al buscar categorías:", err);
       setError(err.message);
       showSnackbar(`Error al cargar categorías: ${err.message}`, 'error');
     } finally {
@@ -95,30 +52,49 @@ export default function AdminCategoriesPage() {
     }
   };
 
-  // fetch al montar el componente
-  useEffect(() => { fetchCategories(); }, []);
+  const executeAction = async (action, successMsg) => {
+    try {
+      await action();
+      showSnackbar(successMsg);
+      fetchCategories();
+    } catch (err) {
+      showSnackbar(`Error: ${err.message}`, 'error');
+    }
+  };
 
-  // cierra modal y limpia estados de formulario y edición
-  const handleClose = () => {
-    setOpen(false);
-    setNewCategory(initialCategoryState);
-    setEditingCategory(null);
+  const handleToggleStatus = (id, estadoActual) => {
+    setConfirm({
+      open: true,
+      message: `¿${estadoActual ? 'Desactivar' : 'Activar'} categoría?`,
+      action: () => executeAction(
+        () => apiCall(`/${id}/toggle-activo`, { method: 'PUT' }),
+        'Estado actualizado exitosamente'
+      )
+    });
+  };
+
+  const openDialog = (category = null) => {
+    if (category) {
+      setDialog({ open: true, category });
+      setFormData(category);
+      setImagePreview(category.imagen ? `${import.meta.env.VITE_API_BASE_URL}${category.imagen}` : null);
+    } else {
+      setDialog({ open: true, category: null });
+      setFormData({ ...INITIAL_STATE, activo: true });
+      setImagePreview(null);
+    }
+    setImageFile(null);
+  };
+
+  const closeDialog = () => {
+    setDialog({ open: false, category: null });
+    setFormData(INITIAL_STATE);
     setImageFile(null);
     setImagePreview(null);
   };
 
-  // abre modal para editar categoría cargando datos
-  const handleEditClick = (category) => {
-    setEditingCategory(category);
-    setNewCategory(category);
-    setImagePreview(category.imagen ? `${import.meta.env.VITE_API_BASE_URL}${category.imagen}` : null);
-    setOpen(true);
-  };
+  const handleInputChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
 
-  // actualiza formulario al cambiar input
-  const handleInputChange = (e) => setNewCategory({ ...newCategory, [e.target.name]: e.target.value });
-
-  // actualiza archivo imagen al seleccionar
   const handleFileChange = (e) => {
     const file = e.target.files[0];
     if (file) {
@@ -129,183 +105,215 @@ export default function AdminCategoriesPage() {
     }
   };
 
-  // activa o desactiva categoría con confirmación
-  const handleToggleStatus = async (id, estadoActual) => {
-    handleOpenConfirmDialog(
-      `¿Estás seguro de que querés ${estadoActual ? 'DESACTIVAR' : 'ACTIVAR'} esta categoría?`,
-      async () => {
-        try {
-          const token = localStorage.getItem('token');
-          const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/admin/categorias/${id}/toggle-activo`, {
-            method: 'PUT',
-            headers: { Authorization: `Bearer ${token}` },
-          });
-          if (!response.ok) throw new Error('Falló al cambiar el estado de la categoría');
-          showSnackbar('Estado actualizado con éxito', 'success');
-          fetchCategories();
-        } catch (error) {
-          showSnackbar(`Error: ${error.message}`, 'error');
-        }
-      }
-    );
-  };
-
-  // envía formulario para crear o editar categoría
   const handleSubmit = async () => {
-    const formData = new FormData();
-    formData.append('nombre', newCategory.nombre);
-    if (imageFile) formData.append('imagen', imageFile);
+    const data = new FormData();
+    data.append('nombre', formData.nombre);
+    if (imageFile) data.append('imagen', imageFile);
 
-    const token = localStorage.getItem('token');
-    const url = editingCategory
-      ? `${import.meta.env.VITE_API_BASE_URL}/api/admin/categorias/${editingCategory.categoria_id}`
-      : `${import.meta.env.VITE_API_BASE_URL}/api/admin/categorias`;
-    const method = editingCategory ? 'PUT' : 'POST';
-
-    try {
-      const response = await fetch(url, {
-        method,
-        headers: { Authorization: `Bearer ${token}` },
-        body: formData,
-      });
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.mensaje || 'La operación falló');
-      }
-      showSnackbar(`Categoría ${editingCategory ? 'actualizada' : 'creada'} con éxito`, 'success');
-      handleClose();
-      fetchCategories();
-    } catch (error) {
-      showSnackbar(`Error: ${error.message}`, 'error');
-    }
+    const endpoint = dialog.category ? `/${dialog.category.categoria_id}` : '';
+    const method = dialog.category ? 'PUT' : 'POST';
+    
+    await executeAction(
+      () => apiCall(endpoint, { method, body: data }),
+      `Categoría ${dialog.category ? 'actualizada' : 'creada'} correctamente`
+    );
+    closeDialog();
   };
 
-  // columnas para DataGrid
+  useEffect(() => { fetchCategories(); }, []);
+
+  // Paginación móvil
+  const totalPages = Math.ceil(categories.length / pageSize);
+  const currentCategories = categories.slice(currentPage * pageSize, (currentPage + 1) * pageSize);
+
+  const MobileCard = ({ category }) => (
+    <Card sx={{ mb: 2, opacity: category.activo ? 1 : 0.6 }}>
+      <CardContent sx={{ p: 2 }}>
+        <Box sx={{ display: 'flex', gap: 2, mb: 2 }}>
+          <Avatar 
+            src={category.imagen ? `${import.meta.env.VITE_API_BASE_URL}${category.imagen}` : null} 
+            variant="rounded" 
+            sx={{ width: 80, height: 60, flexShrink: 0 }} 
+          />
+          <Box sx={{ flex: 1, minWidth: 0 }}>
+            <Typography variant="h6" sx={{ fontSize: '1rem', fontWeight: 600, mb: 1 }}>
+              {category.nombre}
+            </Typography>
+            <Chip 
+              label={category.activo ? 'Activo' : 'Inactivo'} 
+              color={category.activo ? 'success' : 'error'} 
+              size="small" 
+            />
+          </Box>
+        </Box>
+      </CardContent>
+      
+      <CardActions sx={{ px: 2, pb: 2, pt: 0, justifyContent: 'space-between' }}>
+        <Box>
+          <IconButton onClick={() => handleToggleStatus(category.categoria_id, category.activo)} size="small">
+            {category.activo ? <ToggleOn color="success" /> : <ToggleOff color="error" />}
+          </IconButton>
+          <IconButton onClick={() => openDialog(category)} color="primary" size="small">
+            <Edit />
+          </IconButton>
+        </Box>
+        <Typography variant="body2" color="text.secondary">
+          ID: {category.categoria_id}
+        </Typography>
+      </CardActions>
+    </Card>
+  );
+
   const columns = [
     { field: 'categoria_id', headerName: 'ID', width: 90 },
     {
-      field: 'imagen',
-      headerName: 'Imagen',
-      width: 100,
+      field: 'imagen', headerName: 'Imagen', width: 100,
       renderCell: ({ value }) => <Avatar src={value ? `${import.meta.env.VITE_API_BASE_URL}${value}` : null} variant="rounded" sx={{ width: 60, height: 40 }} />
     },
     { field: 'nombre', headerName: 'Nombre', width: 300 },
     {
-      field: 'activo',
-      headerName: 'Estado',
-      width: 130,
+      field: 'activo', headerName: 'Estado', width: 130,
       renderCell: ({ row }) => (
         <Box sx={{ display: 'flex', alignItems: 'center' }}>
           <IconButton onClick={(e) => { e.stopPropagation(); handleToggleStatus(row.categoria_id, row.activo); }}>
             {row.activo ? <ToggleOn color="success" /> : <ToggleOff color="error" />}
           </IconButton>
-          <Chip label={row.activo ? 'Activo' : 'Inactivo'} color={row.activo ? 'success' : 'default'} size="small" />
+          <Chip label={row.activo ? 'Activo' : 'Inactivo'} color={row.activo ? 'success' : 'error'} size="small" />
         </Box>
       ),
     },
     {
-      field: 'acciones',
-      headerName: 'Acciones',
-      width: 120,
-      sortable: false,
+      field: 'acciones', headerName: 'Acciones', width: 120, sortable: false,
       renderCell: ({ row }) => (
-        <Box onClick={e => e.stopPropagation()}>
-          <IconButton onClick={() => handleEditClick(row)} color="primary"><Edit /></IconButton>
-        </Box>
+        <IconButton onClick={(e) => { e.stopPropagation(); openDialog(row); }} color="primary">
+          <Edit />
+        </IconButton>
       )
     }
   ];
 
-  if (loading) return <Typography>Cargando...</Typography>;
+  if (loading) return <Typography>Cargando categorías...</Typography>;
   if (error) return <Typography color="error">Error: {error}</Typography>;
 
   return (
-    <Box sx={{ height: '80vh', width: '100%' }}>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+    <Box sx={{ width: '100%', minHeight: '80vh' }}>
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
         <Title>Gestión de Categorías</Title>
-        <Button 
-          variant="contained" 
-          startIcon={<Add />} 
-          onClick={() => { setEditingCategory(null); setNewCategory(initialCategoryState); setImagePreview(null); setOpen(true); }}
-          sx={{ bgcolor: '#FF6B35', '&:hover': { bgcolor: '#FF5722' } }}
-        >
-          Agregar Categoría
+        <Button variant="contained" startIcon={<Add />} onClick={() => openDialog()} 
+          sx={{ bgcolor: '#FF6B35', '&:hover': { bgcolor: '#FF5722' } }}>
+          {isMobile ? 'Agregar' : 'Agregar Categoría'}
         </Button>
       </Box>
 
-      <DataGrid
-        rows={categories}
-        columns={columns}
-        getRowId={(row) => row.categoria_id}
-        loading={loading}
-        pageSize={10}
-        disableSelectionOnClick
-      />
+      {isMobile ? (
+        <Box>
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2, px: 1 }}>
+            <FormControl size="small" sx={{ minWidth: 120 }}>
+              <InputLabel>Por página</InputLabel>
+              <Select value={pageSize} label="Por página" onChange={(e) => { setPageSize(e.target.value); setCurrentPage(0); }}>
+                {[5, 10, 15, 20].map(size => <MenuItem key={size} value={size}>{size}</MenuItem>)}
+              </Select>
+            </FormControl>
+            <Typography variant="body2" color="text.secondary">
+              {currentPage * pageSize + 1}-{Math.min((currentPage + 1) * pageSize, categories.length)} de {categories.length}
+            </Typography>
+          </Box>
 
-      <Dialog open={open} onClose={handleClose} maxWidth="sm" fullWidth>
-        <DialogTitle>{editingCategory ? 'Editar Categoría' : 'Crear Nueva Categoría'}</DialogTitle>
+          <Box sx={{ px: 1 }}>
+            {categories.length === 0 ? (
+              <Typography sx={{ textAlign: 'center', py: 4 }}>No hay categorías</Typography>
+            ) : (
+              currentCategories.map(category => <MobileCard key={category.categoria_id} category={category} />)
+            )}
+          </Box>
+
+          {totalPages > 1 && (
+            <Box sx={{ display: 'flex', justifyContent: 'center', mt: 3, gap: 1 }}>
+              <Button size="small" disabled={currentPage === 0} onClick={() => setCurrentPage(currentPage - 1)}>
+                Anterior
+              </Button>
+              {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                const pageNum = totalPages <= 5 ? i : 
+                  currentPage < 3 ? i : 
+                  currentPage >= totalPages - 3 ? totalPages - 5 + i : 
+                  currentPage - 2 + i;
+                return (
+                  <Button key={pageNum} size="small" variant={currentPage === pageNum ? "contained" : "text"}
+                    onClick={() => setCurrentPage(pageNum)} sx={{ minWidth: 32, height: 32 }}>
+                    {pageNum + 1}
+                  </Button>
+                );
+              })}
+              <Button size="small" disabled={currentPage === totalPages - 1} onClick={() => setCurrentPage(currentPage + 1)}>
+                Siguiente
+              </Button>
+            </Box>
+          )}
+        </Box>
+      ) : (
+        <DataGrid rows={categories} columns={columns} getRowId={(row) => row.categoria_id}
+          initialState={{ pagination: { paginationModel: { pageSize: 10 } } }}
+          pageSizeOptions={[5, 10, 25, 50]} disableSelectionOnClick autoHeight
+          getRowClassName={(params) => params.row.activo ? '' : 'category-inactive'}
+          sx={{
+            '& .MuiDataGrid-columnHeaders': { backgroundColor: '#f8fafc', '& .MuiDataGrid-columnHeaderTitle': { fontWeight: 600 } },
+            '& .MuiDataGrid-footerContainer': { backgroundColor: '#f8fafc' },
+            '& .category-inactive': { opacity: 0.6, backgroundColor: '#fafafa' }
+          }}
+        />
+      )}
+
+      <Dialog open={dialog.open} onClose={closeDialog} maxWidth="sm" fullWidth fullScreen={isMobile}>
+        <DialogTitle>{dialog.category ? 'Editar Categoría' : 'Crear Nueva Categoría'}</DialogTitle>
         <DialogContent>
           <TextField
-            autoFocus
-            margin="dense"
-            name="nombre"
-            label="Nombre de la Categoría"
-            type="text"
-            fullWidth
-            value={newCategory.nombre}
-            onChange={handleInputChange}
-            sx={{ mt: 1 }}
+            autoFocus margin="dense" name="nombre" label="Nombre de la Categoría" type="text" fullWidth
+            value={formData.nombre} onChange={handleInputChange} sx={{ mt: 1 }}
+            size={isMobile ? 'small' : 'medium'}
           />
           
           <Box sx={{ mt: 2 }}>
-            <Button variant="outlined" component="label" startIcon={<CloudUpload />} fullWidth>
-              {editingCategory ? 'Cambiar Imagen' : 'Seleccionar Imagen *'}
+            <Button variant="outlined" component="label" startIcon={<CloudUpload />} fullWidth 
+              size={isMobile ? 'small' : 'medium'}>
+              {dialog.category ? 'Cambiar Imagen' : 'Seleccionar Imagen *'}
               <Input type="file" accept="image/*" onChange={handleFileChange} sx={{ display: 'none' }} />
             </Button>
             
             {imagePreview && (
               <Box sx={{ mt: 2, textAlign: 'center' }}>
                 <img src={imagePreview} alt="Preview" 
-                  style={{ maxWidth: '100%', maxHeight: '200px', borderRadius: '8px', border: '1px solid #ddd' }} />
+                  style={{ 
+                    maxWidth: '100%', 
+                    maxHeight: isMobile ? '150px' : '200px', 
+                    borderRadius: '8px', 
+                    border: '1px solid #ddd' 
+                  }} 
+                />
               </Box>
             )}
           </Box>
         </DialogContent>
-        <DialogActions>
-          <Button onClick={handleClose}>Cancelar</Button>
-          <Button onClick={handleSubmit} variant="contained">{editingCategory ? 'Actualizar' : 'Crear'}</Button>
+        <DialogActions sx={{ p: isMobile ? 2 : 3 }}>
+          <Button onClick={closeDialog} size={isMobile ? 'small' : 'medium'}>Cancelar</Button>
+          <Button onClick={handleSubmit} variant="contained" size={isMobile ? 'small' : 'medium'}>
+            {dialog.category ? 'Actualizar' : 'Crear'}
+          </Button>
         </DialogActions>
       </Dialog>
 
-      <Snackbar
-        open={snackbarOpen}
-        autoHideDuration={6000}
-        onClose={handleCloseSnackbar}
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-      >
-        <Alert onClose={handleCloseSnackbar} severity={snackbarSeverity} sx={{ width: '100%' }}>
-          {snackbarMessage}
+      <Snackbar open={snackbar.open} autoHideDuration={6000} onClose={closeSnackbar}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}>
+        <Alert onClose={() => setSnackbar(prev => ({ ...prev, open: false }))} severity={snackbar.severity}>
+          {snackbar.message}
         </Alert>
       </Snackbar>
 
-      <Dialog
-        open={confirmDialogOpen}
-        onClose={handleCancelConfirmDialog}
-        aria-labelledby="confirm-dialog-title"
-        aria-describedby="confirm-dialog-description"
-        disableRestoreFocus
-      >
-        <DialogTitle id="confirm-dialog-title">Confirmación</DialogTitle>
-        <DialogContent>
-          <Typography id="confirm-dialog-description">
-            {confirmDialogMessage}
-          </Typography>
-        </DialogContent>
+      <Dialog open={confirm.open} onClose={() => setConfirm({ open: false, message: '', action: null })}>
+        <DialogTitle>Confirmación</DialogTitle>
+        <DialogContent><Typography>{confirm.message}</Typography></DialogContent>
         <DialogActions>
-          <Button onClick={handleCancelConfirmDialog} color="primary">
-            Cancelar
-          </Button>
-          <Button onClick={handleConfirmAction} color="primary" autoFocus>
+          <Button onClick={() => setConfirm({ open: false, message: '', action: null })}>Cancelar</Button>
+          <Button onClick={() => { confirm.action?.(); setConfirm({ open: false, message: '', action: null }); }} autoFocus>
             Confirmar
           </Button>
         </DialogActions>
