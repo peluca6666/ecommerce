@@ -81,9 +81,9 @@ const CategoryPage = () => {
               No hay productos disponibles en esta categoría.
             </Typography>
           ) : (
-            <Grid container spacing={3}>
-              {/* Filtros - Siempre a la izquierda */}
-              <Grid item xs={12} sm={4} md={3}>
+            <Grid container spacing={3} sx={{ flexDirection: { xs: 'row', sm: 'row' } }}>
+              {/* Filtros - Forzado a la izquierda */}
+              <Grid item xs={4} sm={4} md={3}>
                 <ProductFilters 
                   filtros={filtros}
                   onFilterChange={handleFilterChange}
@@ -93,7 +93,7 @@ const CategoryPage = () => {
               </Grid>
               
               {/* Productos */}
-              <Grid item xs={12} sm={8} md={9}>
+              <Grid item xs={8} sm={8} md={9}>
                 <ProductGrid productos={productos} />
               </Grid>
             </Grid>
