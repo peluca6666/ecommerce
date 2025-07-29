@@ -6,7 +6,6 @@ const WhatsAppFloat = () => {
   const [visible, setVisible] = useState(false);
   const phoneNumber = "5435851822894"; 
   
-  // Mostrar el botón después de 2 segundos para no ser invasivo
   useEffect(() => {
     const timer = setTimeout(() => setVisible(true), 2000);
     return () => clearTimeout(timer);
@@ -47,7 +46,6 @@ const WhatsAppFloat = () => {
                 transform: 'scale(1.1)',
                 boxShadow: '0 6px 25px rgba(37, 211, 102, 0.6)',
               },
-              // Animación de pulso sutil
               animation: 'pulse 2s infinite',
               '@keyframes pulse': {
                 '0%': {
