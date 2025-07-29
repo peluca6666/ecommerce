@@ -4,12 +4,10 @@ import {
   Box, Button, Typography, Dialog, DialogActions, DialogContent,
   DialogTitle, TextField, Select, MenuItem, InputLabel, FormControl,
   styled, Grid, IconButton,
-  Snackbar, Alert
+  Snackbar, Alert, Chip, Avatar, Input
 } from '@mui/material';
 import Title from './Title';
-import EditIcon from '@mui/icons-material/Edit';
-import ToggleOnIcon from '@mui/icons-material/ToggleOn';
-import ToggleOffIcon from '@mui/icons-material/ToggleOff';
+import { ToggleOn, ToggleOff, Edit, Add, CloudUpload } from '@mui/icons-material';
 
 // estado inicial para crear o editar producto
 const initialProductState = {
@@ -248,11 +246,14 @@ export default function AdminProductsPage() {
     {
       field: 'activo',
       headerName: 'Estado',
-      width: 110,
-      renderCell: (params) => (
-        <Typography color={params.row.activo ? 'green' : 'red'}>
-          {params.row.activo ? 'Activo' : 'Inactivo'}
-        </Typography>
+      width: 130,
+      renderCell: ({ row }) => (
+        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+          <IconButton onClick={(e) => { e.stopPropagation(); handleToggleActivo(row.producto_id, row.activo); }}>
+            {row.activo ? <ToggleOn color="success" /> : <ToggleOff color="error" />}
+          </IconButton>
+          <Chip label={row.activo ? 'Activo' : 'Inactivo'} color={row.activo ? 'success' : 'default'} size="small" />
+        </Box>
       ),
     },
     {
@@ -260,14 +261,9 @@ export default function AdminProductsPage() {
       headerName: 'Acciones',
       width: 120,
       sortable: false,
-      renderCell: (params) => (
-        <Box>
-          <IconButton onClick={() => handleEditClick(params.row)}>
-            <EditIcon />
-          </IconButton>
-          <IconButton onClick={() => handleToggleActivo(params.row.producto_id, params.row.activo)}>
-            {params.row.activo ? <ToggleOnIcon color="success" /> : <ToggleOffIcon color="error" />}
-          </IconButton>
+      renderCell: ({ row }) => (
+        <Box onClick={e => e.stopPropagation()}>
+          <IconButton onClick={() => handleEditClick(row)} color="primary"><Edit /></IconButton>
         </Box>
       ),
     },
@@ -280,12 +276,15 @@ export default function AdminProductsPage() {
 
   return (
     <Box sx={{ height: '80vh', width: '100%' }}>
-      <Title>Gestión de Productos</Title>
-
-      {/* botón para abrir modal de creación */}
-      <Box sx={{ mb: 2 }}>
-        <Button variant="contained" onClick={() => { setEditingProduct(null); setOpen(true); }}>
-          Crear Nuevo Producto
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+        <Title>Gestión de Productos</Title>
+        <Button 
+          variant="contained" 
+          startIcon={<Add />} 
+          onClick={() => { setEditingProduct(null); setNewProduct(initialProductState); setOpen(true); }}
+          sx={{ bgcolor: '#FF6B35', '&:hover': { bgcolor: '#FF5722' } }}
+        >
+          Agregar Producto
         </Button>
       </Box>
 
@@ -294,10 +293,12 @@ export default function AdminProductsPage() {
         rows={products}
         columns={columns}
         getRowId={(row) => row.producto_id}
+        pageSize={10}
+        disableSelectionOnClick
       />
 
       {/* modal para creación/edición */}
-      <Dialog open={open} onClose={handleClose}>
+      <Dialog open={open} onClose={handleClose} maxWidth="md" fullWidth>
         <DialogTitle>{editingProduct ? 'Editar Producto' : 'Crear Nuevo Producto'}</DialogTitle>
         <DialogContent>
           <Grid container spacing={2} sx={{ mt: 1 }}>
@@ -377,25 +378,25 @@ export default function AdminProductsPage() {
 
             {/* botón para seleccionar imagen principal */}
             <Grid item xs={12}>
-              <Button component="label" variant="contained" onChange={handleFileChange}>
+              <Button variant="outlined" component="label" startIcon={<CloudUpload />} fullWidth>
                 Seleccionar imagen principal
-                <VisuallyHiddenInput type="file" />
+                <Input type="file" onChange={handleFileChange} sx={{ display: 'none' }} />
               </Button>
               {mainImageFile && (
-                <Typography sx={{ display: 'inline', ml: 2 }}>
-                  {mainImageFile.name}
+                <Typography variant="body2" sx={{ mt: 1, color: 'text.secondary' }}>
+                  Archivo: {mainImageFile.name}
                 </Typography>
               )}
             </Grid>
 
             {/* botón para seleccionar imágenes secundarias */}
             <Grid item xs={12}>
-              <Button component="label" variant="outlined" onChange={handleMultipleFileChange}>
+              <Button variant="outlined" component="label" startIcon={<CloudUpload />} fullWidth>
                 Seleccionar imágenes secundarias
-                <VisuallyHiddenInput type="file" multiple />
+                <Input type="file" multiple onChange={handleMultipleFileChange} sx={{ display: 'none' }} />
               </Button>
               {secondaryImageFiles.length > 0 && (
-                <Typography sx={{ display: 'inline', ml: 2 }}>
+                <Typography variant="body2" sx={{ mt: 1, color: 'text.secondary' }}>
                   {secondaryImageFiles.length} archivos seleccionados
                 </Typography>
               )}
@@ -406,8 +407,11 @@ export default function AdminProductsPage() {
         {/* botones cancelar y guardar */}
         <DialogActions>
           <Button onClick={handleClose}>Cancelar</Button>
-          <Button onClick={editingProduct ? handleUpdateProduct : handleCreateProduct}>
-            Guardar
+          <Button 
+            onClick={editingProduct ? handleUpdateProduct : handleCreateProduct}
+            variant="contained"
+          >
+            {editingProduct ? 'Actualizar' : 'Crear'}
           </Button>
         </DialogActions>
       </Dialog>
@@ -430,6 +434,7 @@ export default function AdminProductsPage() {
         onClose={handleCancelConfirmDialog}
         aria-labelledby="confirm-dialog-title"
         aria-describedby="confirm-dialog-description"
+        disableRestoreFocus
       >
         <DialogTitle id="confirm-dialog-title">Confirmación</DialogTitle>
         <DialogContent>
