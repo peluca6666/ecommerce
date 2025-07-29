@@ -15,15 +15,9 @@ import Container from '@mui/material/Container';
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
-import Avatar from '@mui/material/Avatar';
-import Badge from '@mui/material/Badge';
-import Chip from '@mui/material/Chip';
 import HomeIcon from '@mui/icons-material/Home';
 import MenuIcon from '@mui/icons-material/Menu';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
-import NotificationsIcon from '@mui/icons-material/Notifications';
-import AccountCircleIcon from '@mui/icons-material/AccountCircle';
-import SettingsIcon from '@mui/icons-material/Settings';
 import { mainListItems } from './listItems';
 
 function Copyright(props) {
@@ -31,22 +25,23 @@ function Copyright(props) {
     <Typography variant="body2" color="text.secondary" align="center" {...props}>
       {'Copyright © '}
       <Link color="inherit" href="#" sx={{ textDecoration: 'none' }}>
-        Mi Tienda Admin
+        Mi Tienda
       </Link>{' '}
       {new Date().getFullYear()}
     </Typography>
   );
 }
 
-const drawerWidth = 280; // 👈 Más ancho para mejor UX
+const drawerWidth = 260;
 
-// 🎨 AppBar con gradiente y mejores estilos
 const AppBar = styled(MuiAppBar, {
   shouldForwardProp: (prop) => prop !== 'open',
 })(({ theme, open }) => ({
   zIndex: theme.zIndex.drawer + 1,
-  background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-  boxShadow: '0 4px 20px rgba(0,0,0,0.15)',
+  backgroundColor: '#ffffff',
+  color: '#1a1a1a',
+  boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+  borderBottom: '1px solid #e5e5e5',
   transition: theme.transitions.create(['width', 'margin'], {
     easing: theme.transitions.easing.sharp,
     duration: theme.transitions.duration.leavingScreen,
@@ -61,15 +56,14 @@ const AppBar = styled(MuiAppBar, {
   }),
 }));
 
-// 🎨 Drawer con mejor diseño
 const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' })(
   ({ theme, open }) => ({
     '& .MuiDrawer-paper': {
       position: 'relative',
       whiteSpace: 'nowrap',
       width: drawerWidth,
-      background: 'linear-gradient(180deg, #f8fafc 0%, #e2e8f0 100%)',
-      borderRight: '1px solid rgba(0,0,0,0.08)',
+      backgroundColor: '#fafafa',
+      borderRight: '1px solid #e0e0e0',
       transition: theme.transitions.create('width', {
         easing: theme.transitions.easing.sharp,
         duration: theme.transitions.duration.enteringScreen,
@@ -90,51 +84,48 @@ const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' 
   }),
 );
 
-// 🎨 Tema personalizado con mejores colores
-const customTheme = createTheme({
+const cleanTheme = createTheme({
   palette: {
     primary: {
-      main: '#667eea',
-      light: '#8fa5f3',
-      dark: '#4c63d2',
-    },
-    secondary: {
-      main: '#764ba2',
-      light: '#9c7eb8',
-      dark: '#5a3a7c',
+      main: '#2563eb',
     },
     background: {
       default: '#f8fafc',
       paper: '#ffffff',
     },
     text: {
-      primary: '#1e293b',
-      secondary: '#64748b',
+      primary: '#1a1a1a',
+      secondary: '#6b7280',
     },
   },
   typography: {
     fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif',
     h6: {
       fontWeight: 600,
+      fontSize: '1.1rem',
     },
   },
   components: {
     MuiListItemButton: {
       styleOverrides: {
         root: {
-          borderRadius: 12,
-          margin: '4px 8px',
+          borderRadius: 8,
+          margin: '2px 12px',
+          paddingLeft: 16,
+          paddingRight: 16,
           '&:hover': {
-            backgroundColor: 'rgba(102, 126, 234, 0.08)',
-            transform: 'translateX(4px)',
+            backgroundColor: '#f1f5f9',
           },
           '&.Mui-selected': {
-            backgroundColor: 'rgba(102, 126, 234, 0.12)',
+            backgroundColor: '#e0f2fe',
+            color: '#0369a1',
+            '& .MuiListItemIcon-root': {
+              color: '#0369a1',
+            },
             '&:hover': {
-              backgroundColor: 'rgba(102, 126, 234, 0.16)',
+              backgroundColor: '#e0f2fe',
             },
           },
-          transition: 'all 0.2s ease',
         },
       },
     },
@@ -149,154 +140,58 @@ export default function AdminDashboardPage() {
   };
 
   return (
-    <ThemeProvider theme={customTheme}>
+    <ThemeProvider theme={cleanTheme}>
       <Box sx={{ display: 'flex' }}>
         <CssBaseline />
         
-        {/* 🎨 AppBar mejorado */}
         <AppBar position="absolute" open={open}>
-          <Toolbar sx={{ pr: '24px', justifyContent: 'space-between' }}>
-            <Box sx={{ display: 'flex', alignItems: 'center' }}>
-              <IconButton
-                edge="start"
-                color="inherit"
-                aria-label="open drawer"
-                onClick={toggleDrawer}
-                sx={{ 
-                  marginRight: '36px', 
-                  ...(open && { display: 'none' }),
-                  '&:hover': {
-                    backgroundColor: 'rgba(255,255,255,0.1)',
-                  }
-                }}
-              >
-                <MenuIcon />
-              </IconButton>
-              <Box>
-                <Typography component="h1" variant="h6" color="inherit" noWrap sx={{ fontWeight: 600 }}>
-                  Panel de Administrador
-                </Typography>
-                <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.8)' }}>
-                  Gestión completa del sistema
-                </Typography>
-              </Box>
-            </Box>
-
-            {/* 🎨 Controles del usuario */}
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-              <Chip 
-                label="Admin" 
-                size="small" 
-                sx={{ 
-                  backgroundColor: 'rgba(255,255,255,0.2)', 
-                  color: 'white',
-                  fontWeight: 500
-                }} 
-              />
-              <IconButton 
-                color="inherit"
-                sx={{ '&:hover': { backgroundColor: 'rgba(255,255,255,0.1)' } }}
-              >
-                <Badge badgeContent={3} color="error">
-                  <NotificationsIcon />
-                </Badge>
-              </IconButton>
-              <IconButton 
-                color="inherit"
-                sx={{ '&:hover': { backgroundColor: 'rgba(255,255,255,0.1)' } }}
-              >
-                <SettingsIcon />
-              </IconButton>
-              <Avatar sx={{ 
-                width: 32, 
-                height: 32, 
-                ml: 1,
-                backgroundColor: 'rgba(255,255,255,0.2)',
-                '&:hover': {
-                  backgroundColor: 'rgba(255,255,255,0.3)',
-                }
-              }}>
-                <AccountCircleIcon />
-              </Avatar>
-            </Box>
+          <Toolbar sx={{ pr: '24px' }}>
+            <IconButton
+              edge="start"
+              color="inherit"
+              aria-label="open drawer"
+              onClick={toggleDrawer}
+              sx={{ 
+                marginRight: '36px', 
+                ...(open && { display: 'none' }),
+                color: '#6b7280'
+              }}
+            >
+              <MenuIcon />
+            </IconButton>
+            <Typography component="h1" variant="h6" color="inherit" noWrap sx={{ flexGrow: 1 }}>
+              Panel de Administrador
+            </Typography>
           </Toolbar>
         </AppBar>
 
-        {/* 🎨 Drawer mejorado */}
         <Drawer variant="permanent" open={open}>
-          {/* Header del drawer */}
           <Toolbar
             sx={{
               display: 'flex',
               alignItems: 'center',
-              justifyContent: open ? 'space-between' : 'center',
+              justifyContent: 'flex-end',
               px: [1],
-              background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-              color: 'white',
+              borderBottom: '1px solid #e0e0e0',
             }}
           >
-            {open && (
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                <Avatar sx={{ 
-                  width: 32, 
-                  height: 32, 
-                  backgroundColor: 'rgba(255,255,255,0.2)' 
-                }}>
-                  MT
-                </Avatar>
-                <Box>
-                  <Typography variant="subtitle2" sx={{ fontWeight: 600, lineHeight: 1 }}>
-                    Mi Tienda
-                  </Typography>
-                  <Typography variant="caption" sx={{ opacity: 0.8, lineHeight: 1 }}>
-                    v1.0.0
-                  </Typography>
-                </Box>
-              </Box>
-            )}
-            <IconButton 
-              onClick={toggleDrawer}
-              sx={{ 
-                color: 'white',
-                '&:hover': { backgroundColor: 'rgba(255,255,255,0.1)' }
-              }}
-            >
+            <IconButton onClick={toggleDrawer} sx={{ color: '#6b7280' }}>
               <ChevronLeftIcon />
             </IconButton>
           </Toolbar>
           
-          <Divider />
-          <List component="nav" sx={{ px: 1, py: 2 }}>
+          <List component="nav" sx={{ pt: 2 }}>
             {mainListItems}
-            <Divider sx={{ my: 2, mx: 1 }} />
-            <ListItemButton 
-              component={RouterLink} 
-              to="/main"
-              sx={{
-                '&:hover': {
-                  backgroundColor: 'rgba(34, 197, 94, 0.08)',
-                  '& .MuiListItemIcon-root': {
-                    color: '#22c55e',
-                  }
-                }
-              }}
-            >
-              <ListItemIcon>
+            <Divider sx={{ my: 2, mx: 2 }} />
+            <ListItemButton component={RouterLink} to="/main">
+              <ListItemIcon sx={{ color: '#6b7280' }}>
                 <HomeIcon />
               </ListItemIcon>
-              <ListItemText 
-                primary="Volver a Main" 
-                sx={{
-                  '& .MuiListItemText-primary': {
-                    fontWeight: 500,
-                  }
-                }}
-              />
+              <ListItemText primary="Volver a Main" />
             </ListItemButton>
           </List>
         </Drawer>
 
-        {/* 🎨 Contenido principal mejorado */}
         <Box
           component="main"
           sx={{
@@ -307,19 +202,18 @@ export default function AdminDashboardPage() {
           }}
         >
           <Toolbar />
-          <Container maxWidth="xl" sx={{ mt: 4, mb: 4 }}>
-            {/* Contenedor para páginas con mejor estilo */}
+          <Container maxWidth="xl" sx={{ mt: 3, mb: 4 }}>
             <Box sx={{
               backgroundColor: 'white',
-              borderRadius: 3,
-              boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
-              border: '1px solid rgba(0,0,0,0.04)',
-              overflow: 'hidden',
-              minHeight: 'calc(100vh - 200px)',
+              borderRadius: 2,
+              boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+              border: '1px solid #e5e5e5',
+              minHeight: 'calc(100vh - 180px)',
+              p: 3,
             }}>
               <Outlet />
             </Box>
-            <Copyright sx={{ pt: 4 }} />
+            <Copyright sx={{ pt: 3 }} />
           </Container>
         </Box>
       </Box>
