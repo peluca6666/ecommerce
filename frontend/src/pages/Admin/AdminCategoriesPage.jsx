@@ -1,10 +1,8 @@
 import { useState, useEffect } from 'react';
 import { DataGrid } from '@mui/x-data-grid';
-import { Box, Button, Typography, Dialog, DialogActions, DialogContent, DialogTitle, TextField, styled, IconButton, Snackbar, Alert} from '@mui/material';
+import { Box, Button, Typography, Dialog, DialogActions, DialogContent, DialogTitle, TextField, styled, IconButton, Snackbar, Alert, Chip, Avatar, Input} from '@mui/material';
 import Title from './Title';
-import EditIcon from '@mui/icons-material/Edit';
-import ToggleOnIcon from '@mui/icons-material/ToggleOn';
-import ToggleOffIcon from '@mui/icons-material/ToggleOff';
+import { ToggleOn, ToggleOff, Edit, Add, CloudUpload } from '@mui/icons-material';
 
 // input oculto para subir archivo, queda escondido visualmente
 const VisuallyHiddenInput = styled('input')({
@@ -30,6 +28,7 @@ export default function AdminCategoriesPage() {
   const [editingCategory, setEditingCategory] = useState(null);
   const [newCategory, setNewCategory] = useState(initialCategoryState);
   const [imageFile, setImageFile] = useState(null);
+  const [imagePreview, setImagePreview] = useState(null);
   const [error, setError] = useState(null);
 
   // estados para snackbar (alertas)
@@ -105,12 +104,14 @@ export default function AdminCategoriesPage() {
     setNewCategory(initialCategoryState);
     setEditingCategory(null);
     setImageFile(null);
+    setImagePreview(null);
   };
 
   // abre modal para editar categoría cargando datos
   const handleEditClick = (category) => {
     setEditingCategory(category);
     setNewCategory(category);
+    setImagePreview(category.imagen ? `${import.meta.env.VITE_API_BASE_URL}${category.imagen}` : null);
     setOpen(true);
   };
 
@@ -119,7 +120,13 @@ export default function AdminCategoriesPage() {
 
   // actualiza archivo imagen al seleccionar
   const handleFileChange = (e) => {
-    if (e.target.files[0]) setImageFile(e.target.files[0]);
+    const file = e.target.files[0];
+    if (file) {
+      setImageFile(file);
+      const reader = new FileReader();
+      reader.onload = (e) => setImagePreview(e.target.result);
+      reader.readAsDataURL(file);
+    }
   };
 
   // activa o desactiva categoría con confirmación
@@ -180,22 +187,20 @@ export default function AdminCategoriesPage() {
       field: 'imagen',
       headerName: 'Imagen',
       width: 100,
-      renderCell: (params) => {
-        const imageUrl = params.value ? `${import.meta.env.VITE_API_BASE_URL}${params.value}` : null;
-        return imageUrl
-          ? <img src={imageUrl} alt={params.row.nombre} style={{ width: 50, height: 50, objectFit: 'cover' }} />
-          : <Typography variant="caption">Sin imagen</Typography>;
-      }
+      renderCell: ({ value }) => <Avatar src={value ? `${import.meta.env.VITE_API_BASE_URL}${value}` : null} variant="rounded" sx={{ width: 60, height: 40 }} />
     },
     { field: 'nombre', headerName: 'Nombre', width: 300 },
     {
       field: 'activo',
       headerName: 'Estado',
       width: 130,
-      renderCell: (params) => (
-        <Typography color={params.row.activo ? 'green' : 'red'}>
-          {params.row.activo ? 'Activo' : 'Inactivo'}
-        </Typography>
+      renderCell: ({ row }) => (
+        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+          <IconButton onClick={(e) => { e.stopPropagation(); handleToggleStatus(row.categoria_id, row.activo); }}>
+            {row.activo ? <ToggleOn color="success" /> : <ToggleOff color="error" />}
+          </IconButton>
+          <Chip label={row.activo ? 'Activo' : 'Inactivo'} color={row.activo ? 'success' : 'default'} size="small" />
+        </Box>
       ),
     },
     {
@@ -203,12 +208,9 @@ export default function AdminCategoriesPage() {
       headerName: 'Acciones',
       width: 120,
       sortable: false,
-      renderCell: (params) => (
-        <Box>
-          <IconButton onClick={() => handleEditClick(params.row)}><EditIcon /></IconButton>
-          <IconButton onClick={() => handleToggleStatus(params.row.categoria_id, params.row.activo)}>
-            {params.row.activo ? <ToggleOnIcon color="success" /> : <ToggleOffIcon color="error" />}
-          </IconButton>
+      renderCell: ({ row }) => (
+        <Box onClick={e => e.stopPropagation()}>
+          <IconButton onClick={() => handleEditClick(row)} color="primary"><Edit /></IconButton>
         </Box>
       )
     }
@@ -219,24 +221,28 @@ export default function AdminCategoriesPage() {
 
   return (
     <Box sx={{ height: '80vh', width: '100%' }}>
-      <Title>Gestión de Categorías</Title>
-
-      <Button
-        variant="contained"
-        sx={{ mb: 2 }}
-        onClick={() => { setEditingCategory(null); setNewCategory(initialCategoryState); setOpen(true); }}
-      >
-        Crear Nueva Categoría
-      </Button>
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+        <Title>Gestión de Categorías</Title>
+        <Button 
+          variant="contained" 
+          startIcon={<Add />} 
+          onClick={() => { setEditingCategory(null); setNewCategory(initialCategoryState); setImagePreview(null); setOpen(true); }}
+          sx={{ bgcolor: '#FF6B35', '&:hover': { bgcolor: '#FF5722' } }}
+        >
+          Agregar Categoría
+        </Button>
+      </Box>
 
       <DataGrid
         rows={categories}
         columns={columns}
         getRowId={(row) => row.categoria_id}
         loading={loading}
+        pageSize={10}
+        disableSelectionOnClick
       />
 
-      <Dialog open={open} onClose={handleClose}>
+      <Dialog open={open} onClose={handleClose} maxWidth="sm" fullWidth>
         <DialogTitle>{editingCategory ? 'Editar Categoría' : 'Crear Nueva Categoría'}</DialogTitle>
         <DialogContent>
           <TextField
@@ -250,29 +256,24 @@ export default function AdminCategoriesPage() {
             onChange={handleInputChange}
             sx={{ mt: 1 }}
           />
-          <Button component="label" variant="outlined" sx={{ mt: 2 }}>
-            {imageFile ? imageFile.name : (editingCategory?.imagen ? 'Cambiar Imagen' : 'Seleccionar Imagen')}
-            <VisuallyHiddenInput type="file" onChange={handleFileChange} />
-          </Button>
-          {imageFile && (
-            <Typography variant="body2" sx={{ ml: 2, display: 'inline-block' }}>
-              Archivo: {imageFile.name}
-            </Typography>
-          )}
-          {editingCategory && !imageFile && editingCategory.imagen && (
-            <Box sx={{ mt: 2 }}>
-              <Typography variant="body2">Imagen actual:</Typography>
-              <img
-                src={`${import.meta.env.VITE_API_BASE_URL}${editingCategory.imagen}`}
-                alt="imagen actual de categoría"
-                style={{ maxWidth: '100px', maxHeight: '100px', objectFit: 'contain', border: '1px solid #ccc' }}
-              />
-            </Box>
-          )}
+          
+          <Box sx={{ mt: 2 }}>
+            <Button variant="outlined" component="label" startIcon={<CloudUpload />} fullWidth>
+              {editingCategory ? 'Cambiar Imagen' : 'Seleccionar Imagen *'}
+              <Input type="file" accept="image/*" onChange={handleFileChange} sx={{ display: 'none' }} />
+            </Button>
+            
+            {imagePreview && (
+              <Box sx={{ mt: 2, textAlign: 'center' }}>
+                <img src={imagePreview} alt="Preview" 
+                  style={{ maxWidth: '100%', maxHeight: '200px', borderRadius: '8px', border: '1px solid #ddd' }} />
+              </Box>
+            )}
+          </Box>
         </DialogContent>
         <DialogActions>
           <Button onClick={handleClose}>Cancelar</Button>
-          <Button onClick={handleSubmit}>Guardar</Button>
+          <Button onClick={handleSubmit} variant="contained">{editingCategory ? 'Actualizar' : 'Crear'}</Button>
         </DialogActions>
       </Dialog>
 
@@ -292,6 +293,7 @@ export default function AdminCategoriesPage() {
         onClose={handleCancelConfirmDialog}
         aria-labelledby="confirm-dialog-title"
         aria-describedby="confirm-dialog-description"
+        disableRestoreFocus
       >
         <DialogTitle id="confirm-dialog-title">Confirmación</DialogTitle>
         <DialogContent>

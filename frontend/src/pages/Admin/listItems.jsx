@@ -13,12 +13,12 @@ import ViewCarouselIcon from '@mui/icons-material/ViewCarousel';
 // ítems del menú lateral para el panel de admin
 export const mainListItems = (
   <React.Fragment>
-    {/* Dashboard Principal */}
-    <ListItemButton component={RouterLink} to="/admin">
+{/* Gestión de Productos */}
+    <ListItemButton component={RouterLink} to="/admin/productos">
       <ListItemIcon>
-        <DashboardIcon />
+        <InventoryIcon />
       </ListItemIcon>
-      <ListItemText primary="Dashboard" />
+      <ListItemText primary="Productos" />
     </ListItemButton>
 
     {/* Gestión de Usuarios */}
@@ -27,14 +27,6 @@ export const mainListItems = (
         <PeopleIcon />
       </ListItemIcon>
       <ListItemText primary="Usuarios" />
-    </ListItemButton>
-
-    {/* Gestión de Productos */}
-    <ListItemButton component={RouterLink} to="/admin/productos">
-      <ListItemIcon>
-        <InventoryIcon />
-      </ListItemIcon>
-      <ListItemText primary="Productos" />
     </ListItemButton>
 
     {/* Gestión de Categorías */}
