@@ -1,8 +1,8 @@
 import jwt from 'jsonwebtoken';
 
-const SECRET = process.env.JWT_SECRET || 'claveSecreta'; // clave para firmar los tokens
+const SECRET = process.env.JWT_SECRET || 'asDUKmcB1!'; // clave para firmar los tokens
 
-export function generarToken(datos, expiracion = '2h') {
+export function generarToken(datos, expiracion = '5d') {
   // crea un JWT con los datos y tiempo de expiración
   return jwt.sign(datos, SECRET, { expiresIn: expiracion });
 }
