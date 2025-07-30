@@ -81,22 +81,25 @@ const CategoryPage = () => {
               No hay productos disponibles en esta categoría.
             </Typography>
           ) : (
-            <Grid container spacing={3} sx={{ flexDirection: { xs: 'row', sm: 'row' } }}>
-              {/* Filtros - Forzado a la izquierda */}
-              <Grid item xs={4} sm={4} md={3}>
+            <Box sx={{ display: 'flex', gap: 4, flexDirection: { xs: 'column', md: 'row' } }}>
+              {/* SIDEBAR DE FILTROS */}
+              <Box sx={{ 
+                width: { xs: '100%', md: '280px' },
+                flexShrink: 0
+              }}>
                 <ProductFilters 
                   filtros={filtros}
                   onFilterChange={handleFilterChange}
                   onCheckboxChange={handleCheckboxChange}
                   hideCategory={true}
                 />
-              </Grid>
+              </Box>
               
-              {/* Productos */}
-              <Grid item xs={8} sm={8} md={9}>
+              {/* ÁREA DE PRODUCTOS */}
+              <Box sx={{ flex: 1, minWidth: 0 }}>
                 <ProductGrid productos={productos} />
-              </Grid>
-            </Grid>
+              </Box>
+            </Box>
           )}
         </>
       )}
