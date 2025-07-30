@@ -55,7 +55,7 @@ const ProductCard = ({ producto }) => {
                 overflow: 'hidden',
                 aspectRatio: { xs: '1', sm: '4/3', md: '3/2' }, // Responsive aspect ratio
                 width: '100%',
-                backgroundColor: '#f5f5f5', // Fondo gris claro para rellenar espacios vacíos
+                backgroundColor: '#ffffffff', 
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center'
