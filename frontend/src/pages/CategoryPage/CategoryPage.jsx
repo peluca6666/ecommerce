@@ -1,6 +1,6 @@
 import { useParams } from 'react-router-dom';
 import { useState, useEffect } from 'react';
-import { Container, Typography, Paper, Grid } from '@mui/material';
+import { Container, Typography, Paper, Box } from '@mui/material';
 import ProductGrid from '../../components/Product/ProductGrid';
 import ProductFilters from '../../components/Product/ProductFilters';
 import LoadingSpinner from '../../components/Common/LoadingSpinner';
