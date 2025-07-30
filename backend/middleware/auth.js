@@ -14,7 +14,7 @@ export const verifyToken = (req, res, next) => {
   }
 
   try {
-    const { usuario_id, rol } = verify(token, process.env.JWT_SECRET || 'asDUKmcB1!');
+    const { usuario_id, rol } = verify(token, process.env.JWT_SECRET);
     req.usuario = { id: usuario_id, rol };
     next();
   } catch (error) {
