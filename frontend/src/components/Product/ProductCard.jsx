@@ -9,7 +9,7 @@ const ProductCard = ({ producto }) => {
         ? `${import.meta.env.VITE_API_BASE_URL}${producto.imagen}` 
         : 'https://via.placeholder.com/300x200';
 
-    const hasDiscount = producto.es_oferta === 1 || producto.es_oferta === true; // Usar campo de BD
+    const hasDiscount = producto.es_oferta === 1 || producto.es_oferta === true; 
     const discountPercentage = (producto.precio_anterior && producto.precio_anterior > producto.precio) 
         ? Math.round(((producto.precio_anterior - producto.precio) / producto.precio_anterior) * 100)
         : 0;
@@ -28,7 +28,7 @@ const ProductCard = ({ producto }) => {
                 display: 'flex', 
                 flexDirection: 'column',
                 textDecoration: 'none',
-                borderRadius: { xs: 1, md: 1.5 }, // Menos redondeado
+                borderRadius: { xs: 1, md: 1.5 }, 
                 border: '1px solid #e0e0e0',
                 cursor: 'pointer',
                 transition: 'all 0.3s ease',
@@ -53,9 +53,9 @@ const ProductCard = ({ producto }) => {
             <Box sx={{ 
                 position: 'relative', 
                 overflow: 'hidden',
-                aspectRatio: { xs: '1', sm: '4/3', md: '3/2' }, // Responsive aspect ratio
+                aspectRatio: { xs: '1', sm: '4/3', md: '3/2' }, 
                 width: '100%',
-                backgroundColor: '#ffffffff', 
+                backgroundColor: 'white', 
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center'
@@ -89,7 +89,7 @@ const ProductCard = ({ producto }) => {
                     sx={{ 
                         width: '100%',
                         height: '100%',
-                        objectFit: 'contain', // Cambio principal: de 'cover' a 'contain'
+                        objectFit: 'contain', 
                         transition: 'transform 0.3s ease'
                     }}
                 />
@@ -108,9 +108,9 @@ const ProductCard = ({ producto }) => {
                 <Typography 
                     variant="body2" 
                     sx={{
-                        fontWeight: 600, // Aumenté de 500 a 600
+                        fontWeight: 600, 
                         mb: { xs: 1, md: 1.5 },
-                        color: '#212121', // Cambié de #424242 a #212121 (más oscuro)
+                        color: '#212121', 
                         fontSize: { xs: '0.8rem', sm: '0.85rem', md: '0.9rem' },
                         lineHeight: 1.3,
                         display: '-webkit-box',
