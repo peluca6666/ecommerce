@@ -1,6 +1,8 @@
 import { schemaRegistro, schemaLogin, schemaCambioContraseña } from '../validations/authValidation.js';
 import * as usuarioService from '../services/usuarioService.js';
 import { enviarEmailRecuperacion } from '../utils/emailService.js';
+import pkg from 'jsonwebtoken'; 
+const { sign } = pkg;
 
 export const registrarUsuario = async (req, res) => {
   try {
