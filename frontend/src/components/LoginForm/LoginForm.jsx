@@ -209,6 +209,9 @@ export default function LoginForm({ formulario, errores, isLoading, handleChange
                         Regístrate acá
                     </Typography>
                 </Box>
+                <div style={{ textAlign: 'center', marginTop: 16 }}>
+  <Link to="/forgot-password">¿Olvidaste tu contraseña?</Link>
+</div>
             </Paper>
         </Box>
     );

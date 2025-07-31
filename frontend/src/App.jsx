@@ -23,6 +23,9 @@ import AdminSalesPage from './pages/Admin/AdminSalesPage.jsx';
 import AdminUsersPage from './pages/Admin/AdminUsersPage.jsx';
 import AdminCategoriesPage from './pages/Admin/AdminCategoriesPage.jsx';
 import AdminBannersPage from './pages/Admin/AdminBannersPage.jsx';
+import ForgotPasswordPage from './pages/Auth/ForgotPasswordPage';
+import ResetPasswordPage from './pages/Auth/ResetPasswordPage';
+
 
 function App() {
   return (
@@ -38,6 +41,8 @@ function App() {
             <Route path="/producto/:id" element={<ProductDetailPage />} />
             <Route path="/sobre-nosotros" element={<SobreNosotrosPage />} />
             <Route path="/contacto" element={<ContactoPage />} />
+            <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+            <Route path="/reset-password" element={<ResetPasswordPage />} />
 
             {/* Rutas protegidas*/}
             <Route element={<ProtectedRoute requireAuth={true} />}>
