@@ -1,194 +1,270 @@
-import { Button, TextField, Typography, Box, Paper, CircularProgress, Alert, InputAdornment } from '@mui/material';
+import { Form, Input, Button, Card, Typography, Alert } from 'antd';
 import { useNavigate } from 'react-router-dom';
-import PersonOutlineIcon from '@mui/icons-material/PersonOutline';
-import MailOutlineIcon from '@mui/icons-material/MailOutline';  
-import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
+import { UserOutlined, MailOutlined, LockOutlined } from '@ant-design/icons';
 
-// Estilos reutilizables
-const styles = {
-    container: {
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        minHeight: '100vh',
-        width: '100vw',
-        background: 'f5f5f5',
-        px: 2,
-        py: 4,
-        ml: -2,
-        mr: -2,
-        mt: -2
-    },
-    paper: {
-        width: '100%',
-        maxWidth: 480,
-        p: 4,
-        display: 'flex',
-        flexDirection: 'column',
-        gap: 2,
-        borderRadius: 3,
-        border: '1px solid',
-        borderColor: 'rgba(255, 140, 0, 0.1)',
-        bgcolor: 'white'
-    },
-    textField: {
-        '& .MuiOutlinedInput-root': { 
-            borderRadius: 2,
-            '&:hover fieldset': { borderColor: '#FF8C00' },
-            '&.Mui-focused fieldset': { borderColor: '#FF6B35' }
-        },
-        '& .MuiInputLabel-root.Mui-focused': { color: '#FF6B35' }
-    },
-    button: {
-        mt: 2,
-        py: 1.5,
-        borderRadius: 2,
-        textTransform: 'none',
-        fontSize: '1rem',
-        fontWeight: 500,
-        background: 'linear-gradient(135deg, #FF8C00 0%, #FF6B35 100%)',
-        boxShadow: '0 4px 12px rgba(255, 140, 0, 0.3)',
-        '&:hover': {
-            background: 'linear-gradient(135deg, #FF6B35 0%, #FF4500 100%)',
-            boxShadow: '0 6px 16px rgba(255, 140, 0, 0.4)'
-        },
-        '&:disabled': { background: 'rgba(255, 140, 0, 0.3)' }
-    },
-    link: {
-        color: '#FF6B35',
-        textDecoration: 'none',
-        fontWeight: 500,
-        cursor: 'pointer',
-        '&:hover': { textDecoration: 'underline' }
-    }
-};
+const { Title, Text } = Typography;
 
-// Configuración de campos
-const fieldConfig = [
-    { name: 'nombre', label: 'Nombre', type: 'text', icon: PersonOutlineIcon, halfWidth: true },
-    { name: 'apellido', label: 'Apellido', type: 'text', icon: PersonOutlineIcon, halfWidth: true },
-    { name: 'email', label: 'Email', type: 'email', icon: MailOutlineIcon },
-    { name: 'contrasenia', label: 'Contraseña', type: 'password', icon: LockOutlinedIcon },
-    { name: 'confirmarContrasenia', label: 'Confirmar contraseña', type: 'password', icon: LockOutlinedIcon }
-];
-
-// Componente de campo reutilizable
-const FormField = ({ field, formulario, errores, onChange, sx = {} }) => {
-    const IconComponent = field.icon;
-    
-    return (
-        <TextField
-            fullWidth
-            label={field.label}
-            name={field.name}
-            type={field.type}
-            value={formulario[field.name]}
-            onChange={onChange}
-            error={!!errores[field.name]}
-            helperText={errores[field.name]}
-            variant="outlined"
-            sx={{ ...styles.textField, ...sx }}
-            slotProps={{
-                input: {
-                    startAdornment: (
-                        <InputAdornment position="start">
-                            <IconComponent sx={{ color: '#FF8C00', fontSize: 20 }} />
-                        </InputAdornment>
-                    )
-                }
-            }}
-        />
-    );
-};
-
-// Componente principal
 const RegistroForm = ({ formulario, errores, isLoading, onChange, onSubmit, mensajeExito }) => {
-    const navigate = useNavigate();
+  const navigate = useNavigate();
+  const isMobile = window.innerWidth < 768;
 
-    const handleGoToLogin = (e) => {
-        e.preventDefault();
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-        setTimeout(() => navigate('/login'), 300);
-    };
+  const handleGoToLogin = (e) => {
+    e.preventDefault();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    setTimeout(() => navigate('/login'), 300);
+  };
 
-    // Separar campos en dos grupos
-    const nameFields = fieldConfig.filter(field => field.halfWidth);
-    const fullWidthFields = fieldConfig.filter(field => !field.halfWidth);
+  return (
+    <div style={{ 
+      display: 'flex', 
+      justifyContent: 'center', 
+      alignItems: 'center',
+      minHeight: '100vh',
+      padding: isMobile ? '16px' : '20px',
+      backgroundColor: '#f5f5f5'
+    }}>
+      <Card style={{ 
+        width: '100%',
+        maxWidth: isMobile ? '100%' : 600,
+        padding: isMobile ? 12 : 20,
+        boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
+        borderRadius: isMobile ? '8px' : '12px'
+      }}>
+        {/* Header consistente */}
+        <div style={{ textAlign: 'center', marginBottom: isMobile ? 20 : 32 }}>
+          <UserOutlined style={{ 
+            fontSize: isMobile ? '32px' : '40px', 
+            color: '#FF6B35', 
+            marginBottom: 16 
+          }} />
+          <Title 
+            level={isMobile ? 4 : 3} 
+            style={{ 
+              marginBottom: isMobile ? 16 : 8,
+              fontSize: isMobile ? '18px' : '24px'
+            }}
+          >
+            Crear cuenta
+          </Title>
+          <Text type="secondary" style={{ fontSize: isMobile ? 14 : 16 }}>
+            Unite para disfrutar de ofertas exclusivas
+          </Text>
+        </div>
 
-    return (
-        <Box sx={styles.container}>
-            <Paper component="form" onSubmit={onSubmit} elevation={0} sx={styles.paper}>
-                {/* Header */}
-                <Box sx={{ textAlign: 'center', mb: 2 }}>
-                    <Typography variant="h5" sx={{ fontWeight: 600, color: '#FF6B35', mb: 0.5 }}>
-                        Crear cuenta
-                    </Typography>
-                    <Typography variant="body2" color="text.secondary">
-                        Únete para disfrutar de ofertas exclusivas
-                    </Typography>
-                </Box>
+        {/* Alerts consistentes */}
+        {errores.general && (
+          <Alert
+            message="Error"
+            description={errores.general}
+            type="error"
+            showIcon
+            style={{ 
+              marginBottom: isMobile ? 16 : 24, 
+              borderRadius: '6px',
+              fontSize: isMobile ? 12 : 14
+            }}
+          />
+        )}
+        
+        {mensajeExito && (
+          <Alert
+            message="¡Registro exitoso!"
+            description={mensajeExito}
+            type="success"
+            showIcon
+            style={{ 
+              marginBottom: isMobile ? 16 : 24, 
+              borderRadius: '6px',
+              fontSize: isMobile ? 12 : 14
+            }}
+          />
+        )}
 
-                {/* Alertas */}
-                {errores.general && (
-                    <Alert severity="error" sx={{ borderRadius: 2, bgcolor: 'rgba(244, 67, 54, 0.1)' }}>
-                        {errores.general}
-                    </Alert>
-                )}
-                
-                {mensajeExito && (
-                    <Alert severity="success" sx={{ borderRadius: 2, bgcolor: 'rgba(76, 175, 80, 0.1)' }}>
-                        {mensajeExito}
-                    </Alert>
-                )}
+        {/* Form consistente */}
+        <Form 
+          layout="vertical" 
+          onFinish={onSubmit}
+          style={{ marginTop: isMobile ? 20 : 32 }}
+          size={isMobile ? "middle" : "large"}
+        >
+          {/* Campos Nombre y Apellido en fila */}
+          <div style={{ 
+            display: 'flex', 
+            gap: isMobile ? 8 : 16,
+            flexDirection: isMobile ? 'column' : 'row'
+          }}>
+            <Form.Item 
+              name="nombre" 
+              label={
+                <span style={{ fontSize: isMobile ? 14 : 16 }}>
+                  Nombre
+                </span>
+              }
+              style={{ flex: 1, marginBottom: isMobile ? 16 : 24 }}
+              rules={[
+                { required: true, message: 'Por favor ingresá tu nombre' }
+              ]}
+            >
+              <Input 
+                placeholder="Juan"
+                prefix={<UserOutlined />}
+                value={formulario.nombre}
+                onChange={(e) => onChange({ target: { name: 'nombre', value: e.target.value } })}
+                size={isMobile ? "middle" : "large"}
+                style={{ borderRadius: '6px' }}
+              />
+            </Form.Item>
 
-                {/* Campos Nombre y Apellido */}
-                <Box sx={{ display: 'flex', gap: 2 }}>
-                    {nameFields.map(field => (
-                        <FormField 
-                            key={field.name}
-                            field={field}
-                            formulario={formulario}
-                            errores={errores}
-                            onChange={onChange}
-                        />
-                    ))}
-                </Box>
+            <Form.Item 
+              name="apellido" 
+              label={
+                <span style={{ fontSize: isMobile ? 14 : 16 }}>
+                  Apellido
+                </span>
+              }
+              style={{ flex: 1, marginBottom: isMobile ? 16 : 24 }}
+              rules={[
+                { required: true, message: 'Por favor ingresá tu apellido' }
+              ]}
+            >
+              <Input 
+                placeholder="Pérez"
+                prefix={<UserOutlined />}
+                value={formulario.apellido}
+                onChange={(e) => onChange({ target: { name: 'apellido', value: e.target.value } })}
+                size={isMobile ? "middle" : "large"}
+                style={{ borderRadius: '6px' }}
+              />
+            </Form.Item>
+          </div>
 
-                {/* Campos de ancho completo */}
-                {fullWidthFields.map(field => (
-                    <FormField 
-                        key={field.name}
-                        field={field}
-                        formulario={formulario}
-                        errores={errores}
-                        onChange={onChange}
-                    />
-                ))}
+          {/* Email */}
+          <Form.Item 
+            name="email" 
+            label={
+              <span style={{ fontSize: isMobile ? 14 : 16 }}>
+                Email
+              </span>
+            }
+            rules={[
+              { required: true, message: 'Por favor ingresá tu email' },
+              { type: 'email', message: 'Ingresá un email válido' }
+            ]}
+          >
+            <Input 
+              placeholder="tu-email@ejemplo.com"
+              prefix={<MailOutlined />}
+              value={formulario.email}
+              onChange={(e) => onChange({ target: { name: 'email', value: e.target.value } })}
+              size={isMobile ? "middle" : "large"}
+              style={{ borderRadius: '6px' }}
+            />
+          </Form.Item>
 
-                {/* Botón de submit */}
-                <Button
-                    fullWidth
-                    variant="contained"
-                    type="submit"
-                    disabled={isLoading}
-                    size="large"
-                    sx={styles.button}
-                >
-                    {isLoading ? <CircularProgress size={24} sx={{ color: 'white' }} /> : 'Crear cuenta'}
-                </Button>
+          {/* Contraseña */}
+          <Form.Item 
+            name="contrasenia" 
+            label={
+              <span style={{ fontSize: isMobile ? 14 : 16 }}>
+                Contraseña
+              </span>
+            }
+            rules={[
+              { required: true, message: 'Por favor ingresá una contraseña' },
+              { min: 8, message: 'La contraseña debe tener al menos 8 caracteres' }
+            ]}
+          >
+            <Input.Password 
+              placeholder="••••••••"
+              prefix={<LockOutlined />}
+              value={formulario.contrasenia}
+              onChange={(e) => onChange({ target: { name: 'contrasenia', value: e.target.value } })}
+              size={isMobile ? "middle" : "large"}
+              style={{ borderRadius: '6px' }}
+            />
+          </Form.Item>
 
-                {/* Link al login */}
-                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1, mt: 2 }}>
-                    <Typography variant="body2" color="text.secondary">
-                        ¿Ya tenés cuenta?
-                    </Typography>
-                    <Typography component="a" href="/login" onClick={handleGoToLogin} variant="body2" sx={styles.link}>
-                        Inicia sesión
-                    </Typography>
-                </Box>
-            </Paper>
-        </Box>
-    );
+          {/* Confirmar Contraseña */}
+          <Form.Item 
+            name="confirmarContrasenia" 
+            label={
+              <span style={{ fontSize: isMobile ? 14 : 16 }}>
+                Confirmar contraseña
+              </span>
+            }
+            dependencies={['contrasenia']}
+            rules={[
+              { required: true, message: 'Por favor confirmá tu contraseña' },
+              ({ getFieldValue }) => ({
+                validator(_, value) {
+                  if (!value || formulario.contrasenia === value) {
+                    return Promise.resolve();
+                  }
+                  return Promise.reject('Las contraseñas no coinciden');
+                },
+              }),
+            ]}
+          >
+            <Input.Password 
+              placeholder="••••••••"
+              prefix={<LockOutlined />}
+              value={formulario.confirmarContrasenia}
+              onChange={(e) => onChange({ target: { name: 'confirmarContrasenia', value: e.target.value } })}
+              size={isMobile ? "middle" : "large"}
+              style={{ borderRadius: '6px' }}
+            />
+          </Form.Item>
+
+          {/* Info de requisitos */}
+          <Alert 
+            message="Requisitos de la contraseña"
+            description="La contraseña debe tener al menos 8 caracteres, una mayúscula, un número y un carácter especial" 
+            type="info" 
+            showIcon 
+            style={{ 
+              marginBottom: isMobile ? 16 : 24,
+              fontSize: isMobile ? 12 : 14,
+              borderRadius: '6px'
+            }}
+          />
+
+          <Button 
+            type="primary" 
+            htmlType="submit" 
+            loading={isLoading}
+            block 
+            size={isMobile ? "middle" : "large"}
+            style={{ 
+              borderRadius: '6px',
+              fontWeight: '500',
+              height: isMobile ? '40px' : '48px',
+              backgroundColor: '#FF6B35',
+              borderColor: '#FF6B35',
+              marginBottom: 16
+            }}
+          >
+            {isLoading ? 'Creando cuenta...' : 'Crear cuenta'}
+          </Button>
+        </Form>
+
+        {/* Link al login consistente */}
+        <div style={{ textAlign: 'center' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
+            <Text type="secondary" style={{ fontSize: isMobile ? 14 : 16 }}>
+              ¿Ya tenés cuenta?
+            </Text>
+            <Button 
+              type="link" 
+              onClick={handleGoToLogin}
+              style={{ color: '#FF6B35', fontSize: isMobile ? 14 : 16, padding: 0 }}
+            >
+              Iniciá sesión
+            </Button>
+          </div>
+        </div>
+      </Card>
+    </div>
+  );
 };
 
 export default RegistroForm;
