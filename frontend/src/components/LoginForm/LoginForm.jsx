@@ -210,8 +210,19 @@ export default function LoginForm({ formulario, errores, isLoading, handleChange
                     </Typography>
                 </Box>
                 <div style={{ textAlign: 'center', marginTop: 16 }}>
-  <Link to="/forgot-password">¿Olvidaste tu contraseña?</Link>
-</div>
+                    <Link 
+                        to="/forgot-password" 
+                        sx={styles.link}
+                        component="button"
+                        onClick={e => {
+                            e.preventDefault();
+                            window.scrollTo({ top: 0, behavior: 'smooth' });
+                            navigate('/forgot-password');
+                        }}
+                    >
+                        ¿Olvidaste tu contraseña?
+                    </Link>
+                </div>
             </Paper>
         </Box>
     );
