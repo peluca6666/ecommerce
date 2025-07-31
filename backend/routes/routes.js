@@ -14,7 +14,9 @@ import {
   verificarCuenta,
   obtenerTodosLosUsuarios,
   cambiarRolUsuario,
-  cambiarEstadoUsuario
+  cambiarEstadoUsuario,
+  solicitarRecuperacion,
+    resetearContrasenia
 } from '../controllers/usuarioController.js';
 
 import {
@@ -85,6 +87,8 @@ router.post('/contacto', manejarFormularioContacto);
 router.post('/register', validarBody(schemaRegistro), registrarUsuario);
 router.post('/login', loginUsuario);
 router.get('/verify', verificarCuenta);
+router.post('/forgot-password', solicitarRecuperacion);
+router.post('/reset-password', resetearContrasenia);
 
 // Perfil
 router.get('/profile', verifyToken, obtenerPerfilUsuario);

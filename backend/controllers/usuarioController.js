@@ -1,5 +1,6 @@
 import { schemaRegistro, schemaLogin, schemaCambioContraseña } from '../validations/authValidation.js';
 import * as usuarioService from '../services/usuarioService.js';
+import { enviarEmailRecuperacion } from '../utils/emailService.js';
 
 export const registrarUsuario = async (req, res) => {
   try {
@@ -178,3 +179,60 @@ export async function cambiarEstadoUsuario(req, res) {
     res.status(500).json({ exito: false, mensaje: error.message });
   }
 }
+
+export const solicitarRecuperacion = async (req, res) => {
+  try {
+    const { email } = req.body;
+    
+    if (!email) {
+      return res.status(400).json({ error: 'El email es requerido' });
+    }
+
+    const usuario = await usuarioService.obtenerUsuarioPorEmail(email);
+    if (!usuario) {
+      return res.json({ mensaje: 'Si el email existe, recibirás un correo con instrucciones' });
+    }
+
+    const resetToken = sign(
+      { usuario_id: usuario.usuario_id },
+      process.env.JWT_SECRET,
+      { expiresIn: '1h' }
+    );
+
+    await enviarEmailRecuperacion(usuario, resetToken);
+    res.json({ mensaje: 'Si el email existe, recibirás un correo con instrucciones' });
+
+  } catch (error) {
+    console.error('Error en solicitarRecuperacion:', error);
+    res.status(500).json({ error: 'Error interno del servidor' });
+  }
+};
+
+export const resetearContrasenia = async (req, res) => {
+  try {
+    const { token, nuevaContrasenia } = req.body;
+
+    if (!token || !nuevaContrasenia) {
+      return res.status(400).json({ error: 'Token y nueva contraseña son requeridos' });
+    }
+
+    if (nuevaContrasenia.length < 6) {
+      return res.status(400).json({ error: 'La contraseña debe tener al menos 6 caracteres' });
+    }
+
+    const resultado = await usuarioService.resetearContraseniaPorToken(token, nuevaContrasenia);
+
+    if (resultado === 'exitoso') {
+      return res.json({ mensaje: 'Contraseña reseteada exitosamente' });
+    }
+    if (resultado === 'no-encontrado') {
+      return res.status(404).json({ error: 'Usuario no encontrado' });
+    }
+
+    return res.status(400).json({ error: 'Token inválido o expirado' });
+
+  } catch (error) {
+    console.error('Error en resetearContrasenia:', error);
+    return res.status(500).json({ error: 'Error interno del servidor' });
+  }
+};

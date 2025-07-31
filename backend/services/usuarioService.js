@@ -246,3 +246,24 @@ export async function cambiarEstadoUsuario(usuarioId) {
   const [result] = await pool.query(query, [usuarioId]);
   return result.affectedRows > 0;
 }
+
+/**
+ * Resetear contraseña con token
+ * @param {string} token Token JWT
+ * @param {string} nuevaContrasenia Nueva contraseña
+ * @returns {string} 'exitoso', 'no-encontrado' o 'token-invalido'
+ */
+export async function resetearContraseniaPorToken(token, nuevaContrasenia) {
+  try {
+    const payload = verify(token, process.env.JWT_SECRET);
+    const nuevoHash = await encriptarContrasenia(nuevaContrasenia);
+    
+    const sql = 'UPDATE usuario SET contrasenia = ? WHERE usuario_id = ?';
+    const [resultado] = await pool.execute(sql, [nuevoHash, payload.usuario_id]);
+
+    return resultado.affectedRows > 0 ? 'exitoso' : 'no-encontrado';
+  } catch (err) {
+    console.error('Error al resetear contraseña:', err);
+    return 'token-invalido';
+  }
+}
