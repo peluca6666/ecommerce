@@ -12,7 +12,7 @@ const styles = {
         alignItems: 'center',
         minHeight: '100vh',
         width: '100vw',
-        background: 'linear-gradient(135deg, #FFF5EE 0%, #FFE4E1 100%)',
+        background: 'f5f5f5',
         px: 2,
         py: 4,
         ml: -2,
