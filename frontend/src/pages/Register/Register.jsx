@@ -36,7 +36,9 @@ export default function Register() {
 
   // envía el formulario, valida y llama al backend
   const handleSubmit = async (e) => {
-    e.preventDefault();
+    if (e && typeof e.preventDefault === 'function') {
+      e.preventDefault();
+    }
 
     const nuevosErrores = {};
     

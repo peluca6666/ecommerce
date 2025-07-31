@@ -33,7 +33,9 @@ const Login = () => {
 
   // valida los datos y si todo está ok, manda la solicitud de login
   const handleSubmit = async (e) => {
-    e.preventDefault();
+    if (e && typeof e.preventDefault === 'function') {
+      e.preventDefault();
+    }
     setIsLoading(true);
     setErrores({});
 
