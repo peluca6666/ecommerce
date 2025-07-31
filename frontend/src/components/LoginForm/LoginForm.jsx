@@ -11,14 +11,12 @@ const LoginForm = ({ formulario, errores, isLoading, handleChange, handleSubmit 
   const { registrationSuccess } = location.state || {};
   const isMobile = window.innerWidth < 768;
 
-  const handleGoToRegister = (e) => {
-    e.preventDefault();
+  const handleGoToRegister = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
     setTimeout(() => navigate('/register'), 300);
   };
 
-  const handleForgotPassword = (e) => {
-    e.preventDefault();
+  const handleForgotPassword = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
     navigate('/forgot-password');
   };

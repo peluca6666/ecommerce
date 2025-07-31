@@ -8,8 +8,7 @@ const RegistroForm = ({ formulario, errores, isLoading, onChange, onSubmit, mens
   const navigate = useNavigate();
   const isMobile = window.innerWidth < 768;
 
-  const handleGoToLogin = (e) => {
-    e.preventDefault();
+  const handleGoToLogin = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
     setTimeout(() => navigate('/login'), 300);
   };
@@ -255,7 +254,7 @@ const RegistroForm = ({ formulario, errores, isLoading, onChange, onSubmit, mens
             </Text>
             <Button 
               type="link" 
-              onClick={handleGoToLogin}
+              onClick={() => handleGoToLogin()}
               style={{ color: '#FF6B35', fontSize: isMobile ? 14 : 16, padding: 0 }}
             >
               Iniciá sesión
