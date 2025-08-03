@@ -36,7 +36,7 @@ export default function AdminSalesPage() {
   const apiCall = async (endpoint, options = {}) => {
     const token = localStorage.getItem('token');
     const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}${endpoint}`, {
-      headers: { Authorization: `Bearer ${token}`, ...options.headers },
+      headers: { ...options.headers, Authorization: `Bearer ${token}` },
       ...options
     });
     if (!response.ok) {
