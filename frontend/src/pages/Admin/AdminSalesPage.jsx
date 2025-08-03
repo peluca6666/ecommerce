@@ -34,11 +34,14 @@ export default function AdminSalesPage() {
   const [confirmDialog, setConfirmDialog] = useState({ open: false, message: '', action: null });
 
   const apiCall = async (endpoint, options = {}) => {
-    const token = localStorage.getItem('token');
-    const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}${endpoint}`, {
-      headers: { ...options.headers, Authorization: `Bearer ${token}` },
-      ...options
-    });
+  const token = localStorage.getItem('token');
+  const headers = { ...options.headers, Authorization: `Bearer ${token}` };
+  console.log('🚀 DEBUG apiCall:', { endpoint, headers, token: !!token });
+  
+  const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}${endpoint}`, {
+    headers,
+    ...options
+  });
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
       throw new Error(errorData.mensaje || 'Error en la solicitud');
