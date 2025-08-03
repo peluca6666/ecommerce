@@ -33,22 +33,21 @@ export default function AdminSalesPage() {
   const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' });
   const [confirmDialog, setConfirmDialog] = useState({ open: false, message: '', action: null });
 
-  
   const apiCall = async (endpoint, options = {}) => {
-    const token = localStorage.getItem('token');
-    const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}${endpoint}`, {
-      ...options,
-      headers: { 
-        ...options.headers, 
-        Authorization: `Bearer ${token}` 
-      }
-    });
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      throw new Error(errorData.mensaje || 'Error en la solicitud');
+  const token = localStorage.getItem('token');
+  const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}${endpoint}`, {
+    ...options,
+    headers: { 
+      ...options.headers, 
+      Authorization: `Bearer ${token}` 
     }
-    return response.json();
-  };
+  });
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}));
+    throw new Error(errorData.mensaje || 'Error en la solicitud');
+  }
+  return response.json();
+};
 
   const showSnackbar = (message, severity = 'success') => 
     setSnackbar({ open: true, message, severity });

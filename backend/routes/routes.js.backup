@@ -1,6 +1,6 @@
 import express from 'express';
 
-import { verifyToken, autorizarPorRol } from '/var/www/ecommerce/backend/middleware/auth.js';
+import { verifyToken, autorizarPorRol } from '../middleware/auth.js';
 import { schemaRegistro, schemaLogin } from '../validations/authValidation.js';
 import { validarBody } from '../middleware/validar.js';
 
@@ -14,9 +14,7 @@ import {
   verificarCuenta,
   obtenerTodosLosUsuarios,
   cambiarRolUsuario,
-  cambiarEstadoUsuario,
-  solicitarRecuperacion,
-    resetearContrasenia
+  cambiarEstadoUsuario
 } from '../controllers/usuarioController.js';
 
 import {
@@ -87,8 +85,6 @@ router.post('/contacto', manejarFormularioContacto);
 router.post('/register', validarBody(schemaRegistro), registrarUsuario);
 router.post('/login', loginUsuario);
 router.get('/verify', verificarCuenta);
-router.post('/forgot-password', solicitarRecuperacion);
-router.post('/reset-password', resetearContrasenia);
 
 // Perfil
 router.get('/profile', verifyToken, obtenerPerfilUsuario);
