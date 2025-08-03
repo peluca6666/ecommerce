@@ -1,6 +1,6 @@
 import express from 'express';
 
-import { verifyToken, autorizarPorRol } from '../middleware/auth.js';
+import { verifyToken, autorizarPorRol } from '/var/www/ecommerce/backend/middleware/auth.js';
 import { schemaRegistro, schemaLogin } from '../validations/authValidation.js';
 import { validarBody } from '../middleware/validar.js';
 
