@@ -10,7 +10,7 @@ export function generarToken(datos, expiracion = '5d') {
 export function verificarToken(token) {
   try {
     return jwt.verify(token, SECRET); // verifica y decodifica el token
-  } catch (err) {
+  } catch (err) {gi
     return null; // token inválido o expirado
   }
 }

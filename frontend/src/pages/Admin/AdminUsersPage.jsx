@@ -25,10 +25,14 @@ export default function AdminUsersPage() {
   const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' });
   const [confirm, setConfirm] = useState({ open: false, message: '', action: null });
 
-  const apiCall = async (endpoint, options = {}) => {
+ const apiCall = async (endpoint, options = {}) => {
     const token = localStorage.getItem('token');
     const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/admin/usuarios${endpoint}`, {
-      headers: { 'Authorization': `Bearer ${token}`, ...options.headers }, ...options
+      ...options,
+      headers: { 
+        ...options.headers, 
+        Authorization: `Bearer ${token}` 
+      }
     });
     if (!response.ok) throw new Error(`Error ${response.status}`);
     return response.json();

@@ -6,7 +6,10 @@ import routes from '../routes/routes.js';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
-
+ 
+console.log('🔍 JWT_SECRET cargado:', !!process.env.JWT_SECRET);
+console.log('🔍 JWT_SECRET length:', process.env.JWT_SECRET?.length);
+console.log('🔍 Primeros 10 caracteres:', process.env.JWT_SECRET?.substring(0, 10));
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);

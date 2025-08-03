@@ -1,16 +1,18 @@
 import * as ventaService from '../services/ventaService.js';
 import * as carritoService from '../services/carritoService.js';
 
-// Crea una nueva venta a partir del carrito del usuario
+// crea venta y vacia carrito en una transaccion logica
 export const crearVenta = async (req, res) => {
   try {
     const usuarioId = req.usuario.id;
     const { productos, metodo_pago, direccion_envio } = req.body;
 
+    // validacion de estructura de datos antes de procesar
     if (!productos || !Array.isArray(productos) || productos.length === 0) {
       return res.status(400).json({ exito: false, mensaje: 'El campo "productos" debe ser un arreglo no vacío.' });
     }
 
+    // proceso de checkout: crear venta + limpiar carrito
     const nuevaVenta = await ventaService.crearNuevaVenta(usuarioId, productos, metodo_pago, direccion_envio);
     await carritoService.eliminarCarritoPorUsuarioId(usuarioId);
     res.status(201).json({ exito: true, mensaje: 'Venta creada exitosamente', venta: nuevaVenta });
@@ -20,10 +22,11 @@ export const crearVenta = async (req, res) => {
   }
 };
 
-// Devuelve el historial de compras del usuario logueado
+// historial personal del usuario autenticado
 export const obtenerHistorialCompras = async (req, res) => {
   try {
     const usuarioId = req.usuario.id;
+    // solo obtiene compras del usuario logueado por seguridad
     const historial = await ventaService.obtenerHistorialDeVentas(usuarioId);
     res.status(200).json({ exito: true, datos: historial });
   } catch (error) {
@@ -32,7 +35,7 @@ export const obtenerHistorialCompras = async (req, res) => {
   }
 };
 
-// Devuelve todas las ventas del sistema (admin)
+// vista global de todas las ventas para administradores
 export const listarTodasLasVentas = async (req, res) => {
   try {
     const ventas = await ventaService.obtenerTodasLasVentas();
@@ -43,10 +46,11 @@ export const listarTodasLasVentas = async (req, res) => {
   }
 };
 
-// Devuelve el detalle completo de una venta (admin)
+// detalle completo de venta para administradores
 export const obtenerDetalleVenta = async (req, res) => {
   try {
     const { id } = req.params;
+    // version admin incluye toda la info sensible y de gestion
     const detalle = await ventaService.obtenerDetalleDeVentaParaAdmin(parseInt(id));
 
     if (!detalle) {
@@ -60,12 +64,13 @@ export const obtenerDetalleVenta = async (req, res) => {
   }
 };
 
-// Devuelve el detalle de una venta pero solo si le pertenece al usuario
+// detalle de venta con verificacion de propiedad del usuario
 export const obtenerDetalleVentaUsuario = async (req, res) => {
   try {
     const usuarioId = req.usuario.id;
     const { id: ventaId } = req.params;
 
+    // verifica que la venta pertenezca al usuario autenticado
     const venta = await ventaService.obtenerDetalleDeVentaParaCliente(parseInt(ventaId), usuarioId);
 
     if (!venta) {
@@ -79,7 +84,7 @@ export const obtenerDetalleVentaUsuario = async (req, res) => {
   }
 };
 
-// Actualiza el estado de una venta (admin)
+// cambio de estado de venta para workflow de fulfillment
 export async function actualizarEstadoVenta(req, res) {
   try {
     const { id } = req.params;
@@ -89,6 +94,7 @@ export async function actualizarEstadoVenta(req, res) {
       return res.status(400).json({ exito: false, mensaje: 'El nuevo estado es requerido' });
     }
 
+    // estados tipicos: pendiente, procesando, enviado, entregado, cancelado
     const resultado = await ventaService.actualizarEstadoVenta(id, estado);
     if (!resultado) {
       return res.status(404).json({ exito: false, mensaje: 'Venta no encontrada' });
@@ -99,10 +105,11 @@ export async function actualizarEstadoVenta(req, res) {
   }
 }
 
-// Muestra las ventas realizadas por un usuario específico (admin)
+// vista admin de compras de un usuario especifico
 export async function obtenerVentasPorUsuarioAdmin(req, res) {
   try {
     const { id } = req.params;
+    // para analisis de clientes, historial de compras, soporte
     const ventas = await ventaService.obtenerVentasDeUsuarioPorAdmin(id);
     res.json({ exito: true, datos: ventas });
   } catch (error) {

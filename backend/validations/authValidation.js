@@ -36,9 +36,18 @@ export const schemaRegistro = Joi.object({
       'string.max': 'El apellido no puede exceder los 30 caracteres',
       'string.pattern.base': 'El apellido no puede contener números ni caracteres especiales',
     }),
+
+  // confirmación de contraseña para mantener consistencia con frontend
+  confirmarContrasenia: Joi.string()
+    .valid(Joi.ref('contrasenia'))
+    .required()
+    .messages({
+      'any.only': 'Las contraseñas no coinciden',
+      'any.required': 'La confirmación de contraseña es obligatoria',
+    }),
 });
 
-// Validación para cambio de contraseña
+
 export const schemaCambioContraseña = Joi.object({
   contraseniaActual: Joi.string().required().messages({
     'any.required': 'La contraseña actual es obligatoria.',
@@ -46,11 +55,12 @@ export const schemaCambioContraseña = Joi.object({
   }),
   nuevaContrasenia: Joi.string()
     .min(8)
-    .pattern(/^(?=.*[A-Z])(?=.*[@$!%*?&]).{8,}$/)
+    
+    .pattern(/^(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$/)
     .required()
     .messages({
       'string.min': 'La nueva contraseña debe tener al menos 8 caracteres.',
-      'string.pattern.base': 'La nueva contraseña debe contener al menos una mayúscula y un caracter especial (@$!%*?&).',
+      'string.pattern.base': 'Debe incluir en la contraseña una mayúscula, un número y un carácter especial.',
       'any.required': 'La nueva contraseña es obligatoria.',
       'string.empty': 'La nueva contraseña no puede estar vacía.',
     }),

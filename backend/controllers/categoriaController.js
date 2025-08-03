@@ -1,12 +1,13 @@
 import * as categoriaService from '../services/categoriaService.js';
 
+// helpers para reutilizar codigo y mantener consistencia
 const isValidId = (id) => id && !isNaN(parseInt(id));
 const buildErrorResponse = (res, status, message) => res.status(status).json({ exito: false, mensaje: message });
 
 // Controladores para el sitio público (tienda)
-
 export async function obtenerCategorias(req, res) {
   try {
+    // solo categorias activas para usuarios publicos
     const categorias = await categoriaService.obtenerCategorias(true);
     return res.status(200).json({ exito: true, datos: categorias });
   } catch (error) {
@@ -17,6 +18,7 @@ export async function obtenerCategorias(req, res) {
 
 export async function obtenerCategoriasConConteo(req, res) {
   try {
+    // incluye cantidad de productos por categoria para mostrar en filtros
     const categorias = await categoriaService.obtenerCategoriasConConteo();
     return res.status(200).json({ exito: true, datos: categorias });
   } catch (error) {
@@ -30,11 +32,12 @@ export async function obtenerProductosPorCategoria(req, res) {
     const { id } = req.params;
     if (!isValidId(id)) return buildErrorResponse(res, 400, 'ID de categoría inválido');
 
+    // req.query contiene parametros de paginacion y filtros
     const resultado = await categoriaService.obtenerProductosPorCategoria(parseInt(id), req.query);
 
     const { nombre_categoria, productos, paginacion } = resultado;
 
-    // Respondemos con los productos y los datos de paginación
+    // calculamos datos de paginacion para el frontend
     return res.status(200).json({
       exito: true,
       categoria: nombre_categoria,
@@ -49,14 +52,15 @@ export async function obtenerProductosPorCategoria(req, res) {
     });
   } catch (error) {
     console.error('Error al obtener productos por categoría:', error);
+    // propagamos errores especificos del service
     return buildErrorResponse(res, error.statusCode || 500, error.message || 'Error interno del servidor');
   }
 }
 
 // Controladores para el panel de administración
-
 export async function obtenerTodasCategoriasAdmin(req, res) {
   try {
+    // admin ve todas las categorias (activas e inactivas)
     const categorias = await categoriaService.obtenerTodasCategoriasAdmin();
     res.json({ exito: true, datos: categorias });
   } catch (error) {
@@ -67,6 +71,7 @@ export async function obtenerTodasCategoriasAdmin(req, res) {
 
 export async function crearCategoria(req, res) {
   try {
+    // req.file viene del middleware multer para imagen de categoria
     const nuevaCategoria = await categoriaService.crearCategoria(req.body, req.file);
     return res.status(201).json({
       exito: true,
@@ -75,6 +80,7 @@ export async function crearCategoria(req, res) {
     });
   } catch (error) {
     console.error('Error al crear categoría:', error);
+    // usamos statusCode personalizado del service para errores de validacion
     return buildErrorResponse(res, error.statusCode || 500, error.message || 'Error interno del servidor');
   }
 }
@@ -85,6 +91,7 @@ export async function actualizarCategoria(req, res) {
     if (!isValidId(id)) return buildErrorResponse(res, 400, 'ID de categoría inválido');
 
     const categoriaActualizada = await categoriaService.actualizarCategoria(id, req.body, req.file);
+    // verificamos que la categoria exista antes de responder
     if (!categoriaActualizada) return buildErrorResponse(res, 404, 'Categoría no encontrada');
 
     return res.status(200).json({
@@ -116,6 +123,7 @@ export async function obtenerCategoriaPorId(req, res) {
 export async function cambiarEstadoCategoria(req, res) {
   try {
     const { id } = req.params;
+    // toggle activo/inactivo sin eliminar datos
     const resultado = await categoriaService.cambiarEstadoCategoria(parseInt(id));
 
     if (!resultado) return buildErrorResponse(res, 404, 'Categoría no encontrada');

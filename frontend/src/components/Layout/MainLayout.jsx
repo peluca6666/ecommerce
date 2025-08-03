@@ -1,8 +1,8 @@
 import { Outlet, useLocation } from 'react-router-dom';
 import Header from '../Header/Header'; 
 import Footer from '../Footer/Footer'; 
-import { Container, Box } from '@mui/material';
-import WhatsAppFloat from '../Common/WhatsAppFloat';
+import { Box } from '@mui/material';
+import WhatsAppFloat from '../Common/WhatsAppFloat.jsx';
 
 const MainLayout = () => {
   const location = useLocation();

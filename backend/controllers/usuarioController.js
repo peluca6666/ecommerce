@@ -6,12 +6,14 @@ const { sign } = pkg;
 
 export const registrarUsuario = async (req, res) => {
   try {
+    // validacion con joi antes de procesar datos
     const { error, value } = schemaRegistro.validate(req.body, { abortEarly: false });
     if (error) {
       const errores = error.details.map(e => e.message);
       return res.status(400).json({ errores });
     }
 
+    // verificamos que el email no este ya registrado
     const usuarioExistente = await usuarioService.obtenerUsuarioPorEmail(value.email);
     if (usuarioExistente) {
       return res.status(400).json({ error: 'El email ya está registrado' });
@@ -37,6 +39,7 @@ export const loginUsuario = async (req, res) => {
     const { email, contrasenia } = value;
     const resultado = await usuarioService.loginUsuario(email, contrasenia);
 
+    // manejo de diferentes estados de cuenta
     if (resultado === 'no-verificado') {
       return res.status(403).json({ error: 'La cuenta aún no fue verificada. Revisá tu correo.' });
     }
@@ -44,7 +47,7 @@ export const loginUsuario = async (req, res) => {
       return res.status(401).json({ error: 'Email o contraseña incorrectos' });
     }
 
-    // Obtenemos el rol consultando al usuario de nuevo
+    // obtenemos rol para enviar al frontend y manejar permisos
     const usuario = await usuarioService.obtenerUsuarioPorEmail(email);
     return res.json({ token: resultado, rol: usuario.rol });
 
@@ -56,6 +59,7 @@ export const loginUsuario = async (req, res) => {
 
 export const obtenerPerfilUsuario = async (req, res) => {
   try {
+    // req.usuario viene del middleware de autenticacion JWT
     const usuarioId = req.usuario.id;
     const usuario = await usuarioService.obtenerUsuarioPorId(usuarioId);
     if (!usuario) {
@@ -82,6 +86,7 @@ export const actualizarPerfilUsuario = async (req, res) => {
     });
   } catch (error) {
     console.error("Error al actualizar perfil:", error);
+    // propagamos statusCode del service para errores especificos
     res.status(error.statusCode || 500).json({
       exito: false,
       mensaje: error.message || 'Error interno del servidor'
@@ -93,7 +98,7 @@ export const cambiarContraseñaUsuario = async (req, res) => {
   try {
     const { error, value } = schemaCambioContraseña.validate(req.body);
     if (error) {
-      // Mostramos solo el primer mensaje de error para simplificar
+      // mostramos solo primer error para no abrumar al usuario
       return res.status(400).json({ exito: false, mensaje: error.details[0].message });
     }
 
@@ -119,6 +124,7 @@ export const verificarCuenta = async (req, res) => {
   }
 
   try {
+    // verificacion de cuenta por email con token temporal
     const resultado = await usuarioService.verificarCuentaPorToken(token);
 
     if (resultado === 'exitoso') {
@@ -128,7 +134,7 @@ export const verificarCuenta = async (req, res) => {
       return res.status(404).json({ error: 'Usuario no encontrado' });
     }
 
-    // Si el token es inválido o vencido
+    // token invalido o expirado
     return res.status(400).json({ error: 'Token inválido o expirado' });
 
   } catch (error) {
@@ -139,7 +145,8 @@ export const verificarCuenta = async (req, res) => {
 
 export async function obtenerTodosLosUsuarios(req, res) {
   try {
-     const incluirInactivos = req.query.incluir_inactivos !== 'false'; 
+    // por defecto incluye inactivos, solo excluye si se especifica false
+    const incluirInactivos = req.query.incluir_inactivos !== 'false'; 
     const usuarios = await usuarioService.obtenerTodosLosUsuarios(incluirInactivos);
     res.json({ exito: true, datos: usuarios });
   } catch (error) {
@@ -153,6 +160,7 @@ export async function cambiarRolUsuario(req, res) {
     const { id } = req.params;
     const { rol } = req.body;
 
+    // whitelist de roles validos para seguridad
     if (!rol || (rol !== 'cliente' && rol !== 'admin')) {
       return res.status(400).json({ exito: false, mensaje: 'Rol no válido' });
     }
@@ -171,6 +179,7 @@ export async function cambiarRolUsuario(req, res) {
 export async function cambiarEstadoUsuario(req, res) {
   try {
     const { id } = req.params;
+    // toggle activo/inactivo para suspender cuentas sin eliminar datos
     const resultado = await usuarioService.cambiarEstadoUsuario(id);
     if (!resultado) {
       return res.status(404).json({ exito: false, mensaje: 'Usuario no encontrado' });
@@ -192,9 +201,11 @@ export const solicitarRecuperacion = async (req, res) => {
 
     const usuario = await usuarioService.obtenerUsuarioPorEmail(email);
     if (!usuario) {
+      // respuesta generica para evitar ataques de enumeracion de emails
       return res.json({ mensaje: 'Si el email existe, recibirás un correo con instrucciones' });
     }
 
+    // generamos token temporal para reset de contraseña (1 hora)
     const resetToken = sign(
       { usuario_id: usuario.usuario_id },
       process.env.JWT_SECRET,
@@ -218,6 +229,7 @@ export const resetearContrasenia = async (req, res) => {
       return res.status(400).json({ error: 'Token y nueva contraseña son requeridos' });
     }
 
+    // validacion basica de contraseña - mas validaciones en el service
     if (nuevaContrasenia.length < 6) {
       return res.status(400).json({ error: 'La contraseña debe tener al menos 6 caracteres' });
     }

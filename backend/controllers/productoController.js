@@ -2,7 +2,8 @@ import * as productoService from '../services/productoService.js';
 
 export async function obtenerProductos(req, res) {
   try {
-    // Le pasamos directamente los filtros de la query al servicio
+    // req.query contiene filtros como categoria, precio_min, precio_max, ordenar_por, etc
+    // delegamos todo el procesamiento de filtros y paginacion al service
     const resultado = await productoService.obtenerProductos(req.query);
     const { productos, paginacion } = resultado;
 
@@ -10,6 +11,7 @@ export async function obtenerProductos(req, res) {
       exito: true,
       mensaje: 'Productos obtenidos exitosamente',
       datos: productos,
+      // calculamos metadatos de paginacion para que el frontend pueda construir navegacion
       paginacion: {
         total_items: paginacion.total,
         total_paginas: Math.ceil(paginacion.total / paginacion.limite),
@@ -25,7 +27,8 @@ export async function obtenerProductos(req, res) {
 
 export async function agregarProducto(req, res) {
   try {
-    // Enviamos los datos del form + archivos al servicio
+    // req.files viene del middleware multer para multiples imagenes del producto
+    // separamos form data (req.body) de archivos (req.files) para claridad
     const nuevoProducto = await productoService.agregarProducto(req.body, req.files);
 
     return res.status(201).json({
@@ -35,6 +38,7 @@ export async function agregarProducto(req, res) {
     });
   } catch (error) {
     console.error("Error en agregarProducto Controller:", error);
+    // propagamos statusCode personalizado del service para errores de validacion
     return res.status(error.statusCode || 500).json({
       exito: false,
       mensaje: error.message || 'Error interno del servidor'
@@ -47,9 +51,10 @@ export async function actualizarProducto(req, res) {
   try {
     const { id } = req.params;
 
-    // Pasamos ID, body y archivos al servicio para actualizar
+    // actualizacion puede incluir nuevas imagenes (req.files) o solo datos (req.body)
     const productoActualizado = await productoService.actualizarProducto(id, req.body, req.files);
 
+    // el service devuelve null si no encuentra el producto
     if (!productoActualizado) {
       console.error('[CONTROLLER] El servicio no devolvió un producto actualizado (posible 404).');
       return res.status(404).json({ exito: false, mensaje: 'Producto no encontrado' });
@@ -71,10 +76,12 @@ export async function actualizarProducto(req, res) {
 export async function eliminarProducto(req, res) {
   try {
     const { id } = req.params;
+    // validacion explicita de ID antes de procesar
     if (isNaN(parseInt(id))) {
       return res.status(400).json({ exito: false, mensaje: 'ID de producto inválido' });
     }
 
+    // eliminacion logica - producto se marca como inactivo, no se borra fisicamente
     await productoService.eliminarProducto(parseInt(id));
     return res.status(200).json({ exito: true, mensaje: 'Producto eliminado correctamente' });
   } catch (error) {
@@ -88,6 +95,7 @@ export async function eliminarProducto(req, res) {
 
 export async function obtenerProductosEnOferta(req, res) {
   try {
+    // endpoint especifico para mostrar productos con descuentos en homepage
     const productos = await productoService.obtenerProductosEnOferta();
     return res.status(200).json({
       exito: true,
@@ -107,6 +115,7 @@ export async function obtenerProductoPorId(req, res) {
       return res.status(400).json({ exito: false, mensaje: 'ID de producto inválido' });
     }
 
+    // usado para pagina de detalle del producto - incluye toda la info completa
     const producto = await productoService.obtenerProductoPorId(parseInt(id));
 
     if (!producto) {
@@ -121,10 +130,11 @@ export async function obtenerProductoPorId(req, res) {
   }
 }
 
-// Activar o desactivar un producto
+// funcionalidad admin para activar/desactivar productos sin eliminarlos
 export async function toggleActivoProducto(req, res) {
   try {
     const { id } = req.params;
+    // soft delete - cambia estado activo/inactivo preservando datos
     const resultado = await productoService.toggleActivoProducto(id);
 
     if (!resultado) {

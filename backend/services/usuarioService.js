@@ -73,7 +73,7 @@ export async function loginUsuario(email, contrasenia) {
     rol: usuario.rol
   };
 
-  return sign(payload, process.env.JWT_SECRET || "claveSecreta", { expiresIn: "1h" });
+  return sign(payload, process.env.JWT_SECRET, { expiresIn: "5d" });
 }
 
 /**
@@ -83,7 +83,7 @@ export async function loginUsuario(email, contrasenia) {
  */
 export async function verificarCuentaPorToken(token) {
   try {
-    const payload = verify(token, process.env.JWT_SECRET || 'claveSecreta');
+    const payload = verify(token, process.env.JWT_SECRET);
     const sql = 'UPDATE usuario SET verificado = TRUE WHERE usuario_id = ?';
     const [resultado] = await pool.execute(sql, [payload.usuario_id]);
 

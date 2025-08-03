@@ -42,6 +42,7 @@ export const obtenerBannerPorId = async (req, res) => {
     const { id } = req.params;
     const banner = await BannerService.obtenerBannerPorId(id);
     
+    // verificamos si existe antes de devolver
     if (!banner) {
       return res.status(404).json({
         exito: false,
@@ -66,6 +67,7 @@ export const obtenerBannerPorId = async (req, res) => {
 // POST - Crear nuevo banner
 export const crearBanner = async (req, res) => {
   try {
+    // req.file viene del middleware de multer para subir imagenes
     const newBanner = await BannerService.crearBanner(req.body, req.file);
 
     res.status(201).json({
@@ -76,7 +78,7 @@ export const crearBanner = async (req, res) => {
   } catch (error) {
     console.error('Error al crear banner:', error);
     
-    // Manejar errores de validación específicos
+    // capturamos errores de validacion especificos del servicio
     if (error.message === 'La imagen es obligatoria' || error.message === 'El título es obligatorio') {
       return res.status(400).json({
         exito: false,
@@ -106,7 +108,7 @@ export const actualizarBanner = async (req, res) => {
   } catch (error) {
     console.error('Error al actualizar banner:', error);
     
-    // Manejar errores específicos
+    // manejo de errores con status codes especificos segun el problema
     if (error.message === 'Banner no encontrado') {
       return res.status(404).json({
         exito: false,
@@ -161,6 +163,7 @@ export const eliminarBanner = async (req, res) => {
 export const toggleActivoBanner = async (req, res) => {
   try {
     const { id } = req.params;
+    // el servicio nos devuelve el banner y su nuevo estado
     const resultado = await BannerService.toggleActivoBanner(id);
 
     res.json({

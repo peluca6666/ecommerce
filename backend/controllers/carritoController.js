@@ -2,6 +2,7 @@ import * as carritoService from '../services/carritoService.js';
 
 export async function obtenerCarrito(req, res) {
   try {
+    // req.usuario viene del middleware de autenticacion
     const usuarioId = req.usuario.id;
     const carrito = await carritoService.obtenerCarrito(usuarioId);
     return res.status(200).json({ exito: true, ...carrito });
@@ -16,11 +17,12 @@ export async function agregarProductoAlCarrito(req, res) {
     const usuarioId = req.usuario.id;
     const { producto_id, cantidad = 1 } = req.body;
 
-    // Validamos que los datos vengan bien
+    // validacion basica antes de mandar al servicio
     if (!producto_id || cantidad <= 0) {
       return res.status(400).json({ exito: false, mensaje: 'Datos de producto inválidos' });
     }
 
+    // parseamos a int para evitar problemas con strings
     const resultado = await carritoService.agregarProductoAlCarrito(
       usuarioId,
       parseInt(producto_id),
@@ -31,6 +33,7 @@ export async function agregarProductoAlCarrito(req, res) {
 
   } catch (error) {
     console.error('Error en controlador agregarProductoAlCarrito:', error);
+    // usamos el statusCode que viene del servicio si existe
     return res.status(error.statusCode || 500).json({
       exito: false,
       mensaje: error.message || 'Error interno del servidor'
@@ -46,7 +49,7 @@ export async function actualizarProductoEnCarrito(req, res) {
 
     const cantidadNum = parseInt(cantidad);
 
-    // Nos fijamos que la cantidad sea válida
+    // cantidad 0 significa eliminar el producto del carrito
     if (!productoId || isNaN(cantidadNum) || cantidadNum < 0) {
       return res.status(400).json({
         exito: false,
@@ -75,7 +78,6 @@ export async function actualizarProductoEnCarrito(req, res) {
   }
 }
 
-// 🔧 FUNCIÓN ARREGLADA
 export async function eliminarProductoDelCarrito(req, res) {
   try {
     const usuarioId = req.usuario.id;
@@ -85,7 +87,6 @@ export async function eliminarProductoDelCarrito(req, res) {
       return res.status(400).json({ exito: false, mensaje: 'Se requiere el ID del producto' });
     }
 
-    // ✅ CAMBIO: Usar vaciarCarrito que sí existe en el service
     const fueEliminado = await carritoService.vaciarCarrito(usuarioId, parseInt(id));
 
     if (fueEliminado) {
