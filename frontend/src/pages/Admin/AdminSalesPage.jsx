@@ -35,19 +35,19 @@ export default function AdminSalesPage() {
 
   const apiCall = async (endpoint, options = {}) => {
   const token = localStorage.getItem('token');
-  const headers = { ...options.headers, Authorization: `Bearer ${token}` };
-  console.log('🚀 DEBUG apiCall:', { endpoint, headers, token: !!token });
-  
   const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}${endpoint}`, {
-    headers,
-    ...options
-  });
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      throw new Error(errorData.mensaje || 'Error en la solicitud');
+    ...options,
+    headers: { 
+      ...options.headers, 
+      Authorization: `Bearer ${token}` 
     }
-    return response.json();
-  };
+  });
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}));
+    throw new Error(errorData.mensaje || 'Error en la solicitud');
+  }
+  return response.json();
+};
 
   const showSnackbar = (message, severity = 'success') => 
     setSnackbar({ open: true, message, severity });
