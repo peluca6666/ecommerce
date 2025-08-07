@@ -1,4 +1,6 @@
 ﻿# 🛒 Proyecto E-commerce
+ 
+https://salomarket.shop/main
 
 Este proyecto es una aplicación completa de comercio electrónico. Cuenta con un **backend en Node.js (Express)** y un **frontend en React (Vite)**. Permite a los usuarios explorar productos, registrarse, iniciar sesión, agregar al carrito y realizar compras.
 
@@ -118,3 +120,4 @@ CONTRASEÑA: 12345678!A
 ## 📫 Autor
 
 Proyecto desarrollado por [peluca6666](https://github.com/peluca6666).
+
