@@ -1,7 +1,7 @@
 import Joi from 'joi';
 
 const schemaLogin = Joi.object({
-  email: Joi.string().email().required().messages({
+ email: Joi.string().email({ tlds: { allow: false } }).required().messages({
     'any.required': 'El email es obligatorio',
     'string.email': 'El email debe ser válido',
   }),

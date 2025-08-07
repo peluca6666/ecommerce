@@ -3,7 +3,7 @@ import Joi from 'joi';
 // Schema de validación para registro de usuario
 // Define reglas de negocio: email válido, contraseña segura, nombres sin números
 const schemaRegistro = Joi.object({
-  email: Joi.string().email().required().messages({
+  email: Joi.string().email({ tlds: { allow: false } }).required().messages({
     'string.email': 'El email debe ser válido',
     'any.required': 'El email es obligatorio',
   }),

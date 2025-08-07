@@ -75,9 +75,12 @@ export default function Register() {
     }
     
     // validación confirmación contraseña
-    if (formulario.contrasenia !== formulario.confirmarContrasenia) {
-      nuevosErrores.confirmarContrasenia = 'las contraseñas no coinciden';
-    }
+    // validación confirmación contraseña
+if (!formulario.confirmarContrasenia) {
+  nuevosErrores.confirmarContrasenia = 'la confirmación de contraseña es obligatoria';
+} else if (formulario.contrasenia !== formulario.confirmarContrasenia) {
+  nuevosErrores.confirmarContrasenia = 'las contraseñas no coinciden';
+}
 
     setErrores(nuevosErrores);
 
@@ -98,7 +101,8 @@ export default function Register() {
           nombre: formulario.nombre,
           apellido: formulario.apellido,
           email: formulario.email,
-          contrasenia: formulario.contrasenia
+          contrasenia: formulario.contrasenia,
+	confirmarContrasenia: formulario.confirmarContrasenia
         });
 
         console.log('respuesta del registro:', response.data);
